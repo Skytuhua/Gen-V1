@@ -1,0 +1,597 @@
+{
+  "schemaVersion": 1,
+  "kind": "M12_CURRENT_MAIN_SOURCE_DRIFT",
+  "disposition": "BLOCKED_SOURCE_DRIFT",
+  "repository": {
+    "worktree": "/workspace/scratch/dbebe44a9817/m12-v3",
+    "branch": "agent/m12-v3",
+    "pullRequestNumber": 355,
+    "targetBranch": "main"
+  },
+  "revisions": {
+    "acceptedBase": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+    "reviewedM12": "d55433f2231597d0efe7515b187e237e11b7ac95",
+    "currentMain": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42"
+  },
+  "acceptedAuditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+  "proofBoundary": {
+    "acceptedEvidenceBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+    "reviewedImplementationSha": "d55433f2231597d0efe7515b187e237e11b7ac95",
+    "newTargetSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+    "acceptedEvidenceRetained": true,
+    "acceptedEvidenceEstablishesNewMainCompatibility": false,
+    "combinedTreeExecutedDuringThisAudit": false,
+    "productionActivationAuthorizedByThisAudit": false,
+    "reason": "The original M12 source contract requires BLOCKED_SOURCE_DRIFT when relevant integration APIs change. The inspected Service/StartRun/custody interfaces have changed relative to the accepted source proof.",
+    "retainedSourceProof": [
+      {
+        "path": "docs/implementation/v3/M12-source-lock.json",
+        "sha256": "943b2c4f69146c0f864760d8557b429721eca28f3019b28666be01f201dd97b7",
+        "executionBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563"
+      },
+      {
+        "path": "docs/implementation/v3/M12-candidate-source-cut.json",
+        "sha256": "8327bd5b99f29a5153504f993cc201e577543dbf43009b41cab2cf2697110384",
+        "executionBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563"
+      }
+    ]
+  },
+  "reportedMergeConflicts": {
+    "source": "Recorded root diagnostic; this artifact writer read the exact log and did not rerun merge-tree.",
+    "paths": [
+      "packages/contracts/index.ts",
+      "packages/core/capability-flags.ts",
+      "packages/core/service.ts",
+      "scripts/public-source-files.json"
+    ],
+    "logPath": "docs/implementation/v3/m12-logs/source-02-current-main-merge-preview.log",
+    "logSha256": "689570899c3ad51934aa1ff9203c8b003790a4e2c978d52592a66879a06309b1",
+    "logBytes": 1058,
+    "recordedHeader": {
+      "argv": [
+        "git",
+        "merge-tree",
+        "--write-tree",
+        "--name-only",
+        "--messages",
+        "d55433f2231597d0efe7515b187e237e11b7ac95",
+        "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "startedAt": "2026-11-15T12:53:34.415133+00:00",
+      "endedAt": "2026-11-15T12:53:34.425631+00:00",
+      "exitCode": 1,
+      "termination": "NONE",
+      "truncated": false
+    },
+    "diagnosticTreeSha1": "7fbcf03cd6c43fbd1d9f9c9a41e09610ac8d3557",
+    "operationSemantics": "git merge-tree --write-tree computes a diagnostic tree and may write unreferenced Git objects. It does not apply a merge or update branch references, the index, or checked-out source. This is not a claim of zero filesystem writes."
+  },
+  "originalNamedIntegrationTargets": [
+    "packages/core/service.ts",
+    "packages/runtime-hermes/worker.py",
+    "packages/runtime-pi/tool-definitions.ts",
+    "packages/runtime-official/mcp.ts",
+    "packages/core/security.ts",
+    "packages/runtime-pi/process-tree.ts"
+  ],
+  "newMainContractAndCustodyPaths": [
+    "packages/contracts/request-context.ts",
+    "packages/core/request-custody.ts",
+    "packages/core/context-compiler.ts",
+    "packages/contracts/agent-work.ts",
+    "packages/core/agent-work.ts"
+  ],
+  "supportingM12Paths": [
+    "packages/contracts/tool-program.ts",
+    "packages/core/tool-disclosure.ts",
+    "packages/runtime-pi/worker.ts",
+    "packages/runtime-official/index.ts"
+  ],
+  "blobIdentitySemantics": "Git SHA-1 blob identities from the exact named commits; null means the path is absent at that commit.",
+  "blobs": [
+    {
+      "path": "packages/core/service.ts",
+      "acceptedBase": "2b3fb63acef915b052a468e104c6e4f00a4b82e4",
+      "reviewedM12": "d77d4d699515465f0b094403de4f3a8447169c59",
+      "currentMain": "00351f5a3a69c3313fd58f75cc38d90938c63cee",
+      "currentMainEqualsAcceptedBase": false
+    },
+    {
+      "path": "packages/runtime-hermes/worker.py",
+      "acceptedBase": "e28c6272f9aab28f76b9462a87768fe4226361c1",
+      "reviewedM12": "e28c6272f9aab28f76b9462a87768fe4226361c1",
+      "currentMain": "e28c6272f9aab28f76b9462a87768fe4226361c1",
+      "currentMainEqualsAcceptedBase": true
+    },
+    {
+      "path": "packages/runtime-pi/tool-definitions.ts",
+      "acceptedBase": "2731bc9797fd40dd010a04099171452c0f993ebc",
+      "reviewedM12": "cc5209c1a44c45dfa4e9395a2cbb31ef06ce6731",
+      "currentMain": "2731bc9797fd40dd010a04099171452c0f993ebc",
+      "currentMainEqualsAcceptedBase": true
+    },
+    {
+      "path": "packages/runtime-official/mcp.ts",
+      "acceptedBase": "791ebf88c58765f9e4625bde6b727019c1b33337",
+      "reviewedM12": "485c68d93385f85e92a94733e5235c8c9b0bdd09",
+      "currentMain": "791ebf88c58765f9e4625bde6b727019c1b33337",
+      "currentMainEqualsAcceptedBase": true
+    },
+    {
+      "path": "packages/core/security.ts",
+      "acceptedBase": "693f251361bc464caee26df795c57002d120c9a7",
+      "reviewedM12": "693f251361bc464caee26df795c57002d120c9a7",
+      "currentMain": "693f251361bc464caee26df795c57002d120c9a7",
+      "currentMainEqualsAcceptedBase": true
+    },
+    {
+      "path": "packages/runtime-pi/process-tree.ts",
+      "acceptedBase": "fb903470a172be1e1995557caa888b4f065e7270",
+      "reviewedM12": "fb903470a172be1e1995557caa888b4f065e7270",
+      "currentMain": "fb903470a172be1e1995557caa888b4f065e7270",
+      "currentMainEqualsAcceptedBase": true
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "acceptedBase": "09517becaf0c35f5f63bd758878659ea0de5f57b",
+      "reviewedM12": "baeae3c0a453f7e9cd5a39ed2abc4d0680cb7b2b",
+      "currentMain": "faa57ba3f2180fe5360f4a50b0c142e57871c91f",
+      "currentMainEqualsAcceptedBase": false
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "acceptedBase": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+      "reviewedM12": "1edfc1de2b68012da568dda8f2c40818641d81eb",
+      "currentMain": "823b9aa9a02499039c69756795144d035c4ce2a6",
+      "currentMainEqualsAcceptedBase": false
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "acceptedBase": "8cb3efe75c120185f957ab3df73255756adcf7b8",
+      "reviewedM12": "5b9124fd049e065e54f2d246b7c1e14894330a37",
+      "currentMain": "7738bed5d6fa1903ce76a86e06f5778af91caeae",
+      "currentMainEqualsAcceptedBase": false
+    },
+    {
+      "path": "packages/contracts/request-context.ts",
+      "acceptedBase": null,
+      "reviewedM12": null,
+      "currentMain": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
+      "currentMainEqualsAcceptedBase": null
+    },
+    {
+      "path": "packages/core/request-custody.ts",
+      "acceptedBase": null,
+      "reviewedM12": null,
+      "currentMain": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
+      "currentMainEqualsAcceptedBase": null
+    },
+    {
+      "path": "packages/core/context-compiler.ts",
+      "acceptedBase": null,
+      "reviewedM12": null,
+      "currentMain": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
+      "currentMainEqualsAcceptedBase": null
+    },
+    {
+      "path": "packages/contracts/agent-work.ts",
+      "acceptedBase": null,
+      "reviewedM12": null,
+      "currentMain": "f7969fc248647c5e0859c2c0811dc8fdd255951b",
+      "currentMainEqualsAcceptedBase": null
+    },
+    {
+      "path": "packages/core/agent-work.ts",
+      "acceptedBase": null,
+      "reviewedM12": null,
+      "currentMain": "2aeaee56468670f39c5fa1a81e6b9e544c60141d",
+      "currentMainEqualsAcceptedBase": null
+    },
+    {
+      "path": "packages/contracts/tool-program.ts",
+      "acceptedBase": null,
+      "reviewedM12": "bfd784a8a9ef80cf0cef89a356808c7bc5c9064e",
+      "currentMain": null,
+      "currentMainEqualsAcceptedBase": null
+    },
+    {
+      "path": "packages/core/tool-disclosure.ts",
+      "acceptedBase": null,
+      "reviewedM12": "5240b066ac0f1bce1bc0d14c3d8b6779494c0eab",
+      "currentMain": null,
+      "currentMainEqualsAcceptedBase": null
+    },
+    {
+      "path": "packages/runtime-pi/worker.ts",
+      "acceptedBase": "36bc8abb120c9e228635ba427544919c96ead4e9",
+      "reviewedM12": "10d62c175ed3aa9c26a0a99268255f2c4f593994",
+      "currentMain": "36bc8abb120c9e228635ba427544919c96ead4e9",
+      "currentMainEqualsAcceptedBase": true
+    },
+    {
+      "path": "packages/runtime-official/index.ts",
+      "acceptedBase": "b8e4b1a5892d60525e51ac86ae28b54c68c16ac0",
+      "reviewedM12": "9888b6e5b60a84af7298a1e1da42d7fa8d50b476",
+      "currentMain": "b8e4b1a5892d60525e51ac86ae28b54c68c16ac0",
+      "currentMainEqualsAcceptedBase": true
+    }
+  ],
+  "findings": [
+    {
+      "id": "SD-01",
+      "boundary": "StartRun and runtime tool metadata",
+      "currentMain": "StartRun adds optional requestContext: RequestContextV1. Main Service constructs its runtime input without programTools.",
+      "reviewedM12": "StartRun adds optional programTools metadata. Service selects it for the main thread and supplies it to runtime adapters. Pi consumes input.programTools; Official forwards snapshot.programTools into createHostTools.",
+      "impact": "The shared interface and Service construction require both extensions to be preserved. Selecting either conflicting declaration wholesale drops the other field. Taking main Service input construction unchanged with the reviewed M12 adapters omits their program metadata.",
+      "locations": [
+        {
+          "revision": "currentMain",
+          "commitSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+          "path": "packages/contracts/index.ts",
+          "blobSha1": "faa57ba3f2180fe5360f4a50b0c142e57871c91f",
+          "lineStart": 34,
+          "lineEnd": 34
+        },
+        {
+          "revision": "reviewedM12",
+          "commitSha": "d55433f2231597d0efe7515b187e237e11b7ac95",
+          "path": "packages/contracts/index.ts",
+          "blobSha1": "baeae3c0a453f7e9cd5a39ed2abc4d0680cb7b2b",
+          "lineStart": 34,
+          "lineEnd": 34
+        },
+        {
+          "revision": "currentMain",
+          "commitSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+          "path": "packages/core/service.ts",
+          "blobSha1": "00351f5a3a69c3313fd58f75cc38d90938c63cee",
+          "lineStart": 985,
+          "lineEnd": 985
+        },
+        {
+          "revision": "reviewedM12",
+          "commitSha": "d55433f2231597d0efe7515b187e237e11b7ac95",
+          "path": "packages/core/service.ts",
+          "blobSha1": "d77d4d699515465f0b094403de4f3a8447169c59",
+          "lineStart": 878,
+          "lineEnd": 882
+        },
+        {
+          "revision": "reviewedM12",
+          "commitSha": "d55433f2231597d0efe7515b187e237e11b7ac95",
+          "path": "packages/runtime-pi/worker.ts",
+          "blobSha1": "10d62c175ed3aa9c26a0a99268255f2c4f593994",
+          "lineStart": 51,
+          "lineEnd": 51
+        },
+        {
+          "revision": "reviewedM12",
+          "commitSha": "d55433f2231597d0efe7515b187e237e11b7ac95",
+          "path": "packages/runtime-official/index.ts",
+          "blobSha1": "9888b6e5b60a84af7298a1e1da42d7fa8d50b476",
+          "lineStart": 104,
+          "lineEnd": 108
+        },
+        {
+          "revision": "reviewedM12",
+          "commitSha": "d55433f2231597d0efe7515b187e237e11b7ac95",
+          "path": "packages/runtime-official/index.ts",
+          "blobSha1": "9888b6e5b60a84af7298a1e1da42d7fa8d50b476",
+          "lineStart": 188,
+          "lineEnd": 188
+        }
+      ]
+    },
+    {
+      "id": "SD-02",
+      "boundary": "Prepared request admission and one-input ownership",
+      "currentMain": "Service adds prepareRequestContext/getRequestPreparation, Outbox.requestContextId, preparation and exact claim checks at message admission and input.processing. With context.compilerV1 enabled, deliverInputs selects eligible.slice(0,1). RequestContextCustody.finalize rejects input.inputIds?.length !== 1.",
+      "reviewedM12": "The reviewed Service batches eligible inputs and has no request-custody prepare/claim lifecycle.",
+      "impact": "M12 admission evidence does not cover the newly introduced custody state machine or its one-input dispatch cadence. Existing batching cannot be passed unchanged through the enabled finalization contract.",
+      "locations": [
+        {
+          "revision": "currentMain",
+          "commitSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+          "path": "packages/core/service.ts",
+          "blobSha1": "00351f5a3a69c3313fd58f75cc38d90938c63cee",
+          "lineStart": 51,
+          "lineEnd": 51
+        },
+        {
+          "revision": "currentMain",
+          "commitSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+          "path": "packages/core/service.ts",
+          "blobSha1": "00351f5a3a69c3313fd58f75cc38d90938c63cee",
+          "lineStart": 352,
+          "lineEnd": 375
+        },
+        {
+          "revision": "currentMain",
+          "commitSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+          "path": "packages/core/service.ts",
+          "blobSha1": "00351f5a3a69c3313fd58f75cc38d90938c63cee",
+          "lineStart": 877,
+          "lineEnd": 889
+        },
+        {
+          "revision": "currentMain",
+          "commitSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+          "path": "packages/core/service.ts",
+          "blobSha1": "00351f5a3a69c3313fd58f75cc38d90938c63cee",
+          "lineStart": 937,
+          "lineEnd": 975
+        },
+        {
+          "revision": "currentMain",
+          "commitSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+          "path": "packages/core/request-custody.ts",
+          "blobSha1": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
+          "lineStart": 162,
+          "lineEnd": 164
+        },
+        {
+          "revision": "reviewedM12",
+          "commitSha": "d55433f2231597d0efe7515b187e237e11b7ac95",
+          "path": "packages/core/service.ts",
+          "blobSha1": "d77d4d699515465f0b094403de4f3a8447169c59",
+          "lineStart": 878,
+          "lineEnd": 882
+        }
+      ]
+    },
+    {
+      "id": "SD-03",
+      "boundary": "Asynchronous custody immediately before Runtime.start/followUp",
+      "currentMain": "Service awaits requestCustody.finalize, calls assertFinalized, rechecks run/account binding, dispatches, and releases custody. Finalization freezes a cloned input, awaits a host hook, validates current ownership/source, records HOST_PREPARED metadata, and checks again after synchronous Store observers.",
+      "reviewedM12": "Service constructs programTools and directly dispatches after its existing run/account assertions, without this custody boundary.",
+      "impact": "Combined tool selection, owner/grant checks and cancellation across the new asynchronous boundary are unverified by the accepted M12 source cut.",
+      "qualification": "The finalizer returns freezeRequestValue({ ...input, prompt, requestContext: receipt }). It preserves supplied input fields by spreading input. This audit does not claim inherent loss of programTools by the finalizer.",
+      "locations": [
+        {
+          "revision": "currentMain",
+          "commitSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+          "path": "packages/core/service.ts",
+          "blobSha1": "00351f5a3a69c3313fd58f75cc38d90938c63cee",
+          "lineStart": 989,
+          "lineEnd": 1001
+        },
+        {
+          "revision": "currentMain",
+          "commitSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+          "path": "packages/core/request-custody.ts",
+          "blobSha1": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
+          "lineStart": 162,
+          "lineEnd": 193
+        },
+        {
+          "revision": "reviewedM12",
+          "commitSha": "d55433f2231597d0efe7515b187e237e11b7ac95",
+          "path": "packages/core/service.ts",
+          "blobSha1": "d77d4d699515465f0b094403de4f3a8447169c59",
+          "lineStart": 878,
+          "lineEnd": 882
+        }
+      ]
+    },
+    {
+      "id": "SD-04",
+      "boundary": "Request metadata identity versus M12 disclosure authority",
+      "currentMain": "RequestContextV1 is explicitly observed metadata, not a grant or native transcript. Its public owner is threadId/workspaceId, with separate model/account binding and contextGeneration. Service requestBasis also validates physical profile/project/workspace identities, current grants, source content and private admission state. Its toolRegistryDigest is digest(buildToolRegistry()).",
+      "reviewedM12": "M12 keeps separate six-field run ownership and selected-definition disclosure commitments. ToolDisclosure.snapshot computes digest(definitions) for the selected complete RegistryEntry definitions.",
+      "impact": "The new M04 request metadata is not an interchangeable replacement for the locally reviewed M12 disclosure/result prerequisite subset. Its registry commitment does not itself prove the exact M12 selected tool set or lifecycle composition.",
+      "locations": [
+        {
+          "revision": "currentMain",
+          "commitSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+          "path": "packages/contracts/request-context.ts",
+          "blobSha1": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
+          "lineStart": 1,
+          "lineEnd": 24
+        },
+        {
+          "revision": "currentMain",
+          "commitSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+          "path": "packages/core/service.ts",
+          "blobSha1": "00351f5a3a69c3313fd58f75cc38d90938c63cee",
+          "lineStart": 115,
+          "lineEnd": 115
+        },
+        {
+          "revision": "currentMain",
+          "commitSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+          "path": "packages/core/service.ts",
+          "blobSha1": "00351f5a3a69c3313fd58f75cc38d90938c63cee",
+          "lineStart": 323,
+          "lineEnd": 348
+        },
+        {
+          "revision": "currentMain",
+          "commitSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+          "path": "packages/core/request-custody.ts",
+          "blobSha1": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
+          "lineStart": 175,
+          "lineEnd": 176
+        },
+        {
+          "revision": "reviewedM12",
+          "commitSha": "d55433f2231597d0efe7515b187e237e11b7ac95",
+          "path": "packages/core/tool-disclosure.ts",
+          "blobSha1": "5240b066ac0f1bce1bc0d14c3d8b6779494c0eab",
+          "lineStart": 89,
+          "lineEnd": 92
+        }
+      ]
+    },
+    {
+      "id": "SD-05",
+      "boundary": "Cancellation, recovery and disposal",
+      "currentMain": "Service releases/clears request claims during resume and recovery, disposes request custody, revokes M09 child work after parent stop, and recovers/disposes agentWork.",
+      "reviewedM12": "Service cancels programHost on run cancellation and settlement, recovers program records independently of flag rollback, and closes programHost during disposal.",
+      "impact": "The two complete Service implementations have distinct lifecycle obligations. Replacing either side wholesale would lose the other side's cleanup or recovery behavior. Their combined ordering has not been tested in this audit.",
+      "locations": [
+        {
+          "revision": "currentMain",
+          "commitSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+          "path": "packages/core/service.ts",
+          "blobSha1": "00351f5a3a69c3313fd58f75cc38d90938c63cee",
+          "lineStart": 633,
+          "lineEnd": 641
+        },
+        {
+          "revision": "currentMain",
+          "commitSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+          "path": "packages/core/service.ts",
+          "blobSha1": "00351f5a3a69c3313fd58f75cc38d90938c63cee",
+          "lineStart": 915,
+          "lineEnd": 915
+        },
+        {
+          "revision": "currentMain",
+          "commitSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+          "path": "packages/core/service.ts",
+          "blobSha1": "00351f5a3a69c3313fd58f75cc38d90938c63cee",
+          "lineStart": 1433,
+          "lineEnd": 1445
+        },
+        {
+          "revision": "reviewedM12",
+          "commitSha": "d55433f2231597d0efe7515b187e237e11b7ac95",
+          "path": "packages/core/service.ts",
+          "blobSha1": "d77d4d699515465f0b094403de4f3a8447169c59",
+          "lineStart": 145,
+          "lineEnd": 145
+        },
+        {
+          "revision": "reviewedM12",
+          "commitSha": "d55433f2231597d0efe7515b187e237e11b7ac95",
+          "path": "packages/core/service.ts",
+          "blobSha1": "d77d4d699515465f0b094403de4f3a8447169c59",
+          "lineStart": 950,
+          "lineEnd": 950
+        },
+        {
+          "revision": "reviewedM12",
+          "commitSha": "d55433f2231597d0efe7515b187e237e11b7ac95",
+          "path": "packages/core/service.ts",
+          "blobSha1": "d77d4d699515465f0b094403de4f3a8447169c59",
+          "lineStart": 1298,
+          "lineEnd": 1298
+        },
+        {
+          "revision": "reviewedM12",
+          "commitSha": "d55433f2231597d0efe7515b187e237e11b7ac95",
+          "path": "packages/core/service.ts",
+          "blobSha1": "d77d4d699515465f0b094403de4f3a8447169c59",
+          "lineStart": 1320,
+          "lineEnd": 1320
+        }
+      ]
+    },
+    {
+      "id": "SD-06",
+      "boundary": "Finite host capability registry",
+      "currentMain": "Adds M04_CORE_FLAG_KEYS/context.compilerV1 and M09_FLAG_KEYS/agents.workV1 to the finite CapabilityFlagKey union and host registrations.",
+      "reviewedM12": "Adds M12_FLAG_KEYS for tools.jsReadProgramV1, tools.durableReplayExperimentV1 and tools.pythonKernelV1 to that union and registry.",
+      "impact": "Neither conflicting union/registry is the full combined set. Registration reconciliation is required; source comparison does not authorize enabling any flag.",
+      "locations": [
+        {
+          "revision": "acceptedBase",
+          "commitSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+          "path": "packages/core/capability-flags.ts",
+          "blobSha1": "39e18abb43f7fa63cb2534ea3356ebb1be121161"
+        },
+        {
+          "revision": "currentMain",
+          "commitSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+          "path": "packages/core/capability-flags.ts",
+          "blobSha1": "823b9aa9a02499039c69756795144d035c4ce2a6"
+        },
+        {
+          "revision": "reviewedM12",
+          "commitSha": "d55433f2231597d0efe7515b187e237e11b7ac95",
+          "path": "packages/core/capability-flags.ts",
+          "blobSha1": "1edfc1de2b68012da568dda8f2c40818641d81eb"
+        }
+      ]
+    },
+    {
+      "id": "SD-07",
+      "boundary": "Finite public source and runtime packaging",
+      "currentMain": "Adds explicit M04 request-context/compiler/custody and M09 agent-work sources, runtime entries, tests, fixtures and selected evidence files.",
+      "reviewedM12": "Adds explicit tool-program/Python worker assets, contracts, host/provider sources, tests and benchmark fixtures.",
+      "impact": "The finite manifest conflict cannot be resolved by selecting one entire side without discarding the other feature's explicit entries. Combined package closure has not been tested here.",
+      "locations": [
+        {
+          "revision": "acceptedBase",
+          "commitSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+          "path": "scripts/public-source-files.json",
+          "blobSha1": "8cb3efe75c120185f957ab3df73255756adcf7b8"
+        },
+        {
+          "revision": "currentMain",
+          "commitSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+          "path": "scripts/public-source-files.json",
+          "blobSha1": "7738bed5d6fa1903ce76a86e06f5778af91caeae"
+        },
+        {
+          "revision": "reviewedM12",
+          "commitSha": "d55433f2231597d0efe7515b187e237e11b7ac95",
+          "path": "scripts/public-source-files.json",
+          "blobSha1": "5b9124fd049e065e54f2d246b7c1e14894330a37"
+        }
+      ]
+    }
+  ],
+  "upstreamUnchangedOriginalTargets": [
+    "packages/runtime-hermes/worker.py",
+    "packages/runtime-pi/tool-definitions.ts",
+    "packages/runtime-official/mcp.ts",
+    "packages/core/security.ts",
+    "packages/runtime-pi/process-tree.ts"
+  ],
+  "mainTestSourceObservations": {
+    "revision": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+    "path": "tests/request-preparation-service-v3.test.ts",
+    "observedCoverageInSource": [
+      "immutable admitted preparation identity",
+      "grant/task-note changes",
+      "physical project identity",
+      "account/model changes",
+      "claim reuse prevention",
+      "finalization hook failure",
+      "separate queued token-bound follow-ups",
+      "default-off behavior",
+      "durable context generation"
+    ],
+    "executionDuringThisAudit": false,
+    "interpretation": "Test source shows intentional new contracts. Its presence is not execution evidence and does not establish combined M12 compatibility."
+  },
+  "limitations": [
+    "This is an immutable-source comparison, not a tested merged implementation or a claim of a runtime exploit.",
+    "The finalizer spreads input and therefore does not inherently drop supplied programTools metadata.",
+    "Five of the six original named integration targets are unchanged upstream from the accepted base; Service is the changed original integration target.",
+    "Only exact command timestamps and exit metadata copied from the cited recorded merge diagnostic are included; no additional command times or test results are inferred.",
+    "No final documentation commit SHA is asserted. The reviewed implementation SHA is an immutable source reference, not a later documentation commit."
+  ],
+  "auditActions": {
+    "sourceEdits": false,
+    "existingArtifactEdits": false,
+    "controllerEdits": false,
+    "testExecution": false,
+    "commitOrRefMutation": false,
+    "newDocumentationArtifacts": [
+      "docs/implementation/v3/m12-artifacts/current-main-source-drift.json",
+      "docs/implementation/v3/m12-artifacts/current-main-source-drift.md"
+    ],
+    "mergeOrRebaseApplied": false
+  },
+  "chronology": {
+    "currentMainAuthorTime": "2026-11-15T04:02:38-08:00",
+    "currentMainCommitterTime": "2026-11-15T04:02:38-08:00",
+    "currentMainCommitterTimeUtc": "2026-11-15T12:02:38+00:00",
+    "retainedSourceCutObservedAt": "2026-11-15T12:05:53.795209+00:00",
+    "retainedSourceCutPath": "docs/implementation/v3/M12-candidate-source-cut.json",
+    "qualification": "The post-publication check discovered that main had advanced beyond the accepted base. The upstream commit itself predates the retained final source-cut timestamp; this audit does not claim that the advance occurred after the freeze or publication."
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "case": "tool-program-integration-v3",
+  "cut": "d9bc6df00fab7f819aebf56be71ad88516ea89d9",
+  "command": "pnpm exec vitest run tests/tool-program-integration-v3.test.ts --maxWorkers=1 (NODE_OPTIONS=--max-old-space-size=3072)",
+  "exitCode": 0,
+  "status": "PASS",
+  "note": "6/6.",
+  "logDigest": "sha256:7b4af47ce292d63a8fb746c7adae587e2c076562ac39ce36ae1a64ae5e66d40e",
+  "log": "logs/r04/vitest-tool-program-integration-v3.bounded.log",
+  "rawLogDigest": "sha256:70ead6ead412ac4e7333d131bab320f7f810376ee5b8f4bdb7999995383dc192",
+  "rawEvidence": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r04/vitest-tool-program-integration-v3.log (not uploaded; retained on the producing host)"
+}

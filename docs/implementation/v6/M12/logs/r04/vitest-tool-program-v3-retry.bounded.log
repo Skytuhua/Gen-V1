@@ -1,0 +1,32 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m<worktree:m12-r03>[39m
+
+(node:534428) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/tool-program-v3.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 59700[2mms[22m[39m
+     [33m[2m✓[22m[39m persists identity and M02 dispatch before the read and keeps bulk out of snapshots and events [33m 1595[2mms[22m[39m
+     [33m[2m✓[22m[39m denies repository_log before an executor dispatch [33m 1273[2mms[22m[39m
+     [33m[2m✓[22m[39m denies file_replace_prepare before an executor dispatch [33m 2204[2mms[22m[39m
+     [33m[2m✓[22m[39m denies unregistered before an executor dispatch [33m 962[2mms[22m[39m
+     [33m[2m✓[22m[39m denies account drift after preparation and before any read [33m 672[2mms[22m[39m
+     [33m[2m✓[22m[39m bounds admitted concurrency and call count before dispatch [33m 19281[2mms[22m[39m
+     [33m[2m✓[22m[39m retains a rejected source as failed even when its thrown value is undefined [33m 1829[2mms[22m[39m
+     [33m[2m✓[22m[39m retains a rejected source as failed even when its thrown value is null [33m 1240[2mms[22m[39m
+     [33m[2m✓[22m[39m retains a rejected source as failed even when its thrown value is false [33m 688[2mms[22m[39m
+     [33m[2m✓[22m[39m retains a rejected source as failed even when its thrown value is 0 [33m 1434[2mms[22m[39m
+     [33m[2m✓[22m[39m retains a rejected source as failed even when its thrown value is Error: ordinary source error [33m 1533[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves a source failure even if a script catches it and returns an aggregate [33m 2400[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects oversized visible aggregates and cancellation fences queued reads [33m 1490[2mms[22m[39m
+     [33m[2m✓[22m[39m admits only one owned program at a time so parallel tool envelopes cannot multiply the read budget [33m 953[2mms[22m[39m
+     [33m[2m✓[22m[39m bounds failure envelopes and references after exhausting a small visible budget [33m 18178[2mms[22m[39m
+     [33m[2m✓[22m[39m retains explicitly unsuccessful source outcomes as failures: {"error":"explicit source failure"} [33m 1432[2mms[22m[39m
+     [33m[2m✓[22m[39m retains explicitly unsuccessful source outcomes as failures: {"ok":false} [33m 1214[2mms[22m[39m
+     [33m[2m✓[22m[39m retains explicitly unsuccessful source outcomes as failures: {"success":false} [33m 1172[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m22 passed[39m[22m[90m (22)[39m
+[2m   Start at [22m 13:55:26
+[2m   Duration [22m 64.93s[2m (transform 2.77s, setup 0ms, import 4.18s, tests 59.70s, environment 0ms)[22m
+
+RETRY_EXIT=0

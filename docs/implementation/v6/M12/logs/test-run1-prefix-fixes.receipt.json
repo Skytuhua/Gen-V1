@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "pnpm",
+    "test"
+  ],
+  "cwdIdentity": "<worktree:m12-v6>",
+  "executableIdentity": "<toolchain>/pnpm",
+  "startedAt": "2026-11-18T12:39:57.837Z",
+  "endedAt": "2026-11-18T14:02:10.669Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v6/M12/logs/test-run1-prefix-fixes.bounded.log",
+  "logDigest": "sha256:9146d19adb36f94af93f835d07f2b36a8b6853f56beb435d578646853901858e",
+  "rawLogDigest": "sha256:e105cec0bbb8268bd71bdec8ecbc231297aabd9f1234167510178e4c6d15403c",
+  "rawEvidence": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/test-run1-prefix-fixes.log (not uploaded; retained on the producing host)",
+  "boundedLogDigest": "sha256:9146d19adb36f94af93f835d07f2b36a8b6853f56beb435d578646853901858e"
+}

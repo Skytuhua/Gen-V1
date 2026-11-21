@@ -36,6 +36,28 @@ test('authenticated precommit rejection retains excerpts for review and a fresh 
  const f=await setup(page);await add(page);f.reject();await page.getByRole('button',{name:'Send',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Rejected before admission');await expect(page.getByRole('button',{name:'Retry send'})).toBeHidden();await expect(page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true})).toBeVisible();
 });
 
+test('disabled program fixture metadata requires an exact known thread and a read request',async({page})=>{
+ await setup(page);
+ const responses=await page.evaluate(async()=>{
+  const requests=[
+   {path:'/api/threads/one/tool-programs',method:'GET'},
+   {path:'/api/threads/two/tool-programs',method:'GET'},
+   {path:'/api/threads/unknown/tool-programs',method:'GET'},
+   {path:'/api/threads//tool-programs',method:'GET'},
+   {path:'/api/threads/one/tool-programs/',method:'GET'},
+   {path:'/api/threads/one/tool-programs/program/results/ref',method:'GET'},
+   {path:'/api/threads/one/tool-programs?owner=two',method:'GET'},
+   {path:'/api/threads/one/tool-programs',method:'POST'},
+   {path:'/api/threads/one/tool-programs',method:'DELETE'},
+  ];
+  return Promise.all(requests.map(async request=>{const response=await fetch(request.path,{method:request.method});return{...request,status:response.status,body:await response.json()};}));
+ });
+ const empty={programs:[],kernels:[],available:{javascript:false,python:false,replay:false},resetNotice:'Reset clears variables. It does not undo files or prior remote effects. Previous cells are never replayed.'};
+ for(const response of responses.slice(0,2)){expect(response.status).toBe(200);expect(response.body).toEqual(empty);}
+ for(const response of responses.slice(2,7))expect(response.status).toBe(404);
+ for(const response of responses.slice(7))expect(response.status).toBe(405);
+});
+
 test('expired host output is captured from the current xterm selection, without rereading old output',async({page})=>{
  const f=await setup(page,'?expired=1');await add(page);await page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true}).click();await expect(page.getByLabel('Excerpt text')).toHaveValue(/Earlier output expired/);expect(f.sends).toEqual([]);
 });

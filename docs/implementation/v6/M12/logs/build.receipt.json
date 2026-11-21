@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "pnpm",
+    "build"
+  ],
+  "cwdIdentity": "<worktree:m12-v6>",
+  "executableIdentity": "<toolchain>/pnpm",
+  "startedAt": "2026-11-18T14:18:23.525Z",
+  "endedAt": "2026-11-18T14:19:34.383Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v6/M12/logs/build.bounded.log",
+  "logDigest": "sha256:772eca61fad032aec778cad1db4008df18324e593fafd794f790a66fcbaaf153",
+  "rawLogDigest": "sha256:b79be864c14503580723c1fe1676011aa9cd6d5a3172483c828d2641c5bccb6c",
+  "rawEvidence": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/build.log (not uploaded; retained on the producing host)",
+  "boundedLogDigest": "sha256:772eca61fad032aec778cad1db4008df18324e593fafd794f790a66fcbaaf153"
+}

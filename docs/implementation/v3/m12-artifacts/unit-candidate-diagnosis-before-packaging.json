@@ -1,0 +1,295 @@
+{
+  "version": 1,
+  "observation": "FIRST_CANDIDATE_BEFORE_PACKAGING_FIX",
+  "evidence": {
+    "comparison": {
+      "path": "docs/implementation/v3/m12-artifacts/unit-baseline-comparison-before-packaging.json",
+      "sha256": "8d6c08266ce294bf10760d8c4414ab666326cb1e30ec9891ce9696a44f1f36e7"
+    },
+    "candidate": {
+      "path": "docs/implementation/v3/m12-artifacts/candidate-vitest.json",
+      "sha256": "398aa209753139d7ce2e8989bc29b6d7cbf013eb18735acfee43a3d1dcbe840d"
+    },
+    "candidateUnhandled": {
+      "path": "docs/implementation/v3/m12-artifacts/candidate-vitest-unhandled-before-packaging.json",
+      "sha256": "319ca668c061e15a85def128fdfc0fd27467ad5c2d07e465329879c0afd152bf"
+    }
+  },
+  "candidateOnlyFailureDiagnoses": [
+    {
+      "file": "tests/plugin-tools-dock.test.ts",
+      "fullName": "keeps tools, diagram controls and readable inspector separate at 1440px, including recovered free placement",
+      "classification": "CANDIDATE_TIMEOUT_REQUIRING_ISOLATED_DIAGNOSIS",
+      "diagnosis": "The unchanged 1440px plug-in dock test timed out at 60020.648709 ms against a 60000 ms configured timeout. Baseline passed in 1141.793196 ms; all other cases in that file passed in both runs. The JSON contains only STACK_TRACE_ERROR, so it does not establish a geometry assertion failure.",
+      "remediation": {
+        "owner": "root / M04 dock diagnosis",
+        "sourceEditedByThisAgent": false
+      }
+    },
+    {
+      "file": "tests/public-source.test.ts",
+      "fullName": "reviewed public source allowlist admits every browser suite spec and configuration with complete spec coverage",
+      "classification": "CONFIRMED_M12_EXPORT_ALLOWLIST_REGRESSION",
+      "diagnosis": "The existing finite source/runtime manifest omitted the new M12 modules, browser spec/configuration and UI. Staged source copies could not resolve imports.",
+      "remediation": {
+        "manifest": "scripts/public-source-files.json",
+        "manifestAfterSha256": "d21fbb9535d56d1c2885dfdf30f12dfe77824854229fd83a268d62bc89d0a6f2",
+        "focusedProof": {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/public-source.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T11:42:46.462936+00:00",
+          "endedAt": "2026-11-15T11:42:48.156648+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/packaging-04-public-source-final-green.log",
+          "logDigest": "994cf5a1fc6b852c3e8f39359d32c4a3505909f36058d04cd3bee8287df0c56e"
+        },
+        "scope": "42 explicitly reviewed source additions, including 17 runtime additions; no rules weakened."
+      }
+    },
+    {
+      "file": "tests/public-source.test.ts",
+      "fullName": "reviewed public source allowlist admits the local import closure of exported TypeScript and JavaScript inputs",
+      "classification": "CONFIRMED_M12_EXPORT_ALLOWLIST_REGRESSION",
+      "diagnosis": "The existing finite source/runtime manifest omitted the new M12 modules, browser spec/configuration and UI. Staged source copies could not resolve imports.",
+      "remediation": {
+        "manifest": "scripts/public-source-files.json",
+        "manifestAfterSha256": "d21fbb9535d56d1c2885dfdf30f12dfe77824854229fd83a268d62bc89d0a6f2",
+        "focusedProof": {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/public-source.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T11:42:46.462936+00:00",
+          "endedAt": "2026-11-15T11:42:48.156648+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/packaging-04-public-source-final-green.log",
+          "logDigest": "994cf5a1fc6b852c3e8f39359d32c4a3505909f36058d04cd3bee8287df0c56e"
+        },
+        "scope": "42 explicitly reviewed source additions, including 17 runtime additions; no rules weakened."
+      }
+    },
+    {
+      "file": "tests/public-source.test.ts",
+      "fullName": "reviewed public source allowlist resolves the staged browser entry using only admitted public sources",
+      "classification": "CONFIRMED_M12_EXPORT_ALLOWLIST_REGRESSION",
+      "diagnosis": "The existing finite source/runtime manifest omitted the new M12 modules, browser spec/configuration and UI. Staged source copies could not resolve imports.",
+      "remediation": {
+        "manifest": "scripts/public-source-files.json",
+        "manifestAfterSha256": "d21fbb9535d56d1c2885dfdf30f12dfe77824854229fd83a268d62bc89d0a6f2",
+        "focusedProof": {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/public-source.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T11:42:46.462936+00:00",
+          "endedAt": "2026-11-15T11:42:48.156648+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/packaging-04-public-source-final-green.log",
+          "logDigest": "994cf5a1fc6b852c3e8f39359d32c4a3505909f36058d04cd3bee8287df0c56e"
+        },
+        "scope": "42 explicitly reviewed source additions, including 17 runtime additions; no rules weakened."
+      }
+    },
+    {
+      "file": "tests/public-source.test.ts",
+      "fullName": "reviewed public source allowlist resolves the staged host and worker entries using only admitted runtime sources",
+      "classification": "CONFIRMED_M12_EXPORT_ALLOWLIST_REGRESSION",
+      "diagnosis": "The existing finite source/runtime manifest omitted the new M12 modules, browser spec/configuration and UI. Staged source copies could not resolve imports.",
+      "remediation": {
+        "manifest": "scripts/public-source-files.json",
+        "manifestAfterSha256": "d21fbb9535d56d1c2885dfdf30f12dfe77824854229fd83a268d62bc89d0a6f2",
+        "focusedProof": {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/public-source.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T11:42:46.462936+00:00",
+          "endedAt": "2026-11-15T11:42:48.156648+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/packaging-04-public-source-final-green.log",
+          "logDigest": "994cf5a1fc6b852c3e8f39359d32c4a3505909f36058d04cd3bee8287df0c56e"
+        },
+        "scope": "42 explicitly reviewed source additions, including 17 runtime additions; no rules weakened."
+      }
+    }
+  ],
+  "unhandledErrors": {
+    "candidateObservedCount": 4,
+    "baselineObservedCount": null,
+    "baselineCountStatus": "UNKNOWN_JSON_REPORTER_OMISSION",
+    "events": [
+      {
+        "file": "account-login.test.ts",
+        "testName": "does not admit a successor sign-in when an expired lease still has a live owner",
+        "candidateMessage": "File access check failed \u2014 the folder could not be opened safely for this action",
+        "baseline": [
+          {
+            "status": "failed",
+            "durationMs": 60060.347007000004,
+            "firstFailureLine": "Error: STACK_TRACE_ERROR"
+          }
+        ],
+        "candidate": [
+          {
+            "status": "failed",
+            "durationMs": 60042.157885,
+            "firstFailureLine": "Error: STACK_TRACE_ERROR"
+          }
+        ]
+      },
+      {
+        "file": "github-workspace.test.ts",
+        "testName": "fences cancel during private credential writing before rename and preserves the prior token",
+        "candidateMessage": "expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }\n(2 matching properties omitted from actual)",
+        "baseline": [
+          {
+            "status": "failed",
+            "durationMs": 60010.153483999995,
+            "firstFailureLine": "Error: STACK_TRACE_ERROR"
+          }
+        ],
+        "candidate": [
+          {
+            "status": "failed",
+            "durationMs": 60003.997727999995,
+            "firstFailureLine": "Error: STACK_TRACE_ERROR"
+          }
+        ]
+      },
+      {
+        "file": "github-workspace.test.ts",
+        "testName": "fences replace during private credential writing before rename and preserves the prior token",
+        "candidateMessage": "expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }\n(2 matching properties omitted from actual)",
+        "baseline": [
+          {
+            "status": "failed",
+            "durationMs": 60047.002248000004,
+            "firstFailureLine": "Error: STACK_TRACE_ERROR"
+          }
+        ],
+        "candidate": [
+          {
+            "status": "failed",
+            "durationMs": 60044.235279,
+            "firstFailureLine": "Error: STACK_TRACE_ERROR"
+          }
+        ]
+      },
+      {
+        "file": "github-workspace.test.ts",
+        "testName": "fences expire during private credential writing before rename and preserves the prior token",
+        "candidateMessage": "expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }\n(2 matching properties omitted from actual)",
+        "baseline": [
+          {
+            "status": "failed",
+            "durationMs": 60047.25480400001,
+            "firstFailureLine": "Error: STACK_TRACE_ERROR"
+          }
+        ],
+        "candidate": [
+          {
+            "status": "failed",
+            "durationMs": 60047.89185800002,
+            "firstFailureLine": "Error: STACK_TRACE_ERROR"
+          }
+        ]
+      }
+    ],
+    "mechanism": "The existing Linux directory guard rejects before the tests enter their awaited callback/write gate. The account-login rejected operation is not awaited until a finally that the never-entered ready gate prevents reaching; the GitHub expected rejection fails while the test awaits the never-entered temporary-write gate. These produce unhandled rejections and 60-second test timeouts. The four same tests already timed out on the accepted base; baseline unhandled events were not recorded.",
+    "withPathGuardChanged": false
+  },
+  "unchangedSourceChecks": [
+    {
+      "path": "packages/core/linux-path-guard.ts",
+      "unchangedFromAcceptedBase": true,
+      "sha256": "3462fa20bb06fb00fcb5944dde71c20a6e95a5e0dfde4d11b59e6b9bad38db54"
+    },
+    {
+      "path": "packages/runtime/account-profile.ts",
+      "unchangedFromAcceptedBase": true,
+      "sha256": "ccf54fa89ad40d4025832557b0dbbc7a3d027f4f86349d40c451de2839caec9b"
+    },
+    {
+      "path": "packages/runtime-login/account-login.ts",
+      "unchangedFromAcceptedBase": true,
+      "sha256": "16a147865b066b3e139a771d793c68df7f0cda242ac8c9e8cd701a401e7f6ce3"
+    },
+    {
+      "path": "packages/workspace/github-auth.ts",
+      "unchangedFromAcceptedBase": true,
+      "sha256": "a1dc83a857df12b521650cc29aec29ac504b40d68fa18ca90c385725f796c39d"
+    },
+    {
+      "path": "tests/account-login.test.ts",
+      "unchangedFromAcceptedBase": true,
+      "sha256": "18716a95a5414c13f897a52a6a97e0a657820dbef4ffa6e6442bd0bcd41dfbb5"
+    },
+    {
+      "path": "tests/github-workspace.test.ts",
+      "unchangedFromAcceptedBase": true,
+      "sha256": "9d28c60ba1962e7fb4b0bd33fe48b2fa7c77497c8f181629e076fa073f9af5c4"
+    },
+    {
+      "path": "tests/plan-key-connections.test.ts",
+      "unchangedFromAcceptedBase": true,
+      "sha256": "c9ef11250efde14f8d6398183840e7e17a3f25a17b29cab53197669e0470725e"
+    },
+    {
+      "path": "tests/plugin-tools-dock.test.ts",
+      "unchangedFromAcceptedBase": true,
+      "sha256": "83e1f6d3afdead0dbfbe4b443df64014fc2852982c7feb8751eeac83fd6e7d70"
+    }
+  ],
+  "nondeterministicTitleObservations": [
+    {
+      "file": "tests/plan-key-connections.test.ts",
+      "baselineFullName": "dedicated stored plan-key connections rejects ambient, legacy, OAuth and mismatched credentials: {\"kimi-coding\":{\"type\":\"oauth\",\"access\":\"fixture-plan-key.with-no-required-prefix\",\"refresh\":\"fixture\",\"expires\":1794740779149}}",
+      "candidateFullNames": [
+        "dedicated stored plan-key connections rejects ambient, legacy, OAuth and mismatched credentials: {\"kimi-coding\":{\"type\":\"oauth\",\"access\":\"fixture-plan-key.with-no-required-prefix\",\"refresh\":\"fixture\",\"expires\":1794742620060}}"
+      ],
+      "diagnosis": "A Date.now() + 60000 value in the it.each fixture is interpolated by %j into the full test name. The test source is unchanged; both observations passed. Strict exact-name matching intentionally retains one removed/one added identity.",
+      "matchingWasRelaxed": false
+    }
+  ],
+  "inheritedFailureMessageCounts": {
+    "WORKTREE_ROOT_ONLY": 211,
+    "FIRST_LINES_EQUAL": 252,
+    "CHANGED": 58,
+    "FIRST_LINES_CHANGED": 17
+  },
+  "inheritedFailureCausalityLimit": "269 same exact assertions failed in both observations. 211 failure messages differ only by worktree roots; 58 differ further, with 17 raw first-line differences. These counts do not establish that every inherited assertion has an identical underlying cause.",
+  "packagingAdditions": {
+    "path": "docs/implementation/v3/m12-artifacts/public-source-manifest-additions.json",
+    "sha256": "17bf679918697aeafa1e5eacc6a007180cd08f46e5fa28385983c1dd9d31bc65"
+  }
+}

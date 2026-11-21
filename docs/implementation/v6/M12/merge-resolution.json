@@ -1,0 +1,390 @@
+{
+  "schemaVersion": 1,
+  "kind": "M12_V6_SOURCE_DRIFT_RESOLUTION",
+  "taskBranch": "agent/m12-v3",
+  "preservedTaskHead": "f04cb74eff8d36a7ebcbfb51ca43c6e30ff23ffc",
+  "mergedMainSha": "4aef753ec272d6ab9f9f9eec1df0ca232386975b",
+  "mergeBaseSha": "1c09d492278b1014bc3ab5455191b1f5913c96d8",
+  "mergeCommitSha": "0548ebc51ea9f8b55a6bd2b68b7d711cc8d32a19",
+  "procedure": "git merge --no-commit --no-ff 4aef753ec272d6ab9f9f9eec1df0ca232386975b on a clean task worktree at published head f04cb74eff8d36a7ebcbfb51ca43c6e30ff23ffc; every conflict path staged only after a semantic composition; no blanket ours/theirs resolution anywhere; merge committed with inline committer identity (global git config unchanged).",
+  "conflicts": [
+    {
+      "path": "apps/web/src/App.tsx",
+      "base": "6858a165c1fe566004d1de24b5661baf9b63b895",
+      "ours": "3e4d00dc0cf1a2e18c1c6cffdb5bd8f5c8d17930",
+      "theirs": "751bd77ecd6facaa0b74c40468cb06fe1d1bfc06",
+      "result": "01f6e4d9d0e88e305f95a7bf761c05b79d108496",
+      "resolution": "Theirs' SourceWorkbenchProvider JSX composition adopted; ControlConsentPanel import unioned with ToolProgramPanel import; ToolProgramPanel re-inserted beside VerificationPanel in the canvas-thread view and retained at its ChatView render site; theirs' owner={thread} on OperationDecision kept."
+    },
+    {
+      "path": "package.json",
+      "base": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0",
+      "ours": "e8be5556b3882bf5513c6bf440981d2798e2820d",
+      "theirs": "7b32d8847cba1e1ac53a935f0f1f67f166148a10",
+      "result": "949ccd8eec1437be0ea585fc597ad043e08e02bf",
+      "resolution": "test:e2e takes theirs (pnpm test:browser) \u2014 identical behavior, canonical script indirection."
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "base": "4543457cd2b748280b7264868f5c3151c5444d8e",
+      "ours": "ee432076bbb770e58bb859a01fe747848cd9e91b",
+      "theirs": "a9d196f949239a8de432e0faf2e0ecba7d772ce4",
+      "result": "0b02f58227e4f3fd5221109dd42622feb6ee38c7",
+      "resolution": "Additive union on RuntimeCallbacks (onMemoryCheckpoint + onBeforeInference + onCompactionCommit) and StartRun (programTools + requestContext/memoryCheckpoint/automaticCompactionProtection/sourceRefs/approvedProjectContext)."
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "base": "02783eb029b618f9bf1abe0b9f51ff8f5c27076a",
+      "ours": "5265d79b3522e1b4fef55a2232df82c75306f129",
+      "theirs": "c167e5bfd1828650c5ec1854de479e0addab9f08",
+      "result": "d32c818251aa86dda5a650b760804ce60d78641a",
+      "resolution": "Kept theirs' new M15_FLAG_KEYS block; CapabilityFlagKey union now includes M15FlagKey and M12FlagKey (plus theirs' M04FlagKey/M10FlagKey/M16FlagKey additions). M12_FLAG_DEFINITIONS spread already auto-merged in hostDefinitions; all M12 defaults remain false."
+    },
+    {
+      "path": "packages/core/file-access.ts",
+      "base": "818fcb763fb73df85d4249ef5fc6b0cfc3805c9c",
+      "ours": "98699c065f829d27fd54289c9ec4ae72e5386d27",
+      "theirs": "22c5f24eb3123fc7e6bbe313f7c1130f3dccec91",
+      "result": "12d21b35f4d175df8dcfd4332bd6fc4949edc711",
+      "resolution": "Import union: theirs' canonical plus ours' linux-file-read bound-read imports; both usages verified present in the body."
+    },
+    {
+      "path": "packages/core/service.ts",
+      "base": "58ac6b1607c0881cdfb3493cd60293b47b23a13f",
+      "ours": "afa314931fc7a303a043cc6e4422c82de10cb594",
+      "theirs": "83415577c6186558a1100daf933de4e9e5be0602",
+      "result": "4d909035c8c00cd5e2d2a0ce9d46336e0cf5c030",
+      "resolution": "Eight-region composition: unioned imports (M12 program host + theirs' authenticator/disableEffects/ModelRequestObservationV1), ServiceOptions (toolEffectAuthenticator + toolPrograms), fields (programHost + theirs' context-result/relevance block), constructor (theirs' registry/digest/authenticator init + programHost wiring), input assembly (programTools + sourceRefs/sourceContext), settled handler (notifyHostEvent + programHost.cancelRun), tool dispatch (PROGRAM_TOOL_NAMES route before theirs' context-read limiter + admittedTool), dispose (programHost.close inside theirs' drain/dispose set)."
+    },
+    {
+      "path": "packages/core/tool-effects.ts",
+      "base": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a",
+      "ours": "2fbe10fd4903d1b420197338b07905c9d93a232b",
+      "theirs": "2b837d8f36b63880883bd7f6e8987269807dad94",
+      "result": "68a14355928bef266f5d8e023dadb59f45868a2b",
+      "resolution": "Ledger dedup keeps theirs' matchesInvocation + definition.schemaDigest + this.privateArgumentCommitment semantics (consistent with theirs' new effect-recovery and effect-read models); ours' additions preserved as parentInvocationId match clauses at both dedup sites, parentInvocationId/privateArguments threading on invoke/admit, privateArguments redacted summaries, and theirs' assertAdmissionsEnabled kept. The auto-merged admit write site was realigned from toolDefinitionCommitment to schemaDigest to match dedup semantics."
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "base": "83d5d7856551b3d4a52d9a6a2cd8c1363c09abe1",
+      "ours": "f66b527194e584c6a454ddc621e8aa1ca353d64c",
+      "theirs": "dbd20a1def40530177660f582ab36a67559bfe61",
+      "result": "d98bfd03d92b191df4a7d1e36ccb2bbccb487be7",
+      "resolution": "Theirs' assertAutomaticCompaction/assertCompaction/progressive-tool plumbing retained; toolsFor keeps ours' input.programTools selection via selectProgramTools with PROGRAM_TOOL_NAMES exclusion unioned into theirs' sourceNames/progressiveNames filter; start() keeps theirs' assertAutomaticCompaction call and progressive exposure filter while passing input to toolsFor."
+    },
+    {
+      "path": "packages/runtime-pi/tool-definitions.ts",
+      "base": "f39d0626c2fc9b7c74ba711133049f83a2ca3e73",
+      "ours": "b41a99d0db9fec686ad04836179b80f6e2cb2d5c",
+      "theirs": "73bfdc146770705cccc4e115055ec05d52b830ec",
+      "result": "3c194342e5e9d0d9729a66c85de8bdd1fc9e4a34",
+      "resolution": "createHostTools keeps ours' programTools parameter and selectProgramTools spread; theirs' REPOSITORY_MAP kept in the metadata list."
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "base": "6557a3a2fbb27632b63b4f87ced782739d911db8",
+      "ours": "5efa32d672c75cefe1feca7b7981329d5e5f878d",
+      "theirs": "6c0964767f162de858e4425354d8064c74353703",
+      "result": "db479e192be89dd4f39829d8c670298ba996acb4",
+      "resolution": "Programmatic union: theirs' key order (version, baseline, source, runtime) and baseline; source/runtime = sorted(theirs + ours-not-in-base). No removals existed on either side relative to base. Added tests/tool-program-continuation-v6.test.ts (peer of the already-listed v3 suites; was omitted from the previous manifest update). runtime subset-of-source invariant asserted."
+    },
+    {
+      "path": "tests/e2e/conversation-find.spec.ts",
+      "base": "db815b3cdd9e10c0afabd224ba76b09a46282194",
+      "ours": "4a4a7e8ecf7c216e9507436aaa7206fe7f41a122",
+      "theirs": "657e32a3eba27d860789300cc8dbdbb93a345fd9",
+      "result": "657e32a3eba27d860789300cc8dbdbb93a345fd9",
+      "resolution": "Took theirs: local shell fixture helpers deleted; scripts/capture-ui/shell-api already contains ours' tool-programs route block verbatim (verified identical 404/405/empty-fixture semantics)."
+    },
+    {
+      "path": "tests/e2e/saved-drafts.spec.ts",
+      "base": "82fe85648b60e515f0aef4db91abb1c23ba65233",
+      "ours": "f43cdfbdd663c08bfdc71e6ea164b43290880a5f",
+      "theirs": "cb3d168343582a2d78acaae24e06d6e0f1f63e1f",
+      "result": "cb3d168343582a2d78acaae24e06d6e0f1f63e1f",
+      "resolution": "Took theirs: same shared-fixture migration; no ours-only content beyond the conflicted helper."
+    },
+    {
+      "path": "tests/e2e/terminal-excerpts.spec.ts",
+      "base": "808bebee3a93b6d9618bf994b8064b055b06e131",
+      "ours": "9093bd08462b2f0a57e9983d099ee4d4bb6c1e97",
+      "theirs": "3605dfb3eb815d98021761f9107f775bf95e6f38",
+      "result": "76909ee65d807296a92a05175a31404eed4c5e76",
+      "resolution": "Took theirs for the conflicted helper block; ours' tool-programs fixture endpoint test (auto-merged below the hunk) retained."
+    },
+    {
+      "path": "tests/hermes-runtime.test.ts",
+      "base": "2797ff95ecadfe97636b1c88a7c519219d5cc691",
+      "ours": "eea3613323c29cf9a5222fb41b3e0c792a81862a",
+      "theirs": "5676f75f810859cc74ed582a23a128357207372c",
+      "result": "d58e8732c66bd771dd623397e5fcce8c139478e8",
+      "resolution": "Unioned imports and kept both disjoint tests: ours' programTools passthrough and theirs' approvedProjectContext system-prefix test."
+    }
+  ],
+  "nonConflictJoins": [
+    {
+      "path": "packages/core/tool-programs.ts",
+      "result": "13c407621933e611af7b7a57f47c820f338335ad",
+      "resolution": "Semantic adaptation required by the ledger-semantic join: journal commitments now computed via host.effects.privateArgumentCommitment (same function the ledger stores, signed when authenticated) and effect-binding comparisons read definition.schemaDigest to match admitted records. Journal-layer reattach freshness still compares full toolDefinitionDigest; nestedCall.definitionDigest unchanged."
+    }
+  ],
+  "notes": "Direction chosen for the tool-effects join: main's schemaDigest/signed-commitment ledger semantics preserved everywhere (effect-recovery, read models, dedup, persisted-record compatibility); M12's strict full-definition matching stays at the journal layer (lines 426/433, privateProgram.definitions), which is the authoritative reattach gate per M12-C02. The reverse (full-digest ledger) would break effect-recovery's schemaDigest comparison and reinterpret every pre-existing stored receipt. Post-merge verification added fixture/join adaptations recorded in postMergeVerificationFixes: audit-mode ledgers with deterministic signer for stores holding receipts, nestedCall argumentsCommitment accepting the ledger commitment envelope, real-schema-change redisclosure fixtures, and the restored default-limit 64/65 boundary coverage.",
+  "previousRound": "Round 1 recorded in this file's earlier revision under merge commit 44c19075a3341f85a0f6c2c8e8455f2f70a970df (preserved below as round1).",
+  "round1": {
+    "preservedTaskHead": "16cd0311a45b755f8ade87fe0637c77dc319f74d",
+    "mergedMainSha": "1c09d492278b1014bc3ab5455191b1f5913c96d8",
+    "mergeBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+    "mergeCommitSha": "44c19075a3341f85a0f6c2c8e8455f2f70a970df",
+    "procedure": "git merge --no-commit --no-ff 1c09d492278b1014bc3ab5455191b1f5913c96d8 on a clean task worktree at the recorded remote head; every conflict path staged only after a semantic composition; no blanket ours/theirs resolution anywhere; merge committed with inline committer identity (global git config unchanged).",
+    "conflicts": [
+      {
+        "path": "packages/contracts/index.ts",
+        "base": "09517becaf0c",
+        "ours": "baeae3c0a453",
+        "theirs": "4543457cd2b7",
+        "result": "ee432076bbb7",
+        "resolution": "Additive composition: kept M12 programTools on StartRun input, current-main requestContext and memoryCheckpoint fields, and optional onMemoryCheckpoint in RuntimeCallbacks."
+      },
+      {
+        "path": "packages/core/capability-flags.ts",
+        "base": "39e18abb43f7",
+        "ours": "1edfc1de2b68",
+        "theirs": "02783eb029b6",
+        "result": "5265d79b3522",
+        "resolution": "Unioned CapabilityFlagKey and host registry: all current-main M02/M04/M05/M08/M09/M11 keys plus the three M12 tools.* keys; every M12 default stays false."
+      },
+      {
+        "path": "packages/core/service.ts",
+        "base": "2b3fb63acef9",
+        "ours": "d77d4d699515",
+        "theirs": "58ac6b1607c0",
+        "result": "afa314931fc7",
+        "resolution": "Six-region composition: both import sets (ToolOwner + model observation), programHost field plus request-custody/project-memory fields, both agentWork.* and toolProgram.*/pythonKernel.* command routes, custody-resolved prompt with programTools attachment (finalize spreads input), memory accepted-input handling plus M12 program cancellation on settlement, and disposal of request custody, program host, agent work and memory services. Obsolete ours-only researchAborts mechanism dropped (theirs removed it entirely)."
+      },
+      {
+        "path": "apps/server/server.ts",
+        "base": "e4df5cae7274",
+        "ours": "30b971c314e4",
+        "theirs": "f47211cc6c67",
+        "result": "567c219e58dd",
+        "resolution": "Both import sets retained; both sides' route registrations had already auto-merged."
+      },
+      {
+        "path": "apps/web/src/App.tsx",
+        "base": "2978a3af00fe",
+        "ours": "991799f8c30b",
+        "theirs": "6858a165c1fe",
+        "result": "3e4d00dc0cf1",
+        "resolution": "Theirs' JSX composition adopted with ToolProgramPanel re-inserted at its existing render site beside VerificationPanel; both ToolProgramPanel render sites preserved."
+      },
+      {
+        "path": "packages/core/file-access.ts",
+        "base": "d4e0a59c6f24",
+        "ours": "e561fd85628f",
+        "theirs": "818fcb763fb7",
+        "result": "98699c065f82",
+        "resolution": "Both-sides extension of a shared line composed so bound-read checks and program input authorization coexist."
+      },
+      {
+        "path": "packages/runtime-hermes/index.ts",
+        "base": "ca15682cd2ad",
+        "ours": "38cbe3861378",
+        "theirs": "83d5d7856551",
+        "result": "f66b527194e5",
+        "resolution": "Theirs' checkpoint plumbing plus ours' programTools wiring into the shared createHostTools call."
+      },
+      {
+        "path": "packages/runtime-pi/worker.ts",
+        "base": "36bc8abb120c",
+        "ours": "10d62c175ed3",
+        "theirs": "fc62b5d481c3",
+        "result": "bbeabae45349",
+        "resolution": "Same composition: theirs' memory-checkpoint plumbing plus ours' programTools wiring; shared createHostTools signature verified to accept both."
+      },
+      {
+        "path": "scripts/public-source-files.json",
+        "base": "8cb3efe75c12",
+        "ours": "5b9124fd049e",
+        "theirs": "6557a3a2fbb2",
+        "result": "5efa32d672c7",
+        "resolution": "Programmatic union of both branches' source/runtime manifests preserving shared baseline and theirs' key order (version, source, runtime, baseline); theirs' removals of retired Research/Code Review workspace files honored, not recreated. Result: 2400 source + 247 runtime entries."
+      },
+      {
+        "path": "tests/e2e/research-workspace.playwright.config.ts",
+        "base": "c3a3c4c89863",
+        "ours": "17b3fcc7bb56",
+        "theirs": "absent",
+        "result": "absent",
+        "resolution": "Modify/delete accepted as delete: current main removed the entire retired research-workspace e2e suite; per R10 retired workspaces are not recreated."
+      }
+    ]
+  },
+  "postMergeVerificationFixes": [
+    {
+      "path": "packages/contracts/tool-program.ts",
+      "result": "bc5ce9cbb168c5252f839cbcee09fbcd78e19559",
+      "resolution": "nestedCallV1Schema.argumentsCommitment widened from 64-hex digest to z.string().min(1): the field stores the ledger's argument commitment, which is the plain digest under legacy admission and the signed v1:keyId:mac envelope under audit-mode admission (EffectAdmissionPolicy latches AUDIT once a store holds receipts). Binding semantics unchanged: stored commitment must equal the ledger-computed commitment at reattach."
+    },
+    {
+      "path": "tests/fixtures/tool-program-replay-harness-v3.ts",
+      "result": "679c9ed62ff4a2cf3902e83b88319daef19325f3",
+      "resolution": "Fixture ledgers now run with audit.effectsV1 enabled plus a deterministic injected authenticator (fixed 32-byte key + keyId), because main's EffectAdmissionPolicy disables admissions on any store with existing toolEffect receipts unless the matching flag is enabled, and signed commitments must match across the crash child / reopening parent. Exercises real HMAC; not OS custody. ROUND-2b: Exports m12EffectAuthenticator() so a reopening Service can share the deterministic custody key (M12_EFFECT_KEY/M12_EFFECT_KEY_ID) already used by m12Ledger and the crash child."
+    },
+    {
+      "path": "tests/tool-program-v3.test.ts",
+      "result": "d40b1ab9db5caff3d3b8542d3391df7d1838f9e7",
+      "resolution": "Flag assertion switched to toMatchObject (main added tools.deferredV1; the three M12 flags are still asserted registered and default-off). The 64-admitted/65th-denied boundary tests restored verbatim at default maxCalls after review: wall-clock deadline exposure under host contention is retained as real evidence, not masked."
+    },
+    {
+      "path": "tests/tool-program-replay-v3.test.ts",
+      "result": "4fc175fb6f1a9a7a4cef7c4e16c4284c9d7e5c37",
+      "resolution": "Registry-change fixture now performs a real toolSchemas.repository_read schema extension (rebuilt registry -> different schemaDigest -> valid redisclosure -> REPLAY_DIVERGED) instead of a version bump; version is literal 1 and disclosure validates digest(parameters)===schemaDigest. Crash-fixture spawn timeout raised 10s->60s; non-subject deadlines relaxed (1200ms->default, 600ms->8000ms keeps expiry-in-test premise)."
+    },
+    {
+      "path": "tests/tool-program-diagnostics-v3.test.ts",
+      "result": "b58465de03195ac05c062effa5d51e0b45566a59",
+      "resolution": "Same real-schema-change redisclosure fixture as replay-v3; m12Ledger for the populated-store construction."
+    },
+    {
+      "path": "tests/tool-program-authority-v3.test.ts",
+      "result": "f59ce664b4bc332b61df147b7fa4eb30012acfcb",
+      "resolution": "Definition-change fixture now mutates schemaDigest (the ledger's dedup binding under merged semantics) rather than version; both ledgers run via m12Ledger so the conflict attributes to the definition change, not a commitment-scheme mismatch."
+    },
+    {
+      "path": "tests/tool-program-recovery-v3.test.ts",
+      "result": "d4a5c671fd62bc62c8debf2dfcf12e5ed52b7b65",
+      "resolution": "m12Ledger for the populated-store admits; crash timeout raised 10s->60s. ROUND-2b: The reopened Service now carries the producing deployment's effect configuration (audit.effectsV1 + the deterministic fixture authenticator) so programs.recover() commitment-matching sees the same signed scheme it wrote; M12 program flags stay default-off \u2014 the disable-under-test is the program lane, not effect custody. The unrelated/unlinked M02 receipts now assert the merged generic recovery semantic: open dispatches reconcile to UNKNOWN_EXTERNAL_OUTCOME (rolled_back), retained and never executed, rather than frozen byte-equal."
+    },
+    {
+      "path": "packages/core/tool-effects.ts",
+      "result": "2b933071145b7c21e4dc0cdafa58386bd602d887",
+      "resolution": "Removed the now-dead local sameOwner helper (main's matchesInvocation does field-wise owner comparison; tool-programs.ts keeps its own copy for program-owner checks)."
+    },
+    {
+      "path": "tests/tool-program-integration-v3.test.ts",
+      "result": "7eb4a52bf196843d06462dac751ce6b0a333e8fb",
+      "resolution": "Fixture parity: the Service enables audit.effectsV1 + security.authorityV1 but injected no authenticator, so the flagged ledger rejected every admission with EFFECT_KEY_UNAVAILABLE by design (production injects OS-key custody via effect-service.ts). testEffectAuthenticator() now supplies real HMAC custody for the flagged fixture, matching main's own service-level suites."
+    },
+    {
+      "path": "tests/python-program-integration-v3.test.ts",
+      "result": "e5cb1317a709e8f4482706ed93960bec14801826",
+      "resolution": "Same fixture-parity gap as tool-program-integration-v3 (flagged Service without toolEffectAuthenticator -> EFFECT_KEY_UNAVAILABLE at first admission); latent on this host since the file is x64-gated and skips on arm64, fixed for the x64 run it exists for."
+    }
+  ],
+  "r03": {
+    "merge": "2e949a66937b5bf422def9fba75249df0d44d609",
+    "tree": "f1e07131d4b5406cef22048f4c56c42f6a847acd",
+    "base": "4aef753ec272d6ab9f9f9eec1df0ca232386975b",
+    "ours": "e816a08123948f1c844f9a08138e2c613bbb513a",
+    "theirs": "ff38c62c3b0f8856e08f528f3c2ea8b1c1fea199",
+    "method": "git merge-tree in-memory analysis + plumbing (read-tree/update-index/write-tree/commit-tree); zero writes to the frozen tested worktree",
+    "conflicts": [
+      {
+        "path": "scripts/public-source-files.json",
+        "baseBlob": "6c0964767f162de858e4425354d8064c74353703",
+        "oursBlob": "db479e192be89dd4f39829d8c670298ba996acb4",
+        "theirsBlob": "19c6aab36bb688fcc99a50f0e74392c0f6d7ab22",
+        "resultBlob": "8b990c8dde8bfe80e272706510e136e1216629db",
+        "decision": "Semantic union, not a side pick: source = sorted union of ours' 43 M12 entries + theirs' 5 new entries; runtime = ours' list (adds M12 runtime modules; theirs changed none); baseline unchanged (6d32290f); emitted at theirs' canonical 2-space formatting.",
+        "theirsOnly": [
+          ".github/workflows/docs-links.yml",
+          "scripts/reduced-motion-coverage.ts",
+          "tests/doc-links-probe.test.mjs",
+          "tests/e2e/app-ready.ts",
+          "tests/reduced-motion-coverage.test.ts"
+        ],
+        "oursOnlyCount": 43
+      }
+    ],
+    "autoMerged": [
+      {
+        "path": "apps/web/src/App.tsx",
+        "note": "theirs' split-view/plugin-selection changes are disjoint from M12 ToolProgramPanel render sites; verified hunks"
+      },
+      {
+        "path": "packages/core/tool-effects.ts",
+        "note": "theirs' admitOperationDispatch hardening (INVOCATION_CONFLICT guards, resource-grant binding) is orthogonal to M12 admit/settle/privateArgumentCommitment paths"
+      }
+    ],
+    "verification": "Merge tree validated: diff vs e816a081 contains only the 22-commit main delta + manifest union; diff vs ff38c62c is the M12 feature delta."
+  },
+  "sourceLockNotes": "executionBaseSha is the recorded merge-commit cut; working-tree blob identities recorded at v6 evidence collection. Files deleted by merged main (retired research workspace) are absent by design: apps/server/research-routes.ts, tests/research-artifacts.test.ts, tests/e2e/research-workspace.playwright.config.ts ROUND 2: executionBaseSha now records merge 0548ebc5 + verification-fix commits 9cfbfd3f + e816a081 (the tested tree). inspectedPaths regenerated at HEAD and extended with the full M12-owned surface (core program/kernel/disclosure/results modules, contracts, server routes, UI panel, all tool-program/python suites and fixtures) \u2014 the round-1 manifest covered the integration surface only. M12.ToolProgramV1 contract version advanced (nestedCall argumentsCommitment accepts the ledger commitment envelope). Dropped paths: none",
+  "r04": {
+    "merge": "4df19a1cc7946fa844721d0ad0962629ec2c4b62",
+    "tree": "c61b4fedc843abcb8308a1c1ebdfbd589207ea4e",
+    "ours": "941c80457585c9cd4e2947a33703f8837b922ff5",
+    "theirs": "89142de980df86c4236dc49c28f280d78fe79e0d",
+    "method": "git merge-tree in-memory analysis + plumbing (read-tree/update-index/write-tree/commit-tree); zero writes to tested-cut worktrees",
+    "conflicts": [
+      {
+        "path": "scripts/public-source-files.json",
+        "baseBlob": "19c6aab36bb688fcc99a50f0e74392c0f6d7ab22",
+        "oursBlob": "8b990c8dde8bfe80e272706510e136e1216629db",
+        "theirsBlob": "331f4558194225d785406670b859135c1ffd48d1",
+        "resultBlob": "bfe438c5d564faf81c5a6a2dcdd3d206f423c266",
+        "decision": "Current main's manifest preserved plus only the M12-owned entries: source = sorted union (theirs adds tests/integration-error-stack-redaction-v3.test.ts; ours' 43 M12 paths retained; no overlap); runtime keeps ours' 17 M12 modules (theirs unchanged); emitted at theirs' canonical 2-space formatting.",
+        "theirsOnly": [
+          "tests/integration-error-stack-redaction-v3.test.ts"
+        ],
+        "oursOnlyCount": 43
+      }
+    ],
+    "autoMerged": "all other paths clean; 12-file main delta only vs 941c8045",
+    "verification": "Manifest validated at the integrated cut (version 1, sorted+unique, source 4385 / runtime 299, both unions present); tests/public-source.test.ts 13/13 PASS in the detached R04 scout worktree. Prior-cut receipts remain bound to e816a081 (full gates) and 2e949a66 (R03 smoke); this commit adds no new gate evidence.",
+    "log": "tests/public-source.test.ts: 13/13 pass, 18.1s, cut 4df19a1c"
+  },
+  "r05": {
+    "main": "d6a8827c48e85104e90c7d0c8cf0c2d468f78fac",
+    "mergeCommit": "10c738a10713c1d8c48b9c4af3ecf1a3968280a1",
+    "conflicts": {
+      "scripts/public-source-files.json": {
+        "base": "331f455",
+        "ours": "8ac9f3b",
+        "theirs": "bad7fa9",
+        "decision": "sorted unique union \u2014 current main manifest + 44 M12 source / 17 runtime entries; main added 27 M17 source + 3 runtime; result source 4413 runtime 302"
+      },
+      "packages/core/capability-flags.ts": {
+        "base": "c167e5b",
+        "ours": "d32c818",
+        "theirs": "2819153",
+        "decision": "retained both registries \u2014 M17_FLAG_KEYS + M12_FLAG_KEYS, union type | M17FlagKey | M12FlagKey, both hostDefinitions, no duplicate keys, ownership/defaults unchanged"
+      },
+      "apps/server/server.ts": {
+        "base": "1f4e2dc",
+        "ours": "e4b5106",
+        "theirs": "acce5465",
+        "decision": "both route imports kept; registerToolProgramRoutes (M12) and registerDevicePairingRoutes (M17) each registered once with existing wiring"
+      }
+    },
+    "note": "All three conflicts were additive unions; no semantic conflicts appeared. Other upstream changes (M17, M04 supplement) preserved unchanged."
+  },
+  "r06": {
+    "main": "75196a246a3708463caa1aa493e64112c5ec2dc5",
+    "mergeCommit": "f48d14234937358b14ae236a408caa071b40d5cc",
+    "conflicts": {
+      "scripts/public-source-files.json": {
+        "decision": "sorted unique union \u2014 current main + M12 source/runtime (result 4462/306); main added M14 session-branch/history-import entries"
+      },
+      "packages/core/capability-flags.ts": {
+        "decision": "retained all registries \u2014 M14_FLAG_KEYS (sessions.branchV1, sessions.inertImportV1, owner m14) + M17 + M12; union | M14FlagKey | M15FlagKey | M10FlagKey | M16FlagKey | M17FlagKey | M12FlagKey; no duplicate keys; defaults unchanged"
+      }
+    },
+    "autoMergeInspection": "server.ts: registerToolProgramRoutes (M12) + registerDevicePairingRoutes (M17) intact; service.ts: M14 session.branch/import handlers flag-gated, disjoint regions; crash-death discriminator + all M12 files byte-identical post-merge; scripts/capture-ui/shell-api.ts upstream-only.",
+    "note": "LOCAL ONLY \u2014 not pushed while Windows run 44411197628 is active. No new semantic conflicts."
+  },
+  "r07": {
+    "main": "2b41659c4cc4226c2527bafb73924638db35f520",
+    "mergeCommit": "0ae8e3de17a0057329575e5eb897d5beee287ced",
+    "conflicts": {
+      "scripts/public-source-files.json": {
+        "decision": "sorted unique union \u2014 result 4471 source / 306 runtime"
+      },
+      "tests/project-trust-v3.test.ts": {
+        "decision": "upstream fixture structure taken (cleanTempDirs/temp-dir.ts, LF normalization); M12 ordinary grant read keeps the withBoundFileRead descriptor contract (descriptorPath callback) \u2014 both file-access exports coexist, assertion intent identical. Whole-file conflict was mostly CRLF/LF noise; real semantic delta ~9 lines + the withBoundFileRead call site."
+      }
+    },
+    "autoMergeInspection": "server.ts routes intact; all M12 files byte-identical post-merge; no new semantic conflicts.",
+    "windowsComparison": "clean-main Windows run 44416861265 at 4bcdc82a: context-result-host 32/32, context-result-custody 4/4 \u2014 comparison evidence only (not a pass on any M12 cut). This RECLASSIFIES the shard-2/4 context-result failures on c413a178 as M12-attributable (file main-owned and unchanged, but behavior regresses on the merged tree \u2014 an M12 shared-module interaction; diagnosis pending). Earlier \"inherited/main-side\" classification superseded. DIAGNOSIS COMPLETE @5559b05f: M12 ctx.readResource in the shared domain context bypassed lineage.wrap (withResource-only observation) \\u2192 observed=false \\u2192 FULL_RESULT_UNAVAILABLE on all retained reads; platform-independent (linux repro 24/32). Fix: readResource scoped to executeProgramRead only; ordinary reads return to withResource+lineage. Receipt logs/r05/context-result-regression.receipt.json. RUN 44438814557 @eeeb723c (workflow_dispatch): attempt-1 terminal — shard2 135274289401 PASS (replay+context-result-host => host-family fix Windows-verified), shards 1/3 + Hermes + Windows checks + Desktop + installed-desktop 135274289697 PASS; shard4 135274289305 + Browser 135274289528 FAIL (manager-classified pre-assertion startup; comparator 44437308915 @8dd79d00 agent/m13-v6 success — different SHA, comparison only). Attempt-2 terminal SUCCESS (run 9/9): retry of the two failed jobs only — Browser 135305997978 PASS (incl. former artifact-width case), shard4 135305998186 PASS (recovery-v3 15/15, context-result-custody 4/4); others re-verified success. Attempt-1 shard4 log independently showed recovery 15/15 + custody 4/4, recorded separately from its FAIL job verdict (unrelated startup). Artifact 14493505916 (attempt 1) verifies generic owned installation/custody/launch only; setup digest f1ea5169996706ecda77576ccdc344c1cf0bde385bf8d71dc14944366b09b8b4, ZIP digest 3d2addc2c76cac0dca84a0ec5c65c30a0cde6326c4509de63d5e6d5fdbda6db0. Platform/resource holds remain; reviewerApproval false. Receipt logs/r05/windows-run-44438814557.receipt.json.",
+    "note": "LOCAL ONLY \u2014 not pushed; Windows run 44426865521 actively testing published head 096da165."
+  }
+}

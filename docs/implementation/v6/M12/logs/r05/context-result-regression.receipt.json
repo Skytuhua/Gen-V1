@@ -1,0 +1,8 @@
+{
+  "cut": "5559b05f268c94c74ded03825d4a7d0dc8d0a99d",
+  "command": "vitest run context-result-host context-result-custody context-results-v3 tool-program-v3 tool-program-replay-v3 tool-program-recovery-v3 tool-program-continuation-v6 public-source project-trust-v3; pnpm typecheck",
+  "exitCode": 0,
+  "status": "PASS",
+  "note": "Windows runs 44426865521 (096da165): shard2 job 135233849822 replay 33/33 PASS + context-result-host 24 FAIL; shard4 job 135233849917 recovery 15/15 PASS + custody ordinary-flow FAIL. Clean-main 44416861265 @4bcdc82a passed both (comparison only). Root cause (platform-independent, reproduced linux 24/32): M12's ctx.readResource in the shared domain context made domain readResource() take the direct path; lineage.wrap only wraps withResource, so observed stayed false -> deliverContextResult fallback FULL_RESULT_UNAVAILABLE. Fix: readResource moved to executeProgramRead's program context only; ordinary reads use withResource+lineage as on main; program reads keep direct bound read with assertOwner. Guards/custody/lineage/tests unchanged. Verified @5559b05f linux-arm64: context-result-host 32/32, custody 4/4 (1 platform skip), context-results-v3 7/7, tool-program suites 77/77, public-source 13+project-trust ~10=23/23, typecheck 0 errors. Windows acceptance not claimed. Local only; no push/dispatch.",
+  "logDigest": "not-recorded — console summary"
+}

@@ -47,7 +47,7 @@ export const HOST_FLAG_NAMES = Object.keys(HOST_FLAG_REGISTRY) as RegisteredHost
 /** Environment channel: HARNESS_FLAG_<KEY uppercased, '.'/'-' as '_',
  * camelCase humps as '_'>. Only the exact values 1/true enable a flag;
  * anything else stays disabled. */
-function hostFlagEnvName(name: RegisteredHostFlag): string {
+export function hostFlagEnvName(name: RegisteredHostFlag): string {
   return 'HARNESS_FLAG_' + name
     .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
     .replace(/[^a-zA-Z0-9]+/g, '_')

@@ -1,0 +1,10 @@
+{
+  "case": "vitest-replay-v3",
+  "cut": "2e949a66937b5bf422def9fba75249df0d44d609",
+  "command": "pnpm exec vitest run tests/tool-program-replay-v3.test.ts",
+  "exitCode": 0,
+  "startedAt": "2026-11-18T18:25:10+00:00",
+  "durationSec": 251,
+  "logDigest": "sha256:d6929c1f0dc21029f8dfcbd14e16ecdc13933d730f4a6e75a5588bb11355862a",
+  "status": "PASS"
+}

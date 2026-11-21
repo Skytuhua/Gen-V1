@@ -55,7 +55,7 @@ async function initialize(command: Command) {
   if (shuttingDown) throw new Error("Pi run aborted during initialization.");
   bridge = new ToolBridge(context, send);
   checkpointBridge=new CheckpointBridge(context,send);
-  const customTools = command.modelOnly?[]:createHostTools(await loadDomainTools(), (id, name, args, signal) => bridge!.call(id, name, args, signal));
+  const customTools = command.modelOnly?[]:createHostTools(await loadDomainTools(), (id, name, args, signal) => bridge!.call(id, name, args, signal), input.programTools);
   const sessionManager = prediction?sdk.SessionManager.inMemory(paths.taskDir):await openTaskSession(command.dataDir, input,command.purpose);
   if (shuttingDown) throw new Error("Pi run aborted during initialization.");
   const created = await sdk.createAgentSession({

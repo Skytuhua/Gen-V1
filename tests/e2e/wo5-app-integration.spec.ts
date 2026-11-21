@@ -41,7 +41,8 @@ async function host(page:Page){
   const workbenchMatch=path.match(/^\/api\/workbench\/threads\/([^/]+)(\/inputs)?$/);
   if(workbenchMatch)return route.fulfill({json:workbenchMatch[2]?{logicalOwner:{threadId:workbenchMatch[1],projectId:'capture-project',workspaceId:workingCopy.id},inputs:[]}:{logicalOwner:{threadId:workbenchMatch[1],projectId:'capture-project',workspaceId:workingCopy.id},enabled:false,sources:[],sourceCapabilities:[]}});
   const allowed=['/api/bootstrap','/api/snapshot','/api/shell-settings','/api/models','/api/workspace','/api/shell/navigation','/api/shell/settings','/api/shell/archive','/api/shell/resources','/api/plugins','/api/skills/available','/api/environment','/api/integrations','/api/commands','/api/split-workspace/profiles'];
-  if(allowed.includes(path)||/^\/api\/shell\/navigation\/[^/]+$/.test(path))return shellRoute(route,snapshot,false);
+  const programView=route.request().method()==='GET'&&!url.search&&snapshot.threads.some(thread=>path===`/api/threads/${encodeURIComponent(thread.id)}/tool-programs`);
+  if(programView||allowed.includes(path)||/^\/api\/shell\/navigation\/[^/]+$/.test(path))return shellRoute(route,snapshot,false);
   unexpected.push(path);return route.abort('blockedbyclient');
  });
  await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();

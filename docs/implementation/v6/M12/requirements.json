@@ -1,0 +1,512 @@
+{
+  "schemaVersion": 1,
+  "bundleId": "M12",
+  "revision": "v6-continuation-terminal",
+  "branch": "agent/m12-v3",
+  "worktree": "<worktree:m12-v6>",
+  "preservedStartingHead": "f04cb74eff8d36a7ebcbfb51ca43c6e30ff23ffc",
+  "mergedMainSha": "4aef753ec272d6ab9f9f9eec1df0ca232386975b",
+  "mergeCommitSha": "0548ebc51ea9f8b55a6bd2b68b7d711cc8d32a19",
+  "acceptedBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "auditSourceSha": "4805af4680094d2af48ecf666688e750797e9dda",
+  "platform": "linux-arm64",
+  "nodeVersion": "v24.11.1",
+  "packageManagerVersion": "10.30.3",
+  "historicalEvidence": "docs/implementation/v3/M12-verification.json and docs/implementation/v3/m12-artifacts/ record the linux-x64 accepted-base run. Round-1 merged-tree evidence (merge 44c19075a3341f85a0f6c2c8e8455f2f70a970df against main 1c09d49) is preserved in this bundle's prior revision and the merge-resolution record's round1 block. Neither is relabeled as proof for this round-2 merged tree.",
+  "requirements": [
+    {
+      "id": "M12-C01",
+      "clause": "ToolProgramV1 contract: programId, owner, language, sourceDigest, runtimeFingerprint, toolRegistryDigest, allowedTools, inputRefs, limits, state, resultRef. Batching tools host-classified read-only.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/contracts/tool-program.ts",
+        "packages/core/tool-programs.ts",
+        "packages/core/tool-authority.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-v3.test.ts",
+        "tests/tool-program-authority-v3.test.ts",
+        "tests/tool-program-prerequisites-v3.test.ts"
+      ],
+      "reason": "Contract file inspected after merge; host read-only classification enforced in ToolAuthority, not server annotations. The restored M12-S03 default-limit boundary (64 admitted / 65th denied; maxCalls 64, maxConcurrentCalls 4, 30s deadline) makes tool-program-v3.test.ts wall-clock sensitive: under host contention (load avg >11 from a parallel foreign-worktree vitest on this shared box) the two 64-call cases recorded PROGRAM_DEADLINE before CALL_LIMIT \u2014 an environmental timing failure preserved as logs/vitest-tool-program-v3-run1-loaded.receipt.json, not a limit-semantics regression; production limits unchanged and coverage not reduced."
+    },
+    {
+      "id": "M12-C02",
+      "clause": "NestedCallV1: parentProgramId, stableCallKey, invocationId, argumentsCommitment, resultRef, effectClass, terminal state; reattach only on matching key/arguments/owner/definition digest.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/contracts/tool-program.ts",
+        "packages/core/tool-programs.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-replay-v3.test.ts",
+        "tests/tool-program-continuation-v6.test.ts#M12-D02"
+      ],
+      "reason": "Reattach predicates verified by replay suite and D02 divergence cases (changed argument and definition digest both diverge)."
+    },
+    {
+      "id": "M12-C03",
+      "clause": "ProgramJournalV1: deterministic start seed/clock, delivery order, committed issued-call counts; mismatch yields REPLAY_DIVERGED with no newly admitted effects.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/contracts/tool-program.ts",
+        "packages/core/tool-programs.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-replay-v3.test.ts",
+        "tests/tool-program-diagnostics-v3.test.ts",
+        "tests/tool-program-continuation-v6.test.ts#M12-D02"
+      ],
+      "reason": "Journal schema and divergence checks exercised; D02 adds argument/digest/order corruption cases with zero new reads."
+    },
+    {
+      "id": "M12-C04",
+      "clause": "PythonKernelV1 identity (project/owner/interpreter/config/cwd/tool-set/profile), one generation across successful cells, generation increments only on reset/replacement/crash/identity change; cell IDs unique; observed states only.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/contracts/tool-program.ts",
+        "packages/core/python-kernels.ts"
+      ],
+      "testIds": [
+        "tests/python-kernel-v3.test.ts",
+        "tests/tool-program-continuation-v6.test.ts#M12-D01"
+      ],
+      "reason": "Kernel identity and generation semantics exercised; D01 adds variable persistence across cells and post-reset absence."
+    },
+    {
+      "id": "M12-S01",
+      "clause": "Continue the executor already pinned by PR #355; no second VM, no node:vm, no lockfile change.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/runtime/tool-program-worker.ts",
+        "pnpm-lock.yaml"
+      ],
+      "testIds": [
+        "tests/tool-program-v3.test.ts",
+        "tests/tool-program-replay-v3.test.ts"
+      ],
+      "reason": "Merge preserved QuickJS/WASM worker and Python backend; lockfile unmodified (verified in merge diff)."
+    },
+    {
+      "id": "M12-S02",
+      "clause": "Dedicated bounded JS executor, no ambient Node/filesystem/network/process/imports/credentials; only immutable inputs + host tool bridge.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/runtime/tool-program-worker.ts",
+        "packages/core/tool-programs.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-v3.test.ts",
+        "tests/tool-program-backend-v3.test.ts"
+      ],
+      "reason": "WASM guest isolation and input freezing exercised; negative ambient-access cases remain green."
+    },
+    {
+      "id": "M12-S03",
+      "clause": "30s deadline, 64 nested calls, 4 concurrent reads, 256KiB output cap; separate memory measurements for guest/interpreter/wrapper/process-tree.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/core/tool-programs.ts",
+        "packages/runtime/tool-program-worker.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-v3.test.ts",
+        "tests/tool-program-backend-v3.test.ts",
+        "tests/tool-program-continuation-v6.test.ts#M12-D04"
+      ],
+      "reason": "Declared limits enforced and tested. Only the 128MiB guest-linear-memory bound is proved (memoryScope GUEST_WASM_LINEAR, wholeExecutorMemoryLimitBytes null). Process-tree memory, aggregate retained disk and hard host-I/O termination remain HOLD_PLATFORM_BOUND \u2014 unproved on linux-x64 and unproved here on linux-arm64. The restored M12-S03 default-limit boundary (64 admitted / 65th denied; maxCalls 64, maxConcurrentCalls 4, 30s deadline) makes tool-program-v3.test.ts wall-clock sensitive: under host contention (load avg >11 from a parallel foreign-worktree vitest on this shared box) the two 64-call cases recorded PROGRAM_DEADLINE before CALL_LIMIT \u2014 an environmental timing failure preserved as logs/vitest-tool-program-v3-run1-loaded.receipt.json, not a limit-semantics regression; production limits unchanged and coverage not reduced."
+    },
+    {
+      "id": "M12-S04",
+      "clause": "Every nested call routed through M02 authority + M04 progressive disclosure; stable identity persisted before dispatch; hidden/foreign/different-account tools unreachable by name.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/core/tool-programs.ts",
+        "packages/core/tool-authority.ts",
+        "packages/core/tool-disclosure.ts",
+        "packages/core/tool-results.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-authority-v3.test.ts",
+        "tests/tool-program-prerequisites-v3.test.ts",
+        "tests/tool-program-continuation-v6.test.ts#M12-D03"
+      ],
+      "reason": "Authority routing and pre-dispatch identity commit exercised; D03 adds grant revocation between preparation and dispatch with retained denial receipt and zero calls."
+    },
+    {
+      "id": "M12-S05",
+      "clause": "Large intermediates in scoped private handles; explicit user aggregate + references; range retrieval via same grants; no erased source errors.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/core/tool-results.ts",
+        "packages/core/tool-programs.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-v3.test.ts",
+        "tests/tool-program-integration-v3.test.ts"
+      ],
+      "reason": "Private result handles, grant revalidation and bounded reads exercised by core and real-host integration suites. The restored M12-S03 default-limit boundary (64 admitted / 65th denied; maxCalls 64, maxConcurrentCalls 4, 30s deadline) makes tool-program-v3.test.ts wall-clock sensitive: under host contention (load avg >11 from a parallel foreign-worktree vitest on this shared box) the two 64-call cases recorded PROGRAM_DEADLINE before CALL_LIMIT \u2014 an environmental timing failure preserved as logs/vitest-tool-program-v3-run1-loaded.receipt.json, not a limit-semantics regression; production limits unchanged and coverage not reduced."
+    },
+    {
+      "id": "M12-S06",
+      "clause": "Deterministic replay only after non-replaying executor passes; start data and delivery order persisted before VM delivery; issued-call identities committed before admission; replay of completed reads by receipt only.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/core/tool-programs.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-replay-v3.test.ts"
+      ],
+      "reason": "Journal ordering and receipt-based replay verified including kill-boundary cases."
+    },
+    {
+      "id": "M12-S07",
+      "clause": "On fingerprint/deadline/divergence stop replay, record failure, cancel pending owned calls without claiming dispatched effects vanished; kill between every journal/call boundary.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/core/tool-programs.ts",
+        "packages/core/tool-effects.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-replay-v3.test.ts",
+        "tests/tool-program-recovery-v3.test.ts",
+        "tests/tool-program-diagnostics-v3.test.ts"
+      ],
+      "reason": "Crash-boundary matrix and unknown-effect handling exercised on merged tree."
+    },
+    {
+      "id": "M12-S08",
+      "clause": "Approved interpreter + one owner-scoped Python process; no raw host credentials or arbitrary filesystem; OS confinement mandatory.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/core/python-kernels.ts",
+        "packages/runtime/tool-program-worker.ts",
+        "packages/core/tool-programs.ts"
+      ],
+      "testIds": [
+        "tests/python-kernel-v3.test.ts",
+        "tests/python-program-backend-v3.test.ts",
+        "tests/python-program-integration-v3.test.ts"
+      ],
+      "reason": "Contract-level kernel lifecycle verified. Native backend/integration suites are gated linux-x64 and SKIP on this linux-arm64 host; confinement proof remains the recorded linux-x64 evidence (HOLD_PLATFORM_BOUND here)."
+    },
+    {
+      "id": "M12-S09",
+      "clause": "New cellId + fresh counters per cell inside one generation; successful cell retains variables; wedged cell terminates owned process tree, invalidates generation; unconfirmed termination UNKNOWN; never replay earlier cells.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/core/python-kernels.ts"
+      ],
+      "testIds": [
+        "tests/python-kernel-v3.test.ts",
+        "tests/tool-program-continuation-v6.test.ts#M12-D01"
+      ],
+      "reason": "Generation/reset semantics exercised; D01 adds the exact x=7 persist/read/reset/absent decision case."
+    },
+    {
+      "id": "M12-S10",
+      "clause": "Reset and stop as host commands with exact owner checks; reset destroys memory only, not files/remote effects; usage + nested effects in evidence ledger.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/core/python-kernels.ts",
+        "packages/core/service.ts",
+        "packages/core/tool-effects.ts"
+      ],
+      "testIds": [
+        "tests/python-kernel-v3.test.ts",
+        "tests/tool-program-continuation-v6.test.ts#M12-D05"
+      ],
+      "reason": "Owner-checked stop/reset with separate semantics verified; D05 covers the noncooperative-cancellation ownership/uncertainty case."
+    },
+    {
+      "id": "M12-S11",
+      "clause": "JS batching, replay and Python independently default-off; report direct-vs-program request count, model-visible bytes, elapsed incl. failure overhead; no improvement required.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/core/capability-flags.ts",
+        "tests/tool-program-benchmark-v3.test.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-benchmark-v3.test.ts",
+        "tests/tool-program-prerequisites-v3.test.ts"
+      ],
+      "reason": "All three flags remain default-false after merge; aggregation fixture reports request/tool counts, visible bytes and failure overhead on the real JS host. Live provider billing/quality claims not asserted."
+    },
+    {
+      "id": "M12-U01",
+      "clause": "Tool program card: language, allowed tools, elapsed time, nested-call count, output cap, state; expand shows call graph and retained handles, not secrets.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "apps/web/src/App.tsx"
+      ],
+      "testIds": [
+        "tests/tool-program-integration-v3.test.ts"
+      ],
+      "reason": "ToolProgramPanel render sites preserved through the App.tsx merge composition. pnpm test:browser on the frozen tested cut terminated at the evidence-runner 4h wall-clock bound (TIMEOUT, FAIL) after ~30 of ~68 suite configs; executed suites recorded real contention failures and chrome-channel suites cannot pass on this host (/opt/google/chrome/chrome absent). Browser coverage is not established."
+    },
+    {
+      "id": "M12-U02",
+      "clause": "Persistent Python view: kernel generation + retained-state status; Stop and Reset separate; reset warns external effects not reversed.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "apps/web/src/App.tsx",
+        "packages/core/python-kernels.ts"
+      ],
+      "testIds": [
+        "tests/python-kernel-v3.test.ts"
+      ],
+      "reason": "Reset notice text 'does not undo files or prior remote effects' present in kernel implementation; card wiring preserved in merge."
+    },
+    {
+      "id": "M12-U03",
+      "clause": "Replay failure shows exact incompatibility + inspectable original result; never blind Resume writes.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/core/tool-programs.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-diagnostics-v3.test.ts",
+        "tests/tool-program-continuation-v6.test.ts#M12-D02"
+      ],
+      "reason": "REPLAY_DIVERGED results carry originalResultRef and the failing field; diagnostics suite enumerates each incompatibility surface."
+    },
+    {
+      "id": "M12-T01",
+      "clause": "Global filesystem/network/process access, hidden tool names, alternate-account calls denied.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/runtime/tool-program-worker.ts",
+        "packages/core/tool-programs.ts",
+        "packages/core/tool-disclosure.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-v3.test.ts",
+        "tests/tool-program-authority-v3.test.ts"
+      ],
+      "reason": "Negative ambient/visibility/account cases exercised on merged tree. The restored M12-S03 default-limit boundary (64 admitted / 65th denied; maxCalls 64, maxConcurrentCalls 4, 30s deadline) makes tool-program-v3.test.ts wall-clock sensitive: under host contention (load avg >11 from a parallel foreign-worktree vitest on this shared box) the two 64-call cases recorded PROGRAM_DEADLINE before CALL_LIMIT \u2014 an environmental timing failure preserved as logs/vitest-tool-program-v3-run1-loaded.receipt.json, not a limit-semantics regression; production limits unchanged and coverage not reduced."
+    },
+    {
+      "id": "M12-T02",
+      "clause": "Infinite loop, memory growth, output flood, nested-call fan-out hit enforced limits; no orphan process.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/runtime/tool-program-worker.ts",
+        "packages/core/tool-programs.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-v3.test.ts",
+        "tests/tool-program-backend-v3.test.ts"
+      ],
+      "reason": "Limit-enforcement cases exercised; orphan-process check bounded by linux-x64 historical evidence \u2014 process-tree bound itself stays HOLD_PLATFORM_BOUND. The restored M12-S03 default-limit boundary (64 admitted / 65th denied; maxCalls 64, maxConcurrentCalls 4, 30s deadline) makes tool-program-v3.test.ts wall-clock sensitive: under host contention (load avg >11 from a parallel foreign-worktree vitest on this shared box) the two 64-call cases recorded PROGRAM_DEADLINE before CALL_LIMIT \u2014 an environmental timing failure preserved as logs/vitest-tool-program-v3-run1-loaded.receipt.json, not a limit-semantics regression; production limits unchanged and coverage not reduced."
+    },
+    {
+      "id": "M12-T03",
+      "clause": "Crash before/after each nested call and journal delivery neither duplicates non-replayable effects nor accepts divergent calls.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/core/tool-programs.ts",
+        "packages/core/tool-effects.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-replay-v3.test.ts",
+        "tests/tool-program-recovery-v3.test.ts",
+        "tests/tool-program-continuation-v6.test.ts#M12-D02"
+      ],
+      "reason": "SIGKILL boundary matrix plus D02 divergence cases pass on merged tree."
+    },
+    {
+      "id": "M12-T04",
+      "clause": "Kernel key changes on interpreter/workspace/account/tool-set changes; no variable leak across owners.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/core/python-kernels.ts"
+      ],
+      "testIds": [
+        "tests/python-kernel-v3.test.ts"
+      ],
+      "reason": "Identity-change and owner-isolation cases pass."
+    },
+    {
+      "id": "M12-T05",
+      "clause": "Cancelled/wedged Python cell invalidates state; reset never replays earlier effects.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/core/python-kernels.ts"
+      ],
+      "testIds": [
+        "tests/python-kernel-v3.test.ts",
+        "tests/tool-program-continuation-v6.test.ts#M12-D01"
+      ],
+      "reason": "Reset-required invalidation exercised; D01 confirms post-reset state does not recreate variables."
+    },
+    {
+      "id": "M12-T06",
+      "clause": "Aggregation benchmark reports request/tool counts, model-visible bytes and quality incl. program failure overhead.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "tests/tool-program-benchmark-v3.test.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-benchmark-v3.test.ts"
+      ],
+      "reason": "Offline aggregation fixture passes on merged tree (1 test, real JS host). Live provider quality/billing not claimed."
+    },
+    {
+      "id": "M12-G01",
+      "clause": "No code execution without tested backend; JS read-only batching precedes replay; Python requires actual platform confinement + installed interpreter proof.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/core/tool-programs.ts",
+        "packages/core/python-kernels.ts",
+        "packages/runtime/tool-program-worker.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-prerequisites-v3.test.ts",
+        "tests/tool-program-continuation-v6.test.ts#M12-D04"
+      ],
+      "reason": "Backend proof gating verified; D04 asserts guest-only memory proof cannot admit Python or claim aggregate bound. Linux-arm64 Python confinement proof absent \u2014 flag stays off."
+    },
+    {
+      "id": "M12-G02",
+      "clause": "Host-owned flags tools.jsReadProgramV1 / durableReplayExperimentV1 / pythonKernelV1; default false; no UI-preference or agent/plugin enablement.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/core/capability-flags.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-prerequisites-v3.test.ts"
+      ],
+      "reason": "Flag registry unioned with current-main flags in merge; all M12 defaults remain false."
+    },
+    {
+      "id": "M12-G03",
+      "clause": "Rollback: disable admission, cancel owned workers, retain receipts, invalidate kernel generations; never replay previous cells/scripts.",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": [
+        "packages/core/tool-programs.ts",
+        "packages/core/python-kernels.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-recovery-v3.test.ts",
+        "tests/python-kernel-v3.test.ts"
+      ],
+      "reason": "Cancel/invalidate paths exercised; generation invalidation verified."
+    },
+    {
+      "id": "M12-D01",
+      "clause": "Persistent cells: x=7 then read x in second cell, same generation, result 7; reset \u2192 new generation, x absent.",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "tests/tool-program-continuation-v6.test.ts",
+        "packages/core/python-kernels.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-continuation-v6.test.ts#M12-D01"
+      ],
+      "reason": "New v6 test: assign x=7 (generation 1, SUCCEEDED), second cell reads x=7 on same executor (created==1, retainedState true), reset creates generation 2 with new executor, read of x fails NAME_ERROR and kernel enters RESET_REQUIRED. PASS."
+    },
+    {
+      "id": "M12-D02",
+      "clause": "Replay divergence: altered recorded argument, tool-definition digest or result order \u2192 REPLAY_DIVERGED, zero newly dispatched calls.",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "tests/tool-program-continuation-v6.test.ts",
+        "packages/core/tool-programs.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-continuation-v6.test.ts#M12-D02"
+      ],
+      "reason": "New v6 test corrupts each recorded field via host-internal fixture writes; all three variants diverge before any new host read. PASS."
+    },
+    {
+      "id": "M12-D03",
+      "clause": "Nested authority: revoke a grant between preparation and nested dispatch \u2192 no tool call, retained denial receipt.",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "tests/tool-program-continuation-v6.test.ts",
+        "packages/core/tool-results.ts",
+        "packages/core/tool-programs.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-continuation-v6.test.ts#M12-D03"
+      ],
+      "reason": "New v6 test removes the resource grant post-prepare; nested dispatch denied RESULT_ACCESS_DENIED before effect dispatch, no read executed, retained denial on the call record. PASS."
+    },
+    {
+      "id": "M12-D04",
+      "clause": "Memory boundary labels: guest-only 128MiB proof must not set processTreeMemoryProved or enable unproved capability.",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "tests/tool-program-continuation-v6.test.ts",
+        "packages/runtime/tool-program-worker.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-continuation-v6.test.ts#M12-D04"
+      ],
+      "reason": "New v6 test asserts real executor proof memoryScope GUEST_WASM_LINEAR + wholeExecutorMemoryLimitBytes null after a successful run, and rejects both JS-prepare-as-PYTHON and kernel-create with the JS executor (UNSUPPORTED_BACKEND). PASS."
+    },
+    {
+      "id": "M12-D05",
+      "clause": "Noncooperative cancellation: host op ignoring abort \u2192 no new calls, op stays owned/uncertain, capacity permit not released as completed.",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "tests/tool-program-continuation-v6.test.ts",
+        "packages/core/tool-programs.ts",
+        "packages/core/tool-effects.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-continuation-v6.test.ts#M12-D05"
+      ],
+      "reason": "New v6 test cancels while a read ignores AbortSignal: run and cancel both remain unsettled, call marked UNKNOWN, effect UNKNOWN_EXTERNAL_OUTCOME; after late resolution the call is still UNKNOWN (not SUCCEEDED), second call never dispatched, reads==1. PASS."
+    },
+    {
+      "id": "M12-R03-JOINS",
+      "clause": "Source-drift joins resolved by composition, no blanket ours/theirs.",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "packages/contracts/index.ts",
+        "packages/core/capability-flags.ts",
+        "packages/core/service.ts",
+        "apps/server/server.ts",
+        "apps/web/src/App.tsx",
+        "packages/core/file-access.ts",
+        "packages/runtime-hermes/index.ts",
+        "packages/runtime-pi/worker.ts",
+        "scripts/public-source-files.json",
+        "tests/e2e/research-workspace.playwright.config.ts"
+      ],
+      "testIds": [
+        "tests/tool-program-v3.test.ts",
+        "tests/tool-program-replay-v3.test.ts",
+        "tests/python-kernel-v3.test.ts",
+        "tests/tool-program-continuation-v6.test.ts"
+      ],
+      "reason": "14 conflicted paths composed semantically against main 4aef753e (main's ledger schemaDigest + signed-commitment semantics kept; M12's journal-layer full-definition matching, programTools admission/plumbing, flag unions, custody joins, manifest union honoring main's retired-workspace deletions, research-workspace e2e config deletion accepted; 10 post-merge verification fixes recorded in merge-resolution.json). Focused suites on merged tree: replay-v3 33/33 PASS, python-kernel-v3 21/21 PASS, continuation-v6 7/7 PASS; tool-program-v3 20/22 \u2014 the two restored 64-call default-limit boundary cases recorded PROGRAM_DEADLINE under host contention (receipt preserved); typecheck PASS."
+    },
+    {
+      "id": "M12-D06",
+      "clause": "Retained-data accounting for the private Python working directory: logical file length and allocated bytes each have a separate inclusive 64 MiB (67,108,864 byte) ceiling and are never summed. Check before launch (refuse) and after the supervisor's stopped-state proof before accepting a result (fail -> RESET_REQUIRED), never deleting retained files. Missing or invalid accounting fails closed. Existing per-file, entry, depth, type, link and cancellation bounds are kept. Accepted retained-state accounting only, not a transient hard filesystem quota.",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "packages/runtime/python-program-worker.ts",
+        "tests/python-retained-data-v6.test.ts"
+      ],
+      "testIds": [
+        "tests/python-retained-data-v6.test.ts"
+      ],
+      "reason": "User policy decision (64 MiB each, inclusive, separate). Helper inspectPythonPrivateDirectory, used by the worker pre-cell (verifyRuntime, before start/launch) and post-cell (finish, after control('pause') stopped proof, before resolve). Owned temp-directory fixtures prove exact logical boundary 67,108,864 admitted and +1 refused, exact measured allocated boundary admitted and -1 ceiling refused, a dense 64 MiB file refused on allocated bytes, metrics not summed, unavailable accounting fails closed, and existing link/special/entry 4096/depth 32/cancellation refusals. Worker wiring through the native interpreter is NOT exercised (native suites are held); no platform proof is claimed."
+    }
+  ],
+  "holds": [
+    {
+      "code": "HOLD_PLATFORM_BOUND",
+      "scope": "Aggregate process-tree memory, transient (in-cell) disk use / hard filesystem quota for the private Python directory, hard noncooperative host-I/O termination, Windows/installed-desktop coverage.",
+      "reason": "Unproved on recorded linux-x64 base and unproved here on linux-arm64. Never promoted to proved bounds. Retained-data accounting (M12-D06) bounds only accepted retained state at cell boundaries; it is not a filesystem quota."
+    },
+    {
+      "code": "HOLD_PLATFORM_BOUND",
+      "scope": "Real Python backend confinement suites (tests/python-program-backend-v3.test.ts, tests/python-program-integration-v3.test.ts).",
+      "reason": "Gated process.platform==='linux' && arch==='x64'; skipped on this aarch64 host. linux-x64 evidence remains the historical record only."
+    }
+  ]
+}

@@ -1,0 +1,214 @@
+{
+  "node": "v24.22.1",
+  "piEntry": "/workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/@earendil-works+pi-coding-agent@1.4.0_@aws-sdk+credential-provider-node@3.972.92_@model_2b526e00af7e8aff6aa1f15e5145927e/node_modules/@earendil-works/pi-coding-agent/dist/index.js",
+  "engineEntry": "/workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/quickjs-wasi@3.6.2/node_modules/quickjs-wasi/dist/index.js",
+  "wasmPath": "/workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/quickjs-wasi@3.6.2/node_modules/quickjs-wasi/quickjs.wasm",
+  "wasmSha256": "d4c9375f2b1ca4dc95f72c8aa2982a7a9951ac8011490d79c6582df732b4bbd9",
+  "wasmBytes": 637405,
+  "resolution": {
+    "quickjs-wasi": {
+      "code": "MODULE_NOT_FOUND"
+    },
+    "@earendil-works/pi-codemode": {
+      "code": "MODULE_NOT_FOUND"
+    },
+    "@earendil-works/pi-coding-agent": {
+      "code": "ERR_PACKAGE_PATH_NOT_EXPORTED"
+    }
+  },
+  "imports": [
+    {
+      "module": "env",
+      "name": "host_get_timezone_offset",
+      "kind": "function"
+    },
+    {
+      "module": "env",
+      "name": "host_interrupt",
+      "kind": "function"
+    },
+    {
+      "module": "env",
+      "name": "host_promise_rejection",
+      "kind": "function"
+    },
+    {
+      "module": "env",
+      "name": "host_module_normalize",
+      "kind": "function"
+    },
+    {
+      "module": "env",
+      "name": "host_module_load",
+      "kind": "function"
+    },
+    {
+      "module": "env",
+      "name": "host_call",
+      "kind": "function"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "clock_time_get",
+      "kind": "function"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_close",
+      "kind": "function"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_get",
+      "kind": "function"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "random_get",
+      "kind": "function"
+    }
+  ],
+  "memorySections": [
+    {
+      "id": 5,
+      "length": 3,
+      "memories": [
+        {
+          "flags": 0,
+          "minimum": 18,
+          "maximum": null
+        }
+      ]
+    }
+  ],
+  "initialMemoryBytes": 1376256,
+  "versions": {
+    "quickjs-wasi": "3.6.2",
+    "quickjs": "0.17.0"
+  },
+  "guest": {
+    "globals": [
+      "Object",
+      "Function",
+      "Error",
+      "EvalError",
+      "RangeError",
+      "ReferenceError",
+      "SyntaxError",
+      "TypeError",
+      "URIError",
+      "InternalError",
+      "AggregateError",
+      "SuppressedError",
+      "Iterator",
+      "Array",
+      "parseInt",
+      "parseFloat",
+      "isNaN",
+      "isFinite",
+      "queueMicrotask",
+      "decodeURI",
+      "decodeURIComponent",
+      "encodeURI",
+      "encodeURIComponent",
+      "escape",
+      "unescape",
+      "Infinity",
+      "NaN",
+      "undefined",
+      "eval",
+      "Number",
+      "Boolean",
+      "String",
+      "Math",
+      "Reflect",
+      "Symbol",
+      "DisposableStack",
+      "globalThis",
+      "BigInt",
+      "Date",
+      "RegExp",
+      "JSON",
+      "Proxy",
+      "Map",
+      "Set",
+      "WeakMap",
+      "WeakSet",
+      "ArrayBuffer",
+      "SharedArrayBuffer",
+      "Uint8ClampedArray",
+      "Int8Array",
+      "Uint8Array",
+      "Int16Array",
+      "Uint16Array",
+      "Int32Array",
+      "Uint32Array",
+      "BigInt64Array",
+      "BigUint64Array",
+      "Float16Array",
+      "Float32Array",
+      "Float64Array",
+      "DataView",
+      "Promise",
+      "AsyncDisposableStack",
+      "WeakRef",
+      "FinalizationRegistry",
+      "DOMException",
+      "btoa",
+      "atob",
+      "performance"
+    ],
+    "absent": [
+      [
+        "process",
+        "undefined"
+      ],
+      [
+        "require",
+        "undefined"
+      ],
+      [
+        "fetch",
+        "undefined"
+      ],
+      [
+        "Deno",
+        "undefined"
+      ],
+      [
+        "Bun",
+        "undefined"
+      ],
+      [
+        "std",
+        "undefined"
+      ],
+      [
+        "os",
+        "undefined"
+      ],
+      [
+        "WebAssembly",
+        "undefined"
+      ],
+      [
+        "SharedArrayBuffer",
+        "function"
+      ],
+      [
+        "Atomics",
+        "undefined"
+      ]
+    ]
+  }
+}

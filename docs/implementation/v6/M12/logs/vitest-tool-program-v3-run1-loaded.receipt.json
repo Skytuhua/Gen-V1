@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-v3.test.ts"
+  ],
+  "cwdIdentity": "<worktree:m12-v6>",
+  "executableIdentity": "<toolchain>/pnpm",
+  "startedAt": "2026-11-18T12:29:01.798Z",
+  "endedAt": "2026-11-18T12:32:39.193Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v6/M12/logs/vitest-tool-program-v3-run1-loaded.bounded.log",
+  "logDigest": "sha256:a40aa920bb95b0ba4027cb6df2cac7d5c920b836373f19a6f08db4f9316d0bf5",
+  "rawLogDigest": "sha256:56e566e70eb4558da714d38110b9976413d93ea2c0dfd7cac53b0048fccf4439",
+  "rawEvidence": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/vitest-tool-program-v3-run1-loaded.log (not uploaded; retained on the producing host)",
+  "boundedLogDigest": "sha256:a40aa920bb95b0ba4027cb6df2cac7d5c920b836373f19a6f08db4f9316d0bf5"
+}

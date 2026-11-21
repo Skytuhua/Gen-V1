@@ -1,0 +1,42 @@
+.tool-program-panel { width:100%; min-width:0; margin:18px 0; color:var(--text); }
+.tool-program-panel-heading,.tool-program-card>header,.tool-program-inspection>header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+.tool-program-panel-heading { margin-bottom:10px; }
+.tool-program-panel-heading h2 { margin:0; font-size:13px; font-weight:550; }
+.tool-program-panel button { font:inherit; font-size:12px; white-space:normal; }
+.tool-program-card { min-width:0; padding:14px; border:1px solid var(--border); border-radius:10px; background:var(--surface); }
+.tool-program-card+.tool-program-card { margin-top:10px; }
+.tool-program-card>header { font-size:13px; }
+.tool-program-state { font-size:11px; padding:3px 7px; border:1px solid var(--border); border-radius:6px; color:var(--muted); }
+.tool-program-state[data-state="FAILED"],.tool-program-state[data-state="UNKNOWN"],.tool-program-error,.tool-program-source-state[data-state="FAILED"] { color:var(--danger); }
+.tool-program-state[data-state="RUNNING"],.tool-program-state[data-state="WAITING_TOOL"],.tool-program-state[data-state="RESET_REQUIRED"] { color:var(--pending); }
+.tool-program-metrics { display:flex; flex-wrap:wrap; gap:12px 28px; margin:14px 0; }
+.tool-program-metrics>div { min-width:72px; }
+.tool-program-metrics dt { color:var(--muted); font-size:11px; margin-bottom:3px; }
+.tool-program-metrics dd { margin:0; font-size:13px; font-variant-numeric:tabular-nums; }
+.tool-program-tools { display:flex; flex-wrap:wrap; align-items:center; gap:5px 8px; margin:0 0 12px; font-size:11px; }
+.tool-program-tools>span:first-child { color:var(--muted); }
+.tool-program-tools code { font-size:11px; padding:2px 5px; border-radius:4px; background:var(--subtle); overflow-wrap:anywhere; }
+.tool-program-actions { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.tool-program-failure { padding:10px; margin-bottom:12px; border:1px solid var(--border); border-radius:6px; }
+.tool-program-failure p,.tool-program-error { margin:0 0 8px; font-size:12px; line-height:1.5; overflow-wrap:anywhere; }
+.tool-program-muted { color:var(--muted); font-size:11px; line-height:1.5; }
+.tool-program-details { margin-top:12px; border-top:1px solid var(--border); padding-top:12px; }
+.tool-program-call-list { list-style:none; padding:0 0 0 14px; margin:0 0 12px 4px; border-left:1px solid var(--border); }
+.tool-program-call { position:relative; padding:2px 0 12px; min-width:0; }
+.tool-program-call:last-child { padding-bottom:2px; }
+.tool-program-call::before { content:""; position:absolute; width:5px; height:5px; border:1px solid var(--muted); border-radius:50%; left:-18px; top:9px; background:var(--surface); }
+.tool-program-call>div { display:flex; flex-wrap:wrap; align-items:center; gap:7px; font-size:12px; }
+.tool-program-call code,.tool-program-call strong { overflow-wrap:anywhere; min-width:0; }
+.tool-program-call>span { display:block; margin:5px 0; }
+.tool-program-call>button { margin-top:6px; }
+.tool-program-sources { list-style:none; padding:0; margin:12px 0 0; }
+.tool-program-sources li { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; padding:7px 0; }
+.tool-program-ref { display:block; font-size:10px; color:var(--muted); overflow-wrap:anywhere; word-break:break-all; min-width:0; }
+.tool-program-kernel-state { display:flex; flex-wrap:wrap; gap:8px 18px; font-size:12px; color:var(--muted); margin:12px 0; }
+.tool-program-reset { margin-top:12px; padding:12px; background:var(--subtle); border:1px solid var(--border); border-radius:6px; }
+.tool-program-reset p { margin:0 0 10px; font-size:12px; line-height:1.6; }
+.tool-program-inspection { margin-top:12px; padding:12px; background:var(--subtle); border:1px solid var(--border); border-radius:6px; min-width:0; }
+.tool-program-inspection>header { font-size:12px; margin-bottom:8px; }
+.tool-program-inspection p { font-size:11px; margin:8px 0; }
+.tool-program-inspection pre { white-space:pre-wrap; overflow-wrap:anywhere; word-break:break-word; max-height:280px; overflow:auto; min-width:0; margin:10px 0; padding:10px; background:var(--canvas); border:1px solid var(--border); border-radius:4px; font-size:11px; line-height:1.5; }
+@media(max-width:480px) { .tool-program-card { padding:11px; } .tool-program-metrics { gap:12px 18px; } .tool-program-panel-heading>button { font-size:11px; } }

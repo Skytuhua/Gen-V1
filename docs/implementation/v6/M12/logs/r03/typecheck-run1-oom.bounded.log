@@ -1,0 +1,24 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+
+> gen-v1@0.6.5 typecheck <worktree:m12-r03>
+> tsc --noEmit
+
+
+<--- Last few GCs --->
+
+[421267:0xffffad790000]   302114 ms: Scavenge 2038.8 (2049.6) -> 2035.5 (2049.6) MB, pooled: 6 MB, 20.39 / 0.00 ms  (average mu = 0.145, current mu = 0.047) allocation failure; 
+[421267:0xffffad790000]   303785 ms: Mark-Compact (reduce) 2041.5 (2052.1) -> 2039.7 (2047.1) MB, pooled: 0 MB, 1020.20 / 0.00 ms  (+ 514.8 ms in 94 steps since start of marking, biggest step 12.1 ms, walltime since start of marking 1671 ms) (average mu =
+FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
+----- Native stack trace -----
+
+ 1: 0x72846c node::OOMErrorHandler(char const*, v8::OOMDetails const&) [node]
+ 2: 0xb2cd5c  [node]
+ 3: 0xb2ce34  [node]
+ 4: 0xda7f1c  [node]
+ 5: 0xda7f4c  [node]
+ 6: 0xda82a4  [node]
+ 7: 0xdb7a44  [node]
+ 8: 0xdbb6a4  [node]
+ 9: 0x17a1ed4  [node]
+Aborted (core dumped)
+ ELIFECYCLE  Command failed with exit code 134.

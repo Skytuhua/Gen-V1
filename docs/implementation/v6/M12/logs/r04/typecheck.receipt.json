@@ -1,0 +1,12 @@
+{
+  "case": "pnpm typecheck",
+  "cut": "d9bc6df00fab7f819aebf56be71ad88516ea89d9",
+  "command": "pnpm typecheck (NODE_OPTIONS=--max-old-space-size=3072)",
+  "exitCode": 0,
+  "status": "PASS",
+  "note": "0 type errors at the integrated R04 cut.",
+  "logDigest": "sha256:9e5cb8a30a16fb958f0f07b25ad26116364b3c10a7cd02cfbaa21c8f9211831a",
+  "log": "logs/r04/typecheck.bounded.log",
+  "rawLogDigest": "sha256:44d5303f4810c9bea61105cb82194a3fd75bfe938a0d437bad635a7bc2469cab",
+  "rawEvidence": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r04/typecheck.log (not uploaded; retained on the producing host)"
+}

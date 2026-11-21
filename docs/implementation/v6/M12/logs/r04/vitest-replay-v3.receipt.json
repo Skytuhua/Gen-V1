@@ -1,0 +1,12 @@
+{
+  "case": "tool-program-replay-v3",
+  "cut": "d9bc6df00fab7f819aebf56be71ad88516ea89d9",
+  "command": "pnpm exec vitest run tests/tool-program-replay-v3.test.ts --maxWorkers=1 (NODE_OPTIONS=--max-old-space-size=3072)",
+  "exitCode": 0,
+  "status": "PASS",
+  "note": "33/33.",
+  "logDigest": "sha256:1b6bbafdd9a7f58de3c7e8bf000e4cb97765e00f93712074f95ebaefb17e29e0",
+  "log": "logs/r04/vitest-replay-v3.bounded.log",
+  "rawLogDigest": "sha256:309467812dce29ce5693af43aa1007b84f0978e108ee2fafb15854feb6e736a1",
+  "rawEvidence": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r04/vitest-replay-v3.log (not uploaded; retained on the producing host)"
+}

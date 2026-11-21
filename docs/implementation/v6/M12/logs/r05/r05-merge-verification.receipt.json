@@ -1,0 +1,8 @@
+{
+  "cut": "10c738a10713c1d8c48b9c4af3ecf1a3968280a1",
+  "command": "pnpm typecheck; vitest run tests/tool-program-replay-v3.test.ts tests/tool-program-recovery-v3.test.ts tests/public-source.test.ts tests/tool-program-v3.test.ts tests/device-pairing-v3.test.ts tests/read-sync-v3.test.ts tests/server.test.ts --maxWorkers=1",
+  "exitCode": 0,
+  "status": "PASS",
+  "note": "R05 merged cut (main d6a8827c + M12). typecheck 0 errors; replay 33/33, recovery 15/15, public-source 13/13, tool-program-v3 22/22 (64/65 boundary + flags), device-pairing 12/12, read-sync 16/16; server.test.ts 12/13 \u2014 1 pre-existing environmental failure (directory-grant bound read 403; same failure at e816a081 and in clean-main control class \u2014 CAP_SYS_ADMIN bound-read broker absent on this arm64 host), not an R05 regression. Evidence validators: schema-valid, lock digest match, 0 errors, baseSha e816a081, flags off, reviewerApproval false. c413a178 Windows dispatch receipts preserved as historical.",
+  "logDigest": "not-recorded \u2014 console summary"
+}

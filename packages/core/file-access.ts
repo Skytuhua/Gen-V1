@@ -6,6 +6,7 @@ import { open, lstat } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { HarnessError, type ResourceGrant } from "../contracts/index.ts";
 import { assertNotStorage, canonical, resolveGrant, PROTECTED_STORAGE_DIRECTORIES, projectMemoryDeletionLedgerPath } from "./security.ts";
+import { readLinuxBoundFile, withLinuxBoundFileRead, type LinuxReadWitness } from './linux-file-read.ts';
 
 type GuardPath = { path: string; leaf: boolean; dev?: string; ino?: string; empty?: boolean; tree?: boolean; readOnly?: boolean; allowChildWrites?:boolean; childWriteRoot?:string; gitMetadataImport?:boolean };
 export interface GuardEntry { readonly path: string; readonly directory: boolean; readonly dev: string; readonly ino: string; readonly size: number }
@@ -141,8 +142,54 @@ export async function withResourceGrant<T>(grant: ResourceGrant, dataDir: string
   });
 }
 
-/** Read and size validation use the same opened file; callers hold the namespace guard. */
+/** A narrow byte-read API. The original logical path accompanies the bytes;
+ * descriptor aliases never enter legacy resource callbacks, subprocess argv,
+ * source names or provenance. This grants no write or execution authority. */
+export async function readResourceGrant(grant: ResourceGrant, dataDir: string, relativePath: string | undefined, maxBytes: number, signal: AbortSignal): Promise<{ path: string; bytes: Buffer }> {
+  active(signal);
+  if (process.platform !== 'linux') return withResourceGrant(grant, dataDir, relativePath, false, signal,
+    async path => ({ path, bytes: await readBoundFile(path, maxBytes) }));
+  const path = await resolveGrant(grant, relativePath, false, dataDir);
+  const source = await lstat(path, { bigint: true });
+  if (!source.isFile() || source.isSymbolicLink() || source.nlink !== 1n) throw denied();
+  const witnesses: LinuxReadWitness[] = [];
+  const storageRoot = resolve(dataDir);
+  for (const directory of [storageRoot, ...PROTECTED_STORAGE_DIRECTORIES.map(child => join(storageRoot, child))]) {
+    try {
+      const info = await lstat(directory, { bigint: true });
+      if (!info.isDirectory() || info.isSymbolicLink()) throw denied();
+      witnesses.push({ path: directory, dev: String(info.dev), ino: String(info.ino) });
+    } catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+  }
+  const revalidate = async () => {
+    active(signal);
+    if (await resolveGrant(grant, relativePath, false, dataDir) !== path) throw denied();
+    // Same canonical grant root as resolveGrant and withResourceGrant, so a
+    // conversation's own uploaded attachment stays readable while every other
+    // protected-storage path still fails closed.
+    assertNotStorage(path, dataDir, await canonical(grant.path));
+  };
+  const bytes = await withLinuxBoundFileRead(path, signal, async descriptorPath => {
+    await revalidate();
+    const bytes = await readBoundFile(descriptorPath, maxBytes);
+    await revalidate();
+    return bytes;
+  }, { identity: { dev: String(source.dev), ino: String(source.ino) }, witnesses });
+  return { path, bytes };
+}
+
+/** A read-only ordinary-file capability, distinct from a pathname mutation
+ * guard. Callers use the descriptor path supplied to their callback. */
+export async function withBoundFileRead<T>(path: string, signal: AbortSignal, action: (descriptorPath: string) => Promise<T>, identity?: Pick<GuardEntry, 'dev' | 'ino'>): Promise<T> {
+  if (process.platform === 'linux') return withLinuxBoundFileRead(path, signal, action, { identity });
+  return withPathGuard([{ path, leaf: true, readOnly: true, ...identity }], signal, () => action(path));
+}
+
+/** Read and size validation use the same opened file; callers hold a descriptor
+ * read scope or the existing namespace guard. */
 export async function readBoundFile(path: string, maxBytes: number, identity?: Pick<GuardEntry, "dev" | "ino" | "size">): Promise<Buffer> {
+  const bound = readLinuxBoundFile(path, maxBytes, identity);
+  if (bound) return bound;
   const file = await open(path, "r");
   try {
     const info = await file.stat();

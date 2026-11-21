@@ -1,0 +1,1773 @@
+{
+  "baseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "comparison": "Actual unchanged accepted-base root browser suite versus M12 candidate; same installed common dependencies and Chromium",
+  "baseCommandLog": "docs/implementation/v3/m12-logs/comparison-02-base-browser.log",
+  "candidateCommandLog": "docs/implementation/v3/m12-logs/validation-02-browser.log",
+  "baseline": {
+    "rawReporterPath": "/workspace/scratch/dbebe44a9817/m12-base-fcaa52/test-results/browser/run-1794740486378-46ee89fc-e1ab-443f-a853-6189d8398532/root/results.json",
+    "rawReporterSHA256": "a94d36b6b4a488645e5d1eebb9ae5b9aac9a0a7ab13f3409aeb312543ab4d98f",
+    "stats": {
+      "startTime": "2026-11-15T11:01:27.215Z",
+      "duration": 399232.533,
+      "expected": 79,
+      "skipped": 1,
+      "unexpected": 33,
+      "flaky": 0
+    },
+    "cases": [
+      {
+        "id": "artifact-acknowledgment.spec.ts:4 an older snapshot cannot replace a newer acknowledged selection",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "clarity-data-work.spec.ts:122 trend periods align with their plotted values at 1440px dark",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "clarity-data-work.spec.ts:122 trend periods align with their plotted values at 1440px light",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "clarity-data-work.spec.ts:122 trend periods align with their plotted values at 390px light",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "clarity-data-work.spec.ts:16 trend gives its actual scale and units without hiding gaps or fabricating a zero baseline",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "clarity-data-work.spec.ts:162 dark architecture is legible before selecting a node",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "clarity-data-work.spec.ts:162 light architecture is legible before selecting a node",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "clarity-data-work.spec.ts:190 save feedback reserves its checkmark for acknowledged saves",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "clarity-data-work.spec.ts:63 flat and unavailable trends describe only supplied values",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "dark-default.spec.ts:20 the mounted shell stays dark while fresh settings are still loading on a light device",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "dark-default.spec.ts:3 the document paints dark before the application module starts",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "dark-default.spec.ts:61 an existing light preference still controls the loaded application",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "dark-default.spec.ts:61 an existing system preference still controls the loaded application",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:117 new source never overwrites edited text and the document can explicitly adopt the update",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:145 granted text clears immediately on revocation and retry rereads the authorized source",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:213 narrow document window has no page overflow and keyboard undocking retains its editor",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:251 large edited source fits the real host state limit without duplicating the source text",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:271 closing and reloading the handoff preserves its reading position",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:309 oversized UTF-8 edits are rejected without replacing the last durable draft",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:333 retargeting a document cannot overwrite a draft belonging to its previous source",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:374 Plan summary and a docked handoff remain reachable together at 1280px",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:374 Plan summary and a docked handoff remain reachable together at 1440px",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:374 Plan summary and a docked handoff remain reachable together at 1920px",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:374 Plan summary and a docked handoff remain reachable together at 390px",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        ]
+      },
+      {
+        "id": "document-window.spec.ts:5 an expanded artifact keeps its handoff editor interactive and owns Escape separately",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:64 opens actual editable text, docks beside chat and retains the draft after floating and reload",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "host-loop.spec.ts:140 durable decision validation and acceptance continue the same owning runtime once",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "host-loop.spec.ts:252 generated operation button requires native approval; restart restores without repeating effects",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "host-loop.spec.ts:332 stale structured action shows rejection and retains its local review UI",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "host-loop.spec.ts:361 generated app validates mount tickets, source/channel/current nonce/state; acknowledges checkpoint and preserves same iframe",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "host-loop.spec.ts:46 actual create/send, cookies/CSRF/SSE and structured host autosave survive reload",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "host-loop.spec.ts:612 cross-site infinite-loop widget leaves Settings, Stop and host navigation responsive",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "host-loop.spec.ts:708 generated program startup failure preserves host controls and durable artifact state",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "host-loop.spec.ts:751 the real host rejects generated apps while preserving its trusted interface",
+        "project": "",
+        "status": "skipped",
+        "expectedStatus": "skipped",
+        "errors": []
+      },
+      {
+        "id": "journal-reload.spec.ts:122 repeated CAS replacements advance when the wall clock stays fixed",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "journal-reload.spec.ts:147 a later peer edit survives an acknowledgment of the captured generation",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "journal-reload.spec.ts:2 a last edit survives reload before IndexedDB opens its write transaction",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "journal-reload.spec.ts:44 successful CAS clear stays newer across clock rollback",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "latency.spec.ts:5 records local, committed-event and specification latency independently of inference",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "map-theme.spec.ts:3 map follows the shell until a style is chosen (local)",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "map-theme.spec.ts:3 map follows the shell until a style is chosen (saved)",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "map-theme.spec.ts:53 a carousel that mounts when map data arrives begins observing viewport size",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "migration-redesign.spec.ts:114 migration leads with workspace relationships, visible value changes and inspectable SQL",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "migration-redesign.spec.ts:164 completed inspection retains table identity, keyboard navigation and chat-only scrolling",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "migration-redesign.spec.ts:203 generic tables keep unchanged values plain and reject untrusted change metadata",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "operational-motion.spec.ts:176 column geometry arrives continuously while the existing header stays mounted",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "operational-motion.spec.ts:246 context shell keeps header, body and footer bands and compacting shimmers without predicting token totals",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "operational-motion.spec.ts:302 reduced motion skips graph travel and context shimmer while preserving source state",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "operational-motion.spec.ts:345 a token decrease without a host receipt never claims freed tokens and keeps controls responsive",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "operational-motion.spec.ts:5 PR phases retain busy actions and add resolution history before merged checks exit",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "operational-motion.spec.ts:51 vertical row dots and existing SVG endpoints remain attached throughout history insertion",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "operational-motion.spec.ts:99 accepted cell values reveal with the change highlight and sweep follows declared rows without replay",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "overnight-shell.spec.ts:19 sidebar group folding retains its rows, becomes inert immediately and reverses without losing identity",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "overnight-shell.spec.ts:54 sidebar groups settle immediately with disabled shell motion",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "overnight-shell.spec.ts:54 sidebar groups settle immediately with reduced shell motion",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "plan-timeline.spec.ts:10 does not keep a removed owner working after an authoritative snapshot drops its plan and thread",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:105 host replan preserves assignment, collapse and reading anchor when earlier details grow",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:138 collapsed step identity survives returning from another thread and stale epochs never regress it",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:162 deep nested agents and long output labels fit a 280px panel without hiding details",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:185 manual collapse survives reopening the plan with the same exact thread and step identity",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:194 dark narrow/short 100% geometry and reduced motion",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:194 dark narrow/short 125% geometry and reduced motion",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:194 dark narrow/short 150% geometry and reduced motion",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:194 light narrow/short 100% geometry and reduced motion",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:194 light narrow/short 125% geometry and reduced motion",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:194 light narrow/short 150% geometry and reduced motion",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:233 dark desktop parallel branches and join",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:233 light desktop parallel branches and join",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:24 all details are expanded and assigned branches nest and rejoin before the dependent step",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:44 retains manual collapse, focus and reading position across ordered live updates and rejects stale revisions",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:64 resets the snapshot fence on thread switch and retains the old plan during restart publication",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:92 retains a valid plan when the latest canonical graph is malformed",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "review-capture-theme.spec.ts:3 capture theme defaults dark and rejects accidental unrecognized values",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "review-capture-theme.spec.ts:8 theme audit catches a transient opposite theme even after it returns",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "shell-micro-motion.spec.ts:129 settings opens with bounded motion and reduced motion removes travel",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "shell-micro-motion.spec.ts:157 navigation shows actual recency without repeating idle status but retains accessible task state",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "shell-micro-motion.spec.ts:173 completed operation receipts are compact, truthful and retain full evidence on inspection",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "shell-micro-motion.spec.ts:21 the empty composer is compact, grows for multiline work and keeps its draft",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "shell-micro-motion.spec.ts:231 failed and cancelled receipts do not claim success and prepared approval retains exact authority",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "shell-micro-motion.spec.ts:305 shell notice enters, pauses on hover, auto-expires and exits before unmount",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "shell-micro-motion.spec.ts:355 shell notice stays visible when the pointer leaves but keyboard focus remains",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "shell-micro-motion.spec.ts:43 desktop navigation becomes inert immediately on collapse and restores on reopen",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "shell-micro-motion.spec.ts:67 a published plan flags the collapsed overview once without replaying on snapshot or theme updates",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:184 ordinary draft edits do not restart field navigation",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:205 generated signature reveal respects normal motion and never animates direct drawing",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:205 generated signature reveal respects reduced motion and never animates direct drawing",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:271 verified export keeps the same visible canvas while a candidate loads, then commits",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:289 completion holds editing geometry until the verified candidate and receipt can enter together",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:335 failed cross-thread handoff clears retained source pixels",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:335 failed denied handoff clears retained source pixels",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:335 failed hash handoff clears retained source pixels",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:335 failed original-grant handoff clears retained source pixels",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:335 failed original-hash handoff clears retained source pixels",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:335 failed unapproved handoff clears retained source pixels",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:335 failed unknown handoff clears retained source pixels",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:349 revoked grant clears an already committed preview",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:363 cloned export evidence does not refetch or replay a committed handoff",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:382 cancelling the continuity reference clears the predecessor while the destination is loading",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "skills.spec.ts:316 source history retains metadata and disables unavailable views while current instructions stay editable",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "skills.spec.ts:352 a retained source revision can be viewed without replacing current instructions",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "skills.spec.ts:377 retirement during a history read marks only that row and preserves a newer draft generation",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected: \u001b[32m\"The original source for this revision is no longer available.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "skills.spec.ts:420 retirement after historical detail rejects restore once and preserves the newer recovery draft",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected: \u001b[32m\"The original source for this revision is no longer available.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "skills.spec.ts:467 ordinary history transport failures stay retryable and do not retire source rows",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected: \u001b[32m\"The canonical source is busy.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "skills.spec.ts:502 empty libraries and automatic review controls work with old snapshots",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Skills & learning', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Skills & learning', exact: true })\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "skills.spec.ts:552 pending legacy migration keeps saved instructions and supporting files readable",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "skills.spec.ts:579 inspect, edit, supporting files, flags and recoverable archive use current revisions",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "skills.spec.ts:631 a conflicting skill edit survives refresh and reload until the user chooses a saved version",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Your draft is retained\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "skills.spec.ts:681 pending changes show the proposed text and require an explicit approval or rejection",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "skills.spec.ts:710 version history restores a prior version through a new current revision",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "skills.spec.ts:746 a proposal can create a skill and its supporting file before the skill exists",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "skills.spec.ts:788 rejecting a proposed change preserves the active skill",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "skills.spec.ts:811 unconfirmed learning cleanup stays visibly blocked and allows an explicit stop retry",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Runtime cleanup is unconfirmed.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "skills.spec.ts:845 skill controls and editors fit desktop and narrow light and dark views",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        ]
+      }
+    ]
+  },
+  "candidate": {
+    "rawReporterPath": "/workspace/scratch/dbebe44a9817/m12-v3/test-results/browser/run-1794739312340-a6b7828f-39d9-4d87-8493-9cae76ca9c9f/root/results.json",
+    "rawReporterSHA256": "6e17d73b7c80cb3b56017a7a18a789d9aa9b28cc98bddb84701b6c20a7bebc32",
+    "stats": {
+      "startTime": "2026-11-15T10:41:53.733Z",
+      "duration": 447335.664,
+      "expected": 79,
+      "skipped": 1,
+      "unexpected": 33,
+      "flaky": 0
+    },
+    "cases": [
+      {
+        "id": "artifact-acknowledgment.spec.ts:4 an older snapshot cannot replace a newer acknowledged selection",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('checkbox', { name: 'Select row 1', exact: true })\nExpected: checked\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeChecked\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox', { name: 'Select row 1', exact: true })\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "clarity-data-work.spec.ts:122 trend periods align with their plotted values at 1440px dark",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "clarity-data-work.spec.ts:122 trend periods align with their plotted values at 1440px light",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "clarity-data-work.spec.ts:122 trend periods align with their plotted values at 390px light",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "clarity-data-work.spec.ts:16 trend gives its actual scale and units without hiding gaps or fabricating a zero baseline",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "clarity-data-work.spec.ts:162 dark architecture is legible before selecting a node",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "clarity-data-work.spec.ts:162 light architecture is legible before selecting a node",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "clarity-data-work.spec.ts:190 save feedback reserves its checkmark for acknowledged saves",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "clarity-data-work.spec.ts:63 flat and unavailable trends describe only supplied values",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('group', { name: 'Trend scale', exact: true })\nExpected: \u001b[32m\"184 ms\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('group', { name: 'Trend scale', exact: true })\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "dark-default.spec.ts:20 the mounted shell stays dark while fresh settings are still loading on a light device",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "dark-default.spec.ts:3 the document paints dark before the application module starts",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "dark-default.spec.ts:61 an existing light preference still controls the loaded application",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "dark-default.spec.ts:61 an existing system preference still controls the loaded application",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.artifact')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.artifact')\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "document-window.spec.ts:117 new source never overwrites edited text and the document can explicitly adopt the update",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:145 granted text clears immediately on revocation and retry rereads the authorized source",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:213 narrow document window has no page overflow and keyboard undocking retains its editor",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:251 large edited source fits the real host state limit without duplicating the source text",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:271 closing and reloading the handoff preserves its reading position",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:309 oversized UTF-8 edits are rejected without replacing the last durable draft",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:333 retargeting a document cannot overwrite a draft belonging to its previous source",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:374 Plan summary and a docked handoff remain reachable together at 1280px",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:374 Plan summary and a docked handoff remain reachable together at 1440px",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:374 Plan summary and a docked handoff remain reachable together at 1920px",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:374 Plan summary and a docked handoff remain reachable together at 390px",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Project overview window', exact: true }).getByRole('region', { name: 'Plan summary', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Project overview window', exact: true }).getByRole('region', { name: 'Plan summary', exact: true })\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "document-window.spec.ts:5 an expanded artifact keeps its handoff editor interactive and owns Escape separately",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "document-window.spec.ts:64 opens actual editable text, docks beside chat and retains the draft after floating and reload",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        ]
+      },
+      {
+        "id": "host-loop.spec.ts:140 durable decision validation and acceptance continue the same owning runtime once",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Publish this evidence?', exact: true }).or(getByRole('dialog', { name: 'Publish this evidence?', exact: true })).getByRole('alert')\nExpected substring: \u001b[32m\"The response does not match the requested schema. Check the required fields and values.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Publish this evidence?', exact: true }).or(getByRole('dialog', { name: 'Publish this evidence?', exact: true })).getByRole('alert')\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "host-loop.spec.ts:252 generated operation button requires native approval; restart restores without repeating effects",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        ]
+      },
+      {
+        "id": "host-loop.spec.ts:332 stale structured action shows rejection and retains its local review UI",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "host-loop.spec.ts:361 generated app validates mount tickets, source/channel/current nonce/state; acknowledges checkpoint and preserves same iframe",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "host-loop.spec.ts:46 actual create/send, cookies/CSRF/SSE and structured host autosave survive reload",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "host-loop.spec.ts:612 cross-site infinite-loop widget leaves Settings, Stop and host navigation responsive",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "TimeoutError: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Close settings', exact: true })\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "host-loop.spec.ts:708 generated program startup failure preserves host controls and durable artifact state",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        ]
+      },
+      {
+        "id": "host-loop.spec.ts:751 the real host rejects generated apps while preserving its trusted interface",
+        "project": "",
+        "status": "skipped",
+        "expectedStatus": "skipped",
+        "errors": []
+      },
+      {
+        "id": "journal-reload.spec.ts:122 repeated CAS replacements advance when the wall clock stays fixed",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "journal-reload.spec.ts:147 a later peer edit survives an acknowledgment of the captured generation",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "journal-reload.spec.ts:2 a last edit survives reload before IndexedDB opens its write transaction",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "journal-reload.spec.ts:44 successful CAS clear stays newer across clock rollback",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "latency.spec.ts:5 records local, committed-event and specification latency independently of inference",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "map-theme.spec.ts:3 map follows the shell until a style is chosen (local)",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "map-theme.spec.ts:3 map follows the shell until a style is chosen (saved)",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "map-theme.spec.ts:53 a carousel that mounts when map data arrives begins observing viewport size",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "migration-redesign.spec.ts:114 migration leads with workspace relationships, visible value changes and inspectable SQL",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "migration-redesign.spec.ts:164 completed inspection retains table identity, keyboard navigation and chat-only scrolling",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "migration-redesign.spec.ts:203 generic tables keep unchanged values plain and reject untrusted change metadata",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "operational-motion.spec.ts:176 column geometry arrives continuously while the existing header stays mounted",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "operational-motion.spec.ts:246 context shell keeps header, body and footer bands and compacting shimmers without predicting token totals",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "operational-motion.spec.ts:302 reduced motion skips graph travel and context shimmer while preserving source state",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "operational-motion.spec.ts:345 a token decrease without a host receipt never claims freed tokens and keeps controls responsive",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "operational-motion.spec.ts:5 PR phases retain busy actions and add resolution history before merged checks exit",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "operational-motion.spec.ts:51 vertical row dots and existing SVG endpoints remain attached throughout history insertion",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "operational-motion.spec.ts:99 accepted cell values reveal with the change highlight and sweep follows declared rows without replay",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "overnight-shell.spec.ts:19 sidebar group folding retains its rows, becomes inert immediately and reverses without losing identity",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "overnight-shell.spec.ts:54 sidebar groups settle immediately with disabled shell motion",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "overnight-shell.spec.ts:54 sidebar groups settle immediately with reduced shell motion",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "plan-timeline.spec.ts:10 does not keep a removed owner working after an authoritative snapshot drops its plan and thread",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:105 host replan preserves assignment, collapse and reading anchor when earlier details grow",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:138 collapsed step identity survives returning from another thread and stale epochs never regress it",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:162 deep nested agents and long output labels fit a 280px panel without hiding details",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:185 manual collapse survives reopening the plan with the same exact thread and step identity",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:194 dark narrow/short 100% geometry and reduced motion",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:194 dark narrow/short 125% geometry and reduced motion",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:194 dark narrow/short 150% geometry and reduced motion",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:194 light narrow/short 100% geometry and reduced motion",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:194 light narrow/short 125% geometry and reduced motion",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:194 light narrow/short 150% geometry and reduced motion",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:233 dark desktop parallel branches and join",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:233 light desktop parallel branches and join",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:24 all details are expanded and assigned branches nest and rejoin before the dependent step",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:44 retains manual collapse, focus and reading position across ordered live updates and rejects stale revisions",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:64 resets the snapshot fence on thread switch and retains the old plan during restart publication",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "plan-timeline.spec.ts:92 retains a valid plan when the latest canonical graph is malformed",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        ]
+      },
+      {
+        "id": "review-capture-theme.spec.ts:3 capture theme defaults dark and rejects accidental unrecognized values",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "review-capture-theme.spec.ts:8 theme audit catches a transient opposite theme even after it returns",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "shell-micro-motion.spec.ts:129 settings opens with bounded motion and reduced motion removes travel",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "shell-micro-motion.spec.ts:157 navigation shows actual recency without repeating idle status but retains accessible task state",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "shell-micro-motion.spec.ts:173 completed operation receipts are compact, truthful and retain full evidence on inspection",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "shell-micro-motion.spec.ts:21 the empty composer is compact, grows for multiline work and keeps its draft",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "shell-micro-motion.spec.ts:231 failed and cancelled receipts do not claim success and prepared approval retains exact authority",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "shell-micro-motion.spec.ts:305 shell notice enters, pauses on hover, auto-expires and exits before unmount",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "shell-micro-motion.spec.ts:355 shell notice stays visible when the pointer leaves but keyboard focus remains",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "shell-micro-motion.spec.ts:43 desktop navigation becomes inert immediately on collapse and restores on reopen",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "shell-micro-motion.spec.ts:67 a published plan flags the collapsed overview once without replaying on snapshot or theme updates",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:184 ordinary draft edits do not restart field navigation",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:205 generated signature reveal respects normal motion and never animates direct drawing",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:205 generated signature reveal respects reduced motion and never animates direct drawing",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:271 verified export keeps the same visible canvas while a candidate loads, then commits",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:289 completion holds editing geometry until the verified candidate and receipt can enter together",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:335 failed cross-thread handoff clears retained source pixels",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:335 failed denied handoff clears retained source pixels",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:335 failed hash handoff clears retained source pixels",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:335 failed original-grant handoff clears retained source pixels",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:335 failed original-hash handoff clears retained source pixels",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:335 failed unapproved handoff clears retained source pixels",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:335 failed unknown handoff clears retained source pixels",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:349 revoked grant clears an already committed preview",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:363 cloned export evidence does not refetch or replay a committed handoff",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "signing-motion.spec.ts:382 cancelling the continuity reference clears the predecessor while the destination is loading",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "skills.spec.ts:316 source history retains metadata and disables unavailable views while current instructions stay editable",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "skills.spec.ts:352 a retained source revision can be viewed without replacing current instructions",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "skills.spec.ts:377 retirement during a history read marks only that row and preserves a newer draft generation",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected: \u001b[32m\"The original source for this revision is no longer available.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "skills.spec.ts:420 retirement after historical detail rejects restore once and preserves the newer recovery draft",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected: \u001b[32m\"The original source for this revision is no longer available.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "skills.spec.ts:467 ordinary history transport failures stay retryable and do not retire source rows",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected: \u001b[32m\"The canonical source is busy.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "skills.spec.ts:502 empty libraries and automatic review controls work with old snapshots",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Skills & learning', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Skills & learning', exact: true })\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "skills.spec.ts:552 pending legacy migration keeps saved instructions and supporting files readable",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "skills.spec.ts:579 inspect, edit, supporting files, flags and recoverable archive use current revisions",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "skills.spec.ts:631 a conflicting skill edit survives refresh and reload until the user chooses a saved version",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Your draft is retained\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "skills.spec.ts:681 pending changes show the proposed text and require an explicit approval or rejection",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "skills.spec.ts:710 version history restores a prior version through a new current revision",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "skills.spec.ts:746 a proposal can create a skill and its supporting file before the skill exists",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "skills.spec.ts:788 rejecting a proposed change preserves the active skill",
+        "project": "",
+        "status": "expected",
+        "expectedStatus": "passed",
+        "errors": []
+      },
+      {
+        "id": "skills.spec.ts:811 unconfirmed learning cleanup stays visibly blocked and allows an explicit stop retry",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Runtime cleanup is unconfirmed.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n"
+        ]
+      },
+      {
+        "id": "skills.spec.ts:845 skill controls and editors fit desktop and narrow light and dark views",
+        "project": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "errors": [
+          "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        ]
+      }
+    ]
+  },
+  "newUnexpectedCases": [
+    "artifact-acknowledgment.spec.ts:4 an older snapshot cannot replace a newer acknowledged selection",
+    "clarity-data-work.spec.ts:63 flat and unavailable trends describe only supplied values",
+    "dark-default.spec.ts:61 an existing system preference still controls the loaded application",
+    "document-window.spec.ts:64 opens actual editable text, docks beside chat and retains the draft after floating and reload"
+  ],
+  "resolvedUnexpectedCases": [
+    "host-loop.spec.ts:332 stale structured action shows rejection and retains its local review UI",
+    "host-loop.spec.ts:361 generated app validates mount tickets, source/channel/current nonce/state; acknowledges checkpoint and preserves same iframe",
+    "host-loop.spec.ts:46 actual create/send, cookies/CSRF/SSE and structured host autosave survive reload",
+    "latency.spec.ts:5 records local, committed-event and specification latency independently of inference"
+  ],
+  "interpretation": "Both full root commands failed with equal counts but four different failures each. All four candidate-only failures passed the focused rerun; this does not make either original root run pass.",
+  "candidateOnlyFailureRecheck": {
+    "commandLog": "docs/implementation/v3/m12-logs/comparison-03-candidate-focus.log",
+    "stats": {
+      "startTime": "2026-11-15T11:09:26.381Z",
+      "duration": 16048.491000000002,
+      "expected": 4,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "interpretation": "All four candidate-only unexpected cases passed on a focused rerun. Original failing observations remain failures; no assertion-level stable regression is established by those four initial failures."
+  }
+}

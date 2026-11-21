@@ -1,0 +1,19 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+{
+  "argv": [
+    "pnpm",
+    "typecheck"
+  ],
+  "cwd": "<worktree:m12-v6>",
+  "startedAt": "2026-11-18T14:27:16.750Z",
+  "endedAt": "2026-11-18T14:34:23.019Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+> gen-v1@0.6.5 typecheck <worktree:m12-v6>
+> tsc --noEmit
+
+

@@ -1,0 +1,1955 @@
+{
+  "version": 1,
+  "acceptedBase": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-base-fcaa52",
+  "environmentChecks": {
+    "head": {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exitCode": 0,
+      "stdout": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563\n",
+      "stderr": ""
+    },
+    "trackedSourceUnchanged": {
+      "argv": [
+        "git",
+        "diff",
+        "--exit-code"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "status": {
+      "argv": [
+        "git",
+        "status",
+        "--short"
+      ],
+      "exitCode": 0,
+      "stdout": "?? node_modules\n",
+      "stderr": ""
+    },
+    "node": {
+      "argv": [
+        "node",
+        "--version"
+      ],
+      "exitCode": 0,
+      "stdout": "v24.22.1\n",
+      "stderr": ""
+    },
+    "pnpm": {
+      "argv": [
+        "corepack",
+        "pnpm@10.30.3",
+        "--version"
+      ],
+      "exitCode": 0,
+      "stdout": "10.30.3\n",
+      "stderr": ""
+    }
+  },
+  "dependencySetup": {
+    "nodeModulesSymlinkTarget": "/workspace/scratch/dbebe44a9817/m12-v3/node_modules",
+    "newInstalls": false,
+    "note": "Accepted base uses the already installed common dependencies through a symlink. This is not a fresh base-specific reinstall; extra candidate-only packages may be present but no accepted-base source was changed."
+  },
+  "commandRecord": {
+    "argv": [
+      "env",
+      "npm_config_script_shell=<tmp>/m12-base-script-shell",
+      "corepack",
+      "pnpm@10.30.3",
+      "test",
+      "--maxWorkers=2",
+      "--reporter=json",
+      "--outputFile=/workspace/scratch/dbebe44a9817/m12-v3/docs/implementation/v3/m12-logs/baseline-fcaa52-vitest.json"
+    ],
+    "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-base-fcaa52",
+    "executableIdentity": "/usr/bin/env",
+    "startedAt": "2026-11-15T11:01:25.181786+00:00",
+    "endedAt": "2026-11-15T11:06:41.391940+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m12-logs/baseline-03-full-test-loader.log",
+    "logDigest": "9819bfc050cfc9b69e8abee910ef883b797b7a7793d2ff105f69fc079467cc76"
+  },
+  "launchAdaptation": {
+    "reason": "Original pnpm test stopped before tests because tsx CLI tried to create a Unix IPC socket prohibited in this host.",
+    "originalAttempt": "docs/implementation/v3/m12-logs/baseline-01-full-test.log",
+    "override": "npm_config_script_shell=<tmp>/m12-base-script-shell",
+    "shim": "#!/bin/bash\nset -e\nif [ \"$1\" = '-c' ]; then\n  script=$2\n  shift 2\n  exec /bin/bash -c 'tsx() { command node --import tsx \"$@\"; }\n'\"$script\" -- \"$@\"\nfi\nexec /bin/bash \"$@\"\n",
+    "scope": "Maps the tsx shell command to node --import tsx; preserves pnpm test, its build prerequisites, and all base source."
+  },
+  "generatedAssets": {
+    "requiredByTestScript": [
+      "build:credential-lease",
+      "build:widgets"
+    ],
+    "linuxCredentialBuilder": "CLI exits without building because platform is not Windows.",
+    "widgetOutputs": [
+      "dist/widget-runtime/worker.js",
+      "dist/widget-runtime/receiver.js"
+    ],
+    "buildLog": "docs/implementation/v3/m12-logs/baseline-02-build-widgets.log"
+  },
+  "vitest": {
+    "numTotalTestSuites": 502,
+    "numPassedTestSuites": 447,
+    "numFailedTestSuites": 55,
+    "numPendingTestSuites": 0,
+    "numTotalTests": 3355,
+    "numPassedTests": 3036,
+    "numFailedTests": 273,
+    "numPendingTests": 46,
+    "numTodoTests": 0,
+    "success": false
+  },
+  "reportedFileRecords": 323,
+  "filesWithFailedAssertions": 46,
+  "jsonReport": {
+    "path": "docs/implementation/v3/m12-logs/baseline-fcaa52-vitest.json",
+    "sha256": "2696989e018fdc7b77e0147df876bdff7f04b51d3995b9b452b74f1c00728cf4",
+    "bytes": 1315023
+  },
+  "firstLineGroups": [
+    {
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "count": 162
+    },
+    {
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "count": 43
+    },
+    {
+      "firstFailureLine": "Error: STACK_TRACE_ERROR",
+      "count": 4
+    },
+    {
+      "firstFailureLine": "Error: Cannot find module '@cursor/sdk-win32-x64/package.json'",
+      "count": 4
+    },
+    {
+      "firstFailureLine": "Error: promise rejected \"HarnessError: File access check failed \u2014 \u2026 { \u2026(2) }\" instead of resolving",
+      "count": 4
+    },
+    {
+      "firstFailureLine": "AssertionError: expected 403 to be 200 // Object.is equality",
+      "count": 4
+    },
+    {
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'RESOURCE_LIMIT' }",
+      "count": 3
+    },
+    {
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { Object (code, message, ...) }",
+      "count": 3
+    },
+    {
+      "firstFailureLine": "Error: Desktop host reported a startup error before harness.ready",
+      "count": 2
+    },
+    {
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'REVISION_CHANGED', \u2026(2) }",
+      "count": 2
+    },
+    {
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'PROJECT_READ_ONLY' }",
+      "count": 2
+    },
+    {
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'REVISION_CHANGED' }",
+      "count": 2
+    },
+    {
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to be Error: Synthetic remote failure // Object.is equality",
+      "count": 2
+    },
+    {
+      "firstFailureLine": "AssertionError: expected false to be true // Object.is equality",
+      "count": 2
+    },
+    {
+      "firstFailureLine": "AssertionError: expected 'File access check failed \u2014 the folder\u2026' to be null",
+      "count": 2
+    },
+    {
+      "firstFailureLine": "AssertionError: expected { status: 'unavailable', \u2026(1) } to deeply equal { status: 'unavailable', \u2026(1) }",
+      "count": 2
+    },
+    {
+      "firstFailureLine": "Error: expected [Function] to throw error including 'Synthetic native cancellation' but got 'File access check failed \u2014 the folder\u2026'",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to be HarnessError: Synthetic shutdown could no\u2026 { \u2026(2) } // Object.is equality",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "Error: expected [Function] to throw error matching /read only/i but got 'File access check failed \u2014 the folder\u2026'",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "AssertionError: expected [ 503, 503 ] to deeply equal [ 200, 200 ]",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "AssertionError: expected undefined to match object { kind: 'repository.test', \u2026(2) }",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "Error: expected [Function] to throw error matching /GitHub branch/ but got 'File access check failed \u2014 the folder\u2026'",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'HERMES_PROTOCOL' }",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "AggregateError: Hermes cleanup could not be confirmed.",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "AggregateError: Hermes task pool cleanup could not be confirmed.",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "Error: expected [Function] to throw error matching /plan mode/i but got 'Bundled integration is unavailable: E\u2026'",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "Error: Bundled integration is unavailable: ENOENT: no such file or directory, lstat '/workspace/scratch/dbebe44a9817/m12-base-fcaa52/.harness-integrations-python-deps/graphify'",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "Error: Bundled integration is unavailable: ENOENT: no such file or directory, lstat '/workspace/scratch/dbebe44a9817/m12-base-fcaa52/.harness-integrations-python-deps/specify_cli'",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "Error: Command failed: /workspace/scratch/dbebe44a9817/m12-base-fcaa52/node_modules/@biomejs/cli-win32-x64/biome.exe --version",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "Error: expected [Function] to throw error matching /link|guard|resource|access/i but got 'Bundled integration is unavailable: E\u2026'",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "HarnessError: Cursor storage path cannot contain \":\". Choose another storage folder.",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "Error: Resolved distribution is outside the packaged host.",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "Error: expected HarnessError: The selected path is unavai\u2026 { \u2026(2) } to match object { code: 'CAPABILITY_DENIED' }",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "Error: File access check failed \u2014 the folder could not be opened safely for this action",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "AssertionError: expected [] to have a length of 1 but got +0",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "AssertionError: expected undefined to match object { name: 'Test procedure', \u2026(2) }",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "AssertionError: expected [ { \u2026(7) } ] to have a length of 26 but got 1",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'files')",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "AssertionError: expected null to be truthy",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "AssertionError: expected undefined to match object { status: 'unavailable', \u2026(1) }",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "AssertionError: expected undefined to match object { ref: null, availability: { \u2026(2) } }",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "AssertionError: expected [] to deeply equal [ 'outer', 'outer/nested' ]",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "AssertionError: expected [] to have a length of 2 but got +0",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "AssertionError: expected undefined to be null",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "AssertionError: expected [] to deeply equal [ 'Worktree only' ]",
+      "count": 1
+    },
+    {
+      "firstFailureLine": "AssertionError: expected [] to have a length of 40 but got +0",
+      "count": 1
+    }
+  ],
+  "failedAssertions": [
+    {
+      "file": "tests/account-login.test.ts",
+      "fullName": "does not admit a successor sign-in when an expired lease still has a live owner",
+      "firstFailureLine": "Error: STACK_TRACE_ERROR",
+      "failureTextSha256": "07cf4e55138e23dc23c33b0bbfaa013faf9d021f7aad7b76ec7c4344472e43a7"
+    },
+    {
+      "file": "tests/account-login.test.ts",
+      "fullName": "reserves the exact named profile for sign-in and releases it after a failed native login",
+      "firstFailureLine": "Error: expected [Function] to throw error including 'Synthetic native cancellation' but got 'File access check failed \u2014 the folder\u2026'",
+      "failureTextSha256": "283f0d0abdfdcfcef87c42aea29793c38dabc989cbf9e8bcb5fa49f731dac5b1"
+    },
+    {
+      "file": "tests/account-login.test.ts",
+      "fullName": "retains a durable account hold when native login shutdown is unconfirmed",
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to be HarnessError: Synthetic shutdown could no\u2026 { \u2026(2) } // Object.is equality",
+      "failureTextSha256": "a55340722fccbad8425065c16e7bc24c2ffc7217a1615758f8614e88d970ee0e"
+    },
+    {
+      "file": "tests/account-parity.test.ts",
+      "fullName": "delegates through Service using the parent account after future defaults change before asynchronous child creation",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "362d71c772d37b810a01058185c7e422e87ec0a0d637a07ae1303cc77a96627a"
+    },
+    {
+      "file": "tests/account-parity.test.ts",
+      "fullName": "inherits the parent account for a new side conversation while defaults change before and during startup",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "362d71c772d37b810a01058185c7e422e87ec0a0d637a07ae1303cc77a96627a"
+    },
+    {
+      "file": "tests/account-parity.test.ts",
+      "fullName": "keeps claude-code task routing through compaction and history-aware recovery after its default changes",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "362d71c772d37b810a01058185c7e422e87ec0a0d637a07ae1303cc77a96627a"
+    },
+    {
+      "file": "tests/account-parity.test.ts",
+      "fullName": "keeps cursor-sdk task routing through compaction and history-aware recovery after its default changes",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "362d71c772d37b810a01058185c7e422e87ec0a0d637a07ae1303cc77a96627a"
+    },
+    {
+      "file": "tests/account-parity.test.ts",
+      "fullName": "keeps gemini-cli task routing through compaction and history-aware recovery after its default changes",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "362d71c772d37b810a01058185c7e422e87ec0a0d637a07ae1303cc77a96627a"
+    },
+    {
+      "file": "tests/account-parity.test.ts",
+      "fullName": "keeps github-copilot task routing through compaction and history-aware recovery after its default changes",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "362d71c772d37b810a01058185c7e422e87ec0a0d637a07ae1303cc77a96627a"
+    },
+    {
+      "file": "tests/account-parity.test.ts",
+      "fullName": "keeps kimi-coding task routing through compaction and history-aware recovery after its default changes",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "362d71c772d37b810a01058185c7e422e87ec0a0d637a07ae1303cc77a96627a"
+    },
+    {
+      "file": "tests/account-parity.test.ts",
+      "fullName": "keeps openai task routing through compaction and history-aware recovery after its default changes",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "362d71c772d37b810a01058185c7e422e87ec0a0d637a07ae1303cc77a96627a"
+    },
+    {
+      "file": "tests/account-parity.test.ts",
+      "fullName": "keeps openai-codex task routing through compaction and history-aware recovery after its default changes",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "362d71c772d37b810a01058185c7e422e87ec0a0d637a07ae1303cc77a96627a"
+    },
+    {
+      "file": "tests/account-parity.test.ts",
+      "fullName": "keeps opencode-go task routing through compaction and history-aware recovery after its default changes",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "362d71c772d37b810a01058185c7e422e87ec0a0d637a07ae1303cc77a96627a"
+    },
+    {
+      "file": "tests/account-parity.test.ts",
+      "fullName": "keeps xai task routing through compaction and history-aware recovery after its default changes",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "362d71c772d37b810a01058185c7e422e87ec0a0d637a07ae1303cc77a96627a"
+    },
+    {
+      "file": "tests/account-profile.test.ts",
+      "fullName": "keeps each writable account directory nonempty with a pinned ordinary marker",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "00df64b609d11777faebd9f26429e76ec0986396fb858d96c4a606e248366bd9"
+    },
+    {
+      "file": "tests/account-profile.test.ts",
+      "fullName": "keeps official home namespaces pinned while native credential files remain atomically replaceable",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "00df64b609d11777faebd9f26429e76ec0986396fb858d96c4a606e248366bd9"
+    },
+    {
+      "file": "tests/account-profile.test.ts",
+      "fullName": "pins native directories while allowing legitimate atomic credential replacement",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "00df64b609d11777faebd9f26429e76ec0986396fb858d96c4a606e248366bd9"
+    },
+    {
+      "file": "tests/account-profile.test.ts",
+      "fullName": "rejects an accounts junction and holds the acquired namespace against replacement",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "00df64b609d11777faebd9f26429e76ec0986396fb858d96c4a606e248366bd9"
+    },
+    {
+      "file": "tests/capabilities.test.ts",
+      "fullName": "PDF local export inspects fields, fills supported types and places typed/drawn marks in a new local export",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "a7bb9ec58319d5088800a3716f27eb9b894dc75855dfb1334e7b3c15da00ba7b"
+    },
+    {
+      "file": "tests/capabilities.test.ts",
+      "fullName": "disposable fixtures and held-out evaluations creates fixtures only at an exclusive new destination including real git conflict",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "a7bb9ec58319d5088800a3716f27eb9b894dc75855dfb1334e7b3c15da00ba7b"
+    },
+    {
+      "file": "tests/capabilities.test.ts",
+      "fullName": "domain permission wrapper and file operations cancels the actual process tree and records cancellation instead of success",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "a7bb9ec58319d5088800a3716f27eb9b894dc75855dfb1334e7b3c15da00ba7b"
+    },
+    {
+      "file": "tests/capabilities.test.ts",
+      "fullName": "domain permission wrapper and file operations executes approved replacement, publishes actual results and re-resolves write permissions",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "a7bb9ec58319d5088800a3716f27eb9b894dc75855dfb1334e7b3c15da00ba7b"
+    },
+    {
+      "file": "tests/capabilities.test.ts",
+      "fullName": "domain permission wrapper and file operations prepares without writing and rejects absent approval and changed source bytes",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "a7bb9ec58319d5088800a3716f27eb9b894dc75855dfb1334e7b3c15da00ba7b"
+    },
+    {
+      "file": "tests/capabilities.test.ts",
+      "fullName": "domain permission wrapper and file operations publishes resource sourced text with an exact content hash",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "a7bb9ec58319d5088800a3716f27eb9b894dc75855dfb1334e7b3c15da00ba7b"
+    },
+    {
+      "file": "tests/capabilities.test.ts",
+      "fullName": "domain permission wrapper and file operations reconciles before/after replacement hashes read-only and leaves changed bytes unknown",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "a7bb9ec58319d5088800a3716f27eb9b894dc75855dfb1334e7b3c15da00ba7b"
+    },
+    {
+      "file": "tests/capabilities.test.ts",
+      "fullName": "domain permission wrapper and file operations rejects readonly grants at prepare and rejects cross-thread or non-running operation dispatch",
+      "firstFailureLine": "Error: expected [Function] to throw error matching /read only/i but got 'File access check failed \u2014 the folder\u2026'",
+      "failureTextSha256": "fc90947428b26c27dd4a02ba2130e5e6904de6b6f13dba1e3926be5efee45ce3"
+    },
+    {
+      "file": "tests/capabilities.test.ts",
+      "fullName": "domain permission wrapper and file operations runs the exact node-test recipe and reports actual success and failure exits",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "a7bb9ec58319d5088800a3716f27eb9b894dc75855dfb1334e7b3c15da00ba7b"
+    },
+    {
+      "file": "tests/capabilities.test.ts",
+      "fullName": "real selected SQLite bounds inspect rows by serialized bytes and reports truncation",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "a7bb9ec58319d5088800a3716f27eb9b894dc75855dfb1334e7b3c15da00ba7b"
+    },
+    {
+      "file": "tests/capabilities.test.ts",
+      "fullName": "real selected SQLite inspects real rows and applies exact prepared counts with integrity/version checks",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "a7bb9ec58319d5088800a3716f27eb9b894dc75855dfb1334e7b3c15da00ba7b"
+    },
+    {
+      "file": "tests/capabilities.test.ts",
+      "fullName": "real selected SQLite reports actual migration DML counts independently from schema statements",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "a7bb9ec58319d5088800a3716f27eb9b894dc75855dfb1334e7b3c15da00ba7b"
+    },
+    {
+      "file": "tests/capabilities.test.ts",
+      "fullName": "real selected SQLite rolls back wrong counts, denies attachment and rejects stale database versions",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "a7bb9ec58319d5088800a3716f27eb9b894dc75855dfb1334e7b3c15da00ba7b"
+    },
+    {
+      "file": "tests/checkpoint-restore-v3.test.ts",
+      "fullName": "captures approved files and keeps excluded files visible as outside coverage",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "7ee973a37c0b6ac815854e926d1aba57da78cd60c015282e9a86651bf9be8aca"
+    },
+    {
+      "file": "tests/checkpoint-restore-v3.test.ts",
+      "fullName": "collects unreferenced blobs only",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "7ee973a37c0b6ac815854e926d1aba57da78cd60c015282e9a86651bf9be8aca"
+    },
+    {
+      "file": "tests/checkpoint-restore-v3.test.ts",
+      "fullName": "conflicts rather than overwrite content the recovery checkpoint cannot hold",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "7ee973a37c0b6ac815854e926d1aba57da78cd60c015282e9a86651bf9be8aca"
+    },
+    {
+      "file": "tests/checkpoint-restore-v3.test.ts",
+      "fullName": "preserves both versions and reports PARTIAL_RECOVERY_REQUIRED when a write is edited during rollback",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "7ee973a37c0b6ac815854e926d1aba57da78cd60c015282e9a86651bf9be8aca"
+    },
+    {
+      "file": "tests/checkpoint-restore-v3.test.ts",
+      "fullName": "provisions only manifest-pinned non-secret files",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "7ee973a37c0b6ac815854e926d1aba57da78cd60c015282e9a86651bf9be8aca"
+    },
+    {
+      "file": "tests/checkpoint-restore-v3.test.ts",
+      "fullName": "recreates a file the working copy deleted",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "7ee973a37c0b6ac815854e926d1aba57da78cd60c015282e9a86651bf9be8aca"
+    },
+    {
+      "file": "tests/checkpoint-restore-v3.test.ts",
+      "fullName": "refuses restore of a checkpoint whose blobs expired and reports MISSING blobs",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "7ee973a37c0b6ac815854e926d1aba57da78cd60c015282e9a86651bf9be8aca"
+    },
+    {
+      "file": "tests/checkpoint-restore-v3.test.ts",
+      "fullName": "refuses to re-apply a plan left APPLYING by a killed process",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "7ee973a37c0b6ac815854e926d1aba57da78cd60c015282e9a86651bf9be8aca"
+    },
+    {
+      "file": "tests/checkpoint-restore-v3.test.ts",
+      "fullName": "requires the exact approval for a restore plan",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "7ee973a37c0b6ac815854e926d1aba57da78cd60c015282e9a86651bf9be8aca"
+    },
+    {
+      "file": "tests/checkpoint-restore-v3.test.ts",
+      "fullName": "restores selected paths exactly with a recorded pre-restore checkpoint",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "7ee973a37c0b6ac815854e926d1aba57da78cd60c015282e9a86651bf9be8aca"
+    },
+    {
+      "file": "tests/checkpoint-restore-v3.test.ts",
+      "fullName": "reviews a checkpoint with bounded side-by-side diffs",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "7ee973a37c0b6ac815854e926d1aba57da78cd60c015282e9a86651bf9be8aca"
+    },
+    {
+      "file": "tests/checkpoint-restore-v3.test.ts",
+      "fullName": "rolls written files back on a conflict and reports CONFLICT",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "7ee973a37c0b6ac815854e926d1aba57da78cd60c015282e9a86651bf9be8aca"
+    },
+    {
+      "file": "tests/checkpoint-restore-v3.test.ts",
+      "fullName": "stops on cancellation after the first write and reports PARTIAL_RECOVERY_REQUIRED",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "7ee973a37c0b6ac815854e926d1aba57da78cd60c015282e9a86651bf9be8aca"
+    },
+    {
+      "file": "tests/code-review-comparisons.test.ts",
+      "fullName": "denies delegates, Company, cross-project and replaced-directory reads before remote transport",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/code-review-comparisons.test.ts",
+      "fullName": "distinguishes omitted, binary and incomplete remote patches without fetching metadata URLs",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/code-review-comparisons.test.ts",
+      "fullName": "keeps legacy reads tracked-only and can compare a remote PR without a managed checkout or matching HEAD",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/code-review-comparisons.test.ts",
+      "fullName": "keeps snapshots isolated from returned mutable data and never accepts another owner",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/code-review-comparisons.test.ts",
+      "fullName": "never reads a hardlinked changed file into a patch",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/code-review-comparisons.test.ts",
+      "fullName": "pins remote PR patches to exact three-dot identity without substituting local unstaged changes",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/code-review-comparisons.test.ts",
+      "fullName": "reads an already-attested remote origin without a source Git checkout or source file projection",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/code-review-comparisons.test.ts",
+      "fullName": "reads index and worktree overlap separately and binds selected patches to the complete revision",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/code-review-comparisons.test.ts",
+      "fullName": "reads staged deletions and renames by exact selected paths",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/code-review-comparisons.test.ts",
+      "fullName": "rejects mismatched remote identities and reports empty and capped file inventories honestly",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/code-review-comparisons.test.ts",
+      "fullName": "reports clean, untracked text, binary and bounded large patches honestly",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/code-review-comparisons.test.ts",
+      "fullName": "returns explicit transport errors and never calls a local diff as fallback",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/code-review-reader.test.ts",
+      "fullName": "bounds complete local hashing before reading an oversized sparse file",
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'RESOURCE_LIMIT' }",
+      "failureTextSha256": "fbc56fdf8c2cea6d09256b50d3f34b6f1b7e07f0b941033d400db605116f78b7"
+    },
+    {
+      "file": "tests/cursor-offline-executor.test.ts",
+      "fullName": "loads the actual lazy local executor and native parser, then fails closed before account/inference transport",
+      "firstFailureLine": "Error: Cannot find module '@cursor/sdk-win32-x64/package.json'",
+      "failureTextSha256": "81127ad939018f2a088f484248d77afb66f05f7e3fbb3c433db9a0737d4fb3cc"
+    },
+    {
+      "file": "tests/cursor-offline-executor.test.ts",
+      "fullName": "self-tests the offline boundary in a separate child before importing any SDK",
+      "firstFailureLine": "Error: Cannot find module '@cursor/sdk-win32-x64/package.json'",
+      "failureTextSha256": "720e1c777d1b9605605d7092a4163fff7498dda815f0652f60054de133b686fa"
+    },
+    {
+      "file": "tests/cursor-sdk-mcp-metadata.test.ts",
+      "fullName": "observes actual SDK send metadata through production gate and HostMcp with no tool execution or auth transport",
+      "firstFailureLine": "Error: Cannot find module '@cursor/sdk-win32-x64/package.json'",
+      "failureTextSha256": "1fe7b2b490d9341707f6e0f8a5f332b43035f35702aa183d7303278cebcc90f9"
+    },
+    {
+      "file": "tests/cursor-sdk-mcp-metadata.test.ts",
+      "fullName": "self-tests child transport denial and parent broker rejection without importing the SDK",
+      "firstFailureLine": "Error: Cannot find module '@cursor/sdk-win32-x64/package.json'",
+      "failureTextSha256": "5aaee2b459f8061a459b40f0c80cb52f6241beb156c3d0e2309f27cc3cc33ee3"
+    },
+    {
+      "file": "tests/desktop-host.test.ts",
+      "fullName": "does not leave its backend running after the owning IPC channel disconnects",
+      "firstFailureLine": "Error: Desktop host reported a startup error before harness.ready",
+      "failureTextSha256": "68a36d172154e0a24cd71eeb044a42bd680e1b8464d1d16919037e577cdb1e55"
+    },
+    {
+      "file": "tests/desktop-host.test.ts",
+      "fullName": "launches an actual isolated sidecar, authenticates HTTP and shuts down only for its launch token",
+      "firstFailureLine": "Error: Desktop host reported a startup error before harness.ready",
+      "failureTextSha256": "68a36d172154e0a24cd71eeb044a42bd680e1b8464d1d16919037e577cdb1e55"
+    },
+    {
+      "file": "tests/dev-plugin-runtime.test.ts",
+      "fullName": "prepares widgets and shared runtime before dev children, serves the trusted frame, and closes owned children",
+      "firstFailureLine": "AssertionError: expected [ 503, 503 ] to deeply equal [ 200, 200 ]",
+      "failureTextSha256": "ee680d31bc47398a82d9266d46c0a5e70ef27898f86c5388b3a7738eaad598d9"
+    },
+    {
+      "file": "tests/expanded-review-fixtures.test.ts",
+      "fullName": "explicit expanded recording fixtures runs the named local test only after exact native approval and derives failure from exit status",
+      "firstFailureLine": "AssertionError: expected undefined to match object { kind: 'repository.test', \u2026(2) }",
+      "failureTextSha256": "4280c09d7a383e4a6f877773cfc3b279b3e001eb3938da97ddb49e0fbb14577d"
+    },
+    {
+      "file": "tests/git-metadata-guard.test.ts",
+      "fullName": "pins a read-only Git config while allowing index creation in the same pinned metadata directory",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "093b25050da915225977e7e080ccaf38fe79bc9aa2d49d551bff205fdffba4bf"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "cleans private create input while preserving a remote failure",
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to be Error: Synthetic remote failure // Object.is equality",
+      "failureTextSha256": "ff307a4a3ca66f7da5d56e239a26b36fcba01ddbaff782bc58c9cb7e14d19974"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "cleans private review input while preserving a remote failure",
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to be Error: Synthetic remote failure // Object.is equality",
+      "failureTextSha256": "ff307a4a3ca66f7da5d56e239a26b36fcba01ddbaff782bc58c9cb7e14d19974"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "fences cancel during private credential writing before rename and preserves the prior token",
+      "firstFailureLine": "Error: STACK_TRACE_ERROR",
+      "failureTextSha256": "2a95a9ddadf170fcabc7903fdafe7f9862c49d5397f6b9bd99180cbc73173946"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "fences expire during private credential writing before rename and preserves the prior token",
+      "firstFailureLine": "Error: STACK_TRACE_ERROR",
+      "failureTextSha256": "2a95a9ddadf170fcabc7903fdafe7f9862c49d5397f6b9bd99180cbc73173946"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "fences replace during private credential writing before rename and preserves the prior token",
+      "firstFailureLine": "Error: STACK_TRACE_ERROR",
+      "failureTextSha256": "2a95a9ddadf170fcabc7903fdafe7f9862c49d5397f6b9bd99180cbc73173946"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "keeps device authorization tokens private and requires a Gen V1 credential before CLI use",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "3c50969f79290fc82710176a65a2deec043fbcbcf765565f4a8b95e1f08b9108"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "rechecks writable authority after remote validation before draft creation",
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'PROJECT_READ_ONLY' }",
+      "failureTextSha256": "d6fe44f322cb40ec5f83e5a6c8e78d6330c25b1bb7e1b6483df1dec0768cfb63"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "refuses to create a PR when the GitHub branch differs from the reviewed local commit",
+      "firstFailureLine": "Error: expected [Function] to throw error matching /GitHub branch/ but got 'File access check failed \u2014 the folder\u2026'",
+      "failureTextSha256": "21215bc2fb01c69efaf9644c90fab17203863d9a0dfa8ebd1f2f8b1836a5366f"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "rejects changed capability while preparing a private review input",
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'PROJECT_READ_ONLY' }",
+      "failureTextSha256": "5ed9004e20d77e67864ffee20bc3f15dad1817794e29560c6a3995649297c898"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "rejects changed head while preparing a private review input",
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'REVISION_CHANGED' }",
+      "failureTextSha256": "faf9d6c9110f02ecfca16245029172c196cc012e06239fccdd8f3a22ca6ddad8"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "rejects changed revision while preparing a private review input",
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'REVISION_CHANGED' }",
+      "failureTextSha256": "faf9d6c9110f02ecfca16245029172c196cc012e06239fccdd8f3a22ca6ddad8"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "reports a completed sign-in when credential commit wins the cancellation race",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "3c50969f79290fc82710176a65a2deec043fbcbcf765565f4a8b95e1f08b9108"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "retains publication state after success even when exact directory cleanup is refused",
+      "firstFailureLine": "Error: promise rejected \"HarnessError: File access check failed \u2014 \u2026 { \u2026(2) }\" instead of resolving",
+      "failureTextSha256": "98313e238b9a6717f31a061a7dd292c4ecd27ac070a24fe7da368f47c29c8647"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "retains publication state after verification failure even when exact directory cleanup is refused",
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'REVISION_CHANGED', \u2026(2) }",
+      "failureTextSha256": "fccca7364ff6f58f81a56bd21698ac056d24153b4b68caa2a61c79c2b0342516"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "retains the already-created PR URL after failed read without creating it again",
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { Object (code, message, ...) }",
+      "failureTextSha256": "f32ce94c8009aa6d9368009f001a2573120e2fc76a098ae4ffa7848b18739be3"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "retains the already-created PR URL after malformed JSON without creating it again",
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { Object (code, message, ...) }",
+      "failureTextSha256": "f32ce94c8009aa6d9368009f001a2573120e2fc76a098ae4ffa7848b18739be3"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "retains the already-created PR URL after missing head without creating it again",
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { Object (code, message, ...) }",
+      "failureTextSha256": "f32ce94c8009aa6d9368009f001a2573120e2fc76a098ae4ffa7848b18739be3"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "retains the created PR URL when its actual head differs from the reviewed commit",
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'REVISION_CHANGED', \u2026(2) }",
+      "failureTextSha256": "6dc088902acb19fa39e0b11601b9473dcf02e3e8fe47d2afbd38c55d31e7c252"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "returns a created PR only after its actual head matches the reviewed commit",
+      "firstFailureLine": "Error: promise rejected \"HarnessError: File access check failed \u2014 \u2026 { \u2026(2) }\" instead of resolving",
+      "failureTextSha256": "d760c8b99dbd69a26859dfdca8439fe15dabe2a9af2b95e76d83cca508466bbb"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "serializes polling per flow and treats cancellation of an older flow as harmless",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "3c50969f79290fc82710176a65a2deec043fbcbcf765565f4a8b95e1f08b9108"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "submits a writable exact-head review against its reviewed commit",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "3c50969f79290fc82710176a65a2deec043fbcbcf765565f4a8b95e1f08b9108"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "uses file-backed review JSON without changing newlines, Unicode or literal backslashes",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "3c50969f79290fc82710176a65a2deec043fbcbcf765565f4a8b95e1f08b9108"
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "fullName": "writes long Unicode PR text exactly to a private file before push and removes it after success",
+      "firstFailureLine": "Error: promise rejected \"HarnessError: File access check failed \u2014 \u2026 { \u2026(2) }\" instead of resolving",
+      "failureTextSha256": "745fe0d10f361ec6c2c2fa4ee89e5a7213b0cd257f83bafb43fae34f7bc0ea05"
+    },
+    {
+      "file": "tests/hermes-client.test.ts",
+      "fullName": "awaits owned host callbacks and returns their results over the private channel",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "81c9e3981d8d637f9f3d07e6eca11852696117fdea4684371eab58cdc18bfd75"
+    },
+    {
+      "file": "tests/hermes-client.test.ts",
+      "fullName": "closes its worker and revokes unanswered requests when disposed",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "81c9e3981d8d637f9f3d07e6eca11852696117fdea4684371eab58cdc18bfd75"
+    },
+    {
+      "file": "tests/hermes-client.test.ts",
+      "fullName": "drains owned host callbacks even when process cancellation fails",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "81c9e3981d8d637f9f3d07e6eca11852696117fdea4684371eab58cdc18bfd75"
+    },
+    {
+      "file": "tests/hermes-client.test.ts",
+      "fullName": "fails pending requests safely on malformed worker output",
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'HERMES_PROTOCOL' }",
+      "failureTextSha256": "78a5cd1ae8df1858ff89513925f639389e24963d49defe5c10bd2b4cc398a86b"
+    },
+    {
+      "file": "tests/hermes-client.test.ts",
+      "fullName": "forwards source events without inventing entry or settlement events",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "81c9e3981d8d637f9f3d07e6eca11852696117fdea4684371eab58cdc18bfd75"
+    },
+    {
+      "file": "tests/hermes-client.test.ts",
+      "fullName": "preserves Unicode through chunked replies and resolves concurrent request IDs independently",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "81c9e3981d8d637f9f3d07e6eca11852696117fdea4684371eab58cdc18bfd75"
+    },
+    {
+      "file": "tests/hermes-client.test.ts",
+      "fullName": "treats a denied host callback as an ordinary tool result during teardown",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "81c9e3981d8d637f9f3d07e6eca11852696117fdea4684371eab58cdc18bfd75"
+    },
+    {
+      "file": "tests/hermes-client.test.ts",
+      "fullName": "uses an isolated home and does not pass provider credentials to Python",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "81c9e3981d8d637f9f3d07e6eca11852696117fdea4684371eab58cdc18bfd75"
+    },
+    {
+      "file": "tests/hermes-host.test.ts",
+      "fullName": "serves original source CRUD, approval-aware UI saves, archive/restore/history and restart through the default host",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "5d91ffd45ad5cd56b633aa5963864b978da528fe83dcdf6881e8681006d6a6b2"
+    },
+    {
+      "file": "tests/hermes-multi-original.test.ts",
+      "fullName": "runs two real original engines against one canonical library with isolated sessions and bounded scripted native calls",
+      "firstFailureLine": "AggregateError: Hermes cleanup could not be confirmed.",
+      "failureTextSha256": "01e206552fa1cfe9bffe0ea052cd6b308c2fa1a8580a674ec54a8b75b556f97b"
+    },
+    {
+      "file": "tests/hermes-original-integration.test.ts",
+      "fullName": "runs original Python and ACP through the native broker, persists a skill and finishes through the real Service",
+      "firstFailureLine": "AggregateError: Hermes task pool cleanup could not be confirmed.",
+      "failureTextSha256": "8b93d320576d355a6ee1eccefa1950002b7e70cc897e7c9c6ae9e4a3136a9b63"
+    },
+    {
+      "file": "tests/hermes-service.test.ts",
+      "fullName": "bounds hook admission while preserving every successful write and ordinary receipt",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ca540c9f293a12b28c97488ab003eec6089b307eb7924978fb2195e1ef6f156f"
+    },
+    {
+      "file": "tests/hermes-service.test.ts",
+      "fullName": "carries an actual approved replacement privately to the next idle source turn, never prepare or steering",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ca540c9f293a12b28c97488ab003eec6089b307eb7924978fb2195e1ef6f156f"
+    },
+    {
+      "file": "tests/hermes-service.test.ts",
+      "fullName": "does not infer missing legacy write authority from current selection",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ca540c9f293a12b28c97488ab003eec6089b307eb7924978fb2195e1ef6f156f"
+    },
+    {
+      "file": "tests/hermes-service.test.ts",
+      "fullName": "does not infer missing no_project write authority from current selection",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ca540c9f293a12b28c97488ab003eec6089b307eb7924978fb2195e1ef6f156f"
+    },
+    {
+      "file": "tests/hermes-service.test.ts",
+      "fullName": "does not reauthorize an approved write hook after rebind",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ca540c9f293a12b28c97488ab003eec6089b307eb7924978fb2195e1ef6f156f"
+    },
+    {
+      "file": "tests/hermes-service.test.ts",
+      "fullName": "does not reauthorize an approved write hook after recovery",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ca540c9f293a12b28c97488ab003eec6089b307eb7924978fb2195e1ef6f156f"
+    },
+    {
+      "file": "tests/hermes-service.test.ts",
+      "fullName": "does not reauthorize an approved write hook after revision",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ca540c9f293a12b28c97488ab003eec6089b307eb7924978fb2195e1ef6f156f"
+    },
+    {
+      "file": "tests/hermes-service.test.ts",
+      "fullName": "does not reauthorize an approved write hook after stop",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ca540c9f293a12b28c97488ab003eec6089b307eb7924978fb2195e1ef6f156f"
+    },
+    {
+      "file": "tests/hermes-service.test.ts",
+      "fullName": "never supplies completed-write custody for unapproved or failed effects",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ca540c9f293a12b28c97488ab003eec6089b307eb7924978fb2195e1ef6f156f"
+    },
+    {
+      "file": "tests/hermes-service.test.ts",
+      "fullName": "retains an unknown callback claim across stop/resume without replaying its write",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ca540c9f293a12b28c97488ab003eec6089b307eb7924978fb2195e1ef6f156f"
+    },
+    {
+      "file": "tests/integration-host.test.ts",
+      "fullName": "keeps Biome write proposals and Spec Kit initialization unavailable in plan mode",
+      "firstFailureLine": "Error: expected [Function] to throw error matching /plan mode/i but got 'Bundled integration is unavailable: E\u2026'",
+      "failureTextSha256": "5d6e32c60106aac49a445147e0b79d6e3d2f30081674e0989ef5bbdb23424a5f"
+    },
+    {
+      "file": "tests/integration-mcp.test.ts",
+      "fullName": "builds a real Graphify code graph, queries its stdio server and exports GraphML without a model",
+      "firstFailureLine": "Error: Bundled integration is unavailable: ENOENT: no such file or directory, lstat '/workspace/scratch/dbebe44a9817/m12-base-fcaa52/.harness-integrations-python-deps/graphify'",
+      "failureTextSha256": "18556ba98a2be114ac187289c91cf97caddb05490d7789b37b0fa39b2f6c4cc7"
+    },
+    {
+      "file": "tests/integration-mcp.test.ts",
+      "fullName": "executes the pinned native Biome and Impeccable engines",
+      "firstFailureLine": "Error: Command failed: /workspace/scratch/dbebe44a9817/m12-base-fcaa52/node_modules/@biomejs/cli-win32-x64/biome.exe --version",
+      "failureTextSha256": "ac61487be820070d49cf07e254f548606cf88ebef13b30bdc685b7e77ba7267c"
+    },
+    {
+      "file": "tests/integration-mcp.test.ts",
+      "fullName": "initializes only project-local genuine Spec Kit assets and dispatches its original workflow through the host",
+      "firstFailureLine": "Error: Bundled integration is unavailable: ENOENT: no such file or directory, lstat '/workspace/scratch/dbebe44a9817/m12-base-fcaa52/.harness-integrations-python-deps/specify_cli'",
+      "failureTextSha256": "a42352ebf251a5d7d7ee679568bba472dc94706c5f3f0694973627255be27d90"
+    },
+    {
+      "file": "tests/integration-mcp.test.ts",
+      "fullName": "refuses linked Graphify graph input and linked export directories inside the owned fixture",
+      "firstFailureLine": "Error: expected [Function] to throw error matching /link|guard|resource|access/i but got 'Bundled integration is unavailable: E\u2026'",
+      "failureTextSha256": "f2f611f4df6dff6dcb03dd951a1fc05f9dcae05effe72c121cf567adcba84db3"
+    },
+    {
+      "file": "tests/integration-mcp.test.ts",
+      "fullName": "routes Biome proposals through the registered granted-file approval flow",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9de3c30f1452d2756f409a29267d610e4fd76abb0b0b9faf337bad6e4cb72d6a"
+    },
+    {
+      "file": "tests/integrations.test.ts",
+      "fullName": "admits exactly the ten bundled integrations without starting their MCP services",
+      "firstFailureLine": "AssertionError: expected false to be true // Object.is equality",
+      "failureTextSha256": "f7fe657445d14104dc61cfff2ba5104820a2edf9f98746992358ddb8dbb1a733"
+    },
+    {
+      "file": "tests/managed-git-family.test.ts",
+      "fullName": "passes only the host-resolved family for the granted domain repository root",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "7db896dde4a40d10ca0db3198bde18cd1d4882d97fc40312e5ad9c932c4aa177"
+    },
+    {
+      "file": "tests/managed-git-family.test.ts",
+      "fullName": "requires host attestation for linked worktrees and retains ordinary repositories",
+      "firstFailureLine": "Error: promise rejected \"HarnessError: File access check failed \u2014 \u2026 { \u2026(2) }\" instead of resolving",
+      "failureTextSha256": "bf3c87b086bc7735bf2d3f1a80119086c89b34479e66b51d6566375e720c50af"
+    },
+    {
+      "file": "tests/managed-git-family.test.ts",
+      "fullName": "snapshots the attested worktree HEAD, index and source, without other worktrees or hooks",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "7db896dde4a40d10ca0db3198bde18cd1d4882d97fc40312e5ad9c932c4aa177"
+    },
+    {
+      "file": "tests/official-runtime-storage.test.ts",
+      "fullName": "official runtime storage and subprocess isolation uses published commands and isolated homes without inheriting provider or Node injection variables",
+      "firstFailureLine": "HarnessError: Cursor storage path cannot contain \":\". Choose another storage folder.",
+      "failureTextSha256": "409f9317e90786b89a7622fe322a6e7d57326590d138242b05dc678b1e026b78"
+    },
+    {
+      "file": "tests/packaged-providers.test.ts",
+      "fullName": "packaged provider custody imports the actual installed SDK with an explicit empty store and runs only the stock rg version helper",
+      "firstFailureLine": "Error: Resolved distribution is outside the packaged host.",
+      "failureTextSha256": "34661c80c198ae3f10f782722eddd6d761783e9d8d83b64e91748c8a72900db3"
+    },
+    {
+      "file": "tests/path-access.test.ts",
+      "fullName": "allows ordinary child replacement while its parent directory is guarded",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "87694554927655b79570a82e7d107f11986673e159352744e1b2a4f11d77dcc6"
+    },
+    {
+      "file": "tests/path-access.test.ts",
+      "fullName": "denies alternate streams and device namespace spellings at grant admission",
+      "firstFailureLine": "Error: expected HarnessError: The selected path is unavai\u2026 { \u2026(2) } to match object { code: 'CAPABILITY_DENIED' }",
+      "failureTextSha256": "1a38d2b6e8ba62f5c00c817660e5f7956383070751dedee57e200b65aa370b07"
+    },
+    {
+      "file": "tests/path-access.test.ts",
+      "fullName": "denies an approved replacement after the resolved parent is swapped to protected storage",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "87694554927655b79570a82e7d107f11986673e159352744e1b2a4f11d77dcc6"
+    },
+    {
+      "file": "tests/path-access.test.ts",
+      "fullName": "diffs the acquired deletion when a protected junction is inserted immediately before real Git launch",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "87694554927655b79570a82e7d107f11986673e159352744e1b2a4f11d77dcc6"
+    },
+    {
+      "file": "tests/path-access.test.ts",
+      "fullName": "does not consume a protected temporary ignore file configured by a selected repository",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "87694554927655b79570a82e7d107f11986673e159352744e1b2a4f11d77dcc6"
+    },
+    {
+      "file": "tests/path-access.test.ts",
+      "fullName": "does not let repository config redirect snapshot Git to a post-acquisition metadata file",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "87694554927655b79570a82e7d107f11986673e159352744e1b2a4f11d77dcc6"
+    },
+    {
+      "file": "tests/path-access.test.ts",
+      "fullName": "ignores metadata paths inserted after acquisition immediately before real Git status",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "87694554927655b79570a82e7d107f11986673e159352744e1b2a4f11d77dcc6"
+    },
+    {
+      "file": "tests/path-access.test.ts",
+      "fullName": "keeps the original database parent and journal inode pinned through actual COMMIT",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "87694554927655b79570a82e7d107f11986673e159352744e1b2a4f11d77dcc6"
+    },
+    {
+      "file": "tests/path-access.test.ts",
+      "fullName": "performs approved ordinary replacement and PDF export under native guards",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "87694554927655b79570a82e7d107f11986673e159352744e1b2a4f11d77dcc6"
+    },
+    {
+      "file": "tests/path-access.test.ts",
+      "fullName": "rejects a substituted replacement source and preserves a nonowned cleanup inode",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "87694554927655b79570a82e7d107f11986673e159352744e1b2a4f11d77dcc6"
+    },
+    {
+      "file": "tests/path-access.test.ts",
+      "fullName": "retains a user save made after the final capability read but before replacement",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "87694554927655b79570a82e7d107f11986673e159352744e1b2a4f11d77dcc6"
+    },
+    {
+      "file": "tests/path-access.test.ts",
+      "fullName": "serves approved ordinary bytes and holds every directory ancestor through final access",
+      "firstFailureLine": "AssertionError: expected 403 to be 200 // Object.is equality",
+      "failureTextSha256": "f2c0933d640aaf12fe68277c41a07c253d4290c2b6811bdd8365774c101cd1d9"
+    },
+    {
+      "file": "tests/private-git-family.test.ts",
+      "fullName": "does not consume original metadata after private import and ignores dependency bulk for managed status",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/private-git-family.test.ts",
+      "fullName": "imports once into protected private bare storage and creates three independent native worktrees",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/private-git-family.test.ts",
+      "fullName": "imports safe author and GitHub origin scalars and drops arbitrary source configuration",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/private-git-family.test.ts",
+      "fullName": "keeps incremental legacy objects out of the authoritative managed family",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/private-git-family.test.ts",
+      "fullName": "keeps original bindings in place, reports tracked-only coverage and rejects legacy mutations",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/private-git-family.test.ts",
+      "fullName": "refuses a legacy scratch view inside a broad source grant",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/private-git-family.test.ts",
+      "fullName": "refuses stored commonDirectoryIdentity substitution before managed Git starts",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/private-git-family.test.ts",
+      "fullName": "refuses stored gitDirectoryIdentity substitution before managed Git starts",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/private-git-family.test.ts",
+      "fullName": "refuses stored identity substitution before managed Git starts",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/private-git-family.test.ts",
+      "fullName": "rejects a context read when the admitted model changes during its Git read",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/private-git-family.test.ts",
+      "fullName": "reports each admitted managed copy rather than the original repository root in hover context",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/private-git-family.test.ts",
+      "fullName": "streams metadata beyond the unchanged ordinary snapshot budget with a bounded buffer",
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'RESOURCE_LIMIT' }",
+      "failureTextSha256": "3c7936edc274e35566f1c023f3c5fcaa7b6a6fa3beca2fd1e3f9f961f8110cd3"
+    },
+    {
+      "file": "tests/project-tools.test.ts",
+      "fullName": "enrolls a local project and assigns new agents separate real branches and working copies",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/project-tools.test.ts",
+      "fullName": "keeps Git status inside the enrolled root even when repository config names another worktree",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/project-tools.test.ts",
+      "fullName": "reports live managed untracked/staged changes and refuses an action against an old revision",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/project-trust-v3.test.ts",
+      "fullName": "reading an ordinary granted text file still works while execution approval stays distinct",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "960a843ee0bf8f1a97aea414deb3480e71112d62d7dc56cbdc920866ca3f5f0d"
+    },
+    {
+      "file": "tests/research-capture.test.ts",
+      "fullName": "binds a selected file reference to the exact grant generation even when bytes and identity match",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "14967ff911dbf556c5e776100da03beb61a597e0a2769447a565370f36a91d56"
+    },
+    {
+      "file": "tests/research-capture.test.ts",
+      "fullName": "captures a granted file with native custody and exact expected bytes and identity",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "14967ff911dbf556c5e776100da03beb61a597e0a2769447a565370f36a91d56"
+    },
+    {
+      "file": "tests/research-capture.test.ts",
+      "fullName": "denies secret paths, traversal and over-limit files through existing grants",
+      "firstFailureLine": "Error: expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'RESOURCE_LIMIT' }",
+      "failureTextSha256": "ffe3f1f81d53aa4f76d103277b0e8d3eb63c72e14bc80990d95c9fafadc0a48c"
+    },
+    {
+      "file": "tests/research-capture.test.ts",
+      "fullName": "fails closed after grant revocation, rebind, identity replacement, or hardlink introduction",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "14967ff911dbf556c5e776100da03beb61a597e0a2769447a565370f36a91d56"
+    },
+    {
+      "file": "tests/research-capture.test.ts",
+      "fullName": "rechecks thread authority inside a browser lease and keeps revoked historical file material inaccessible",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "14967ff911dbf556c5e776100da03beb61a597e0a2769447a565370f36a91d56"
+    },
+    {
+      "file": "tests/research-capture.test.ts",
+      "fullName": "rejects a missing selected file or binary material without retaining a partial capture",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "14967ff911dbf556c5e776100da03beb61a597e0a2769447a565370f36a91d56"
+    },
+    {
+      "file": "tests/research-capture.test.ts",
+      "fullName": "rejects same-size edits after selection without publishing a source or receipt",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "14967ff911dbf556c5e776100da03beb61a597e0a2769447a565370f36a91d56"
+    },
+    {
+      "file": "tests/research-routes.test.ts",
+      "fullName": "captures only an explicitly selected granted file and denies material reads after revocation",
+      "firstFailureLine": "AssertionError: expected 403 to be 200 // Object.is equality",
+      "failureTextSha256": "ade7230093a27182b598ec2ebcd2d6c4ca561aa03537fe405a87b5be5629de7b"
+    },
+    {
+      "file": "tests/research-workspace.test.ts",
+      "fullName": "imports text through authenticated host commands and reloads full durable findings with an exact citation",
+      "firstFailureLine": "Error: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "7be00e6fe14846128285e558e9d1bc452fcf817fbaff65f24db9e17fb360f715"
+    },
+    {
+      "file": "tests/resource-tree.test.ts",
+      "fullName": "lists one granted directory lazily, omits unsafe leaves and denies traversal",
+      "firstFailureLine": "AssertionError: expected 403 to be 200 // Object.is equality",
+      "failureTextSha256": "8775b544423685f41037739e2921c911715ab9aaff1de3435438e789a88e0883"
+    },
+    {
+      "file": "tests/review-host.test.ts",
+      "fullName": "isolated actual-host recording fixtures prepares and exports a real local PDF only after exact native operation approval",
+      "firstFailureLine": "AssertionError: expected 'File access check failed \u2014 the folder\u2026' to be null",
+      "failureTextSha256": "c87aa567f1e4c78b2c2d7bf2c884883a3af1fc60f1cda13d32156f7a882f9b75"
+    },
+    {
+      "file": "tests/review-host.test.ts",
+      "fullName": "isolated actual-host recording fixtures shows actual before/after SQLite rows and valid row-change annotations",
+      "firstFailureLine": "AssertionError: expected 'File access check failed \u2014 the folder\u2026' to be null",
+      "failureTextSha256": "597e3f3ad604799cf926cad95ae6d4a483b0bbd6aff01388a45f6218a44cf3b0"
+    },
+    {
+      "file": "tests/runtime-router.test.ts",
+      "fullName": "lazily isolates account adapters, pins routing and denies cross-account sessions",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "d4e65b3a48cf824fb008730bd98ceb803ad3a8320436607af62fc74c01a948ee"
+    },
+    {
+      "file": "tests/runtime-router.test.ts",
+      "fullName": "rejects a resolver that changes the provider of an already acquired account profile",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "d4e65b3a48cf824fb008730bd98ceb803ad3a8320436607af62fc74c01a948ee"
+    },
+    {
+      "file": "tests/runtime-router.test.ts",
+      "fullName": "scopes named-account model discovery to its provider and blocks a profile being signed in",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "d4e65b3a48cf824fb008730bd98ceb803ad3a8320436607af62fc74c01a948ee"
+    },
+    {
+      "file": "tests/selective-commit-v3.test.ts",
+      "fullName": "commits a brand-new untracked file as a single proven hunk",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/selective-commit-v3.test.ts",
+      "fullName": "commits an untracked UTF-8 file without dropping its BOM",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/selective-commit-v3.test.ts",
+      "fullName": "commits one hunk of a file and leaves the sibling hunk behind",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/selective-commit-v3.test.ts",
+      "fullName": "commits only the selected hunks and leaves the rest uncommitted",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/selective-commit-v3.test.ts",
+      "fullName": "keeps a path unattributed when its live bytes no longer match the proven receipt",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/selective-commit-v3.test.ts",
+      "fullName": "labels hunk attribution from the provenance journal and requires explicit selection for unproven edits",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/selective-commit-v3.test.ts",
+      "fullName": "never offers an untracked non-UTF-8 file as a commit candidate",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/selective-commit-v3.test.ts",
+      "fullName": "never uses blanket staging: an unselected file is absent from the commit",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/selective-commit-v3.test.ts",
+      "fullName": "records the commit and observed head when the branch update is uncertain",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/selective-commit-v3.test.ts",
+      "fullName": "refuses a stale expected head and records nothing",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/selective-commit-v3.test.ts",
+      "fullName": "rejects a hunk whose digest no longer matches the live postimage",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/selective-commit-v3.test.ts",
+      "fullName": "requires a managed working copy",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/selective-commit-v3.test.ts",
+      "fullName": "retains a dirty managed worktree when its operation is cancelled",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/server.test.ts",
+      "fullName": "serves a selected file under a directory grant and denies paths outside it",
+      "firstFailureLine": "AssertionError: expected 403 to be 200 // Object.is equality",
+      "failureTextSha256": "46f311ee596c74ddcb5e4cac2b24a071f4ae1d8116173207581225c8503a6674"
+    },
+    {
+      "file": "tests/service.test.ts",
+      "fullName": "thread and UI integrity a generated operation button leads to native approval and cannot approve by its label",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "54d60f627673563453344cbd582cb4f11be32e78fd65c6c2c7cd378668b6e47c"
+    },
+    {
+      "file": "tests/service.test.ts",
+      "fullName": "thread and UI integrity records a completed effect arriving after Stop without reviving its run",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "54d60f627673563453344cbd582cb4f11be32e78fd65c6c2c7cd378668b6e47c"
+    },
+    {
+      "file": "tests/skill-catalog-apps.test.ts",
+      "fullName": "discovers only declared installed metadata with verified package custody and never activates the host",
+      "firstFailureLine": "AssertionError: expected [] to have a length of 1 but got +0",
+      "failureTextSha256": "9b5b8bf9cdf2769cf1aeaf2e2da762688f51fbaf075cbd8041c5e66a9efa64f3"
+    },
+    {
+      "file": "tests/skill-catalog-apps.test.ts",
+      "fullName": "invalidates installed references after content tampering, registry revocation, or untracked additions",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "77dfaf61bb4858bf9563a8e57c98edf2fc8b2647bcfba6d586e6a876b2a9cd6e"
+    },
+    {
+      "file": "tests/skill-catalog-http.test.ts",
+      "fullName": "requires the existing host/session gate and returns metadata without bodies or file paths",
+      "firstFailureLine": "AssertionError: expected undefined to match object { name: 'Test procedure', \u2026(2) }",
+      "failureTextSha256": "3922a38a2ba48aa4ae4a181c17dc8424ac6a7927fab64196f479bbe9002db48d"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "accepts bound references for the full declared source-identity length",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "70a08e99800b9d4c9598f7c5ab9d7a344d4259de90c3b8b1894687caf9d46c0e"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "binds authenticated cursors to inventory, search, page size and connection context",
+      "firstFailureLine": "AssertionError: expected null to be truthy",
+      "failureTextSha256": "d17e1f82694f866657f1e0e4286e05a16aee080f923c4f4d02b9c48d23339ca2"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "bounds file counts and bytes without truncating a package into an available reference",
+      "firstFailureLine": "AssertionError: expected undefined to match object { ref: null, availability: { \u2026(2) } }",
+      "failureTextSha256": "a45f5dd6e3a34d3cc40f00186289317b898652a46b4b9d34402df9089393de6f"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "counts bytes consumed by rejected packages against the root budget",
+      "firstFailureLine": "AssertionError: expected { status: 'unavailable', \u2026(1) } to deeply equal { status: 'unavailable', \u2026(1) }",
+      "failureTextSha256": "df6a9124622b072958a8a992f594ee434851ea3e4f77387aeaee427ba25a4402"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "denies file/directory symlinks and hardlinks while retaining other safe packages",
+      "firstFailureLine": "AssertionError: expected undefined to match object { status: 'unavailable', \u2026(1) }",
+      "failureTextSha256": "bb3eca63d235babd670ede2f31158675ecc6cb4a895e2bb5ed93e41d22b4247d"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "detects replacement during capture and never returns mixed metadata/custody",
+      "firstFailureLine": "AssertionError: expected undefined to be null",
+      "failureTextSha256": "021956915400c878470c5d4a707de31cf3f842ab2011e1cc555f09c2e9aede02"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "discovers only the selected worktree and invalidates its references after rebinding or revocation",
+      "firstFailureLine": "AssertionError: expected [] to deeply equal [ 'Worktree only' ]",
+      "failureTextSha256": "7f11e4f0b25475410d8f0480290b1af5a3bf4c60f4c39ceca4cac11fc0ae7621"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "enumerates every page, keeps colliding names distinct, and exposes metadata without source bytes",
+      "firstFailureLine": "AssertionError: expected [ { \u2026(7) } ] to have a length of 26 but got 1",
+      "failureTextSha256": "efa886b652f5d95a5a975abe55cf4ca105e378f116d3b3a7d1e5cfd4b0d1bead"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "includes nested installed skill entries beneath another skill package",
+      "firstFailureLine": "AssertionError: expected [] to deeply equal [ 'outer', 'outer/nested' ]",
+      "failureTextSha256": "7de6bd99b4a285ebf61070139ee1aab085f92e8b254779d477f093cd0a4faaf7"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "keeps a root skill distinct from a child named after the root directory",
+      "firstFailureLine": "AssertionError: expected [] to have a length of 2 but got +0",
+      "failureTextSha256": "e75583090fb5f92ddebcde3df8d743af98b1ada4c016be9488d1fe29411aa958"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "marks an exhausted root inventory unavailable instead of silently presenting a partial catalog",
+      "firstFailureLine": "AssertionError: expected { status: 'unavailable', \u2026(1) } to deeply equal { status: 'unavailable', \u2026(1) }",
+      "failureTextSha256": "c8012555546ea6a863189ebbd162e1ce6f2e3f7a900f1755cebac4e7e92d6d59"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "pins exact bytes and supporting-file custody, rejecting edits even when size and display name stay equal",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'files')",
+      "failureTextSha256": "cc240a25e4ebb798fb7119c0386943c0eeeccd8f862f9b7698ec08c68008b69d"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "preserves exact references and pagination after unrelated project metadata updates",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "26211c07c15c74964457c6103e7ee1db5b2f3b24bdb2f8bd65b116beee333369"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "preserves exact references and pagination after unrelated status updates",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "26211c07c15c74964457c6103e7ee1db5b2f3b24bdb2f8bd65b116beee333369"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "preserves exact references and pagination after unrelated title updates",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "26211c07c15c74964457c6103e7ee1db5b2f3b24bdb2f8bd65b116beee333369"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "preserves exact references and pagination after unrelated working-copy branch updates",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "26211c07c15c74964457c6103e7ee1db5b2f3b24bdb2f8bd65b116beee333369"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "rejects namespace escalation and source substitution without resolving a display name",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "2a97ef8c3a61ee0bced3a956a211e66682d963f45d42288cd56212f09340909c"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "reuses the real bundled integration inventory and covers all declared skills across pages",
+      "firstFailureLine": "AssertionError: expected [] to have a length of 40 but got +0",
+      "failureTextSha256": "d8fd581d685a7fe138eb690a94cc60d8889a26898a8fc4f5991712e8adfc6013"
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "fullName": "uses canonical connected project/worktree bindings and separates unavailable project authority",
+      "firstFailureLine": "AssertionError: expected false to be true // Object.is equality",
+      "failureTextSha256": "afe49981338a2e30f13cd9eb8557d0c7e8c7258c53c12dc72f12cb3a2da556dc"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "aborts after capture while the final source recheck is in flight",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "c0cf9f9988189901ab47f3716e87603b9331d285719b7e220c64f26f10198788"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "accepts the parent raw skills array while taking expected authority only from host options",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "6c9db1e86eac0bb988a7c9cbb6b279200e998ba9d1bec760916b75f399d0fd3e"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "admits all selected references in order, never silently dropping a stale second selection",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "0698090a226fc5935c84d4fbca34f4bb05fc4be3790b1eb08fc6b3f81ac23a8e"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "bounds Harness entry bytes before materializing an oversized saved document",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "bef520b0cbef4ff01db00fb94e4d4994c6b29c27ae6f8baa9cc1fe5ec279bc70"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "captures only a verified installed App package, without activating its host, and rechecks registry revocation",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "3ebc1b9b4d18f1615fe26315bef1f90968974e53a1218d4fcfc7d2527bf00be3"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "denies a changed runtime thinking level even when the model is unchanged",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "8c16467bdd8753ff2148ae66b152e86018308aec77af737d474b1a27c45861bb"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "denies a package exceeding fileBytes instead of silently truncating it",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "82120df2ad391888f15d5075891495493ea55735ba1d0fb36b68c46b9186a0a0"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "denies a package exceeding files instead of silently truncating it",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "82120df2ad391888f15d5075891495493ea55735ba1d0fb36b68c46b9186a0a0"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "denies a package exceeding packageBytes instead of silently truncating it",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "82120df2ad391888f15d5075891495493ea55735ba1d0fb36b68c46b9186a0a0"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "denies directory-swap between fresh catalog custody and materialization",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "6314498ce13f6d8e9482e94eb4fccb50d61d448726dd3eb659db1648a4227d9b"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "denies entry-bytes between fresh catalog custody and materialization",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "6314498ce13f6d8e9482e94eb4fccb50d61d448726dd3eb659db1648a4227d9b"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "denies extra-file between fresh catalog custody and materialization",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "6314498ce13f6d8e9482e94eb4fccb50d61d448726dd3eb659db1648a4227d9b"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "denies file-swap between fresh catalog custody and materialization",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "6314498ce13f6d8e9482e94eb4fccb50d61d448726dd3eb659db1648a4227d9b"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "denies forged admissions, mismatched runtime owners and arbitrary support paths",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "ce94da1a46a0de11923e92efa64420a348dcafad2779efb5c60ee0121e19f0b6"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "denies hardlink between fresh catalog custody and materialization",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "6314498ce13f6d8e9482e94eb4fccb50d61d448726dd3eb659db1648a4227d9b"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "denies junction between fresh catalog custody and materialization",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "6314498ce13f6d8e9482e94eb4fccb50d61d448726dd3eb659db1648a4227d9b"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "denies replay tampering and key loss instead of falling back to rediscovery",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "e46a1543564549133e1eb165c59d8a772ddf4c05aaa5cb2aade039d634d9056a"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "denies stale support, forged identity, cross-source and private-provider references",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "1e510334f2a41cd01a7a923195f9f9548879f85f546da529fa652bfe1375b73d"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "denies support-bytes between fresh catalog custody and materialization",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "6314498ce13f6d8e9482e94eb4fccb50d61d448726dd3eb659db1648a4227d9b"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "fences authority changes during catalog awaits and again before commit/runtime/support reads",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "b7adc7b23daa0906696445e136ef997b6d7790865da27a7b13951589c428e536"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "honors pre-abort and an abort that wins a catalog await without producing an admission",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "f336bdd781959cc5b6e48e2d6ff24624876196b65bcc30e8cd2182d2b320f59e"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "materializes exact entry bytes and captured support without changing prompt or resources",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "4214f8b6d9e2338f7eb6d33a720c5ecc86e18e41f2175459a1ed53516e7ae149"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "precommit authority revalidation leaves message/outbox/capture storage empty on a race",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "c2b600106af72fe7fca143400aa81ed8e0da46e02611c7d58bc493c722746d11"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "preserves UTF-8 BOM and original line endings in admitted guidance",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "05785c2832d2ccba949940deb15d2c2fe7c7422d7e3feb064d75c3c2faaad9c8"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "reads the exact Harness version/document with no latest-name or ambient projection fallback",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "e17c88774d8fb0bd8db928c6a5cf7f1637cb3ab590467148cda377024251d03c"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "rejects command-ID reuse with changed content, model, thinking, reference or authority",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "2016390996a19d8bbcc516024f6860c326286d75e0d5633f7a04ea4c9a0ab776"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "rejects every changed authority dimension before admission",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "14914f8f052d8df470f53488604be697e5a123821b6d8ed772aaa03b7d3a646e"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "rejects malformed payloads rather than accepting browser supplied text, paths or authority grants",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "ea5d4933a324e4aaa4deea93df0722e7179dcaba9aca6d76431d78a267e0b922"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "replays the same command after an actual Store reopen without another message or current-source read",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "1dcef102d8946ece0a1bcc81899a40714c663e62b3ffd6da3b067fbf1ed64e1c"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "resolves only the connected canonical project/worktree and denies its root identity changing",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "7257f57d9a7bc958940dee1acaf08a7c98d48637808dc027db42b9b95e8a5264"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "restores authenticated exact bytes across host restart without rediscovering changed skills",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "57a39884b07026c22e070b050782b300f0b1a402903497bf347bf678c09ae2ee"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "returns cancellation while an obsolete catalog read is still pending",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "c3859495f995e1931daa9c6a969138cc7360b759c000aa880da9641db67731ba"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "revalidates the canonical source after capture rather than accepting its earlier index",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "5db5740374c6d13971874b9cb28ef1d457a742a8cf5f8444828e30e4d4cbe8b7"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "sanitizes authority-provider failures at precommit without leaking host paths",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "42f5b605bf478e1c533945646ca2fdc97945a7fa23f3bf20a22f2d71caa965fe"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "selection preserves every reference field without a body read or admission capability, and bundles for browsers",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "caed975defb42b97dc96fe5e8a9b8eb1cd5df049dd52a736f8974707b75a3fb7"
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "fullName": "uses the bundled manifest pin and denies an index replacement between custody and capture",
+      "firstFailureLine": "TypeError: Cannot read properties of undefined (reading 'ref')",
+      "failureTextSha256": "bf3839997af0a82bc8fc4f7eaf6a7ec2f6cb7f1b540577c28dd48932a227601e"
+    },
+    {
+      "file": "tests/skills-integration.test.ts",
+      "fullName": "keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ede397fceca7b8cd9a89f77a0e687327f709924e28d441b62d67a06848deaa3c"
+    },
+    {
+      "file": "tests/skills-integration.test.ts",
+      "fullName": "keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ede397fceca7b8cd9a89f77a0e687327f709924e28d441b62d67a06848deaa3c"
+    },
+    {
+      "file": "tests/skills-integration.test.ts",
+      "fullName": "keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ede397fceca7b8cd9a89f77a0e687327f709924e28d441b62d67a06848deaa3c"
+    },
+    {
+      "file": "tests/skills-integration.test.ts",
+      "fullName": "keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ede397fceca7b8cd9a89f77a0e687327f709924e28d441b62d67a06848deaa3c"
+    },
+    {
+      "file": "tests/skills-integration.test.ts",
+      "fullName": "keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ede397fceca7b8cd9a89f77a0e687327f709924e28d441b62d67a06848deaa3c"
+    },
+    {
+      "file": "tests/skills-integration.test.ts",
+      "fullName": "keeps openai automatic skill review account-pinned through changed defaults, settlement and restart",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ede397fceca7b8cd9a89f77a0e687327f709924e28d441b62d67a06848deaa3c"
+    },
+    {
+      "file": "tests/skills-integration.test.ts",
+      "fullName": "keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ede397fceca7b8cd9a89f77a0e687327f709924e28d441b62d67a06848deaa3c"
+    },
+    {
+      "file": "tests/skills-integration.test.ts",
+      "fullName": "keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ede397fceca7b8cd9a89f77a0e687327f709924e28d441b62d67a06848deaa3c"
+    },
+    {
+      "file": "tests/skills-integration.test.ts",
+      "fullName": "keeps xai automatic skill review account-pinned through changed defaults, settlement and restart",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "ede397fceca7b8cd9a89f77a0e687327f709924e28d441b62d67a06848deaa3c"
+    },
+    {
+      "file": "tests/task-memory-recovery.test.ts",
+      "fullName": "keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "b85134905a50ab512abacacf67497c48d273825f7690fb38be1025f85e8b20e4"
+    },
+    {
+      "file": "tests/workspace-action-outcome-routes.test.ts",
+      "fullName": "an exact local stale-head preflight is not-applied before entering a mutation",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcome-routes.test.ts",
+      "fullName": "an exact local stale-worktree preflight is not-applied before entering a mutation",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcome-routes.test.ts",
+      "fullName": "returns an unsuccessful response for an unconfirmed action so existing controls retain their draft",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcome-routes.test.ts",
+      "fullName": "routes supported writes through durable identity and keeps inspection read-only",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcome-routes.test.ts",
+      "fullName": "valid Unicode review text fits submission and exact read-only inspection",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "commits intent before local write and private result before event, then replays after Store restart",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "denies reuse of an ID with a changed payload",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "denies reuse of an ID with a changed projectId",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "denies reuse of an ID with a changed threadId",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "denies reuse of an ID with a changed type",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "inspects original payload/revision without current diff, review reads, or any write",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "keeps an active prepared reservation uncertain until its owner durably proves no execution began",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "keeps completed external write uncertain if durable result commit fails",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "keeps failures after started uncertain even when there is no receipt",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "keeps missing and legacy records uncertain without adopting unbound receipts",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "keeps private intent, result, credentials and errors out of events, receipts and snapshots",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "pins profile access while GitHubTools is awaiting remote validation",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "records not-applied only after host rejection before starting and never restarts that ID",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "recovers a confirmed review when the remote branch name differs from the managed local branch",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "rejects a profile replaced between inspection identity capture and credential read",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "retains interrupted remote write as uncertain across restart without submitting it again",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "returns revoked after working copy or account access changes, including confirmed receipts",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "serializes same-ID attempts across separate Store connections without a double write",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "fullName": "supports local unstage and commit through the original revision and replays a commit without a second write",
+      "firstFailureLine": "HarnessError: File access check failed \u2014 the folder could not be opened safely for this action",
+      "failureTextSha256": "9b21f7ad3ce1fc06ccde8eb7f609bebcac43f7d95923ce11cc9061fd0ebbb2db"
+    }
+  ],
+  "candidateComparison": {
+    "status": "AWAITING_CANDIDATE_JSON",
+    "priorCandidateSummary": {
+      "failedAssertionsReported": 285,
+      "source": "docs/implementation/v3/m12-logs/validation-01-full-test.log",
+      "limitation": "Bounded text log is truncated; exact failing-assertion intersection has not been established."
+    },
+    "conclusion": "The accepted base independently reproduces 273 failures in this Linux environment. Do not infer that every candidate failure is inherited from totals; compare file plus fullName against the final candidate JSON."
+  }
+}

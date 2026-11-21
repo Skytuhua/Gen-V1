@@ -1,0 +1,434 @@
+{
+  "schemaVersion": 1,
+  "kind": "M12_COMMAND_RECORD_RECONCILIATION",
+  "observedAt": "2026-11-15T12:17:14.568504+00:00",
+  "repositoryRoot": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "acceptedBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "logsModified": false,
+  "originalRecordFilesModified": false,
+  "newExecutionClaimed": false,
+  "finding": "The evidence builder overlays stale temporary recorder records on committed archived records by log stem. Three collisions differ only in logDigest; all execution headers agree. Each stale digest is exactly the retained committed log plus one final LF.",
+  "builderMergeOrder": [
+    "prior-audit/M12-verification.json phase commands",
+    "m12-artifacts/command-records.json if present",
+    "<tmp>/m12-command-records/*.json"
+  ],
+  "archiveProvenance": {
+    "path": "docs/implementation/v3/m12-artifacts/prior-audit/M12-verification.json",
+    "bytes": 30571,
+    "sha256": "0d3508a5deb5f4f25d2106864e2ad301ffcbb68e95b1e53b210c832a3ac552c9",
+    "originalPath": "docs/implementation/v3/M12-verification.json",
+    "sourceCommit": "4fe2e778a0007c91c4455aff62e2e4d74646a8ab",
+    "gitBlobSha1": "a39e6e10c7b4779e8badc26960590ee35b3981d2",
+    "byteIdenticalToSourceCommit": true
+  },
+  "comparisonScope": {
+    "mergedRecordCount": 185,
+    "digestMismatchCount": 3,
+    "headerMismatchCount": 0,
+    "otherDigestMismatches": [],
+    "artifactRecordMapPresent": false,
+    "artifactRecordMapSha256": null,
+    "scopeNote": "All merged records were read and their actual log bytes hashed; argv, cwd, start/end times, exit and termination were compared to each log header. The complete original stale metadata is embedded for every exception."
+  },
+  "entries": [
+    {
+      "id": "core-01-prerequisite-tests",
+      "retainedRecord": {
+        "sourcePath": "docs/implementation/v3/m12-artifacts/prior-audit/M12-verification.json",
+        "jsonPointer": "/phases/0/commands/3",
+        "sourceFileSha256": "0d3508a5deb5f4f25d2106864e2ad301ffcbb68e95b1e53b210c832a3ac552c9",
+        "record": {
+          "argv": [
+            "corepack",
+            "pnpm@10.30.3",
+            "exec",
+            "vitest",
+            "run",
+            "tests/research-baseline.test.ts",
+            "tests/m01-m02-compatibility.test.ts",
+            "tests/tool-authority-v3.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/effect-recovery-v3.test.ts",
+            "tests/execution-boundary-v3.test.ts",
+            "tests/project-trust-v3.test.ts",
+            "tests/secret-custody-v3.test.ts",
+            "tests/store.test.ts",
+            "tests/context-efficiency.test.ts",
+            "--maxWorkers=2"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
+          "startedAt": "2026-11-15T09:57:05.180417+00:00",
+          "endedAt": "2026-11-15T09:57:11.101009+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/core-01-prerequisite-tests.log",
+          "logDigest": "652ea4a38c9da4f484d59601916bae2a2266e181827da82f418b314fc8c2b78b"
+        }
+      },
+      "staleRecorderRecord": {
+        "sourcePath": "<tmp>/m12-command-records/core-01-prerequisite-tests.json",
+        "sourceFileSha256": "01af6dc61bc574308531cfedcdb2b3fd220661ec33130059c55514c1cb285ef9",
+        "sourceFileBytes": 1018,
+        "sourceFileUtf8": "{\n  \"argv\": [\n    \"corepack\",\n    \"pnpm@10.30.3\",\n    \"exec\",\n    \"vitest\",\n    \"run\",\n    \"tests/research-baseline.test.ts\",\n    \"tests/m01-m02-compatibility.test.ts\",\n    \"tests/tool-authority-v3.test.ts\",\n    \"tests/tool-effects-v3.test.ts\",\n    \"tests/effect-recovery-v3.test.ts\",\n    \"tests/execution-boundary-v3.test.ts\",\n    \"tests/project-trust-v3.test.ts\",\n    \"tests/secret-custody-v3.test.ts\",\n    \"tests/store.test.ts\",\n    \"tests/context-efficiency.test.ts\",\n    \"--maxWorkers=2\"\n  ],\n  \"cwdIdentity\": \"/workspace/scratch/dbebe44a9817/m12-v3\",\n  \"executableIdentity\": \"/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js\",\n  \"startedAt\": \"2026-11-15T09:57:05.180417+00:00\",\n  \"endedAt\": \"2026-11-15T09:57:11.101009+00:00\",\n  \"exitCode\": 1,\n  \"termination\": \"NONE\",\n  \"status\": \"FAIL\",\n  \"boundedLogRef\": \"docs/implementation/v3/m12-logs/core-01-prerequisite-tests.log\",\n  \"logDigest\": \"fba56c1f1674e6dbd55732f770a404a140283143e4b94c2d62561ab413c4e1ba\"\n}\n",
+        "record": {
+          "argv": [
+            "corepack",
+            "pnpm@10.30.3",
+            "exec",
+            "vitest",
+            "run",
+            "tests/research-baseline.test.ts",
+            "tests/m01-m02-compatibility.test.ts",
+            "tests/tool-authority-v3.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/effect-recovery-v3.test.ts",
+            "tests/execution-boundary-v3.test.ts",
+            "tests/project-trust-v3.test.ts",
+            "tests/secret-custody-v3.test.ts",
+            "tests/store.test.ts",
+            "tests/context-efficiency.test.ts",
+            "--maxWorkers=2"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
+          "startedAt": "2026-11-15T09:57:05.180417+00:00",
+          "endedAt": "2026-11-15T09:57:11.101009+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/core-01-prerequisite-tests.log",
+          "logDigest": "fba56c1f1674e6dbd55732f770a404a140283143e4b94c2d62561ab413c4e1ba"
+        }
+      },
+      "retainedLog": {
+        "path": "docs/implementation/v3/m12-logs/core-01-prerequisite-tests.log",
+        "bytes": 2458,
+        "sha256": "652ea4a38c9da4f484d59601916bae2a2266e181827da82f418b314fc8c2b78b",
+        "gitBlobSha1": "a01e021012c2ea5963c0a41cfc769e9d86c6b912",
+        "header": {
+          "argv": [
+            "corepack",
+            "pnpm@10.30.3",
+            "exec",
+            "vitest",
+            "run",
+            "tests/research-baseline.test.ts",
+            "tests/m01-m02-compatibility.test.ts",
+            "tests/tool-authority-v3.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/effect-recovery-v3.test.ts",
+            "tests/execution-boundary-v3.test.ts",
+            "tests/project-trust-v3.test.ts",
+            "tests/secret-custody-v3.test.ts",
+            "tests/store.test.ts",
+            "tests/context-efficiency.test.ts",
+            "--maxWorkers=2"
+          ],
+          "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "startedAt": "2026-11-15T09:57:05.180417+00:00",
+          "endedAt": "2026-11-15T09:57:11.101009+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "truncated": false
+        },
+        "acceptedBaseCommit": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+        "presentAtAcceptedBase": false,
+        "committedSources": [
+          {
+            "commit": "c4a70f435531cc245aeac3231b8f1b4f21e5e0a0",
+            "path": "docs/implementation/v3/m12-logs/core-01-prerequisite-tests.log",
+            "gitBlobSha1": "a01e021012c2ea5963c0a41cfc769e9d86c6b912",
+            "sha256": "652ea4a38c9da4f484d59601916bae2a2266e181827da82f418b314fc8c2b78b",
+            "bytes": 2458,
+            "byteIdenticalToRetainedLog": true
+          },
+          {
+            "commit": "4fe2e778a0007c91c4455aff62e2e4d74646a8ab",
+            "path": "docs/implementation/v3/m12-logs/core-01-prerequisite-tests.log",
+            "gitBlobSha1": "a01e021012c2ea5963c0a41cfc769e9d86c6b912",
+            "sha256": "652ea4a38c9da4f484d59601916bae2a2266e181827da82f418b314fc8c2b78b",
+            "bytes": 2458,
+            "byteIdenticalToRetainedLog": true
+          }
+        ]
+      },
+      "comparison": {
+        "differingRecordFields": [
+          "logDigest"
+        ],
+        "allNonDigestMetadataIdentical": true,
+        "headerMatchesRetainedRecord": true,
+        "headerMatchesStaleRecorderRecord": true,
+        "byteRelationship": "The stale recorder digest equals SHA256 of the exact retained log bytes followed by one additional LF byte (0x0a). No header, output text, exit, time, argv or other byte changes are needed.",
+        "appendedBytesHex": "0a",
+        "reconstructedByteVariant": {
+          "origin": "DERIVED_FROM_COMMITTED_BYTES_NOT_A_NEW_EXECUTION_OR_RECOVERED_RAW_FILE",
+          "bytes": 2459,
+          "sha256": "fba56c1f1674e6dbd55732f770a404a140283143e4b94c2d62561ab413c4e1ba",
+          "matchesStaleRecorderLogDigest": true,
+          "base64": "ewogICJhcmd2IjogWwogICAgImNvcmVwYWNrIiwKICAgICJwbnBtQDEwLjMwLjMiLAogICAgImV4ZWMiLAogICAgInZpdGVzdCIsCiAgICAicnVuIiwKICAgICJ0ZXN0cy9yZXNlYXJjaC1iYXNlbGluZS50ZXN0LnRzIiwKICAgICJ0ZXN0cy9tMDEtbTAyLWNvbXBhdGliaWxpdHkudGVzdC50cyIsCiAgICAidGVzdHMvdG9vbC1hdXRob3JpdHktdjMudGVzdC50cyIsCiAgICAidGVzdHMvdG9vbC1lZmZlY3RzLXYzLnRlc3QudHMiLAogICAgInRlc3RzL2VmZmVjdC1yZWNvdmVyeS12My50ZXN0LnRzIiwKICAgICJ0ZXN0cy9leGVjdXRpb24tYm91bmRhcnktdjMudGVzdC50cyIsCiAgICAidGVzdHMvcHJvamVjdC10cnVzdC12My50ZXN0LnRzIiwKICAgICJ0ZXN0cy9zZWNyZXQtY3VzdG9keS12My50ZXN0LnRzIiwKICAgICJ0ZXN0cy9zdG9yZS50ZXN0LnRzIiwKICAgICJ0ZXN0cy9jb250ZXh0LWVmZmljaWVuY3kudGVzdC50cyIsCiAgICAiLS1tYXhXb3JrZXJzPTIiCiAgXSwKICAiY3dkIjogIi93b3Jrc3BhY2Uvc2NyYXRjaC9kYmViZTQ0YTk4MTcvbTEyLXYzIiwKICAic3RhcnRlZEF0IjogIjIwMjYtMTEtMTVUMDk6NTc6MDUuMTgwNDE3KzAwOjAwIiwKICAiZW5kZWRBdCI6ICIyMDI2LTExLTE1VDA5OjU3OjExLjEwMTAwOSswMDowMCIsCiAgImV4aXRDb2RlIjogMSwKICAidGVybWluYXRpb24iOiAiTk9ORSIsCiAgInRydW5jYXRlZCI6IGZhbHNlCn0KCgogUlVOICB2NC4xLjEyIC93b3Jrc3BhY2Uvc2NyYXRjaC9kYmViZTQ0YTk4MTcvbTEyLXYzCgpmYXRhbDogcGF0aCAncGFja2FnZXMvY2FwYWJpbGl0aWVzL3Byb2Nlc3MudHMnIGV4aXN0cyBvbiBkaXNrLCBidXQgbm90IGluICdiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiJwpmYXRhbDogTm90IGEgdmFsaWQgY29tbWl0IG5hbWUgYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYgpmYXRhbDogcGF0aCAncGFja2FnZXMvY2FwYWJpbGl0aWVzL3Byb2Nlc3MudHMnIGV4aXN0cyBvbiBkaXNrLCBidXQgbm90IGluICdiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiJwog4p2vIHRlc3RzL3Byb2plY3QtdHJ1c3QtdjMudGVzdC50cyAoOSB0ZXN0cyB8IDEgZmFpbGVkKSAxOTNtcwogICDDlyByZWFkaW5nIGFuIG9yZGluYXJ5IGdyYW50ZWQgdGV4dCBmaWxlIHN0aWxsIHdvcmtzIHdoaWxlIGV4ZWN1dGlvbiBhcHByb3ZhbCBzdGF5cyBkaXN0aW5jdCA1NG1zCgrijq/ijq/ijq/ijq/ijq/ijq/ijq8gRmFpbGVkIFRlc3RzIDEg4o6v4o6v4o6v4o6v4o6v4o6v4o6vCgogRkFJTCAgdGVzdHMvcHJvamVjdC10cnVzdC12My50ZXN0LnRzID4gcmVhZGluZyBhbiBvcmRpbmFyeSBncmFudGVkIHRleHQgZmlsZSBzdGlsbCB3b3JrcyB3aGlsZSBleGVjdXRpb24gYXBwcm92YWwgc3RheXMgZGlzdGluY3QKSGFybmVzc0Vycm9yOiBGaWxlIGFjY2VzcyBjaGVjayBmYWlsZWQg4oCUIHRoZSBmb2xkZXIgY291bGQgbm90IGJlIG9wZW5lZCBzYWZlbHkgZm9yIHRoaXMgYWN0aW9uCiDina8gZGVuaWVkIHBhY2thZ2VzL2NvcmUvbGludXgtcGF0aC1ndWFyZC50czoxMToxOAogICAgICA5fCB0eXBlIERpcmVjdG9yeVBhdGg9e3BhdGg6c3RyaW5nO2xlYWY6Ym9vbGVhbjtkZXY/OnN0cmluZztpbm8/OnN0cmluZztl4oCmCiAgICAgMTB8IGludGVyZmFjZSBTZXNzaW9uIHtycGMocmVxdWVzdDpSZWNvcmQ8c3RyaW5nLHVua25vd24+KTpQcm9taXNlPHJlYWRvbmzigKYKICAgICAxMXwgY29uc3QgZGVuaWVkPSgpPT5uZXcgSGFybmVzc0Vycm9yKCdDQVBBQklMSVRZX0RFTklFRCcsJ0ZpbGUgYWNjZXNzIGNoZeKApgogICAgICAgfCAgICAgICAgICAgICAgICAgIF4KICAgICAxMnwgY29uc3Qgd2l0aGluPShyb290OnN0cmluZyxwYXRoOnN0cmluZyk9PnBhdGg9PT1yb290fHxwYXRoLnN0YXJ0c1dpdGgocuKApgogICAgIDEzfCBleHBvcnQgZnVuY3Rpb24gdmFsaWRhdGVMaW51eERpcmVjdG9yeVBhdGhzKHBhdGhzOkRpcmVjdG9yeVBhdGhbXSxyb2904oCmCiDina8gcGFja2FnZXMvY29yZS9saW51eC1wYXRoLWd1YXJkLnRzOjg4OjI0CiDina8gd2l0aExpbnV4RGlyZWN0b3J5R3VhcmQgcGFja2FnZXMvY29yZS9saW51eC1wYXRoLWd1YXJkLnRzOjE1Mjo0Mgog4p2vIHRlc3RzL3Byb2plY3QtdHJ1c3QtdjMudGVzdC50czoxMjE6MTMKCuKOr+KOr+KOr+KOr+KOr+KOr+KOr+KOr+KOr+KOr+KOr+KOr+KOr+KOr+KOr+KOr+KOr+KOr+KOr+KOr+KOr+KOr+KOr+KOr1sxLzFd4o6vCgoKIFRlc3QgRmlsZXMgIDEgZmFpbGVkIHwgOSBwYXNzZWQgKDEwKQogICAgICBUZXN0cyAgMSBmYWlsZWQgfCAxMTYgcGFzc2VkICgxMTcpCiAgIFN0YXJ0IGF0ICAxNzo1NzowNQogICBEdXJhdGlvbiAgNS4yMHMgKHRyYW5zZm9ybSAxLjUxcywgc2V0dXAgMG1zLCBpbXBvcnQgMy40MnMsIHRlc3RzIDQuMDdzLCBlbnZpcm9ubWVudCAxbXMpCgo="
+        },
+        "causalLimit": "This exact digest equality proves the one-byte variant relationship. It does not establish which operation or actor removed the extra final LF before the audit log was committed."
+      },
+      "disposition": {
+        "action": "USE_EXACT_COMMITTED_ARCHIVE_RECORD",
+        "preserveRetainedLogBytes": true,
+        "preserveArchivedRecord": true,
+        "preserveStaleRecorderMetadata": true,
+        "updateOrRehashRecord": false,
+        "reason": "The retained log is byte-identical to both original audit commits and the archived verification already binds that exact artifact. The temporary record has otherwise identical execution metadata and binds only the proven extra-final-LF byte variant.",
+        "acceptanceGuard": "Accept only this exact id, complete retained record, complete stale record, retained log digest/Git blob, and proven byte relationship. Reject every unexplained collision or later changed field."
+      }
+    },
+    {
+      "id": "core-02-reproduce-granted-read",
+      "retainedRecord": {
+        "sourcePath": "docs/implementation/v3/m12-artifacts/prior-audit/M12-verification.json",
+        "jsonPointer": "/phases/0/commands/4",
+        "sourceFileSha256": "0d3508a5deb5f4f25d2106864e2ad301ffcbb68e95b1e53b210c832a3ac552c9",
+        "record": {
+          "argv": [
+            "corepack",
+            "pnpm@10.30.3",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-trust-v3.test.ts",
+            "-t",
+            "reading an ordinary granted text file still works while execution approval stays distinct",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
+          "startedAt": "2026-11-15T09:58:32.840572+00:00",
+          "endedAt": "2026-11-15T09:58:33.869469+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/core-02-reproduce-granted-read.log",
+          "logDigest": "515ed1ad85c9645ad5366a3d7ca80c28464f8a3ac67c01ab3275c5a8038bf0c7"
+        }
+      },
+      "staleRecorderRecord": {
+        "sourcePath": "<tmp>/m12-command-records/core-02-reproduce-granted-read.json",
+        "sourceFileSha256": "1e783456d277a9cb94dab7c2f49e3f23ac06cfbb4c0e5640015df2748124b33b",
+        "sourceFileBytes": 782,
+        "sourceFileUtf8": "{\n  \"argv\": [\n    \"corepack\",\n    \"pnpm@10.30.3\",\n    \"exec\",\n    \"vitest\",\n    \"run\",\n    \"tests/project-trust-v3.test.ts\",\n    \"-t\",\n    \"reading an ordinary granted text file still works while execution approval stays distinct\",\n    \"--maxWorkers=1\"\n  ],\n  \"cwdIdentity\": \"/workspace/scratch/dbebe44a9817/m12-v3\",\n  \"executableIdentity\": \"/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js\",\n  \"startedAt\": \"2026-11-15T09:58:32.840572+00:00\",\n  \"endedAt\": \"2026-11-15T09:58:33.869469+00:00\",\n  \"exitCode\": 1,\n  \"termination\": \"NONE\",\n  \"status\": \"FAIL\",\n  \"boundedLogRef\": \"docs/implementation/v3/m12-logs/core-02-reproduce-granted-read.log\",\n  \"logDigest\": \"383964b45aaf5f70fa9a268d13935be3ee130485ca008c61dbc3392849b2ae33\"\n}\n",
+        "record": {
+          "argv": [
+            "corepack",
+            "pnpm@10.30.3",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-trust-v3.test.ts",
+            "-t",
+            "reading an ordinary granted text file still works while execution approval stays distinct",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
+          "startedAt": "2026-11-15T09:58:32.840572+00:00",
+          "endedAt": "2026-11-15T09:58:33.869469+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/core-02-reproduce-granted-read.log",
+          "logDigest": "383964b45aaf5f70fa9a268d13935be3ee130485ca008c61dbc3392849b2ae33"
+        }
+      },
+      "retainedLog": {
+        "path": "docs/implementation/v3/m12-logs/core-02-reproduce-granted-read.log",
+        "bytes": 1907,
+        "sha256": "515ed1ad85c9645ad5366a3d7ca80c28464f8a3ac67c01ab3275c5a8038bf0c7",
+        "gitBlobSha1": "d62e4a968474fc181ba120d6df1411db022eb327",
+        "header": {
+          "argv": [
+            "corepack",
+            "pnpm@10.30.3",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-trust-v3.test.ts",
+            "-t",
+            "reading an ordinary granted text file still works while execution approval stays distinct",
+            "--maxWorkers=1"
+          ],
+          "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "startedAt": "2026-11-15T09:58:32.840572+00:00",
+          "endedAt": "2026-11-15T09:58:33.869469+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "truncated": false
+        },
+        "acceptedBaseCommit": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+        "presentAtAcceptedBase": false,
+        "committedSources": [
+          {
+            "commit": "c4a70f435531cc245aeac3231b8f1b4f21e5e0a0",
+            "path": "docs/implementation/v3/m12-logs/core-02-reproduce-granted-read.log",
+            "gitBlobSha1": "d62e4a968474fc181ba120d6df1411db022eb327",
+            "sha256": "515ed1ad85c9645ad5366a3d7ca80c28464f8a3ac67c01ab3275c5a8038bf0c7",
+            "bytes": 1907,
+            "byteIdenticalToRetainedLog": true
+          },
+          {
+            "commit": "4fe2e778a0007c91c4455aff62e2e4d74646a8ab",
+            "path": "docs/implementation/v3/m12-logs/core-02-reproduce-granted-read.log",
+            "gitBlobSha1": "d62e4a968474fc181ba120d6df1411db022eb327",
+            "sha256": "515ed1ad85c9645ad5366a3d7ca80c28464f8a3ac67c01ab3275c5a8038bf0c7",
+            "bytes": 1907,
+            "byteIdenticalToRetainedLog": true
+          }
+        ]
+      },
+      "comparison": {
+        "differingRecordFields": [
+          "logDigest"
+        ],
+        "allNonDigestMetadataIdentical": true,
+        "headerMatchesRetainedRecord": true,
+        "headerMatchesStaleRecorderRecord": true,
+        "byteRelationship": "The stale recorder digest equals SHA256 of the exact retained log bytes followed by one additional LF byte (0x0a). No header, output text, exit, time, argv or other byte changes are needed.",
+        "appendedBytesHex": "0a",
+        "reconstructedByteVariant": {
+          "origin": "DERIVED_FROM_COMMITTED_BYTES_NOT_A_NEW_EXECUTION_OR_RECOVERED_RAW_FILE",
+          "bytes": 1908,
+          "sha256": "383964b45aaf5f70fa9a268d13935be3ee130485ca008c61dbc3392849b2ae33",
+          "matchesStaleRecorderLogDigest": true,
+          "base64": "ewogICJhcmd2IjogWwogICAgImNvcmVwYWNrIiwKICAgICJwbnBtQDEwLjMwLjMiLAogICAgImV4ZWMiLAogICAgInZpdGVzdCIsCiAgICAicnVuIiwKICAgICJ0ZXN0cy9wcm9qZWN0LXRydXN0LXYzLnRlc3QudHMiLAogICAgIi10IiwKICAgICJyZWFkaW5nIGFuIG9yZGluYXJ5IGdyYW50ZWQgdGV4dCBmaWxlIHN0aWxsIHdvcmtzIHdoaWxlIGV4ZWN1dGlvbiBhcHByb3ZhbCBzdGF5cyBkaXN0aW5jdCIsCiAgICAiLS1tYXhXb3JrZXJzPTEiCiAgXSwKICAiY3dkIjogIi93b3Jrc3BhY2Uvc2NyYXRjaC9kYmViZTQ0YTk4MTcvbTEyLXYzIiwKICAic3RhcnRlZEF0IjogIjIwMjYtMTEtMTVUMDk6NTg6MzIuODQwNTcyKzAwOjAwIiwKICAiZW5kZWRBdCI6ICIyMDI2LTExLTE1VDA5OjU4OjMzLjg2OTQ2OSswMDowMCIsCiAgImV4aXRDb2RlIjogMSwKICAidGVybWluYXRpb24iOiAiTk9ORSIsCiAgInRydW5jYXRlZCI6IGZhbHNlCn0KCgogUlVOICB2NC4xLjEyIC93b3Jrc3BhY2Uvc2NyYXRjaC9kYmViZTQ0YTk4MTcvbTEyLXYzCgog4p2vIHRlc3RzL3Byb2plY3QtdHJ1c3QtdjMudGVzdC50cyAoOSB0ZXN0cyB8IDEgZmFpbGVkIHwgOCBza2lwcGVkKSAyOW1zCiAgIMOXIHJlYWRpbmcgYW4gb3JkaW5hcnkgZ3JhbnRlZCB0ZXh0IGZpbGUgc3RpbGwgd29ya3Mgd2hpbGUgZXhlY3V0aW9uIGFwcHJvdmFsIHN0YXlzIGRpc3RpbmN0IDI4bXMKCuKOr+KOr+KOr+KOr+KOr+KOr+KOryBGYWlsZWQgVGVzdHMgMSDijq/ijq/ijq/ijq/ijq/ijq/ijq8KCiBGQUlMICB0ZXN0cy9wcm9qZWN0LXRydXN0LXYzLnRlc3QudHMgPiByZWFkaW5nIGFuIG9yZGluYXJ5IGdyYW50ZWQgdGV4dCBmaWxlIHN0aWxsIHdvcmtzIHdoaWxlIGV4ZWN1dGlvbiBhcHByb3ZhbCBzdGF5cyBkaXN0aW5jdApIYXJuZXNzRXJyb3I6IEZpbGUgYWNjZXNzIGNoZWNrIGZhaWxlZCDigJQgdGhlIGZvbGRlciBjb3VsZCBub3QgYmUgb3BlbmVkIHNhZmVseSBmb3IgdGhpcyBhY3Rpb24KIOKdryBkZW5pZWQgcGFja2FnZXMvY29yZS9saW51eC1wYXRoLWd1YXJkLnRzOjExOjE4CiAgICAgIDl8IHR5cGUgRGlyZWN0b3J5UGF0aD17cGF0aDpzdHJpbmc7bGVhZjpib29sZWFuO2Rldj86c3RyaW5nO2lubz86c3RyaW5nO2XigKYKICAgICAxMHwgaW50ZXJmYWNlIFNlc3Npb24ge3JwYyhyZXF1ZXN0OlJlY29yZDxzdHJpbmcsdW5rbm93bj4pOlByb21pc2U8cmVhZG9ubOKApgogICAgIDExfCBjb25zdCBkZW5pZWQ9KCk9Pm5ldyBIYXJuZXNzRXJyb3IoJ0NBUEFCSUxJVFlfREVOSUVEJywnRmlsZSBhY2Nlc3MgY2hl4oCmCiAgICAgICB8ICAgICAgICAgICAgICAgICAgXgogICAgIDEyfCBjb25zdCB3aXRoaW49KHJvb3Q6c3RyaW5nLHBhdGg6c3RyaW5nKT0+cGF0aD09PXJvb3R8fHBhdGguc3RhcnRzV2l0aChy4oCmCiAgICAgMTN8IGV4cG9ydCBmdW5jdGlvbiB2YWxpZGF0ZUxpbnV4RGlyZWN0b3J5UGF0aHMocGF0aHM6RGlyZWN0b3J5UGF0aFtdLHJvb3TigKYKIOKdryBwYWNrYWdlcy9jb3JlL2xpbnV4LXBhdGgtZ3VhcmQudHM6ODg6MjQKIOKdryB3aXRoTGludXhEaXJlY3RvcnlHdWFyZCBwYWNrYWdlcy9jb3JlL2xpbnV4LXBhdGgtZ3VhcmQudHM6MTUyOjQyCiDina8gdGVzdHMvcHJvamVjdC10cnVzdC12My50ZXN0LnRzOjEyMToxMwoK4o6v4o6v4o6v4o6v4o6v4o6v4o6v4o6v4o6v4o6v4o6v4o6v4o6v4o6v4o6v4o6v4o6v4o6v4o6v4o6v4o6v4o6v4o6v4o6vWzEvMV3ijq8KCgogVGVzdCBGaWxlcyAgMSBmYWlsZWQgKDEpCiAgICAgIFRlc3RzICAxIGZhaWxlZCB8IDggc2tpcHBlZCAoOSkKICAgU3RhcnQgYXQgIDE3OjU4OjMzCiAgIER1cmF0aW9uICAzOTRtcyAodHJhbnNmb3JtIDEyMW1zLCBzZXR1cCAwbXMsIGltcG9ydCAxOTJtcywgdGVzdHMgMjltcywgZW52aXJvbm1lbnQgMG1zKQoK"
+        },
+        "causalLimit": "This exact digest equality proves the one-byte variant relationship. It does not establish which operation or actor removed the extra final LF before the audit log was committed."
+      },
+      "disposition": {
+        "action": "USE_EXACT_COMMITTED_ARCHIVE_RECORD",
+        "preserveRetainedLogBytes": true,
+        "preserveArchivedRecord": true,
+        "preserveStaleRecorderMetadata": true,
+        "updateOrRehashRecord": false,
+        "reason": "The retained log is byte-identical to both original audit commits and the archived verification already binds that exact artifact. The temporary record has otherwise identical execution metadata and binds only the proven extra-final-LF byte variant.",
+        "acceptanceGuard": "Accept only this exact id, complete retained record, complete stale record, retained log digest/Git blob, and proven byte relationship. Reject every unexplained collision or later changed field."
+      }
+    },
+    {
+      "id": "baseline-02-typecheck",
+      "retainedRecord": {
+        "sourcePath": "docs/implementation/v3/m12-artifacts/prior-audit/M12-verification.json",
+        "jsonPointer": "/phases/6/commands/1",
+        "sourceFileSha256": "0d3508a5deb5f4f25d2106864e2ad301ffcbb68e95b1e53b210c832a3ac552c9",
+        "record": {
+          "argv": [
+            "corepack",
+            "pnpm@10.30.3",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
+          "startedAt": "2026-11-15T09:57:05.174300+00:00",
+          "endedAt": "2026-11-15T09:57:32.153604+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/baseline-02-typecheck.log",
+          "logDigest": "36f85fe12605a02ad94e78024f957854ee0bc4cd474044c8c4d301160be01db7"
+        }
+      },
+      "staleRecorderRecord": {
+        "sourcePath": "<tmp>/m12-command-records/baseline-02-typecheck.json",
+        "sourceFileSha256": "b76a6c53832021b542eca07ff47081c7ee7601c097510d292a1767e4b3c5044e",
+        "sourceFileBytes": 586,
+        "sourceFileUtf8": "{\n  \"argv\": [\n    \"corepack\",\n    \"pnpm@10.30.3\",\n    \"typecheck\"\n  ],\n  \"cwdIdentity\": \"/workspace/scratch/dbebe44a9817/m12-v3\",\n  \"executableIdentity\": \"/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js\",\n  \"startedAt\": \"2026-11-15T09:57:05.174300+00:00\",\n  \"endedAt\": \"2026-11-15T09:57:32.153604+00:00\",\n  \"exitCode\": 0,\n  \"termination\": \"NONE\",\n  \"status\": \"PASS\",\n  \"boundedLogRef\": \"docs/implementation/v3/m12-logs/baseline-02-typecheck.log\",\n  \"logDigest\": \"1d933a2a5ae5226bae24e918f44bd6040ffde805ed399bf225338f50005507f5\"\n}\n",
+        "record": {
+          "argv": [
+            "corepack",
+            "pnpm@10.30.3",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
+          "startedAt": "2026-11-15T09:57:05.174300+00:00",
+          "endedAt": "2026-11-15T09:57:32.153604+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/baseline-02-typecheck.log",
+          "logDigest": "1d933a2a5ae5226bae24e918f44bd6040ffde805ed399bf225338f50005507f5"
+        }
+      },
+      "retainedLog": {
+        "path": "docs/implementation/v3/m12-logs/baseline-02-typecheck.log",
+        "bytes": 368,
+        "sha256": "36f85fe12605a02ad94e78024f957854ee0bc4cd474044c8c4d301160be01db7",
+        "gitBlobSha1": "f648a380a15556bff7c5b5dbd451dee63f84d0b8",
+        "header": {
+          "argv": [
+            "corepack",
+            "pnpm@10.30.3",
+            "typecheck"
+          ],
+          "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "startedAt": "2026-11-15T09:57:05.174300+00:00",
+          "endedAt": "2026-11-15T09:57:32.153604+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "truncated": false
+        },
+        "acceptedBaseCommit": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+        "presentAtAcceptedBase": false,
+        "committedSources": [
+          {
+            "commit": "c4a70f435531cc245aeac3231b8f1b4f21e5e0a0",
+            "path": "docs/implementation/v3/m12-logs/baseline-02-typecheck.log",
+            "gitBlobSha1": "f648a380a15556bff7c5b5dbd451dee63f84d0b8",
+            "sha256": "36f85fe12605a02ad94e78024f957854ee0bc4cd474044c8c4d301160be01db7",
+            "bytes": 368,
+            "byteIdenticalToRetainedLog": true
+          },
+          {
+            "commit": "4fe2e778a0007c91c4455aff62e2e4d74646a8ab",
+            "path": "docs/implementation/v3/m12-logs/baseline-02-typecheck.log",
+            "gitBlobSha1": "f648a380a15556bff7c5b5dbd451dee63f84d0b8",
+            "sha256": "36f85fe12605a02ad94e78024f957854ee0bc4cd474044c8c4d301160be01db7",
+            "bytes": 368,
+            "byteIdenticalToRetainedLog": true
+          }
+        ]
+      },
+      "comparison": {
+        "differingRecordFields": [
+          "logDigest"
+        ],
+        "allNonDigestMetadataIdentical": true,
+        "headerMatchesRetainedRecord": true,
+        "headerMatchesStaleRecorderRecord": true,
+        "byteRelationship": "The stale recorder digest equals SHA256 of the exact retained log bytes followed by one additional LF byte (0x0a). No header, output text, exit, time, argv or other byte changes are needed.",
+        "appendedBytesHex": "0a",
+        "reconstructedByteVariant": {
+          "origin": "DERIVED_FROM_COMMITTED_BYTES_NOT_A_NEW_EXECUTION_OR_RECOVERED_RAW_FILE",
+          "bytes": 369,
+          "sha256": "1d933a2a5ae5226bae24e918f44bd6040ffde805ed399bf225338f50005507f5",
+          "matchesStaleRecorderLogDigest": true,
+          "base64": "ewogICJhcmd2IjogWwogICAgImNvcmVwYWNrIiwKICAgICJwbnBtQDEwLjMwLjMiLAogICAgInR5cGVjaGVjayIKICBdLAogICJjd2QiOiAiL3dvcmtzcGFjZS9zY3JhdGNoL2RiZWJlNDRhOTgxNy9tMTItdjMiLAogICJzdGFydGVkQXQiOiAiMjAyNi0xMS0xNVQwOTo1NzowNS4xNzQzMDArMDA6MDAiLAogICJlbmRlZEF0IjogIjIwMjYtMTEtMTVUMDk6NTc6MzIuMTUzNjA0KzAwOjAwIiwKICAiZXhpdENvZGUiOiAwLAogICJ0ZXJtaW5hdGlvbiI6ICJOT05FIiwKICAidHJ1bmNhdGVkIjogZmFsc2UKfQoKCj4gZ2VuLXYxQDAuNi41IHR5cGVjaGVjayAvd29ya3NwYWNlL3NjcmF0Y2gvZGJlYmU0NGE5ODE3L20xMi12Mwo+IHRzYyAtLW5vRW1pdAoK"
+        },
+        "causalLimit": "This exact digest equality proves the one-byte variant relationship. It does not establish which operation or actor removed the extra final LF before the audit log was committed."
+      },
+      "disposition": {
+        "action": "USE_EXACT_COMMITTED_ARCHIVE_RECORD",
+        "preserveRetainedLogBytes": true,
+        "preserveArchivedRecord": true,
+        "preserveStaleRecorderMetadata": true,
+        "updateOrRehashRecord": false,
+        "reason": "The retained log is byte-identical to both original audit commits and the archived verification already binds that exact artifact. The temporary record has otherwise identical execution metadata and binds only the proven extra-final-LF byte variant.",
+        "acceptanceGuard": "Accept only this exact id, complete retained record, complete stale record, retained log digest/Git blob, and proven byte relationship. Reject every unexplained collision or later changed field."
+      }
+    }
+  ],
+  "limits": [
+    "This artifact explains provenance and exact byte custody only. It does not change a command result, make a failed check pass, or grant production approval.",
+    "The reconstructed byte variants are explicitly derived evidence matching the stale hashes; they are not newly observed command outputs.",
+    "The existing .gitattributes marks all files -text. Git newline normalization is not established as the cause; no actor or editing mechanism is attributed."
+  ]
+}

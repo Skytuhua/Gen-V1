@@ -1,0 +1,9 @@
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+
+ Test Files  1 passed (1)
+      Tests  14 passed (14)
+   Start at  18:26:42
+   Duration  1.80s (transform 73ms, setup 0ms, import 108ms, tests 1.55s, environment 0ms)
+

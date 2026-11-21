@@ -1,0 +1,146 @@
+#!/usr/bin/env python3
+"""Rebuild M12 evidence from retained actual command records and exact source lock.
+
+Run from the isolated repository after validation and review artifacts are complete.
+This does not execute tests, approve backends, or manufacture success statuses.
+"""
+from pathlib import Path
+import hashlib, json, subprocess
+
+root=Path(__file__).resolve().parents[3]
+directory=root/'docs/implementation/v3'
+artifacts=directory/'m12-artifacts'
+base='fcaa52f7fcdc9f39420118a79f9a8250ba83c563'
+def read(path): return json.loads(path.read_text())
+def write(path,value): path.write_text(json.dumps(value,indent=2)+'\n')
+def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
+def git(*args): return subprocess.check_output(['git',*args],cwd=root,text=True).strip()
+
+records={}
+for phase in read(artifacts/'prior-audit/M12-verification.json')['phases']:
+ for record in phase['commands']:
+  records[Path(record['boundedLogRef']).stem]=record
+if (artifacts/'command-records.json').exists():records.update(read(artifacts/'command-records.json'))
+for path in sorted(Path('<tmp>/m12-command-records').glob('*.json')):records[path.stem]=read(path)
+for name,record in records.items():
+ path=root/record['boundedLogRef']
+ assert path.exists(),name
+ assert sha(path)==record['logDigest'],name
+write(artifacts/'command-records.json',records)
+used=set()
+phases=[]
+def result(ids):
+ if not ids or any(name not in records for name in ids): return 'NOT_RUN'
+ return 'PASS' if all(records[name]['status'] in ('PASS','EXPECTED_NEGATIVE') for name in ids) else 'FAIL'
+def phase(identifier,ids,cases,artifact_names=(),forced=None):
+ commands=[records[name] for name in ids if name in records]
+ used.update(name for name in ids if name in records)
+ status=forced or result(ids)
+ required=[]
+ for case in cases:
+  name,description=case[:2]
+  case_status=result(case[2]) if len(case)==3 else ('NOT_RUN' if forced=='BLOCKED' else result(ids))
+  required.append({'id':name,'status':case_status,'evidence':description})
+ phases.append({'id':identifier,'status':status,'requiredCases':required,'commands':commands,'artifactRefs':[str((artifacts/name).relative_to(root)) for name in artifact_names]})
+
+phase('CORE.source-and-toolchain',['source-01-custody','setup-01-pnpm-version','setup-02-frozen-install','setup-03-native-pty','final-00-frozen-lockfile'],[
+ ('isolated-original-checkout','Original checkout preserved; agent/m12-v3 is a separate worktree. Origin, accepted base and audit ancestor are pinned in the source audit.'),
+ ('declared-package-manager','Node v24.22.1 and declared pnpm 10.30.3; nested package scripts use the retained pinned launcher. The tsx ESM loader avoids the unsupported CLI IPC socket.'),
+ ('reviewed-dependency','No new runtime dependency. js-tiktoken 1.0.21 is an exact reviewed development dependency for offline acceptance measurements.')],['tokenizer-dependency-review.json','pnpm-launcher.sh','native-pty-setup.py'])
+phase('CORE.dependency-contracts',['final-04-core-contracts'],[
+ ('M01','Current shared evidence, Store command, finite flag and compatibility tests executed. Browser/platform acceptance remains a separate phase.'),
+ ('M02','Current authority and ledger plus full owner, complete definition commitment, private arguments, parent-attempt linkage and receipt-reuse tests.'),
+ ('M03','Current execution-decision/trust contracts plus real descriptor-bound ordinary reads and protected-resource/identity/cancellation negatives.'),
+ ('M04-local-subset','Host-classified progressive disclosure implemented locally and tested. This does not claim the complete M04 milestone existed on accepted origin/main.'),
+ ('M10-local-subset','Private immutable results, scoped references, current-grant range retrieval and quotas implemented locally and tested. Complete upstream M10 acceptance is not claimed.')])
+phase('CORE.program-protocol',['final-01-protocol'],[
+ ('strict-contracts-and-budgets','ToolProgramV1 and NestedCallV1 strict schemas; 30 seconds, 64 calls, four admitted reads, 256 KiB complete result envelope. Backend proof names its actual memory scope.'),
+ ('authority-and-failure-negatives','Hidden/write/foreign-owner calls rejected before dispatch; one program per owner; falsey source rejections and structured errors stay FAILED; result refs and usage remain inspectable.')])
+phase('CORE.python-generation',['final-03-python-kernel'],[
+ ('kernel-identity','Keys bind complete owner, interpreter/configuration, cwd identity, tool set and execution profile.'),
+ ('kernel-lifecycle','Stop/reset, cancellation, late factories, owner-selection races and preparation races do not resurrect variables or stale programs. Reset increments generation before admission; no cell replay.')])
+phase('INTEGRATION.javascript',['final-05-runtime-integration'],[
+ ('actual-dedicated-executor','Pinned existing QuickJS WASM runs in a dedicated worker with immutable JSON inputs and host bridge only; actual memory growth, infinite-loop/microtask/output/call flood and cleanup tests.'),
+ ('no-ambient-capabilities','Actual guest denial of Node/files/network/process/imports and credentials; only host-authorized reads cross the bridge.')],['javascript-backend-review.md'])
+phase('INTEGRATION.replay',['final-02-replay','final-05-runtime-integration'],[
+ ('journal-and-receipts','Seed/clock, issued identities/counts and deliveries commit before VM resume. Completed read receipts are reused; changed source/runtime/registry/arguments/order/deadline prevent new effects.'),
+ ('process-kill-matrix','Ten real SIGKILL points include M02 admission before nested dispatch and read return before private result commit. Unknown admitted effects are not redispatched.'),
+ ('default-off-recovery','Real Service recovery reconciles bound M12 effects even with all flags off, retains confirmed results, marks unknown outcomes, and leaves unrelated effects unchanged.'),
+ ('exact-diagnostics','Field-specific host-authored incompatibilities preserve original results without exposing private source or tool-error text.')],['replay-and-file-read-review.md'])
+phase('INTEGRATION.python',['final-05-runtime-integration'],[
+ ('native-confined-persistent-kernel','Actual installed pinned Linux interpreter, bubblewrap namespace boundary and seccomp allowlist. Successful cells retain variables, every cell has fresh budgets, cancelled/wedged cells kill owned processes and require reset.'),
+ ('supervised-completion','A guest result frame cannot end trusted deadline custody: pidfd supervisor proves stopped process identity, single thread and no descendants. Guest control fd/process signalling denied.'),
+ ('M03-provider-composition','Actual M03 evaluateExecution and launch handle bind approved profile, runtime bytes, current trust, owner, cwd identity and protected Store exclusion; host credentials never enter the guest.')],['python-backend-review.md','python-runtime-configuration.json'])
+phase('INTEGRATION.host-and-native-transports',['final-05-runtime-integration'],[
+ ('service-and-routes','Real Service plus authenticated host routes enforce current/historical ownership, current grants, exact commands and bounded no-store range responses.'),
+ ('native-history-and-model-only','Pi/official/Hermes receive only canonical host-selected program metadata; model-only transports remain tool-free; failed program results retain failure status.'),
+ ('aggregate-input-admission','Unique references; sequential complete serialized array budget of 4 MiB, 100000 JSON nodes and depth 64 before backend admission; owner, grants and program access retained.'),
+ ('host-only-rollback','disableToolPrograms stops admission and owned workers, invalidates generations and retains receipts. SQLite writes remain host-only and transaction callbacks synchronous.')])
+phase('INTEGRATION.public-source-packaging',['packaging-04-public-source-final-green'],[
+ ('finite-source-and-runtime-manifest','Exact source/runtime entries include all checked worker assets, UI/browser/test inputs and source-only tokenizer review metadata. No wildcard admission or unreviewed asset rule changes.'),
+ ('staged-import-and-build-closure','Staged host, worker, browser and desktop builds plus finite negative manifest cases pass against the reviewed source list.')],['public-source-manifest-additions.json'])
+phase('INTEGRATION.frontend',['final-09-program-browser'],[
+ ('program-card','Real Chromium tests cover language/tools/state, active elapsed clock, calls/output cap, call graph and explicit private result inspection.'),
+ ('kernel-and-replay-view','Generation/retained variables, separate exact-owner Stop/Reset and external-effects warning; exact replay failure with original-result inspection and no blind Resume writes.')])
+phase('INTEGRATION.browser-fixture-repair',['fixture-02-terminal-program-response-green','fixture-04-conversation-find'],[
+ ('disabled-program-host-fixtures','Exact known-thread GET fixtures return the host disabled program view. Unknown owners, nested ranges and query variants remain 404; mutations remain 405. Production parsing and authentication behavior are unchanged.'),
+ ('observed-regression-repair','The terminal precommit-error assertion and new finite fixture boundary test pass in the complete ten-case terminal suite; the ten-case conversation-find suite also passes. The original failing fixture is retained.')],['ir14-fixture-audit.md','browser-fixture-regression.json','browser-fixture-terminal-red.json','browser-fixture-terminal-green.json'])
+phase('INTEGRATION.affected-browser-regression',['fixture-02-terminal-program-response-green','fixture-03-saved-drafts','fixture-04-conversation-find','fixture-05-wo5-app-integration','fixture-06-redundant-ui'],[
+ ('terminal-excerpts','Complete affected terminal suite after the fixture repair.',['fixture-02-terminal-program-response-green']),
+ ('saved-drafts','Complete affected saved-drafts suite. The retained base selector mismatch is recorded separately; it does not turn a nonzero command into a pass.',['fixture-03-saved-drafts']),
+ ('conversation-find','Complete affected conversation-find suite after the fixture repair.',['fixture-04-conversation-find']),
+ ('wo5-app-integration','Complete affected WO5 suite. Its strict unknown-route assertions remain active; the separate checkpoints/capability path is not admitted to hide a failure.',['fixture-05-wo5-app-integration']),
+ ('redundant-ui','Complete affected redundant-ui suite using the shared fixture.',['fixture-06-redundant-ui'])],['ir14-fixture-audit.md','browser-fixture-regression.json'])
+phase('INTEGRATION.fixed-aggregation-benchmark',['final-16-benchmark-after-browser-fixtures','final-17-benchmark-provenance-after-browser-fixtures'],[
+ ('actual-fixed-measurements','Actual real-executor controller transcripts, source tool counts, bytes and two pinned token encodings. Cold discovery and source-failure inspection overhead included.'),
+ ('quality-and-dependencies','Six cursor-dependent source reads produce the exact oracle on both paths. Source failure returns no aggregate and performs no repeated read. This is not a live model/provider evaluation.')],['aggregation-benchmark.json','benchmark-execution-link.json','tokenizer-dependency-review.json'])
+phase('INTEGRATION.repository-regression',['final-15-typecheck-after-browser-fixtures','final-11-full-test-after-review','final-08-build','validation-02-browser'],[
+ ('typecheck','Full pnpm typecheck after the final five browser fixture edits. Earlier typed-fixture failure remains in history.',['final-15-typecheck-after-browser-fixtures']),
+ ('unit-suite','Full pnpm test with maxWorkers=2 and JSON reporter before the last five browser-only fixture edits; product and unit-test sources are unchanged since this run. Actual nonzero exits remain failures. Exact-name accepted-base comparison finds zero candidate-only failures without asserting identical causes for every shared failure.',['final-11-full-test-after-review']),
+ ('production-build','Full pnpm build with required generated assets.',['final-08-build']),
+ ('browser-suite','Full pnpm test:browser executed all 80 suites, including M01 browser suites, and failed. This long run spans source edits and is a mixed-cut observation, not final-cut acceptance. Final program UI and affected fixture reruns are separately recorded. Missing channels, failed tests and skipped cases are not passing evidence.',['validation-02-browser'])],['browser-baseline-comparison.json','candidate-vitest-after-review.json','candidate-vitest-unhandled-after-review.json','unit-baseline-comparison.json','browser-full-summary.json'])
+phase('PLATFORM.linux-javascript',['final-05-runtime-integration'],[
+ ('guest-memory','Actual checked WebAssembly memory maximum is 128 MiB. Node wrapper/native metadata are explicitly outside this scope.'),
+ ('worker-teardown','Actual worker termination for loops, cancellation and output/call abuse is checked before ownership releases.')])
+phase('PLATFORM.linux-python',['final-05-runtime-integration'],[
+ ('installed-runtime-and-confinement','Linux x86_64 interpreter and sandbox bytes pinned; native filesystem/network/process denial, memory ceiling and owned process cleanup exercised with explicit synthetic operator approval in fixtures.'),
+ ('interpreter-memory','Actual hard interpreter RLIMIT_AS is 128 MiB. Supervisor has a separate 64 MiB limit; no aggregate process-tree bound is claimed.')],['python-runtime-configuration.json'])
+phase('PLATFORM.unsupported-aggregate-bounds',['independent-review-01-deadline'],[
+ ('whole-executor-memory','UNSUPPORTED: no tested combined 128 MiB cap for guest, trusted wrapper, supervisor, launcher and host buffers; proof explicitly reports wholeExecutorMemoryLimitBytes:null.'),
+ ('host-io-teardown-deadline','UNSUPPORTED: guest execution/admission stop at the deadline; noncooperative host reads can delay RPC completion and teardown. Actual intended-negative probe retains UNKNOWN receipts until read settlement.'),
+ ('retained-python-directory-quota','UNSUPPORTED: per-file size limit is enforced; no aggregate retained-directory disk quota is claimed.')],['independent-review-deadline-observation.json','independent-review-deadline-probe.mts'],forced='BLOCKED')
+phase('PLATFORM.windows-and-installed-desktop',[],[
+ ('windows-native','NOT_RUN on actual Windows. Linux tests and mocks do not establish Windows process or filesystem confinement.'),
+ ('installed-desktop','NOT_RUN on an actual installed desktop distribution. Source/runtime tests are not packaged-platform proof.'),
+ ('configured-browser-channels','Some baseline suites require installed Chrome or Edge channels unavailable on this target. No substitute browser is relabeled as those platforms.')],forced='BLOCKED')
+phase('ACTIVATION.independent-review',[],[
+ ('production-approval','Production activation has no independent operator/reviewer approval. All three flags default false, and agents/plugins/UI cannot enable them.'),
+ ('upstream-prerequisites','Full reviewed M04/M10 prerequisite milestones were absent on the accepted upstream base; local required subsets and exact blobs are documented, not mislabeled as accepted upstream milestones.'),
+ ('live-evaluation','No --host or --model was authorized and no live endpoint was guessed. Fixed offline controller benchmark is not live model task-quality proof.')],['independent-review-final.md','independent-review-final.json'],forced='BLOCKED')
+
+phase('CORE.evidence-integrity',['final-14-evidence-validation'],[
+ ('exact-artifact-and-source-custody','Controller validates strict schema, actual command headers and digests, original checkout, exact current source and review binding, finite default-off flags and complete changed-file inventory.'),
+ ('actual-benchmark-launch','Benchmark source hashes and artifact digest must match a selected completed actual command, whose interval contains the measurement. The standalone recipe is separately labelled and is never execution proof.')],['artifact-integrity.json','independent-review-final.json','benchmark-execution-link.json'])
+
+historical=[record for name,record in sorted(records.items()) if name not in used]
+phases.append({'id':'HISTORY.recorded-attempts','status':'PASS','requiredCases':[{'id':'preserved-attempts','status':'PASS','evidence':'All original command exits, red fixtures, setup errors, exploratory mixed-cut runs, comparisons and diagnostic attempts remain recorded. Their preservation is not a current feature-pass claim.'}],'commands':historical,'artifactRefs':['docs/implementation/v3/m12-artifacts/prior-audit','docs/implementation/v3/m12-artifacts/javascript-historical-attempts.json','docs/implementation/v3/m12-artifacts/command-records.json']})
+
+remaining=[
+ 'All three M12 flags remain false. Production admission requires independent review and explicit tested backend/operator configuration.',
+ 'The full required repository regression gates must pass; every observed failing command remains FAIL even when reproduced on the accepted base.',
+ 'Full M04/M10 milestone acceptance on an approved upstream base remains distinct from the locally implemented, tested prerequisite subsets.',
+ 'Actual Windows and installed-desktop proof is unavailable on this Linux target. These platforms remain unsupported for activation.',
+ 'No combined 128 MiB whole-executor/process-tree bound or hard host-I/O teardown/RPC completion deadline is established. Declared proof scopes remain explicit.',
+ 'Python retained-directory aggregate disk quota is unsupported; the approved profile has a per-file size ceiling only.',
+ 'Offline fixed-fixture token/byte/quality measurements exclude provider framing, billing and live model behavior. No live evaluation endpoint was invoked.',
+]
+lock=read(directory/'M12-source-lock.json')
+evidence={'schemaVersion':3,'bundleId':'M12','baseSha':base,'sourceLockDigest':sha(directory/'M12-source-lock.json'),'platform':'linux-x64','nodeVersion':'v24.22.1','packageManagerVersion':'10.30.3','phases':phases,'changedFiles':[],'dependencyContracts':lock['publicContracts'],'flags':[{'key':key,'enabled':False} for key in ['tools.jsReadProgramV1','tools.durableReplayExperimentV1','tools.pythonKernelV1']],'remainingGates':remaining,'reviewerApproval':False}
+write(directory/'M12-verification.json',evidence)
+manifest={'schemaVersion':1,'scope':'Retained nonrecursive artifacts; command log digests are also validated by canonical evidence','artifacts':[]}
+for path in sorted(artifacts.rglob('*')):
+ if path.is_file() and path.name!='artifact-integrity.json':manifest['artifacts'].append({'path':str(path.relative_to(root)),'bytes':path.stat().st_size,'sha256':sha(path)})
+write(artifacts/'artifact-integrity.json',manifest)
+evidence['changedFiles']=sorted(set(filter(None,(git('diff','--name-only',base)+'\n'+git('ls-files','--others','--exclude-standard')).splitlines())))
+write(directory/'M12-verification.json',evidence)
+print(json.dumps({'phases':{p['id']:p['status'] for p in phases},'commands':len(records),'changedFiles':len(evidence['changedFiles']),'artifactCount':len(manifest['artifacts'])},indent=2))

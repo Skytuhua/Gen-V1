@@ -1,0 +1,9 @@
+{
+  "case": "public-source.test.ts + tool-program-replay-v3.test.ts + tool-program-recovery-v3.test.ts (post-discriminator, allowlist-complete)",
+  "cut": "c413a178a693bf53a6ae3054b6aa4f00f14b0e9e + working diff (crash-death discriminator)",
+  "command": "pnpm exec vitest run tests/public-source.test.ts tests/tool-program-replay-v3.test.ts tests/tool-program-recovery-v3.test.ts --maxWorkers=1 (NODE_OPTIONS=--max-old-space-size=3072)",
+  "exitCode": 0,
+  "status": "PASS",
+  "note": "61/61 in 100s on linux-arm64 \u2014 13 public-source + 33 replay + 15 recovery. Corrections: PREPARED-only case now asserts persisted {owner:REPLAY_OWNER, killedAt:program.prepared} before programId use; tool-program-crash-death-v3.ts added to sorted manifest + M12 source allowlist. Windows outcome pending CI.",
+  "logDigest": "not-recorded \u2014 console summary only"
+}

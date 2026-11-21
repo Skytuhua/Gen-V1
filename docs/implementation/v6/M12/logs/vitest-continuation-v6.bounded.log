@@ -1,0 +1,37 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-continuation-v6.test.ts"
+  ],
+  "cwd": "<worktree:m12-v6>",
+  "startedAt": "2026-11-18T12:07:10.577Z",
+  "endedAt": "2026-11-18T12:07:41.119Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 <worktree:m12-v6>
+
+ ✓ tests/tool-program-continuation-v6.test.ts (7 tests) 24686ms
+     ✓ keeps x=7 visible to a second cell in one generation, then drops it after reset  4944ms
+     ✓ rejects a changed recorded argument with REPLAY_DIVERGED and no new calls  4059ms
+     ✓ rejects a changed recorded tool-definition digest with REPLAY_DIVERGED and no new calls  4851ms
+     ✓ rejects a changed recorded result order with REPLAY_DIVERGED and no new calls  6280ms
+     ✓ revokes the resource grant between preparation and nested dispatch, retaining a denial receipt and no tool call  1467ms
+     ✓ keeps wholeExecutorMemoryLimitBytes null and cannot enable Python admission  1252ms
+     ✓ never confirms, replaces or releases a cancelled read that ignores the abort signal  1427ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  04:07:12
+   Duration  28.71s (transform 2.69s, setup 0ms, import 3.52s, tests 24.69s, environment 0ms)
+
+
+(node:88983) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

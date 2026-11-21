@@ -381,6 +381,9 @@ export class PlanningCoordinator {
     const restricted: DomainContext = {
       threadId: job.parent.threadId, signal: job.signal,
       resolveResource: async (id, path, write) => { check(); if (write) throw new HarnessError('AGENT_TOOL_DENIED', 'Read-only resource access'); const result = await domain.resolveResource(id, path, false); check(); return result; },
+      ...(domain.readResource ? { readResource: async (id: string, path: string | undefined, maxBytes: number) => {
+        check(); const result = await domain.readResource!(id, path, maxBytes); check(); return result;
+      } } : {}),
       ...(domain.withResource ? { withResource: <T>(id: string, path: string | undefined, write: boolean, action: (filename: string) => Promise<T>) => {
         check(); if (write) throw new HarnessError('AGENT_TOOL_DENIED', 'Read-only resource access');
         return domain.withResource!(id, path, false, async filename => { check(); const result = await action(filename); check(); return result; });

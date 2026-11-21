@@ -1,0 +1,1685 @@
+{
+  "schemaVersion": 1,
+  "bundleId": "M12",
+  "observedAt": "2026-11-15T11:43:46.806528+00:00",
+  "executionBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+  "sourceLockDigest": "ba19359635f62964e9b95fa1fa8c010b3e05bcfae6430ae8a2a7968dc772cb8d",
+  "scope": "Every changed product/test/config path outside docs/, every retained base inspection, named integration targets, and current contract definitions/tests. Generated M12 evidence outputs are excluded to avoid digest cycles.",
+  "hashSemantics": "blobSha is Git SHA-1 of the exact worktree file bytes, verified against git hash-object; sha256 and bytes describe those same bytes. No current HEAD or final commit is recorded.",
+  "changedProductTestConfigPaths": [
+    "apps/server/server.ts",
+    "apps/server/tool-program-routes.ts",
+    "apps/web/src/App.tsx",
+    "apps/web/src/ToolProgramPanel.tsx",
+    "apps/web/src/tool-programs.css",
+    "package.json",
+    "packages/capabilities/index.ts",
+    "packages/contracts/index.ts",
+    "packages/contracts/tool-program.ts",
+    "packages/contracts/tool-results.ts",
+    "packages/core/capability-flags.ts",
+    "packages/core/file-access.ts",
+    "packages/core/linux-file-read.ts",
+    "packages/core/planning.ts",
+    "packages/core/python-kernels.ts",
+    "packages/core/python-program-provider.ts",
+    "packages/core/service.ts",
+    "packages/core/tool-disclosure.ts",
+    "packages/core/tool-effects.ts",
+    "packages/core/tool-program-host.ts",
+    "packages/core/tool-program-tools.ts",
+    "packages/core/tool-programs.ts",
+    "packages/core/tool-results.ts",
+    "packages/runtime-hermes/index.ts",
+    "packages/runtime-official/index.ts",
+    "packages/runtime-official/mcp.ts",
+    "packages/runtime-pi/tool-definitions.ts",
+    "packages/runtime-pi/worker.ts",
+    "packages/runtime/python-confinement.py",
+    "packages/runtime/python-program-supervisor.py",
+    "packages/runtime/python-program-worker.py",
+    "packages/runtime/python-program-worker.ts",
+    "packages/runtime/tool-program-worker-child.mjs",
+    "packages/runtime/tool-program-worker.ts",
+    "pnpm-lock.yaml",
+    "scripts/browser-suites.ts",
+    "scripts/public-source-files.json",
+    "tests/e2e/research-workspace.playwright.config.ts",
+    "tests/e2e/tool-programs-fixture.tsx",
+    "tests/e2e/tool-programs.playwright.config.ts",
+    "tests/e2e/tool-programs.spec.ts",
+    "tests/e2e/tool-programs.vite.config.ts",
+    "tests/fixtures/tool-program-benchmark-v3.ts",
+    "tests/fixtures/tool-program-crash-v3.mts",
+    "tests/fixtures/tool-program-replay-harness-v3.ts",
+    "tests/hermes-runtime.test.ts",
+    "tests/linux-bound-read-v3.test.ts",
+    "tests/planning.test.ts",
+    "tests/project-trust-v3.test.ts",
+    "tests/public-source.test.ts",
+    "tests/python-kernel-v3.test.ts",
+    "tests/python-program-backend-v3.test.ts",
+    "tests/python-program-integration-v3.test.ts",
+    "tests/tool-program-authority-v3.test.ts",
+    "tests/tool-program-backend-v3.test.ts",
+    "tests/tool-program-benchmark-v3.test.ts",
+    "tests/tool-program-diagnostics-v3.test.ts",
+    "tests/tool-program-input-budget-v3.test.ts",
+    "tests/tool-program-integration-v3.test.ts",
+    "tests/tool-program-prerequisites-v3.test.ts",
+    "tests/tool-program-recovery-v3.test.ts",
+    "tests/tool-program-replay-v3.test.ts",
+    "tests/tool-program-transport-v3.test.ts",
+    "tests/tool-program-v3.test.ts"
+  ],
+  "namedIntegrationTargets": [
+    ".gitattributes",
+    "packages/capabilities/schemas.ts",
+    "packages/runtime/index.ts",
+    "packages/runtime-pi/input-envelope.ts",
+    "tests/fixtures/linux-path-guard/native.mjs"
+  ],
+  "files": [
+    {
+      "path": ".gitattributes",
+      "blobSha": "e99fdf22a8af6295257b67b5c1156f90969ccad4",
+      "sha256": "618dcb95d945bc5073871a05b1013e6fe1be893d2e5b9be49a429bc91aa9d787",
+      "bytes": 256,
+      "baseBlobSha": "e99fdf22a8af6295257b67b5c1156f90969ccad4",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "ADDITIONAL_EXISTING_INTEGRATION",
+        "NAMED_INTEGRATION_TARGET"
+      ]
+    },
+    {
+      "path": "apps/server/research-routes.ts",
+      "blobSha": "b6cb67717cd94bab778b676a1bf80bb6d9f2a7d5",
+      "sha256": "93b4691b3a6f816674bdf68ac5c1100d0e39d04b6b73dd31b61942a1d008a4b8",
+      "bytes": 4021,
+      "baseBlobSha": "b6cb67717cd94bab778b676a1bf80bb6d9f2a7d5",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "apps/server/server.ts",
+      "blobSha": "30b971c314e47cc8b6e5173a2ed365fec538d64d",
+      "sha256": "f2f55ba980040c5279f07907360f6e805ec7b1548c266923c3f301d6d5fe4fe0",
+      "bytes": 28092,
+      "baseBlobSha": "e4df5cae7274c99ff988f30a2bb5abb5aa0e3362",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "ADDITIONAL_EXISTING_INTEGRATION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "apps/server/tool-program-routes.ts",
+      "blobSha": "9420f0b717af7674fa23d78c0d8892df5713b15a",
+      "sha256": "63659107d81a537c38d51726e76b203f4d68a21b31f04ea588ca20798927e1b7",
+      "bytes": 1350,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "blobSha": "991799f8c30bbb58806e567541e61f072a405a2b",
+      "sha256": "7eefd0de00a99cd789d9f78f8568a675839e004654560b7943fc849aab03dc64",
+      "bytes": 141315,
+      "baseBlobSha": "2978a3af00fed8b277674f28beb0898d3755c179",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "ADDITIONAL_EXISTING_INTEGRATION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "apps/web/src/ToolProgramPanel.tsx",
+      "blobSha": "20e31f4dcd4916840d48abf44a3a9c081c8cd4f3",
+      "sha256": "38ba645504008f4d61f10aba8185129d398972d527dd1a3f1b99bb2674fed139",
+      "bytes": 17375,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "apps/web/src/tool-programs.css",
+      "blobSha": "d7c384756eb65cc0400245b4e4fa7fa6ccc2cb39",
+      "sha256": "08d93cffa351f1545604f0da08e76ed0ea1161192a3620013bae567872f9ec51",
+      "bytes": 4418,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "docs/architecture.md",
+      "blobSha": "0bd9905c14f9243ee68509ea6e613f13932a064f",
+      "sha256": "b1822d1a21b812e2c0dbea2cc78553d2d4eefe16a8928c8ba11b1d395ec0c815",
+      "bytes": 13469,
+      "baseBlobSha": "b1317bfadb1c6b3b2e7f3c6324890e55ff2f5b7c",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/M01-verification.json",
+      "blobSha": "465bbb9d5d11adf0f7a1f2cf6c07dc8668e6491d",
+      "sha256": "806f844d92c05f1a280b7cec72bdae73b39365eef4417e654a3bf4bbc7bd1daf",
+      "bytes": 30977,
+      "baseBlobSha": "465bbb9d5d11adf0f7a1f2cf6c07dc8668e6491d",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/M02-source-lock.json",
+      "blobSha": "06c57a31c62de55e47f08cc4fe19ea63edec8ec9",
+      "sha256": "82c7fb4f0518f37873ab8bc557bbea1acc91e419c91fa5a2657b532e712fde3a",
+      "bytes": 1804,
+      "baseBlobSha": "06c57a31c62de55e47f08cc4fe19ea63edec8ec9",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/M02-verification.json",
+      "blobSha": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b",
+      "sha256": "cfcd648127baedf633f59e736177e3c26e2b33758cd5cffec8f46bd63e3bf26e",
+      "bytes": 6889,
+      "baseBlobSha": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/M03-verification.json",
+      "blobSha": "7d1b03aab4ac556af608dbc886a15fb129181358",
+      "sha256": "c0501fcb3c95c45909300d87cefbe761951821c83893fe8766ce79d2cd945555",
+      "bytes": 15360,
+      "baseBlobSha": "7d1b03aab4ac556af608dbc886a15fb129181358",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "package.json",
+      "blobSha": "e8be5556b3882bf5513c6bf440981d2798e2820d",
+      "sha256": "c788247258046e87662fd7feb4104471dee87bc59c74e2aa81ed41ab31924c0f",
+      "bytes": 3229,
+      "baseBlobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/capabilities/index.ts",
+      "blobSha": "ec87ea62d6b829ece3c10786d030e65e051e2a10",
+      "sha256": "ce3928b68652dd378578b6c63eb3b4204113f89c74bcd99b563e29df9c4eee82",
+      "bytes": 23894,
+      "baseBlobSha": "fc370fd43944656b9efaf78a10ead1f46f1a1018",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/capabilities/process.ts",
+      "blobSha": "3ea847caa05ef6c0c8d2fc5ff258d8e676cfcbe0",
+      "sha256": "1ca568219ba8a39341c31f3202080cebd7ac37ab09b121c2fac0c48fccb0d485",
+      "bytes": 4318,
+      "baseBlobSha": "3ea847caa05ef6c0c8d2fc5ff258d8e676cfcbe0",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "packages/capabilities/schemas.ts",
+      "blobSha": "70d38064e9633ce6785486327453c92e38e1479f",
+      "sha256": "4de412f6f4861ec000a7b5b21b18fd3a7568d0de61ac85240f02873893a5e98e",
+      "bytes": 5435,
+      "baseBlobSha": "70d38064e9633ce6785486327453c92e38e1479f",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "ADDITIONAL_EXISTING_INTEGRATION",
+        "NAMED_INTEGRATION_TARGET"
+      ]
+    },
+    {
+      "path": "packages/contracts/execution-profile.ts",
+      "blobSha": "031a20ee2c4d0fa88e707441644225505e0358e4",
+      "sha256": "31741f2846e94d3f1bf9037338a25b8cc38b9e8fc87959650e9b57f5ad39108f",
+      "bytes": 9944,
+      "baseBlobSha": "031a20ee2c4d0fa88e707441644225505e0358e4",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CONTRACT_DEFINITION"
+      ]
+    },
+    {
+      "path": "packages/contracts/implementation-evidence.ts",
+      "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "sha256": "149654583eb30c23922deb3c75e2e1b4113083b064b7b95ad6a7ada903d984df",
+      "bytes": 10262,
+      "baseBlobSha": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CONTRACT_DEFINITION"
+      ]
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "blobSha": "baeae3c0a453f7e9cd5a39ed2abc4d0680cb7b2b",
+      "sha256": "e581dca067f7340019a560a1d6cb0413777361b7fdbcda6da9c486d39d6d4648",
+      "bytes": 8386,
+      "baseBlobSha": "09517becaf0c35f5f63bd758878659ea0de5f57b",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/contracts/preferences.ts",
+      "blobSha": "5cd7a562f3e331c06ffc82454f06075013080131",
+      "sha256": "2494afe5ef6936287295a4279a214486a8b0fe344042b0fbd93143ab315efb42",
+      "bytes": 8427,
+      "baseBlobSha": "5cd7a562f3e331c06ffc82454f06075013080131",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "packages/contracts/research.ts",
+      "blobSha": "341639f798dde03cadd0731e2ed77c8e32943c25",
+      "sha256": "c89176d0273fdaaef0e45ee03561e54eec1b8dd9ed1c2e2468c3f7249c04449d",
+      "bytes": 4587,
+      "baseBlobSha": "341639f798dde03cadd0731e2ed77c8e32943c25",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "packages/contracts/tool-effects.ts",
+      "blobSha": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "sha256": "8b17ca030d0e9fb476b1694adbec1dc9e725c4cc20b7f8a1f4a60173de9fec2a",
+      "bytes": 3275,
+      "baseBlobSha": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CONTRACT_DEFINITION"
+      ]
+    },
+    {
+      "path": "packages/contracts/tool-program.ts",
+      "blobSha": "bfd784a8a9ef80cf0cef89a356808c7bc5c9064e",
+      "sha256": "2724f364d39f6d53dff5b7d4a85ed783b02ebaef3c70a14711f918ba6f16f1ff",
+      "bytes": 6609,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_DEFINITION"
+      ]
+    },
+    {
+      "path": "packages/contracts/tool-results.ts",
+      "blobSha": "283eaa07cf03a019dc57b63289304fa5f58b15eb",
+      "sha256": "b52f84f03e8571c09ece8e247af457aa249450a47a9dabd7b1ec4d17005a7b1d",
+      "bytes": 3150,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_DEFINITION"
+      ]
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "blobSha": "1edfc1de2b68012da568dda8f2c40818641d81eb",
+      "sha256": "ce2e58d3075035d5c04f0b36d0a13403728d65b36455192db333d064dfbf3f89",
+      "bytes": 5317,
+      "baseBlobSha": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_DEFINITION"
+      ]
+    },
+    {
+      "path": "packages/core/discovery.ts",
+      "blobSha": "ace7f11aa8fb066608f9b70e6c7bd54a7fc0e3f7",
+      "sha256": "a645c1a752b661868e08dbccb27efc708368e5bd0241e331ba4a00ab672423d6",
+      "bytes": 5312,
+      "baseBlobSha": "ace7f11aa8fb066608f9b70e6c7bd54a7fc0e3f7",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "packages/core/execution-policy.ts",
+      "blobSha": "2dad179e75a47be477d0e7871cda2660ea39b2f7",
+      "sha256": "8afb24fbbcdb62025d1282994498f623777fe48cea416c53f02276b988046a64",
+      "bytes": 12796,
+      "baseBlobSha": "2dad179e75a47be477d0e7871cda2660ea39b2f7",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CONTRACT_DEFINITION"
+      ]
+    },
+    {
+      "path": "packages/core/file-access.ts",
+      "blobSha": "e561fd85628f79598d72ea98d29561ccd5abd09d",
+      "sha256": "fbb4495fb0639a40aec3c9c5f974843f4704c20a43a8a5c6c54faa84f79a724e",
+      "bytes": 14372,
+      "baseBlobSha": "d4e0a59c6f2418a869cc1aac18f0dad42036c412",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_DEFINITION"
+      ]
+    },
+    {
+      "path": "packages/core/host-flags.ts",
+      "blobSha": "bc42845181317c61018f2725ee1d62f9dd625cac",
+      "sha256": "71133c30f2a0b1f62d6cf3456c560fac3eaea695c290b7837dfda62f3b313abb",
+      "bytes": 2784,
+      "baseBlobSha": "bc42845181317c61018f2725ee1d62f9dd625cac",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CONTRACT_DEFINITION"
+      ]
+    },
+    {
+      "path": "packages/core/linux-file-read.ts",
+      "blobSha": "aae6f434eecfb7b511412982badf09bb83739359",
+      "sha256": "ab9b9adb7a755dae47775aaee05d7f9117e5a04587a109fa9c74d1754cfe1cd2",
+      "bytes": 7648,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/core/linux-path-guard.py",
+      "blobSha": "713b351bf44002e46e07fb29436226a4a2ec258d",
+      "sha256": "f63d5df6d4340d89c40117dd2a819584bce79d0a72dc1159daaf77210d5d3440",
+      "bytes": 26990,
+      "baseBlobSha": "713b351bf44002e46e07fb29436226a4a2ec258d",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "packages/core/linux-path-guard.ts",
+      "blobSha": "13322b69419c9ab1bcc7d6850109b7cd82770686",
+      "sha256": "3462fa20bb06fb00fcb5944dde71c20a6e95a5e0dfde4d11b59e6b9bad38db54",
+      "bytes": 11384,
+      "baseBlobSha": "13322b69419c9ab1bcc7d6850109b7cd82770686",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "packages/core/planning.ts",
+      "blobSha": "ca1da4824877fb2c18701d038e793bed4b1b70d8",
+      "sha256": "92d5786e6de4acd79a304929c8f08646769502fb933711951bf3ad3895cb1eb3",
+      "bytes": 43832,
+      "baseBlobSha": "fdb75092c2c584f61c3c6a6106dae1b9e49fac6a",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "ADDITIONAL_EXISTING_INTEGRATION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/core/python-kernels.ts",
+      "blobSha": "6b977ea29e3a4796f2b5fdf0f4a6e8d543f85881",
+      "sha256": "df5e2d223ad6ec0888d6854a78dd28830705870a385100d9b935d87671885356",
+      "bytes": 16016,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/core/python-program-provider.ts",
+      "blobSha": "f7b11614afd61ef46c5209833235d3bad78857d5",
+      "sha256": "0ea8777797f69e1d5f91fefcebcc8ae1b2b7b91ade3354a39244cd928cfc90cc",
+      "bytes": 10201,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/core/security.ts",
+      "blobSha": "693f251361bc464caee26df795c57002d120c9a7",
+      "sha256": "dd044a00969568dcdccb362595ca8df7174c4cf93a0f065faa27c15eda8f32e9",
+      "bytes": 3604,
+      "baseBlobSha": "693f251361bc464caee26df795c57002d120c9a7",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "packages/core/service.ts",
+      "blobSha": "d77d4d699515465f0b094403de4f3a8447169c59",
+      "sha256": "170fa49b77172e839bed0743bf786d211fc10960f842179248056e4e767a04d9",
+      "bytes": 129644,
+      "baseBlobSha": "2b3fb63acef915b052a468e104c6e4f00a4b82e4",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/core/task-inspection.ts",
+      "blobSha": "a61a31d23a1d38b58d365d34bb9f79187d61493e",
+      "sha256": "944f6c8f867e99d89c3cf84fa44ed252321950f5662f9efca604859f4a8bcd70",
+      "bytes": 7950,
+      "baseBlobSha": "a61a31d23a1d38b58d365d34bb9f79187d61493e",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "packages/core/tool-authority.ts",
+      "blobSha": "1d654522d9842838276d162a33dac6141f731c26",
+      "sha256": "bef3900a2a6419e00b2f89302e1aad11bc93d9be7464ac3aba3a606cc4f01465",
+      "bytes": 9666,
+      "baseBlobSha": "1d654522d9842838276d162a33dac6141f731c26",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CONTRACT_DEFINITION"
+      ]
+    },
+    {
+      "path": "packages/core/tool-disclosure.ts",
+      "blobSha": "5240b066ac0f1bce1bc0d14c3d8b6779494c0eab",
+      "sha256": "d16bf7e57f7900e3410b88699d45ab07033ce650addf44c6477d5cba9c051ee3",
+      "bytes": 6409,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_DEFINITION"
+      ]
+    },
+    {
+      "path": "packages/core/tool-effects.ts",
+      "blobSha": "2fbe10fd4903d1b420197338b07905c9d93a232b",
+      "sha256": "25b1cc0e4320c272093a4d31f196ac7a4f9e1b442182c8dbf38e84c78dfe59b1",
+      "bytes": 19076,
+      "baseBlobSha": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_DEFINITION"
+      ]
+    },
+    {
+      "path": "packages/core/tool-program-host.ts",
+      "blobSha": "4372844612aba18ead0b567a6cb8ec4dade4a8b6",
+      "sha256": "017140303a56a438543ee650baf57509b332eda6de784eea42ff99a7c77bacb2",
+      "bytes": 13236,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/core/tool-program-tools.ts",
+      "blobSha": "8bd0a19c3c091e3ca222630111da539b45b92aea",
+      "sha256": "eb2fa3c23b8de3a3001bc8441ce2fa5a4969e2a02efeb0a5a52caf20bc148642",
+      "bytes": 4213,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/core/tool-programs.ts",
+      "blobSha": "1a42e592ea8212b912360f3a228183d588ecb2c4",
+      "sha256": "4c6c73dd42d593b31ddffc9c4d8298d008bd60307d457cb656cadcaeb887715b",
+      "bytes": 50440,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/core/tool-results.ts",
+      "blobSha": "1ebbf297a78a1c4b958344911d7d539c0a4a3e6c",
+      "sha256": "f5fb4583792bf55eddd38922522c120e439fbe9d3f1329dbc84b972a85ed5f62",
+      "bytes": 21314,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_DEFINITION"
+      ]
+    },
+    {
+      "path": "packages/core/ui-admission.ts",
+      "blobSha": "50a4006f6bd3056ebe7af75b7f40ea595a1f7920",
+      "sha256": "3b5a8447e9d54ff92f464227b9df32068165d7c5c1137a76264b56b1aaa3e0be",
+      "bytes": 8048,
+      "baseBlobSha": "50a4006f6bd3056ebe7af75b7f40ea595a1f7920",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "packages/research/repository.ts",
+      "blobSha": "c285e97b8acecbf46862c54163e8b038ec301092",
+      "sha256": "98efbf2993fcfef2592e873766af331a8d95ea7251db9e24327cc2a395359ccf",
+      "bytes": 17082,
+      "baseBlobSha": "c285e97b8acecbf46862c54163e8b038ec301092",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "packages/runtime-hermes/client.ts",
+      "blobSha": "c83ab13d1347c592df98ddf258788415bb971873",
+      "sha256": "8e87d57fc6836ba41bf4b3ce5ea8a7c4955134709f651a4402ac88e80d4c1fbb",
+      "bytes": 9192,
+      "baseBlobSha": "c83ab13d1347c592df98ddf258788415bb971873",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "blobSha": "38cbe38613784d5e1be8ba35b8a42a981734a8fd",
+      "sha256": "961ffd948152ad0a07699cc24fb7b864f9032249c998d426ebd155fcc0399117",
+      "bytes": 35994,
+      "baseBlobSha": "ca15682cd2ad86f296247e71a7b18a190c0968f4",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "ADDITIONAL_EXISTING_INTEGRATION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/runtime-hermes/worker.py",
+      "blobSha": "e28c6272f9aab28f76b9462a87768fe4226361c1",
+      "sha256": "b3c73a6c65ac09d512860fded5f6164ba8f52d592d0039c4df5dd7a8846ae09b",
+      "bytes": 77625,
+      "baseBlobSha": "e28c6272f9aab28f76b9462a87768fe4226361c1",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "packages/runtime-official/index.ts",
+      "blobSha": "9888b6e5b60a84af7298a1e1da42d7fa8d50b476",
+      "sha256": "84fcf0335eb99c87e74a14f975d13fd5dcd7e5483dc3fe9785be24a5d1c7b331",
+      "bytes": 20387,
+      "baseBlobSha": "b8e4b1a5892d60525e51ac86ae28b54c68c16ac0",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/runtime-official/mcp.ts",
+      "blobSha": "485c68d93385f85e92a94733e5235c8c9b0bdd09",
+      "sha256": "24f52c07d55c8805c003c4ff489bfacd4883d4f253642d8a67366e8dc260a707",
+      "bytes": 5193,
+      "baseBlobSha": "791ebf88c58765f9e4625bde6b727019c1b33337",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/runtime-pi/input-envelope.ts",
+      "blobSha": "7a0ce5ef511a769bb53af26c3cbcbbe72510bf0d",
+      "sha256": "ffc5e67407a5e362132cb9eabedb7c864b308866bf8b89e47b238ade6c73527f",
+      "bytes": 2369,
+      "baseBlobSha": "7a0ce5ef511a769bb53af26c3cbcbbe72510bf0d",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "ADDITIONAL_EXISTING_INTEGRATION",
+        "NAMED_INTEGRATION_TARGET"
+      ]
+    },
+    {
+      "path": "packages/runtime-pi/ipc.ts",
+      "blobSha": "96c46272df81afe0bc828ce277bc17420688d62c",
+      "sha256": "7cf8350074d7d1c66daa59b2c68ecd094c259f9ee5e089919bd93e080ccd4292",
+      "bytes": 3156,
+      "baseBlobSha": "96c46272df81afe0bc828ce277bc17420688d62c",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "packages/runtime-pi/process-tree.ts",
+      "blobSha": "fb903470a172be1e1995557caa888b4f065e7270",
+      "sha256": "05db4fd6e3c7d34cb4058b7ade27922c45dbd27374b971c49558a1f32634f5be",
+      "bytes": 1423,
+      "baseBlobSha": "fb903470a172be1e1995557caa888b4f065e7270",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "packages/runtime-pi/tool-definitions.ts",
+      "blobSha": "cc5209c1a44c45dfa4e9395a2cbb31ef06ce6731",
+      "sha256": "6416e019124c6164a6b91cbd1901d0f5795209a01cd2e1aced7100f44671a083",
+      "bytes": 17662,
+      "baseBlobSha": "2731bc9797fd40dd010a04099171452c0f993ebc",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/runtime-pi/worker.ts",
+      "blobSha": "10d62c175ed3aa9c26a0a99268255f2c4f593994",
+      "sha256": "4efd6c437faa23a75d494cf07ea729a715a01dbe47ef5883506bf2c75bc55e14",
+      "bytes": 9395,
+      "baseBlobSha": "36bc8abb120c9e228635ba427544919c96ead4e9",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/runtime/index.ts",
+      "blobSha": "c944011f863d8e54cefb027ccde24e4445a4738b",
+      "sha256": "a706d52e6b1108ce14455df60befcc93d1f656f1491a3e2c8acc9c0f4d55d57b",
+      "bytes": 14992,
+      "baseBlobSha": "c944011f863d8e54cefb027ccde24e4445a4738b",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "ADDITIONAL_EXISTING_INTEGRATION",
+        "NAMED_INTEGRATION_TARGET"
+      ]
+    },
+    {
+      "path": "packages/runtime/python-confinement.py",
+      "blobSha": "c575926f3fd734227d68174bb80294eb40123cf6",
+      "sha256": "78a1c1a85f8e7924ac08e02caceafd72b3b7d56a6e862ad7cf1fbc5162067c41",
+      "bytes": 3004,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/runtime/python-program-supervisor.py",
+      "blobSha": "75ddc93e19241ebbd94b5930049307f371ca68db",
+      "sha256": "e9dc20e10f65cf4ef49e2c81e71882b687ce0fecdaf934ef161534133bea1a7e",
+      "bytes": 7910,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/runtime/python-program-worker.py",
+      "blobSha": "8fac58ad109c048d54e6dbc8e7fdc79581738ca5",
+      "sha256": "2aaac3d6c251f10f54a0145a050377e03b45bf8eca33fb80de52bcb8cfad14a9",
+      "bytes": 6405,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/runtime/python-program-worker.ts",
+      "blobSha": "f8fdabc27b59afff34819d216f46e6dfce46f897",
+      "sha256": "34219019cb030b683c107d8bb01ce4b8a42436aacbe5baee60fca50cad65caa2",
+      "bytes": 34464,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/runtime/tool-program-worker-child.mjs",
+      "blobSha": "d13c6dfdce794c157161e7a57509dac6a6549134",
+      "sha256": "b4883cd2eaae0e14cb6eb84e40ca05f2bee5f295ca57e81cd1da9c0057a0ec07",
+      "bytes": 10611,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/runtime/tool-program-worker.ts",
+      "blobSha": "a853692d3202c75bb4e301e8765c4bde7fbb8712",
+      "sha256": "a12fc504668b882638e74394eeef65cf3ad5005238e085812eca578f6ee27c4f",
+      "bytes": 22754,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "packages/storage/store.ts",
+      "blobSha": "ebab3cba8d56e074d0377623bffd2054790f622b",
+      "sha256": "c4c53b6f7988b1471184a599fd16212f724afc243160b30675c6dceab651516b",
+      "bytes": 14709,
+      "baseBlobSha": "ebab3cba8d56e074d0377623bffd2054790f622b",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CONTRACT_DEFINITION"
+      ]
+    },
+    {
+      "path": "packages/workspace/action-outcomes.ts",
+      "blobSha": "f1548dd8357a90125454dd17dbf36aab0de0bba6",
+      "sha256": "9e7a78fbbff04b34288664070189a0ec2d322dcea88a7a7a24d5c2180632ec65",
+      "bytes": 15062,
+      "baseBlobSha": "f1548dd8357a90125454dd17dbf36aab0de0bba6",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "blobSha": "00c6f11be2211c0eaea2c3b5302e383fa1cd2931",
+      "sha256": "af8c276d728a50815b46bff8b046900c6d4ae9590a7f8911f88c8e63ef7dbb16",
+      "bytes": 355958,
+      "baseBlobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "blobSha": "35b5ea4a631be874735c19a4d8c8eead3f13e524",
+      "sha256": "11a9772a342e9c307a928a9a9d68e43a5bfef19059ed08b5f284764aba91e749",
+      "bytes": 129,
+      "baseBlobSha": "35b5ea4a631be874735c19a4d8c8eead3f13e524",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "scripts/browser-suites.ts",
+      "blobSha": "abd0c4fb71117dcb3be75cc1e675b3f8e22b68d7",
+      "sha256": "b0cd75c7dc8bd09f086501bb39a9271a1b25d4d32acb7502f71f3f39b1205c3b",
+      "bytes": 6364,
+      "baseBlobSha": "04d387152c17aad4eb3b6fbdd9f410178a51a5eb",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "scripts/build-windows-credential-lease.ts",
+      "blobSha": "0fd7da812762aa280d4ca7ec14647eaca22ad603",
+      "sha256": "4fed050d02a3d7e9c849300a515ba3a121ae33cc7fb77af0c1b057487a74b76b",
+      "bytes": 4536,
+      "baseBlobSha": "0fd7da812762aa280d4ca7ec14647eaca22ad603",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "blobSha": "5b9124fd049e065e54f2d246b7c1e14894330a37",
+      "sha256": "d21fbb9535d56d1c2885dfdf30f12dfe77824854229fd83a268d62bc89d0a6f2",
+      "bytes": 134673,
+      "baseBlobSha": "8cb3efe75c120185f957ab3df73255756adcf7b8",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "ADDITIONAL_EXISTING_INTEGRATION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "scripts/research-baseline.ts",
+      "blobSha": "52c93dd316f69a601da41116723044a21d54b26c",
+      "sha256": "03cc5690eb725c78cb7542c6fccc701d6c385f7f4bc834d7ceb4062cf0c2d116",
+      "bytes": 17295,
+      "baseBlobSha": "52c93dd316f69a601da41116723044a21d54b26c",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "scripts/test-browser.ts",
+      "blobSha": "311a6c612e72fb3e444fff365698318e3b2f81a6",
+      "sha256": "6aba884457c135fc19cec841a3060b76a5c75ac90afbe19ce425fbe0fcada513",
+      "bytes": 3310,
+      "baseBlobSha": "311a6c612e72fb3e444fff365698318e3b2f81a6",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "tests/context-efficiency.test.ts",
+      "blobSha": "9995dbdccc039e117e2b68d2be5105f0ec530a40",
+      "sha256": "9ef215c60bc0a15014ebcb9e95cb0b8b90fb263c69aec517d8eb974162f9915d",
+      "bytes": 7496,
+      "baseBlobSha": "9995dbdccc039e117e2b68d2be5105f0ec530a40",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "tests/e2e/research-workspace.playwright.config.ts",
+      "blobSha": "17b3fcc7bb56428fa418089ea9c7fdd09c047c70",
+      "sha256": "9d9608e787309558bd04a618fbbc88da7e8289ed4aad8e32d1cd2b55fdcb5a5a",
+      "bytes": 641,
+      "baseBlobSha": "c3a3c4c8986390b5e88f5cd0a8fe79631b356c25",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "ADDITIONAL_EXISTING_INTEGRATION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "tests/e2e/tool-programs-fixture.tsx",
+      "blobSha": "c4e8b35b60e119b53ba5ce67feddc88fc038b785",
+      "sha256": "373fc6984d62cae10c3a76f7a4114c19ed468d5665df29aff62dcf7ec1fcdef9",
+      "bytes": 966,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "tests/e2e/tool-programs.playwright.config.ts",
+      "blobSha": "c1e590ff897a99aff999229823759cd8d8319170",
+      "sha256": "f4f8af851cb38e277b4ca058a45809e8bc399949c80e82b1ec806268fa6edca6",
+      "bytes": 668,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "tests/e2e/tool-programs.spec.ts",
+      "blobSha": "3f303a5f501aadf089cf0b130dde611f44faeab7",
+      "sha256": "7b04a98ba046e43b74aa7729feb13148d216048a21039ad1af54ce1f16559542",
+      "bytes": 15190,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "tests/e2e/tool-programs.vite.config.ts",
+      "blobSha": "59d8c4ad4feb4bc22270343cfa55a536e4c88645",
+      "sha256": "1e2696bbdf0a4824732d8a20bebb004f65e8eeed5c813f243d32c92c0c8cdfc3",
+      "bytes": 1207,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "tests/effect-recovery-v3.test.ts",
+      "blobSha": "991b54d4c96820a382a28c4fc625719b3a6a79b8",
+      "sha256": "5968523be60c6086577c38088c2fa7f18afc733700b2daba9c107653cc0d0ae8",
+      "bytes": 12127,
+      "baseBlobSha": "991b54d4c96820a382a28c4fc625719b3a6a79b8",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/execution-boundary-v3.test.ts",
+      "blobSha": "ab1545c878c2bc90bd66ff09d7820d4bb0d9ef8f",
+      "sha256": "a88c3ae6a2c7dc4aca80878db9cc70989c260486f563166ac977f91f4f7f0c0c",
+      "bytes": 13700,
+      "baseBlobSha": "ab1545c878c2bc90bd66ff09d7820d4bb0d9ef8f",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/fixtures/linux-path-guard/native.mjs",
+      "blobSha": "7af7725472af1f48c36ed41e397758ec0f119ffe",
+      "sha256": "bdc1ece137547bdacd3faff7472351663511645abe13931c7bfd0d711840c3b6",
+      "bytes": 16779,
+      "baseBlobSha": "7af7725472af1f48c36ed41e397758ec0f119ffe",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "ADDITIONAL_EXISTING_INTEGRATION",
+        "NAMED_INTEGRATION_TARGET"
+      ]
+    },
+    {
+      "path": "tests/fixtures/tool-program-benchmark-v3.ts",
+      "blobSha": "18bf14509e10a3957a3911ee5ba69583900a8bf9",
+      "sha256": "2a92719bd4929ce9cf3439bd8e72bab6fa5007c1b474deb5d745981a4c7b4894",
+      "bytes": 29213,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "tests/fixtures/tool-program-crash-v3.mts",
+      "blobSha": "271d9e5c62ddd75d808e2ecd863555d16e607430",
+      "sha256": "66e09d021830ee9a865670708f0afa2c7783105736cfed96dce99768b4cd1cee",
+      "bytes": 1471,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "tests/fixtures/tool-program-replay-harness-v3.ts",
+      "blobSha": "0cd9a7784e337faf66f4a7be2ce99cb21809c25c",
+      "sha256": "938f3c8fd272aca77c06bc6a19c6b3b5e2ace44f122da89eb9ea32e3da0cc634",
+      "bytes": 4556,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "tests/hermes-runtime.test.ts",
+      "blobSha": "fd173f13c6df54e29979df5cbe44ac94eb38270b",
+      "sha256": "fc045558694a7656fba3c1413a83ea3a8f5d360e2ea2dc4856ec508207f0bf90",
+      "bytes": 37942,
+      "baseBlobSha": "fef5ffa4b7acdc9933914d7e11778708700404f8",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "ADDITIONAL_EXISTING_INTEGRATION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "tests/linux-bound-read-v3.test.ts",
+      "blobSha": "66460997db519c4e547c003baa69974c4834de75",
+      "sha256": "0f7653881ce5c5c3c1d7456782eea0641fc81ad146a989e73068299e2c4129fc",
+      "bytes": 11430,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/linux-path-guard.test.ts",
+      "blobSha": "c68a21a8c4d9a98b11aa3427162e91bda23c5ed6",
+      "sha256": "1da72ad3ba91cceac26ee6ac932752233e3d7abd94d3b4eed0d29b122dee4eb3",
+      "bytes": 2756,
+      "baseBlobSha": "c68a21a8c4d9a98b11aa3427162e91bda23c5ed6",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/m01-m02-compatibility.test.ts",
+      "blobSha": "044b8b51fc0086ddfec6c47616e186c816cdad26",
+      "sha256": "9736e8cc531bc59103895f103a1caf07406d8be24ea01db22d2db8d86029982a",
+      "bytes": 1519,
+      "baseBlobSha": "044b8b51fc0086ddfec6c47616e186c816cdad26",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/official-runtime-mcp.test.ts",
+      "blobSha": "1a5bfbde263fd15ff575a57c09aa3faa9367af05",
+      "sha256": "e95f1e3c6b38611b45f8731a62f48d2def12e35b36a2a8d5a6cd59f2fc8cb249",
+      "bytes": 3096,
+      "baseBlobSha": "1a5bfbde263fd15ff575a57c09aa3faa9367af05",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "tests/planning.test.ts",
+      "blobSha": "5e783a65569b97408c4458f02fd036ee149cde6e",
+      "sha256": "1fa5c9b08336a2fead4099bec7b02a98ab3d1f7ec3a5ee73a27ed0d46dae5dd6",
+      "bytes": 29757,
+      "baseBlobSha": "4bb3355294bd65a95dd9c9ff933e016617ff6cb5",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "ADDITIONAL_EXISTING_INTEGRATION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/project-trust-v3.test.ts",
+      "blobSha": "fa4ff1a711677619a5aaa00311cb3e9ff5e07f47",
+      "sha256": "e37c2e656950628bbe8a7a0770a6f3426c6be090b12426e4b2c62fc731ea45f8",
+      "bytes": 9608,
+      "baseBlobSha": "ca55f54ff9454c5aa3fa230b3d38e90fad03704b",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/public-source.test.ts",
+      "blobSha": "ee41c9109e677bc73fb6191413797826df5edfc0",
+      "sha256": "7fe76f6de54ac7d0b4df257644a4c945912257dfc6269e1f71651af5d7285a10",
+      "bytes": 11667,
+      "baseBlobSha": "2ee2f1426c7b718a3d878099fb758e60737ea003",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "MODIFIED",
+      "roles": [
+        "ADDITIONAL_EXISTING_INTEGRATION",
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "tests/python-kernel-v3.test.ts",
+      "blobSha": "d1337f1aa6a25f9b72e6d0b37c15defb5cf949bd",
+      "sha256": "6fa4f890f97c956e341d957d7eea377e07fa0b72f734f44c5c628c796cc10157",
+      "bytes": 18008,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/python-program-backend-v3.test.ts",
+      "blobSha": "9815bcd465fe2ab59f8507f50b9dad01dea926dc",
+      "sha256": "d7ddea532f56ac49710b4f21970851d37ee34269438d8058c0cb92edfd83ae53",
+      "bytes": 19630,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/python-program-integration-v3.test.ts",
+      "blobSha": "6bdf5fa49db5bca9ede8ef4a16604cd2db177e41",
+      "sha256": "6736e767473e636c3dd7812761d804e2b5d71f496d0c6c20db0edeba2b053976",
+      "bytes": 21233,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "tests/research-artifacts.test.ts",
+      "blobSha": "f15a26ae3d9fe8d53593193dbadbf922e60d4f8b",
+      "sha256": "384119eebd54b16b1b8accfabd70d488c14d95503a1821e312576663b2b88f65",
+      "bytes": 10457,
+      "baseBlobSha": "f15a26ae3d9fe8d53593193dbadbf922e60d4f8b",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "tests/research-baseline.test.ts",
+      "blobSha": "a44a20573b4feee888f4709011658a6d50635893",
+      "sha256": "ae6eda779cc4581f086aea8a68f5fac169dd1fb860975b0fb34c6cc0785021f2",
+      "bytes": 19509,
+      "baseBlobSha": "a44a20573b4feee888f4709011658a6d50635893",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/runtime-pi.test.ts",
+      "blobSha": "e5d86f8866870eedf50b461094494970d57dd850",
+      "sha256": "6fb0d7f1ea5814f167bee0d895c976b8f295b9fb7bdbf9102decccac54a7286d",
+      "bytes": 36211,
+      "baseBlobSha": "e5d86f8866870eedf50b461094494970d57dd850",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "tests/secret-custody-v3.test.ts",
+      "blobSha": "e43a8aeca0c929e0a317e9b106bc2c90cdbfb124",
+      "sha256": "75e4eb4c86c9b70d0ac74c43d4cfd2e6035e91bb32bb300103195a788b532ec6",
+      "bytes": 8161,
+      "baseBlobSha": "e43a8aeca0c929e0a317e9b106bc2c90cdbfb124",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/store.test.ts",
+      "blobSha": "bb8dca6f2f4d209d9bb2d2412cbf87e56a5cf777",
+      "sha256": "fbc246a11decbe0f5fcdd151a77a54b25fe7f492bd5b7815aa1abc085a362220",
+      "bytes": 15102,
+      "baseBlobSha": "bb8dca6f2f4d209d9bb2d2412cbf87e56a5cf777",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/tool-authority-v3.test.ts",
+      "blobSha": "9d7a4af5fda8f4f316ce7fac652e951fb5a14a05",
+      "sha256": "0114a5eb94f270c7ee5d5cac2e5fa6263997a7417fae597116f27a59dfb60235",
+      "bytes": 5754,
+      "baseBlobSha": "9d7a4af5fda8f4f316ce7fac652e951fb5a14a05",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/tool-effects-v3.test.ts",
+      "blobSha": "8d4ac426134d7e9f77a1d9dcfe9d00d7c5897b35",
+      "sha256": "fcf19bff01dd5da09f504e5074fcdf0b9648b6c37b6a88c38b1d8d7c2eb70783",
+      "bytes": 15652,
+      "baseBlobSha": "8d4ac426134d7e9f77a1d9dcfe9d00d7c5897b35",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/tool-program-authority-v3.test.ts",
+      "blobSha": "b5d6fa3dae75a907cc84b4fb67a4e4a193fc392c",
+      "sha256": "ffe2c9109a7d2e208ac9bb009a98a0de18037bb29ab1b331e259add592b83cfc",
+      "bytes": 3247,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/tool-program-backend-v3.test.ts",
+      "blobSha": "3b70fb535639f42790c22b77dbadb39a35840485",
+      "sha256": "8a037bb8a9e3e59ddf9ecd17019bc76cbfb6ce83609421c4cc920f784da2c0e7",
+      "bytes": 10865,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/tool-program-benchmark-v3.test.ts",
+      "blobSha": "19b0cc248a8fc7947bb1e9a87a9ae92aae79c484",
+      "sha256": "49ee0fe8368680e284d938989dfe44149e536d3dabd83d9d5125515f468d9d72",
+      "bytes": 4434,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "tests/tool-program-diagnostics-v3.test.ts",
+      "blobSha": "254e33b5b9f3d8c91f215b035371edb42cca65ba",
+      "sha256": "781f35e54c44cf01a3aa45dc41ce79bf21136104990ba60b66c84ea0616615be",
+      "bytes": 9024,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "tests/tool-program-input-budget-v3.test.ts",
+      "blobSha": "af77c8356f5dea99ef4de7a9026efb309856fb0d",
+      "sha256": "5cc9a5f37af9789b3a84eaebb2b1b1ccde75b10b0bd319b13b1f5ed25899a399",
+      "bytes": 14493,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG"
+      ]
+    },
+    {
+      "path": "tests/tool-program-integration-v3.test.ts",
+      "blobSha": "cef7bc76b1342e3f7a87deaaf3b8bc34d454d3c9",
+      "sha256": "83907060da144556bec405ea5d593cf93080742519aaa3169ba79f170e243228",
+      "bytes": 9249,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/tool-program-prerequisites-v3.test.ts",
+      "blobSha": "b9f20596806e343f68c546c29192db2db0077b75",
+      "sha256": "0deca3ec493bb76b8239f9c6d1b4c10abc054e412f5c3bf529a4581a7d8784d8",
+      "bytes": 21051,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/tool-program-recovery-v3.test.ts",
+      "blobSha": "72b9e2b6e81eaeda63c37876e8eb90c54980445d",
+      "sha256": "f830bd44ab4ce1a3d3a1a5a339b69167a7b94010b0aaf4540bbf29e8bd615cd1",
+      "bytes": 17266,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/tool-program-replay-v3.test.ts",
+      "blobSha": "872493f16df0f9226d4831cac5c263dcf0e4f64d",
+      "sha256": "53d1a5fa3098fd36a6f66d44beb6975ccb8e884f5f012bde835ad193549e42c2",
+      "bytes": 21051,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/tool-program-transport-v3.test.ts",
+      "blobSha": "4a8e20f405085a0d1c5971d6bc09fc466b2ced4f",
+      "sha256": "7a7ac2e1c1262a81b4cbcd3a2739c743c71e4e0f09ed8fd4929c33194200dafd",
+      "bytes": 2766,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/tool-program-v3.test.ts",
+      "blobSha": "9a9394b5251b3f0aea63da1a8b6221c36dc69a65",
+      "sha256": "07fe4936c053de297e8f5b1093f8859cb330912ecaa1960569059f7df7c04587",
+      "bytes": 15356,
+      "baseBlobSha": null,
+      "trackedAtBase": false,
+      "existsInWorktree": true,
+      "change": "ADDED",
+      "roles": [
+        "CHANGED_PRODUCT_TEST_OR_CONFIG",
+        "CONTRACT_TEST"
+      ]
+    },
+    {
+      "path": "tests/workspace-action-outcomes.test.ts",
+      "blobSha": "a899897499603cd355e5ab7c7cc2c9ab714a8fcb",
+      "sha256": "959a36ff309b005961f9f2712ca654bd54b15ff962ca4f33546157dcd03a476b",
+      "bytes": 22862,
+      "baseBlobSha": "a899897499603cd355e5ab7c7cc2c9ab714a8fcb",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "third-party/hermes-agent/upstream/tools/tool_result_storage.py",
+      "blobSha": "39407dc51af60cd8dabe42c0fe4eceb6f4c3ed05",
+      "sha256": "95635888a64178214fb5584c0241ed5366aca66e0f5e0f84e5e44a95f1c42ed1",
+      "bytes": 24423,
+      "baseBlobSha": "39407dc51af60cd8dabe42c0fe4eceb6f4c3ed05",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "tsconfig.json",
+      "blobSha": "da1b352fcdf682e051bf0c53e5fe7050584c1515",
+      "sha256": "44f8f5415372e99c4bf3bc10524d536f87d1e0c43b69ca08cf846bd8f24d2633",
+      "bytes": 1066,
+      "baseBlobSha": "da1b352fcdf682e051bf0c53e5fe7050584c1515",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    },
+    {
+      "path": "vitest.config.ts",
+      "blobSha": "d6efe75f6d0a1c0a2d4cd325ea5cf54ea5c0f0cb",
+      "sha256": "142e0f1d5b6670f297873048317cfa53323676131db6793dd7095afef94720ea",
+      "bytes": 484,
+      "baseBlobSha": "d6efe75f6d0a1c0a2d4cd325ea5cf54ea5c0f0cb",
+      "trackedAtBase": true,
+      "existsInWorktree": true,
+      "change": "UNCHANGED",
+      "roles": [
+        "RETAINED_BASE_INSPECTION"
+      ]
+    }
+  ],
+  "independentReview": "PENDING",
+  "productionApproval": false
+}

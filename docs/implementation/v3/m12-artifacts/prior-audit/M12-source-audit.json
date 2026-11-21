@@ -1,0 +1,399 @@
+{
+  "schemaVersion": 1,
+  "bundleId": "M12",
+  "sourceGate": "BLOCKED_SOURCE_DRIFT",
+  "observedAt": "2026-11-15T09:57:48.826822+00:00",
+  "repository": {
+    "requested": "Skytuhua/Gen-V1",
+    "origin": "https://github.com/Skytuhua/Gen-V1.git",
+    "resolved": "skytuhua-org/Gen-V1",
+    "repositoryId": 1442565952,
+    "baseRef": "origin/main",
+    "baseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+    "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+    "branch": "agent/m12-v3",
+    "worktree": "/workspace/scratch/dbebe44a9817/m12-v3",
+    "originalCheckout": "/workspace/scratch/dbebe44a9817/Gen-V1",
+    "originalCheckoutStatus": "clean"
+  },
+  "scope": "Read-only prerequisite audit of the named integration boundaries and relevant definitions, call sites, tests and retained evidence. This is not an entire-codebase audit or M12 implementation.",
+  "sourceLockDigest": "49b7563a4d8a550be9c6fb51624b7eebe7d3ceb8743b0021745ec734e67314e3",
+  "contractSources": [
+    {
+      "name": "M01.ImplementationEvidenceV3",
+      "path": "packages/contracts/implementation-evidence.ts",
+      "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "testIds": [
+        "tests/research-baseline.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "M01.CapabilityFlags",
+      "path": "packages/core/capability-flags.ts",
+      "blobSha": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+      "testIds": [
+        "tests/tool-authority-v3.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "M01.StoreCommand",
+      "path": "packages/storage/store.ts",
+      "blobSha": "ebab3cba8d56e074d0377623bffd2054790f622b",
+      "testIds": [
+        "tests/store.test.ts"
+      ]
+    },
+    {
+      "name": "M02.ToolEffectV1",
+      "path": "packages/contracts/tool-effects.ts",
+      "blobSha": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts",
+        "tests/effect-recovery-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M02.ToolAuthority",
+      "path": "packages/core/tool-authority.ts",
+      "blobSha": "1d654522d9842838276d162a33dac6141f731c26",
+      "testIds": [
+        "tests/tool-authority-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M02.ToolEffectLedger",
+      "path": "packages/core/tool-effects.ts",
+      "blobSha": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts",
+        "tests/effect-recovery-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M03.ExecutionProfileV1",
+      "path": "packages/contracts/execution-profile.ts",
+      "blobSha": "031a20ee2c4d0fa88e707441644225505e0358e4",
+      "testIds": [
+        "tests/execution-boundary-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M03.ExecutionDecision",
+      "path": "packages/core/execution-policy.ts",
+      "blobSha": "2dad179e75a47be477d0e7871cda2660ea39b2f7",
+      "testIds": [
+        "tests/execution-boundary-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M03.HostFlags",
+      "path": "packages/core/host-flags.ts",
+      "blobSha": "bc42845181317c61018f2725ee1d62f9dd625cac",
+      "testIds": [
+        "tests/secret-custody-v3.test.ts"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "contract": "M01",
+      "source": "PRESENT",
+      "runtimeAcceptance": "NOT_ESTABLISHED_FOR_M12",
+      "finding": "The shared strict evidence schema, command recorder, source locking and regression machinery exist. Current commands are recorded separately; historical Windows baseline failures are not current passing evidence.",
+      "evidence": [
+        "packages/contracts/implementation-evidence.ts",
+        "scripts/research-baseline.ts",
+        "tests/research-baseline.test.ts"
+      ]
+    },
+    {
+      "contract": "M02",
+      "source": "PRESENT_WITH_INTEGRATION_GAPS",
+      "runtimeAcceptance": "BLOCKED",
+      "finding": "Service.tool routes ordinary calls through a per-Service authority/ledger when enabled. invoke lacks parentInvocationId/receipt/per-call cancellation inputs; admit accepts parent linkage but does not authorize. Dedupe does not implement complete M12 owner/definition equality. Native skill/plugin sub-effects have documented gaps.",
+      "evidence": [
+        "packages/core/service.ts:948",
+        "packages/core/tool-effects.ts:119",
+        "packages/core/tool-effects.ts:256",
+        "packages/core/tool-authority.ts",
+        "packages/runtime-hermes/worker.py:325"
+      ]
+    },
+    {
+      "contract": "M03",
+      "source": "DECISION_CONTRACT_PRESENT",
+      "runtimeAcceptance": "UNSUPPORTED_BACKEND",
+      "finding": "No concrete approved ExecutionBackend or composed production consumer. Synthetic launch mocks are not platform proof. No selected backend enforces a 128 MiB memory bound, arbitrary-code filesystem/network/process restrictions, or an approved Python profile.",
+      "evidence": [
+        "packages/core/execution-policy.ts",
+        "packages/contracts/execution-profile.ts",
+        "tests/execution-boundary-v3.test.ts",
+        "docs/implementation/v3/M03-verification.json"
+      ]
+    },
+    {
+      "contract": "M04",
+      "source": "MISSING_ON_ACCEPTED_BASE",
+      "runtimeAcceptance": "BLOCKED_SOURCE_DRIFT",
+      "finding": "Catalog pagination accepts no owner/visibility context; Pi and official MCP expose the full supplied tool list. No integrated progressive visibility contract or current M04 evidence/tests on this base. Draft PR 326 is not an accepted dependency.",
+      "evidence": [
+        "packages/core/discovery.ts",
+        "packages/runtime-pi/tool-definitions.ts",
+        "packages/runtime-pi/worker.ts",
+        "packages/runtime-official/mcp.ts",
+        "tests/context-efficiency.test.ts",
+        "tests/runtime-pi.test.ts"
+      ]
+    },
+    {
+      "contract": "M10",
+      "source": "MISSING_ON_ACCEPTED_BASE",
+      "runtimeAcceptance": "BLOCKED_SOURCE_DRIFT",
+      "finding": "publishData and runtime bridges return complete DataRecord values; Store.snapshot includes them. Existing research passage, filesystem grant, effect-outcome and workspace-summary APIs do not establish generic private tool-result handles with the same grants.",
+      "evidence": [
+        "packages/core/service.ts:347",
+        "packages/core/task-inspection.ts",
+        "packages/storage/store.ts:161",
+        "packages/contracts/research.ts",
+        "packages/research/repository.ts",
+        "packages/workspace/action-outcomes.ts",
+        "tests/research-artifacts.test.ts"
+      ]
+    }
+  ],
+  "historicalSourceDrift": {
+    "record": "docs/implementation/v3/M02-source-lock.json",
+    "historicalBaseSha": "055007ff9ab43fc24cfbc0af76b0b4cea3db473d",
+    "changedBlobs": [
+      {
+        "path": "packages/core/capability-flags.ts",
+        "historicalBlob": "a45226df77eae1e58594609140252c1f93a985f6",
+        "acceptedBaseBlob": "39e18abb43f7fa63cb2534ea3356ebb1be121161"
+      },
+      {
+        "path": "packages/core/service.ts",
+        "historicalBlob": "b03da4dec57eeca1c8542da51b9e895de8e6c982",
+        "acceptedBaseBlob": "2b3fb63acef915b052a468e104c6e4f00a4b82e4"
+      },
+      {
+        "path": "packages/core/tool-authority.ts",
+        "historicalBlob": "d5fd39998f4598316872d949df7b4341156ba8f1",
+        "acceptedBaseBlob": "1d654522d9842838276d162a33dac6141f731c26"
+      }
+    ],
+    "interpretation": "Historical source proof is stale; inspected additions are recorded, not independently approved. Existing M02 ledger and effect-schema APIs are present. This is not checkout corruption."
+  },
+  "m04PullRequest": {
+    "url": "https://github.com/skytuhua-org/Gen-V1/pull/326",
+    "headSha": "9851e2b40b555401a000b0a135048eb684f8b964",
+    "headRef": "handoff/m04-context-v3",
+    "state": "open",
+    "draft": true,
+    "merged": false,
+    "acceptedAsDependency": false
+  },
+  "proposedFiles": [
+    {
+      "path": "packages/contracts/tool-program.ts",
+      "trackedAtBase": false,
+      "existsInWorktree": false,
+      "created": false
+    },
+    {
+      "path": "packages/core/tool-programs.ts",
+      "trackedAtBase": false,
+      "existsInWorktree": false,
+      "created": false
+    },
+    {
+      "path": "packages/runtime/tool-program-worker.ts",
+      "trackedAtBase": false,
+      "existsInWorktree": false,
+      "created": false
+    },
+    {
+      "path": "tests/tool-program-v3.test.ts",
+      "trackedAtBase": false,
+      "existsInWorktree": false,
+      "created": false
+    },
+    {
+      "path": "tests/tool-program-replay-v3.test.ts",
+      "trackedAtBase": false,
+      "existsInWorktree": false,
+      "created": false
+    },
+    {
+      "path": "tests/python-kernel-v3.test.ts",
+      "trackedAtBase": false,
+      "existsInWorktree": false,
+      "created": false
+    }
+  ],
+  "featureFlags": [
+    {
+      "key": "tools.jsReadProgramV1",
+      "registered": false,
+      "enabled": false,
+      "reason": "Dependent implementation stopped; no admission path exists."
+    },
+    {
+      "key": "tools.durableReplayExperimentV1",
+      "registered": false,
+      "enabled": false,
+      "reason": "Dependent implementation stopped; no admission path exists."
+    },
+    {
+      "key": "tools.pythonKernelV1",
+      "registered": false,
+      "enabled": false,
+      "reason": "Dependent implementation stopped; no admission path exists."
+    }
+  ],
+  "platform": {
+    "host": "linux-x64",
+    "nodeVersion": "v24.22.1",
+    "declaredPnpm": "10.30.3",
+    "pythonObserved": "Python 3.12.14",
+    "pythonApprovedForM12": false,
+    "executionBackend": null,
+    "osConfinementProof": "NOT_RUN",
+    "hardMemoryBound": "UNSUPPORTED_WITHOUT_SELECTED_BACKEND",
+    "windowsInstalledDesktop": "NOT_RUN",
+    "directoryGuardDiagnostic": {
+      "log": "docs/implementation/v3/m12-logs/platform-01-linux-guard-preconditions.log",
+      "fd3IsSocket": false,
+      "fd4IsDirectory": false,
+      "nativeLauncherPresentForTest": false,
+      "supportedRequestMismatch": "The test asks for leaf:true and readOnly:true; the current Linux directory-only validator rejects both flags."
+    }
+  },
+  "upstreamSources": [
+    {
+      "label": "B13",
+      "repository": "earendil-works/pi",
+      "commitSha": "827383a15262905f82e418483825a49dbb1adbf5",
+      "path": "packages/durable/src/codemode/codemode.ts",
+      "blobSha": "a20c7842406715ef9111cfbc4a74f42b68ca73aa",
+      "utf8Bytes": 45251,
+      "verification": "Exact UTF-8 file equals independent blob fetch; Git blob SHA-1 recomputed and matched."
+    },
+    {
+      "label": "B19",
+      "repository": "NousResearch/hermes-agent",
+      "commitSha": "c9c87fc12b0dd03254dac0e64afc7ca5eea0dd79",
+      "path": "tools/code_kernel.py",
+      "blobSha": "47460c3f4d686d9b42565a56d04fb9e1e6232693",
+      "utf8Bytes": 44245,
+      "verification": "Exact UTF-8 file equals independent blob fetch; Git blob SHA-1 recomputed and matched."
+    },
+    {
+      "label": "B14",
+      "repository": "earendil-works/pi",
+      "commitSha": "827383a15262905f82e418483825a49dbb1adbf5",
+      "path": "packages/coding-agent/src/core/mcp-servers.ts",
+      "blobSha": "002cf56f519490522d81ab1f1f09fc8cc3d304f9",
+      "utf8Bytes": 11904,
+      "verification": "Exact UTF-8 file equals independent blob fetch; Git blob SHA-1 recomputed and matched."
+    },
+    {
+      "label": "E20",
+      "repository": "NousResearch/hermes-agent",
+      "commitSha": "1831ce1cfeb517a0b6008f006d09e2d0558439ac",
+      "path": "tools/hook_output_spill.py",
+      "blobSha": "8ec23fc44598246a52111f8912a3d56fcd578349",
+      "utf8Bytes": 4894,
+      "verification": "Exact UTF-8 file equals independent blob fetch; Git blob SHA-1 recomputed and matched."
+    },
+    {
+      "label": "E03",
+      "repository": "Skytuhua/Gen-V1",
+      "commitSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+      "path": "packages/runtime-hermes/worker.py",
+      "blobSha": "a1fe7014a0ad6b570e88e8db4d867bf9d8c6ee0b",
+      "verification": "Read from the retained audit ancestor in the local Git object database."
+    }
+  ],
+  "priorAttempts": [
+    {
+      "action": "Initial GitHub PR search using Skytuhua/Gen-V1",
+      "status": "FAIL",
+      "error": "GitHub API 422 because repository search does not follow the old owner alias. Canonical repository metadata resolved the same stable repository to skytuhua-org/Gen-V1; canonical search succeeded."
+    },
+    {
+      "action": "Public web open of four pinned upstream source URLs",
+      "status": "BLOCKED",
+      "error": "DisabledError. GitHub file/blob retrieval succeeded. No inaccessible web reference is presented as source evidence."
+    },
+    {
+      "action": "Default pnpm --version",
+      "status": "INCOMPATIBLE_LAUNCHER",
+      "observedVersion": "11.25.0",
+      "resolution": "Used corepack pnpm@10.30.3 for all setup and verification; package/lockfile untouched."
+    },
+    {
+      "action": "Connector metadata/review calls with incorrect parameter aliases",
+      "status": "FAIL",
+      "error": "InvalidActionArgumentsError; corrected required parameter names and repeated the read-only calls. No mutation was attempted."
+    },
+    {
+      "action": "Initial metadata verifier launch with tsx CLI",
+      "status": "FAIL",
+      "log": "docs/implementation/v3/m12-logs/evidence-01-validation.log",
+      "error": "listen EPERM on a tsx local IPC socket before the verifier executed. The verifier is retained as docs/implementation/v3/M12-verify-evidence.mts and can run via Node native TypeScript; no policy change."
+    },
+    {
+      "action": "git diff --cached --check before whitespace normalization",
+      "status": "FAIL",
+      "exitCode": 2,
+      "error": "Trailing blank lines at EOF in baseline-02-typecheck.log, core-01-prerequisite-tests.log and core-02-reproduce-granted-read.log. Normalized retained log endings and recomputed their evidence digests."
+    },
+    {
+      "action": "git push --set-upstream origin agent/m12-v3",
+      "status": "BLOCKED",
+      "exitCode": null,
+      "error": "Automatic approval review rejected publication because M12 explicitly says no push is authorized. No remote branch or PR was created; no workaround or retry was attempted."
+    }
+  ],
+  "migration": {
+    "status": "NONE",
+    "detail": "Documentation/log artifacts only; no application, Store, schema, flag, credential or runtime changes."
+  },
+  "rollback": "Revert this documentation-only change while retaining evidence. Future M12 rollback must stop admission, cancel owned workers, retain receipts, invalidate generations, and never replay code to recover a view.",
+  "releaseApproval": false,
+  "verificationOutcome": "FAIL",
+  "currentPrerequisiteTests": {
+    "status": "FAIL",
+    "commandLog": "docs/implementation/v3/m12-logs/core-01-prerequisite-tests.log",
+    "passed": 116,
+    "failed": 1,
+    "total": 117,
+    "failedTest": "tests/project-trust-v3.test.ts > reading an ordinary granted text file still works while execution approval stays distinct",
+    "repeatLog": "docs/implementation/v3/m12-logs/core-02-reproduce-granted-read.log",
+    "repeatExitCode": 1,
+    "interpretation": "A required current source test failed at the native Linux path-guard boundary. No M12 implementation exists and no source or tests changed; this is not an intended-negative pass."
+  },
+  "logNormalization": "Retained logs use one final newline; trailing blank lines were removed without changing command headers, output lines, exit codes or failure classification. Log digests identify the stored normalized bytes.",
+  "publication": {
+    "status": "BLOCKED_APPROVAL",
+    "action": [
+      "git",
+      "push",
+      "--set-upstream",
+      "origin",
+      "agent/m12-v3"
+    ],
+    "attemptedCommitSha": "c4a70f435531cc245aeac3231b8f1b4f21e5e0a0",
+    "reviewDecision": "REJECTED",
+    "reviewSource": "Automatic approval review",
+    "reason": "The specific M12 instructions explicitly prohibit pushing. The surrounding PR request was not accepted as authorization to publish the audit and logs.",
+    "shellExitCode": null,
+    "remoteBranchCreated": false,
+    "pullRequestCreated": false,
+    "remoteRefCheck": "git ls-remote origin refs/heads/main refs/heads/agent/m12-v3 returned only main at fcaa52f7fcdc9f39420118a79f9a8250ba83c563 after rejection.",
+    "alternativePublicationAttempted": false,
+    "requiredAuthorization": "Explicitly authorize pushing agent/m12-v3 and opening its draft PR, overriding only the copied no-push constraint."
+  }
+}

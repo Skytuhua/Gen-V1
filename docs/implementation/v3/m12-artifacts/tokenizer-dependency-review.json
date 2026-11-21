@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "dependency": "js-tiktoken",
+  "version": "1.0.21",
+  "scope": "development-only fixed aggregation benchmark",
+  "authorization": "User continuation instructs resolving implementation blockers without another permission round; exact offline token measurement is a required M12 acceptance case. This addition is reviewed before installation and pins the lockfile.",
+  "license": "MIT",
+  "runtimeExposure": false,
+  "installLifecycleScripts": [],
+  "transitiveDependencies": {
+    "base64-js": "1.5.1 (already present in accepted lockfile)"
+  },
+  "registryIntegrity": "sha512-biOj/6M5qdgx5TKjDnFT1ymSpM5tbd3ylwDtrQvFQSu0Z7bBYko2dF+W/aUkXUPuk6IVpRxk/3Q2sHOzGlS36g==",
+  "tarballSHA256": "3b1f24b185565ca9a8d8f51466dfc4f99d67f1f05bc009258710ddb7a8d810fa",
+  "reviewedFiles": {
+    "package.json": "5040ae37366971233fd53ef33360bc8d94159fa55c0c541f5663980b53b6b3b3",
+    "dist/chunk-VL2OQCWN.js": "4095335817189ee393ce99588744e53d04f1dd32b6c9a7d4a9f365d5e4569035",
+    "dist/lite.js": "e7f8d0900a29c70a1155838cff633f5a66eef660bd3c4fb452882ec7cc4a316c",
+    "dist/ranks/cl100k_base.js": "0e301a9c7f82e2353bc484be0149b2fb8a6db85d516620a34d06e587efe090bd",
+    "dist/ranks/o200k_base.js": "a9e8a0c1f332c58f1a9cef2f8d7be59b31bb4b42531a3a0a64d9ad3b3d19033b"
+  },
+  "review": [
+    "Read published package manifest, byte-pair merge/encode/decode implementation, export entry points and static rank data shape.",
+    "No install/prepare lifecycle, native binaries, dynamic evaluation, network, filesystem or process API in selected lite encoding path.",
+    "Use only fixed bounded local benchmark strings; byte-pair encoding cost is not admitted into model-controlled execution.",
+    "Measure explicitly named cl100k_base/o200k_base encodings; do not equate these with billed tokens or a live model evaluation."
+  ],
+  "remainingGates": [
+    "Independent patch review of the dependency and final frozen lockfile; runtime feature flags remain false."
+  ]
+}

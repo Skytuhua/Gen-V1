@@ -1,0 +1,12 @@
+{
+  "case": "tool-program-continuation-v6",
+  "cut": "d9bc6df00fab7f819aebf56be71ad88516ea89d9",
+  "command": "pnpm exec vitest run tests/tool-program-continuation-v6.test.ts --maxWorkers=1 (NODE_OPTIONS=--max-old-space-size=3072)",
+  "exitCode": 0,
+  "status": "PASS",
+  "note": "7/7 D-cases.",
+  "logDigest": "sha256:e9098708c48cf72da014b621dcd607d96a7c7c666ee97a80e43f9352ed1c275b",
+  "log": "logs/r04/vitest-continuation-v6.bounded.log",
+  "rawLogDigest": "sha256:ca82d1be507f585b666207050dfbe93bfa014fa2eba2f7ef7f389798cf03b144",
+  "rawEvidence": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r04/vitest-continuation-v6.log (not uploaded; retained on the producing host)"
+}

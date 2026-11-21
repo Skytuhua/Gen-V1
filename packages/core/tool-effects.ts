@@ -18,6 +18,8 @@ import { EffectAdmissionPolicy } from "./effect-admission-policy.ts";
 
 const now = () => new Date().toISOString();
 export const APPROVAL_TTL_MS = 15 * 60_000;
+export const toolDefinitionCommitment = (definition: RegistryEntry): string => digest(definition);
+
 const CONTROL_KEYS = new Set(["commandId", "invocationId"]);
 const SECRET_KEY = /secret|token|password|credential|api[_-]?key|authorization|cookie/i;
 const TRANSITION_CAP = 200;
@@ -170,6 +172,7 @@ export class ToolEffectLedger {
     approvalId?: string | null;
     approvalContext?: { operation: Operation; thread: Thread };
     parentInvocationId?: string | null;
+    privateArguments?: boolean;
     targetPreconditions?: string[];
     extraPut?: () => void;
   }): ToolEffectRecord {
@@ -182,7 +185,7 @@ export class ToolEffectLedger {
       fault("admission");
       const prior = this.get(invocationId);
       if (prior) {
-        if (matchesInvocation(prior, owner, definition, commitment)) {
+        if (matchesInvocation(prior, owner, definition, commitment) && prior.parentInvocationId === (input.parentInvocationId ?? null)) {
           effect = prior;
           return { effectId: prior.effectId, invocationId, state: prior.state, reused: true };
         }
@@ -198,7 +201,7 @@ export class ToolEffectLedger {
         toolId: definition.id,
         definitionDigest: definition.schemaDigest,
         privateArgumentCommitment: commitment,
-        publicRedactedSummary: publicRedactedSummary(call),
+        publicRedactedSummary: input.privateArguments ? call.name + " (private program arguments)" : publicRedactedSummary(call),
         targetPreconditions: input.targetPreconditions ?? [],
         approvalId: input.approvalId ?? null,
         state: "PREPARED" satisfies EffectState,
@@ -322,7 +325,7 @@ export class ToolEffectLedger {
   /** Gate + admit + dispatch + settle one host tool call. ctx may omit runId/
    * epoch to bind the invocation to the thread's current owner (e.g. learning
    * jobs that outlive the run they review). */
-  async invoke(input: { call: ToolCall; ctx: { threadId: string; runId?: string | null; epoch?: number | null }; thread: Thread; role: ActorRole }, executor: () => Promise<unknown>): Promise<unknown> {
+  async invoke(input: { call: ToolCall; ctx: { threadId: string; runId?: string | null; epoch?: number | null }; thread: Thread; role: ActorRole; parentInvocationId?: string; privateArguments?: boolean }, executor: () => Promise<unknown>): Promise<unknown> {
     this.assertAdmissionsEnabled();
     const { call, ctx, thread, role } = input;
     const definition = this.authority.require(call.name);
@@ -342,7 +345,7 @@ export class ToolEffectLedger {
     if (prior && decision.kind === "DENY")
       throw new HarnessError("AUTHORITY_DENIED", "Tool call denied by authority: " + decision.reason);
     if (prior) {
-      if (matchesInvocation(prior, owner, definition, this.privateArgumentCommitment(call))) {
+      if (matchesInvocation(prior, owner, definition, this.privateArgumentCommitment(call)) && prior.parentInvocationId === (input.parentInvocationId ?? null)) {
         // Reusing a receipt is still a read under today's authority. Refusal
         // must not overwrite the original effect or its historical outcome.
         if (decision.kind === "DENY")
@@ -366,7 +369,7 @@ export class ToolEffectLedger {
       const effect = this.recordTerminal(call, owner, definition, "PREPARED", decision.reason);
       throw new HarnessError("APPROVAL_REQUIRED", "This effect requires explicit user approval before dispatch", { effectId: effect.effectId });
     }
-    const effect = this.admit({ call, owner, definition });
+    const effect = this.admit({ call, owner, definition, parentInvocationId: input.parentInvocationId, privateArguments: input.privateArguments });
     if (effect.state !== "DISPATCHED") {
       // Coalesced duplicate admitted in a racing call.
       return this.settledOutcome(effect);
@@ -378,7 +381,7 @@ export class ToolEffectLedger {
       return value;
     } catch (error) {
       const unknown = error instanceof HarnessError && error.code === "OPERATION_OUTCOME_UNKNOWN";
-      this.settle(effect.invocationId, { error: error instanceof Error ? error.message : String(error) }, unknown ? "UNKNOWN_EXTERNAL_OUTCOME" : "FAILED");
+      this.settle(effect.invocationId, { error: input.privateArguments ? "Private nested tool failed; inspect the program result reference" : error instanceof Error ? error.message : String(error) }, unknown ? "UNKNOWN_EXTERNAL_OUTCOME" : "FAILED");
       throw error;
     }
   }

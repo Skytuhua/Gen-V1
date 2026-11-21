@@ -1,0 +1,63 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-replay-v3.test.ts"
+  ],
+  "cwd": "<worktree:m12-v6>",
+  "startedAt": "2026-11-18T12:02:14.362Z",
+  "endedAt": "2026-11-18T12:04:19.249Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 <worktree:m12-v6>
+
+ ✓ tests/tool-program-replay-v3.test.ts (33 tests) 116258ms
+     ✓ reuses private receipts and reproduces out-of-order delivery, RNG and virtual clocks without another read  3876ms
+     ✓ rejects a changed source with REPLAY_DIVERGED before any additional read  2156ms
+     ✓ rejects a changed runtime with REPLAY_DIVERGED before any additional read  1041ms
+     ✓ rejects a changed arguments with REPLAY_DIVERGED before any additional read  1549ms
+     ✓ rejects a changed call sequence with REPLAY_DIVERGED before any additional read  914ms
+     ✓ rejects a changed nested owner with REPLAY_DIVERGED before any additional read  811ms
+     ✓ rejects a changed issued count with REPLAY_DIVERGED before any additional read  850ms
+     ✓ rejects an actual registry definition change even after the host discloses the replacement  2063ms
+     ✓ rejects current owner drift in threadId before replay admission  2535ms
+     ✓ rejects current owner drift in runId before replay admission  1099ms
+     ✓ rejects current owner drift in epoch before replay admission  797ms
+     ✓ rejects current owner drift in projectId before replay admission  768ms
+     ✓ rejects current owner drift in workspaceId before replay admission  1044ms
+     ✓ rejects current owner drift in accountBinding before replay admission  1164ms
+     ✓ rejects changed VM arguments and cannot turn the rejected call into a successful caught aggregate  1725ms
+     ✓ rejects a worker that returns before reproducing committed call identities and deliveries  1451ms
+     ✓ compares the actual VM issued count before releasing a replayed first delivery  1954ms
+     ✓ does not admit an extra call after a completed original sequence has been reproduced  1580ms
+     ✓ reuses the original absolute deadline instead of granting a new replay budget  9692ms
+     ✓ retains FAILED private sources on replay even when the real script catches the tool rejection  2739ms
+     ✓ preserves an uncaught failed source classification without exposing its private error message  3191ms
+     ✓ retains a known backend script-failure code while replacing a private guest error message  1555ms
+     ✓ recovers program.prepared without repeating a committed or unknown read  3628ms
+     ✓ recovers journal.start_committed without repeating a committed or unknown read  5114ms
+     ✓ recovers call.identity_committed without repeating a committed or unknown read  9664ms
+     ✓ recovers call.before_dispatch without repeating a committed or unknown read  7133ms
+     ✓ recovers call.effect_committed without repeating a committed or unknown read  5838ms
+     ✓ recovers call.dispatched without repeating a committed or unknown read  5239ms
+     ✓ recovers call.read_returned without repeating a committed or unknown read  5794ms
+     ✓ recovers call.result_committed without repeating a committed or unknown read  6479ms
+     ✓ recovers journal.delivery_committed without repeating a committed or unknown read  10799ms
+     ✓ recovers program.result_committed without repeating a committed or unknown read  5799ms
+     ✓ permits an explicitly requested first run after a PREPARED-only crash without inventing a replay journal  5977ms
+
+ Test Files  1 passed (1)
+      Tests  33 passed (33)
+   Start at  04:02:17
+   Duration  121.07s (transform 2.87s, setup 0ms, import 3.91s, tests 116.26s, environment 0ms)
+
+
+(node:85052) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

@@ -33,6 +33,7 @@ import {registerAgentWorkRoutes} from './agent-work-routes.ts';
 import {registerShellReadRoutes} from './shell-read-routes.ts';
 import {registerConversationReadRoutes} from './conversation-read-routes.ts';
 import {registerToolEffectReadRoutes} from './tool-effect-read-routes.ts';
+import {registerToolProgramRoutes} from './tool-program-routes.ts';
 import {DevicePairingHost, registerDevicePairingRoutes} from './device-pairing.ts';
 import {ReadSyncHost} from '../../packages/core/read-sync.ts';
 import {registerProjectMemoryRoutes} from './project-memory-routes.ts';
@@ -117,6 +118,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     let preferences:UiPreferences;try{preferences=shellPreferencesSchema.parse(getPreferences(settings));}catch{preferences=shellPreferencesSchema.parse(getPreferences({}));}
     return{theme:settings.theme==='light'||settings.theme==='system'?settings.theme:'dark',preferences};
   });
+  registerToolProgramRoutes(app, service);
   app.get("/api/snapshot", async (_request, reply) => {
     const seq = service.store.sequence;
     let json = snapshotCache?.seq === seq ? snapshotCache.json : undefined;

@@ -66,6 +66,42 @@ describe('reviewed public source allowlist',()=>{
     expect(publicSourceAllowed('apps/web/src/App.tsx')).toBe(true);
     expect(publicRuntimeSourceAllowed('apps/web/src/App.tsx')).toBe(false);
   });
+  it('admits the reviewed program runtime and its non-static worker assets by exact name',()=>{
+    for(const path of [
+      'apps/server/tool-program-routes.ts',
+      'packages/contracts/tool-program.ts','packages/contracts/tool-results.ts',
+      'packages/core/linux-file-read.ts','packages/core/python-kernels.ts','packages/core/python-program-provider.ts',
+      'packages/core/tool-disclosure.ts','packages/core/tool-program-host.ts','packages/core/tool-program-tools.ts',
+      'packages/core/tool-programs.ts','packages/core/tool-results.ts',
+      'packages/runtime/python-confinement.py','packages/runtime/python-program-supervisor.py',
+      'packages/runtime/python-program-worker.py','packages/runtime/python-program-worker.ts',
+      'packages/runtime/tool-program-worker-child.mjs','packages/runtime/tool-program-worker.ts',
+    ]){
+      expect(publicSourceAllowed(path),path).toBe(true);
+      expect(publicRuntimeSourceAllowed(path),path).toBe(true);
+      expect(runtimeSourceAllowed(path),path).toBe(true);
+    }
+    for(const path of ['packages/runtime/python-unreviewed-worker.py','packages/runtime/tool-program-unreviewed-child.mjs']){
+      expect(publicSourceAllowed(path),path).toBe(false);expect(publicRuntimeSourceAllowed(path),path).toBe(false);
+    }
+  });
+  it('admits the reviewed program UI and verification inputs only as public source',()=>{
+    for(const path of [
+      'apps/web/src/ToolProgramPanel.tsx','apps/web/src/tool-programs.css',
+      'docs/implementation/v3/m12-artifacts/tokenizer-dependency-review.json',
+      'tests/e2e/tool-programs-fixture.tsx','tests/e2e/tool-programs.playwright.config.ts',
+      'tests/e2e/tool-programs.spec.ts','tests/e2e/tool-programs.vite.config.ts',
+      'tests/fixtures/tool-program-benchmark-v3.ts','tests/fixtures/tool-program-crash-death-v3.ts','tests/fixtures/tool-program-crash-v3.mts','tests/fixtures/tool-program-replay-harness-v3.ts',
+      'tests/linux-bound-read-v3.test.ts','tests/python-kernel-v3.test.ts','tests/python-program-backend-v3.test.ts','tests/python-program-integration-v3.test.ts',
+      'tests/tool-program-authority-v3.test.ts','tests/tool-program-backend-v3.test.ts','tests/tool-program-benchmark-v3.test.ts',
+      'tests/tool-program-diagnostics-v3.test.ts','tests/tool-program-input-budget-v3.test.ts','tests/tool-program-integration-v3.test.ts',
+      'tests/tool-program-prerequisites-v3.test.ts','tests/tool-program-recovery-v3.test.ts','tests/tool-program-replay-v3.test.ts',
+      'tests/tool-program-transport-v3.test.ts','tests/tool-program-v3.test.ts',
+    ]){
+      expect(publicSourceAllowed(path),path).toBe(true);
+      expect(publicRuntimeSourceAllowed(path),path).toBe(false);
+    }
+  });
   it('excludes private implementation, fixtures, plans, state, credentials and unknown additions',()=>{
     for(const path of ['apps/server/company-main.ts','apps/desktop/company-task-policy.ts','apps/web/src/company/ManagerPanel.tsx','packages/company-client/index.ts','packages/company-contracts/company-manager.v1.json','packages/company-manager/runtime.ts','scripts/package-company-host.ts','scripts/company-host/start-owner.ps1','tests/company-client.test.ts','tests/desktop-company-task.test.ts','tests/company/fixture.key','tests/e2e/company-manager.spec.ts','docs/superpowers/plans/2026-11-04-gen-plugin-execution.md','.gen-main/state.sqlite','userdata/secrets/owner.token','.env','packages/core/unreviewed-new-module.ts']){
       expect(publicSourceAllowed(path),path).toBe(false);expect(publicRuntimeSourceAllowed(path),path).toBe(false);

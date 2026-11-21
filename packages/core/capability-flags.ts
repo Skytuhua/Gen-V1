@@ -61,6 +61,17 @@ export const M08_FLAG_KEYS = [
 ] as const;
 export type M08FlagKey = (typeof M08_FLAG_KEYS)[number];
 
+export const M12_FLAG_KEYS = ['tools.jsReadProgramV1', 'tools.durableReplayExperimentV1', 'tools.pythonKernelV1'] as const;
+export type M12FlagKey = (typeof M12_FLAG_KEYS)[number];
+export const M12_FLAG_DEFINITIONS = M12_FLAG_KEYS.map(key => ({ key, owner: 'm12', description: {
+  'tools.jsReadProgramV1': 'Bounded JavaScript read programs through the host tool authority.',
+  'tools.durableReplayExperimentV1': 'Receipt-only deterministic read-program replay experiment.',
+  'tools.pythonKernelV1': 'Owner-scoped Python kernels requiring an approved confined interpreter.',
+}[key] }));
+export function createToolProgramFlags(overrides?: Partial<Record<M12FlagKey, boolean>>): CapabilityFlags<M12FlagKey> {
+  return createCapabilityFlags<M12FlagKey>(M12_FLAG_DEFINITIONS, overrides);
+}
+
 export const M04_CORE_FLAG_KEYS = ["context.compilerV1"] as const;
 export type M04CoreFlagKey = (typeof M04_CORE_FLAG_KEYS)[number];
 
@@ -121,7 +132,7 @@ export type M13FlagKey = (typeof M13_FLAG_KEYS)[number];
 export const M17_FLAG_KEYS = ["remote.readSyncV1", "remote.submitInputV1"] as const;
 export type M17FlagKey = (typeof M17_FLAG_KEYS)[number];
 
-export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey | M14FlagKey | M15FlagKey | M10FlagKey | M16FlagKey | M13FlagKey | M17FlagKey;
+export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey | M14FlagKey | M15FlagKey | M10FlagKey | M16FlagKey | M13FlagKey | M17FlagKey | M12FlagKey;
 
 const hostDefinitions: readonly CapabilityFlagDefinition[] = [
   { key: "ui.sourceWorkbenchV1", owner: "m15", description: "Owner-validated source selections and read-only operator workbench contributions." },
@@ -130,6 +141,7 @@ const hostDefinitions: readonly CapabilityFlagDefinition[] = [
   { key: "context.compilerV1", owner: "m04-core", description: "Host-issued immutable request preparation and measured context receipts." },
   { key: "memory.projectV1", owner: "m05", description: "Opt-in source-linked project memory; reviewed request integration required." },
   { key: "memory.externalRecallExperimentV1", owner: "m05", description: "Separate bounded external recall experiment; provider and egress consent required." },
+  ...M12_FLAG_DEFINITIONS,
   { key: "audit.effectsV1", owner: "m02", description: "Append-only tool-effect ledger and owner-fenced read models." },
   { key: "security.authorityV1", owner: "m02", description: "Single-use approvals and the pre-dispatch authority gate." },
   { key: "workspace.provenanceV1", owner: "m08", description: "Edit provenance journal: prepared markers and proven/process-window receipts." },

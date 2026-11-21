@@ -1,0 +1,517 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+{
+  "argv": [
+    "pnpm",
+    "test"
+  ],
+  "cwd": "<worktree:m12-v6>",
+  "startedAt": "2026-11-18T14:18:13.374Z",
+  "endedAt": "2026-11-18T15:48:46.658Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": true
+}
+
+
+> gen-v1@0.6.5 test <worktree:m12-v6>
+> pnpm build:credential-lease && pnpm build:widgets && vitest run
+
+
+> gen-v1@0.6.5 build:credential-lease <worktree:m12-v6>
+> node --import tsx scripts/build-windows-credential-lease.ts
+
+
+> gen-v1@0.6.5 build:widgets <worktree:m12-v6>
+> node scripts/build-widgets.mjs
+
+
+ RUN  v4.1.12 <worktree:m12-v6>
+
+ ✓ tests/operation-execution-advice-v3.test.mjs (17 tests) 593850ms
+   ✓ records real repository.test preparation advice without issuing approval or starting a child  53560ms
+...
+   ✓ rejects caller-selected metadata, duplicate targets and stale operation revisions  31189ms
+   ✓ keeps the metadata read behind the existing real authenticated session  39355ms
+ ❯ tests/inference-admission.test.ts (20 tests | 1 failed) 623621ms
+   ✓ rechecks an admitted owner before each actual inference without reading task history or changing input  2597ms
+   ✓ rejects a next inference after run authority changes  3489ms
+...
+   ✓ rejects a repeated sequence and retires admission after settlement  4251ms
+   ✓ allows a canonical session update and new task notes without granting changed structural authority  27255ms
+   × retires stopped owners across 129 public conversations and ignores old settlement after a replacement starts 419964ms
+ ✓ tests/background-contract-decisions-v6.test.ts (5 tests) 10753ms
+     ✓ racing two host scheduler instances at one occurrence creates exactly one successful admission receipt  1213ms
+...
+     ✓ replays one delivery for the identical answer, conflicts on changed content, and grants no new approval  2444ms
+     ✓ wrong repository, repeated issue revision and injected commands create no executor call; an authorized new issue creates one proposal only  2772ms
+ ❯ tests/request-preparation-service-v3.test.ts (34 tests | 1 failed) 665712ms
+   ✓ retains the same immutable preparation identity through the actual admitted request  2149ms
+   ✓ rejects a preview token used with a changed prompt before accepting the draft  1546ms
+...
+   ✓ keeps the original epoch fence after an uncommitted preparation claim rolls back  1181ms
+   ✓ keeps the original grant fence after an uncommitted preparation claim rolls back  32878ms
+   ✓ rolls back a later failed claim without releasing another accepted request  2637ms
+   ✓ keeps an accepted queued request dispatchable after a later input fails at COMMIT  35873ms
+   ✓ undoes a rolled-back lifecycle advance for every exactly touched claimed preparation  1016ms
+...
+   ✓ preserves an accepted queued token across the prior native settled lifecycle event  2212ms
+   ✓ preserves separately accepted previews queued before the first epoch is admitted  3992ms
+   × bounds abandoned preparations and retains only the newest 128 metadata receipts 305422ms
+   ✓ keeps expired, hung preparation jobs in the admission bound until they actually settle  19417ms
+   ✓ resolves the source learn expansion once and dispatches the same captured text  3386ms
+ ❯ tests/context-result-host.test.ts (32 tests | 24 failed) 101467ms
+   × spills a real domain result and returns its exact captured JSON through a bounded range 11655ms
+   × retains original captured bytes when an authorized file is edited in place 3105ms
+   × observes only the delivered preview envelope when compiler and retention are both enabled 3619ms
+   × denies retained bytes after the original grant is removed 2560ms
+   × denies retained bytes after the original grant is changed 3103ms
+   × denies retained bytes after the original grant is foreign 2786ms
+   × denies a physically replaced source even when its grant envelope is unchanged 3543ms
+   × denies a retained result after the current model binding changes 3747ms
+   × denies a retained result after the current account binding changes 4842ms
+   × denies a retained result after the current workspace binding changes 3710ms
+   × denies a retained result after the current project binding changes 1763ms
+   × denies a retained result after the current thinking binding changes 4529ms
+   × denies a retained result after the current mode binding changes 2541ms
+   × rejects replaced grant roots and new hard links to captured sources 2895ms
+   × suppresses a preview when the captured physical source is replaced during persistence 1263ms
+   × does not reconstruct live invocation authority from persisted result metadata after Service reopen 1673ms
+   × suppresses both preview and handle when grant authority disappears during spill persistence 1930ms
+   × rechecks the original grant after retained bytes are read 3544ms
+   ✓ does not derive authority for an integration result from caller supplied resourceId  2949ms
+   ✓ freezes catalog authority before an integration callback can mutate the call object  3072ms
+   × does not let a mutated original call bypass the grant required by its retained handle 2860ms
+   ✓ suppresses a cached 32-byte effect result without fresh resource authority (retention enabled: true)  2512ms
+   ✓ suppresses a cached 48000-byte effect result without fresh resource authority (retention enabled: true)  2737ms
+...
+   ✓ leaves small authorized domain results unchanged and keeps the default-off path unchanged  2871ms
+   ✓ does not wrap a small result merely because retained retrieval is enabled  3228ms
+   × does not replay a cached range after its original grant is revoked 855ms
+   × admits at most four actual context reads with deferred schemas true 2913ms
+   × admits at most four actual context reads with deferred schemas false 4518ms
+   × releases a context-read admission after a guarded read fails 2429ms
+   × keeps the legacy read behavior when the context compiler is disabled 2688ms
+ ❯ tests/path-access.test.ts (32 tests | 12 failed) 74069ms
+   ✓ bounds only the cold source guard acquire without extending ordinary or release RPCs 22ms
+   ✓ denies resource content when its parent becomes a protected junction after resolveResource  3470ms
+...
+   ✓ denies native gemini-cli storage both directly and through an ancestor grant  2389ms
+   ✓ denies a hardlink alias of a protected temporary file  2345ms
+   × denies alternate streams and device namespace spellings at grant admission 2743ms
+   × serves approved ordinary bytes and holds every directory ancestor through final access 1446ms
+   × allows ordinary child replacement while its parent directory is guarded 2369ms
+   × rejects a substituted replacement source and preserves a nonowned cleanup inode 3968ms
+   × denies an approved replacement after the resolved parent is swapped to protected storage 2009ms
+   ✓ domain text reads do not follow a parent swap after the host resolver returns  3124ms
+   × keeps the original database parent and journal inode pinned through actual COMMIT 3111ms
+   ✓ denies preexisting SQLite journal aliases without changing their temporary sentinel  2496ms
+   × performs approved ordinary replacement and PDF export under native guards 1964ms
+   × retains a user save made after the final capability read but before replacement 793ms
+   ✓ does not bypass another read-only destination lease during conditional replacement  1094ms
+   ✓ rejects Git metadata redirect git-junction before launching Git  988ms
+...
+   ✓ rejects Git metadata redirect includeIf before launching Git  1623ms
+   ✓ rejects Git metadata redirect filter before launching Git  1327ms
+   × does not consume a protected temporary ignore file configured by a selected repository 1698ms
+   ✓ does not expose a protected sentinel through a tracked working-directory junction in a whole-repository diff  5943ms
+   × diffs the acquired deletion when a protected junction is inserted immediately before real Git launch 3384ms
+   × ignores metadata paths inserted after acquisition immediately before real Git status 2893ms
+   × does not let repository config redirect snapshot Git to a post-acquisition metadata file 2308ms
+ ✓ tests/repository-map-host.test.ts (20 tests) 34373ms
+   ✓ returns verified import edges and export lines through the actual Service tool with held custody  5100ms
+...
+   ✓ applies only the protected source-cut CAS and records the exact native receipt  937ms
+   ✓ requires the protected adapter even when a native history reader exists  1113ms
+   ✓ records a failed verdict when the native source-cut CAS refuses  1571ms
+   ✓ owns native compaction callbacks and advances durable generation once  4010ms
+   ✓ preserves the legacy session account when a provider default is selected  1628ms
+...
+   ✓ rejects a silent native result  660ms
+   ✓ rejects a settled without compaction native result  1414ms
+   ✓ rejects a failed native result  1590ms
+   ✓ rejects a receipt without host admission native result  2212ms
+   ✓ refuses compaction when stop changes while the source snapshot is pending  2051ms
+...
+   ✓ refuses a source with no reducible records before invoking native summary work  2465ms
+   ✓ consumes the exact private commit once and removes its authority after completion  2860ms
+ ❯ tests/review-host.test.ts (9 tests | 2 failed) 76644ms
+   ✓ closes the fixture store when initialization fails after allocating the services  11673ms
+     ✓ serves the actual local HTTP host with nine fixture threads and an honest model label 176ms
+     ✓ provides a decodable 256 by 144 color image with correct PNG chunks 200ms
+     × prepares and exports a real local PDF only after exact native operation approval 22081ms
+     × shows actual before/after SQLite rows and valid row-change annotations 290ms
+     ✓ keeps the faq topic free of an automatic question form and preserves state through composer continuation  2424ms
+     ✓ keeps pr-dark outcomes illustrative and denies a source mutation with a stale original epoch  10516ms
+...
+   ✓ bounds the larger model-only prompt before native startup without truncating it  1187ms
+   ✓ configures the installed Pi SDK as a text model with no ambient or host tools  15095ms
+ ❯ tests/server.test.ts (13 tests | 1 failed) 62076ms
+   ✓ routes authenticated model discovery through thread scope and rejects malformed queries  2399ms
+   ✓ reuses one serialized snapshot per committed sequence without bypassing authentication or invalidation  1921ms
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[151/388]⎯
+
+ FAIL  tests/skill-catalog.test.ts > detects replacement during capture and never returns mixed metadata/custody
+AssertionError: expected undefined to be null
+
+- Expected:
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[152/388]⎯
+
+ FAIL  tests/skill-catalog.test.ts > uses canonical connected project/worktree bindings and separates unavailable project authority
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[153/388]⎯
+
+ FAIL  tests/skill-catalog.test.ts > discovers only the selected worktree and invalidates its references after rebinding or revocation
+AssertionError: expected [] to deeply equal [ 'Worktree only' ]
+
+- Expected
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[154/388]⎯
+
+ FAIL  tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated title updates
+ FAIL  tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated status updates
+ FAIL  tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated project metadata updates
+ FAIL  tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated working-copy branch updates
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ tests/skill-catalog.test.ts:156:134
+
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[155/388]⎯
+
+ FAIL  tests/skill-catalog.test.ts > reuses the real bundled integration inventory and covers all declared skills across pages
+AssertionError: expected [] to have a length of 40 but got +0
+
+- Expected
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[156/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > materializes exact entry bytes and captured support without changing prompt or resources
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[157/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > denies stale support, forged identity, cross-source and private-provider references
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[158/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > rejects every changed authority dimension before admission
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[159/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > fences authority changes during catalog awaits and again before commit/runtime/support reads
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[160/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > honors pre-abort and an abort that wins a catalog await without producing an admission
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[161/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > denies support-bytes between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies entry-bytes between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies file-swap between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies directory-swap between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies hardlink between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies junction between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies extra-file between fresh catalog custody and materialization
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[162/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > revalidates the canonical source after capture rather than accepting its earlier index
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[163/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > restores authenticated exact bytes across host restart without rediscovering changed skills
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[164/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > rejects command-ID reuse with changed content, model, thinking, reference or authority
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[165/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > denies replay tampering and key loss instead of falling back to rediscovery
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[166/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > denies forged admissions, mismatched runtime owners and arbitrary support paths
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[167/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > reads the exact Harness version/document with no latest-name or ambient projection fallback
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[168/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > denies a package exceeding files instead of silently truncating it
+ FAIL  tests/skill-invocation.test.ts > denies a package exceeding fileBytes instead of silently truncating it
+ FAIL  tests/skill-invocation.test.ts > denies a package exceeding packageBytes instead of silently truncating it
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[169/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > rejects malformed payloads rather than accepting browser supplied text, paths or authority grants
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[170/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > selection preserves every reference field without a body read or admission capability, and bundles for browsers
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[171/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > denies a changed runtime thinking level even when the model is unchanged
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[172/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > preserves UTF-8 BOM and original line endings in admitted guidance
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[173/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > admits all selected references in order, never silently dropping a stale second selection
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[174/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > bounds Harness entry bytes before materializing an oversized saved document
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[175/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > captures only a verified installed App package, without activating its host, and rechecks registry revocation
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[176/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > uses the bundled manifest pin and denies an index replacement between custody and capture
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[177/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > resolves only the connected canonical project/worktree and denies its root identity changing
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[178/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > aborts after capture while the final source recheck is in flight
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[179/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > returns cancellation while an obsolete catalog read is still pending
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[180/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > replays the same command after an actual Store reopen without another message or current-source read
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[181/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > precommit authority revalidation leaves message/outbox/capture storage empty on a race
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[182/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > sanitizes authority-provider failures at precommit without leaking host paths
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[183/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > accepts the parent raw skills array while taking expected authority only from host options
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[184/388]⎯
+
+ FAIL  tests/skills-integration.test.ts > keeps openai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps xai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ packages/core/service.ts:1094:92
+
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[185/388]⎯
+
+ FAIL  tests/task-memory-recovery.test.ts > keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery
+AssertionError: expected 'failed' to be 'succeeded' // Object.is equality
+
+Expected: "succeeded"
+Received: "failed"
+
+ ❯ vi.waitFor.timeout tests/task-memory-recovery.test.ts:126:85
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[186/388]⎯
+
+ FAIL  tests/tool-effect-hard-crash-v3.test.mjs > retains exact effect certainty after hard termination at 'admission'
+ FAIL  tests/tool-effect-hard-crash-v3.test.mjs > retains exact effect certainty after hard termination at 'prepared-record'
+Error: Owned crash worker exceeded its time/output bound: 
+ ❯ ChildProcess.<anonymous> tests/tool-effect-hard-crash-v3.test.mjs:54:40
+     52|     child.once('close', (code, signal) => {
+     53|       clear();
+     54|       if (timedOut || overflow) reject(new Error('Owned crash worker e…
+       |                                        ^
+     55|       else if (pauseError) reject(pauseError);
+     56|       else resolve({ code, signal, stdout, stderr, killAccepted, pause…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[187/388]⎯
+
+ FAIL  tests/tool-program-replay-v3.test.ts > M12 real process death and explicit exact-owner restart > recovers call.effect_committed without repeating a committed or unknown read
+Error: Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/tool-program-replay-v3.test.ts:271:23
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[188/388]⎯
+
+ FAIL  tests/verification-artifact-gate-v3.test.ts > current artifact custody in the verification gate > bounds the full current artifact read cut and leaves omitted required artifacts blocked
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/verification-artifact-gate-v3.test.ts:113:3
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[189/388]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 4 unhandled errors during the test run.
+...
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+AssertionError: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)
+ ❯ _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17
+...
+ ❯ tests/github-workspace.test.ts:159:52
+
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+This error originated in "tests/github-workspace.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "fences cancel during private credential writing before rename and preserves the prior token". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+AssertionError: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)
+ ❯ _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17
+ ❯ _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1607:27
+ ❯ Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1696:22
+ ❯ tests/github-workspace.test.ts:159:52
+
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+This error originated in "tests/github-workspace.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "fences replace during private credential writing before rename and preserves the prior token". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+AssertionError: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)
+ ❯ _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17
+ ❯ _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1607:27
+ ❯ Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1696:22
+ ❯ tests/github-workspace.test.ts:159:52
+
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+This error originated in "tests/github-workspace.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "fences expire during private credential writing before rename and preserves the prior token". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ withAccountLogin packages/runtime-login/account-login.ts:18:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'CAPABILITY_DENIED', details: undefined }
+This error originated in "tests/account-login.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "does not admit a successor sign-in when an expired lease still has a live owner". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+

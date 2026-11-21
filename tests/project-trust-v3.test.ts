@@ -12,7 +12,7 @@ import {
  projectTrustV1Schema,executionProfileV1Schema,secretRefV1Schema,packageScreeningV1Schema,
  WORKSPACE_EXECUTE_NO_NETWORK,TRUSTED_HOST,isTrustedHostProfile,
 } from '../packages/contracts/execution-profile';
-import {withPathGuard} from '../packages/core/file-access';
+import {withBoundFileRead} from '../packages/core/file-access';
 
 afterEach(()=>{cleanTempDirs();});
 const sha=(value:string|Buffer)=>createHash('sha256').update(value).digest('hex');
@@ -117,9 +117,9 @@ it('reading an ordinary granted text file still works while execution approval s
  const root=projectFixture();
  const trust=await createProjectTrust({trustId:'trust-read',rootPath:root,approvedFiles,scope,decision:'trusted'});
  expect((await verifyProjectTrust(trust,root)).status).toBe('CURRENT');
- const text=await withPathGuard([{path:join(root,'notes.txt'),leaf:true,readOnly:true}],new AbortController().signal,async()=>{
+ const text=await withBoundFileRead(join(root,'notes.txt'),new AbortController().signal,async descriptorPath=>{
   const {readBoundFile}=await import('../packages/core/file-access');
-  return (await readBoundFile(join(root,'notes.txt'),4096)).toString('utf8');
+  return (await readBoundFile(descriptorPath,4096)).toString('utf8');
  });
  expect(text).toContain('ordinary granted text');
 });

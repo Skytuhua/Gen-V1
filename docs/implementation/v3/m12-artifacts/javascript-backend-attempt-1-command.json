@@ -1,0 +1,13 @@
+{
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/tool-program-backend-v3.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "exitCode": 1,
+  "startedAt": 1794738361.9135263,
+  "finishedAt": 1794738364.0385878
+}

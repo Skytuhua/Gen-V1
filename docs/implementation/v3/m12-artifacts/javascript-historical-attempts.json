@@ -1,0 +1,69 @@
+{
+  "records": [
+    {
+      "logPath": "<tmp>/m12-js-probes/backend-red.txt",
+      "bytes": 13770,
+      "sha256": "802d033c6f6d4486cf81138401bd65cb94adbe36cf0bd0ac9aa56d841f0f52ac",
+      "argvFromObservedInvocation": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/tool-program-backend-v3.test.ts",
+        "--maxWorkers=1"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "observedExitCode": 1,
+      "observedOutcome": "14 tests failed because checked executor factory was absent",
+      "metadataStatus": "PARTIAL_HISTORICAL_LOG; original absolute timestamps and executable identity were not separately retained",
+      "runnerLocalStartTimeFromLog": "18:21:49",
+      "retainedArtifact": "docs/implementation/v3/m12-artifacts/javascript-backend-red.txt"
+    },
+    {
+      "logPath": "<tmp>/m12-js-probes/backend-attempt-1.txt",
+      "bytes": 1166,
+      "sha256": "7e3776c3d5b9de9a6e99b6dc0252141dc5f28ec0aa445e2773c4446f55f98d19",
+      "originalCommandMetadata": {
+        "command": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/tool-program-backend-v3.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "exitCode": 1,
+        "startedAt": 1794738361.9135263,
+        "finishedAt": 1794738364.0385878
+      },
+      "metadataStatus": "ORIGINAL_COMMAND_RECORD_RETAINED",
+      "retainedArtifact": "docs/implementation/v3/m12-artifacts/javascript-backend-attempt-1.txt"
+    },
+    {
+      "logPath": "<tmp>/m12-js-probes/backend-attempt-2.txt",
+      "bytes": 224,
+      "sha256": "005a82f9f851073bfd9bfcf22f8b283bfc5e8b502a1c07fc4c282500de8a2d20",
+      "originalCommandMetadata": {
+        "command": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/tool-program-backend-v3.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "exitCode": 0,
+        "startedAt": 1794738402.6808302,
+        "finishedAt": 1794738404.7601385
+      },
+      "metadataStatus": "ORIGINAL_COMMAND_RECORD_RETAINED",
+      "retainedArtifact": "docs/implementation/v3/m12-artifacts/javascript-backend-attempt-2.txt"
+    }
+  ],
+  "earlierLauncherFailure": {
+    "command": "pnpm exec vitest run tests/tool-program-backend-v3.test.ts --maxWorkers=1",
+    "status": "FAILED_BEFORE_TESTS",
+    "observedError": "ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY",
+    "note": "Ambient pnpm 11 automatic install check aborted before test execution; no dependency install completed; no separate complete command log was retained."
+  },
+  "warning": "No historical timestamps, missing logs, or passing outcomes have been reconstructed. Fresh commands are recorded separately with <tmp>/m12-record-command.py."
+}

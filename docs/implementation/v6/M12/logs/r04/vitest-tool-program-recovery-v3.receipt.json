@@ -1,0 +1,12 @@
+{
+  "case": "tool-program-recovery-v3",
+  "cut": "d9bc6df00fab7f819aebf56be71ad88516ea89d9",
+  "command": "pnpm exec vitest run tests/tool-program-recovery-v3.test.ts --maxWorkers=1 (NODE_OPTIONS=--max-old-space-size=3072)",
+  "exitCode": 0,
+  "status": "PASS",
+  "note": "15/15 incl. committed-point cases (passed at ~8.6s on calmer host).",
+  "logDigest": "sha256:6d5c623c84f7bcb3074a2ea7be8c0bc903d3edd099f1c84d52198f08ac9e6241",
+  "log": "logs/r04/vitest-tool-program-recovery-v3.bounded.log",
+  "rawLogDigest": "sha256:119bb38d4b511d1312b16789757b69fbb05fb9ff5bee47da2ca3cb24ccb64736",
+  "rawEvidence": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r04/vitest-tool-program-recovery-v3.log (not uploaded; retained on the producing host)"
+}

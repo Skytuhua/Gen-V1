@@ -6,6 +6,7 @@ import { HarnessError } from "../contracts/index.ts";
 import type { PiSdk } from "./sdk.ts";
 import { PRESENTATION_POLICY } from "./presentation-policy.ts";
 import {PLANNING_TOOLS} from '../core/planning-tools.ts';
+import {selectProgramTools, programResultFailed} from '../core/tool-program-tools.ts';
 import {SKILL_LEARNING_POLICY} from '../core/learning-context.ts';
 import {modelOnlySystemPrompt,type ModelPurpose} from '../runtime/model-only.ts';
 
@@ -57,8 +58,8 @@ export async function loadDomainTools(): Promise<ToolMetadata[]> {
   return module.DOMAIN_TOOLS;
 }
 
-export function createHostTools(domain: readonly ToolMetadata[], call: (toolCallId: string, name: string, args: Record<string, unknown>, signal?: AbortSignal) => Promise<unknown>): ToolDefinition[] {
-  const metadata = [...UI_TOOLS, ...PLANNING_TOOLS, TASK_FINISH, VERIFICATION_DECLARE, OPERATION_EXECUTE, TASK_MEMORY,...SKILL_TOOLS, REPOSITORY_MAP, ...domain];
+export function createHostTools(domain: readonly ToolMetadata[], call: (toolCallId: string, name: string, args: Record<string, unknown>, signal?: AbortSignal) => Promise<unknown>, programTools: readonly ToolMetadata[] = []): ToolDefinition[] {
+  const metadata = [...UI_TOOLS, ...PLANNING_TOOLS, TASK_FINISH, VERIFICATION_DECLARE, OPERATION_EXECUTE, TASK_MEMORY,...SKILL_TOOLS, REPOSITORY_MAP, ...domain, ...selectProgramTools(programTools)];
   const seen = new Set<string>();
   return metadata.map(tool => {
     if (!/^[a-z][a-z0-9_]*$/.test(tool.name) || ["bash", "powershell", "read", "write", "edit", "find", "grep", "ls", "codemode", "tool_search"].includes(tool.name) || seen.has(tool.name)) throw new HarnessError("PI_TOOL_POLICY", "Invalid or duplicate host tool metadata.");
@@ -70,7 +71,7 @@ export function createHostTools(domain: readonly ToolMetadata[], call: (toolCall
       async execute(toolCallId, args, signal) {
         if (signal?.aborted) throw new Error("Pi tool call aborted.");
         const value = await call(toolCallId, tool.name, args as Record<string, unknown>, signal);
-        return { content: [{ type: "text" as const, text: JSON.stringify(value ?? null) }], details: value ?? null };
+        return { content: [{ type: "text" as const, text: JSON.stringify(value ?? null) }], details: value ?? null, ...(programResultFailed(tool.name, value) ? { isError: true } : {}) };
       },
     };
   });

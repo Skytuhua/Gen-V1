@@ -105,11 +105,11 @@ export function createOfficialRuntime({ dataDir,modelOnly:requestedModelOnly,pur
     const home = await secureDirectory(storage, officialRuntimeHome(storage, provider));
     await Promise.all(['tmp', '.config', '.cache', join('.local', 'share'), join('.local', 'state'), join('AppData', 'Roaming'), join('AppData', 'Local')].map(part => secureDirectory(storage, join(home, part))));
   }
-  async function context(authority: Authority, sessionPath: string | null, memory?: string,thinkingLevel?:string|null): Promise<DriverContext> {
+  async function context(authority: Authority, sessionPath: string | null, memory?: string,thinkingLevel?:string|null, programTools?:StartRun['programTools']): Promise<DriverContext> {
     assert(authority);
     await prepareHome(authority.provider); assert(authority);
     const manifest = authority.manifest = await openManifest(storage, authority.provider, authority.ctx.threadId, sessionPath,purpose==='prediction'); assert(authority);
-    const tools = modelOnly?[]:createHostTools(await loadDomainTools(), async () => { throw new Error('Official tools execute through the host MCP bridge.'); }); assert(authority);
+    const tools = modelOnly?[]:createHostTools(await loadDomainTools(), async () => { throw new Error('Official tools execute through the host MCP bridge.'); }, programTools); assert(authority);
     const mcp = authority.mcp = await createHostMcp({ ctx: authority.ctx, current: () => current(authority), onTool: (call, ctx) => {if(modelOnly)throw new HarnessError('MODEL_ONLY_TOOL_DENIED','Native tools are unavailable to the Hermes model transport.');return callbacks!.onTool(call, ctx);}, tools: tools.map(tool => ({ name: tool.name, description: tool.description, parameters: tool.parameters as Record<string, unknown> })) });
     if (!current(authority)) { await mcp.close(); assert(authority); }
     return {
@@ -191,7 +191,7 @@ export function createOfficialRuntime({ dataDir,modelOnly:requestedModelOnly,pur
     return serial(input.threadId, async () => {
       try {
         if (existing) await stop(existing); assert(authority);
-        const ctx = await context(authority, snapshot.sessionPath, snapshot.memory,snapshot.thinkingLevel); assert(authority);
+        const ctx = await context(authority, snapshot.sessionPath, snapshot.memory,snapshot.thinkingLevel,snapshot.programTools); assert(authority);
         await open(authority, ctx, model.modelId,compact); assert(authority);
         callbacks?.onEvent({ ...authority.ctx, type: 'session', sessionPath: ctx.manifest.path });
         if (compact) await authority.driver!.compact(); else await deliver(authority, snapshot);

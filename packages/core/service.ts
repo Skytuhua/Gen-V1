@@ -18,7 +18,7 @@ import { basename, join, relative, resolve, sep } from "node:path";
 import { Store, digest, compactionOwnerKey, type CompactionAttemptRecord } from "../storage/store.ts";
 import {PersonalResearchRepository} from '../research/repository.ts';
 import { assertNotStorage, canonical, inside, resolveGrant, projectMemoryDeletionLedgerPath } from "./security.ts";
-import { withResourceGrant } from "./file-access.ts";
+import { withResourceGrant, readResourceGrant } from "./file-access.ts";
 import { admitSchema, validateJson, widgetDefinition, GENERATED_APPS_ENABLED } from "./widgets.ts";
 import { patchSpec, protectedFingerprint } from "./presentation.ts";
 import { admitArtifactContents, threadData } from "./ui-admission.ts";
@@ -57,6 +57,8 @@ import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authori
 import { ToolEffectLedger, createToolEffectFlags, ownerFor, type ToolEffectFlag } from "./tool-effects.ts";
 import type { EffectAuthenticator } from "./host-effect-authenticator.ts";
 import { recoverEffects, disableEffects } from "./effect-recovery.ts";
+import { ToolProgramHost, type ToolProgramHostOptions } from './tool-program-host.ts';
+import { PROGRAM_TOOL_NAMES } from './tool-program-tools.ts';
 import { capabilityEnabled } from "./capability-flags.ts";
 import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
 import { CheckpointService } from "../workspace/checkpoints.ts";
@@ -105,6 +107,7 @@ export interface ServiceOptions {
   toolEffectFlags?: Partial<Record<ToolEffectFlag, boolean>>;
   /** Preloaded trusted host custody; never supplied by UI commands or preferences. */
   toolEffectAuthenticator?: EffectAuthenticator;
+  toolPrograms?: ToolProgramHostOptions;
   source?:SourceIntegration;sideRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;planningRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;
   agentWorkRuntimeFactory?:ConstructorParameters<typeof AgentWorkCoordinator>[0]['runtimeFactory'];
   predictionRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;learningRuntimeFactory?:(job:LearningJob)=>RuntimeAdapter|Promise<RuntimeAdapter>;
@@ -171,6 +174,7 @@ export class Service {
   private readonly hostToolRegistryDigest:string;
   private readonly effects:ToolEffectLedger;
   private readonly effectFlags:ReturnType<typeof createToolEffectFlags>;
+  private readonly programHost: ToolProgramHost;
   private contextStorage?: Promise<ContextResultStorage>;
   private contextResults?: ReturnType<typeof createContextResults>;
   private activeContextReads = 0;
@@ -280,6 +284,9 @@ export class Service {
     this.effectFlags=createToolEffectFlags(options.toolEffectFlags);
     const registry=buildToolRegistry();this.hostToolRegistryDigest=digest(registry.map(tool=>[tool.id,tool.schemaDigest]));
     this.authority=new ToolAuthority(registry);this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags,options.toolEffectAuthenticator);
+    this.programHost = new ToolProgramHost(store, { authority: this.authority, effects: this.effects,
+      currentOwner: id => this.programOwner(id), retainedOwner: owner => this.assertRetainedProgramOwner(owner),
+      executeRead: (call, owner, signal) => this.executeProgramRead(call, owner, signal) }, options.toolPrograms);
     this.source=options.source;
     this.research=new PersonalResearchRepository(store,{assertHostActive:()=>{if(this.closed||this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');}});
     this.predictions=new ComposerPredictions({factory:()=>{if(!options.predictionRuntimeFactory)throw new HarnessError('PREDICTION_UNAVAILABLE','Composer predictions are unavailable in this host.');return options.predictionRuntimeFactory();},current:id=>this.predictionBasis(id)});
@@ -386,7 +393,7 @@ export class Service {
     const key=JSON.stringify([ctx.threadId,ctx.runId,ctx.epoch]),previous=this.teardowns.get(key);if(previous)return previous.promise;
     const control=this.aborts.get(ctx.threadId);
     const cancel=(runtime:Pick<RuntimeAdapter,'cancel'>):Promise<void>=>{try{return runtime.cancel(ctx);}catch(error){return Promise.reject(error);}};
-    const promise=Promise.allSettled([cancel(this.planning),cancel(side?this.sideRuntime:this.runtime)]).then(outcomes=>{
+    const promise=Promise.allSettled([cancel(this.planning),cancel(side?this.sideRuntime:this.runtime),this.programHost.cancelRun(ctx)]).then(outcomes=>{
       const failures=outcomes.flatMap(outcome=>outcome.status==='rejected'?[outcome.reason]:[]);
       if(failures.length===1)throw failures[0];
       if(failures.length)throw new AggregateError(failures,failures.map(error=>error instanceof Error?error.message:String(error)).join('; '));
@@ -532,6 +539,58 @@ export class Service {
     const thread = this.thread(ctx.threadId);
     if (thread.epoch !== ctx.epoch || thread.runId !== ctx.runId || !["working", "awaiting_input"].includes(thread.status)) throw new HarnessError("CANCELLED_RUN", "This run no longer has authority");
     return thread;
+  }
+  private programOwner(threadId: string): ToolOwner {
+    const thread = this.thread(threadId);
+    if (!thread.runId) throw new HarnessError('PROGRAM_OWNER_REVOKED', 'Program execution requires an active run');
+    this.assertRun({ threadId, runId: thread.runId, epoch: thread.epoch });
+    return ownerFor(thread);
+  }
+  private assertRetainedProgramOwner(owner: ToolOwner): void {
+    const thread = this.thread(owner.threadId);
+    if ((thread.accountId ?? null) !== owner.accountBinding || (thread.projectId ?? null) !== owner.projectId || (thread.workspaceId ?? null) !== owner.workspaceId)
+      throw new HarnessError('PROGRAM_OWNER_REVOKED', 'This retained program belongs to a different account, project or workspace');
+  }
+  private async executeProgramRead(call: ToolCall, owner: ToolOwner, signal: AbortSignal): Promise<unknown> {
+    const ctx = { threadId: owner.threadId, runId: owner.runId!, epoch: owner.epoch };
+    const assertOwner = () => {
+      if (signal.aborted || digest(this.programOwner(owner.threadId)) !== digest(owner)) throw new HarnessError('PROGRAM_OWNER_REVOKED', 'Nested read authority was revoked');
+    };
+    assertOwner();
+    const domain = await import('../capabilities/index.ts');
+    assertOwner();
+    const context = this.context(owner.threadId, signal, undefined, ctx);
+    const result = await domain.handleDomainTool(call.name, call.args, { ...context,
+      // Program reads use the direct bound read; ordinary reads must keep the
+      // withResource route so result lineage can observe them.
+      readResource: async (id: string, relativePath: string | undefined, maxBytes: number) => {
+        assertOwner();
+        const grant = this.store.get<ResourceGrant>('resource', id);
+        if (!grant || grant.threadId !== owner.threadId) throw new HarnessError('CAPABILITY_DENIED', 'Resource is not granted to this thread');
+        const commitment = digest(grant);
+        const value = await readResourceGrant(grant, this.store.dataDir, relativePath, maxBytes, signal);
+        assertOwner();
+        if (digest(this.store.get<ResourceGrant>('resource', id)) !== commitment) throw new HarnessError('CAPABILITY_DENIED', 'Resource grant changed during the read');
+        return value;
+      },
+      publishData: (value, provenance) => {
+        assertOwner();
+        // The normal domain schema and resource guard remain in control. Its
+        // intermediate DataRecord is never published to snapshots or events.
+        return { id: 'program-private:' + randomUUID(), threadId: owner.threadId, revision: 1, value, provenance, createdAt: now() };
+      },
+      progress: () => {},
+      prepareOperation: () => { throw new HarnessError('TOOL_ARGUMENTS_DENIED', 'Read programs cannot prepare operations'); },
+    });
+    assertOwner();
+    return result;
+  }
+  programToolMetadata() { return this.programHost.metadata(); }
+  /** Host rollback only. Not registered as an agent tool or a UI preference. */
+  disableToolPrograms() { return this.programHost.close(); }
+  toolProgramView(threadId: string) { this.thread(threadId); return this.programHost.view(threadId); }
+  toolProgramResultRange(threadId: string, programId: string, resultRef: string, range: { offset: number; limit: number }) {
+    this.thread(threadId); return this.programHost.range(threadId, programId, resultRef, range);
   }
   hasGate(threadId: string): boolean { return this.store.all<InputRequest>("request", threadId).some(r => r.status === "pending"); }
   private isAccountBound(thread:Thread):boolean {
@@ -1169,6 +1228,7 @@ export class Service {
       const ctx: RunContext = { threadId: thread.id, runId: thread.runId ?? '', epoch: thread.epoch };
       return this.agentWorkCommand(ctx, command);
     }
+    if (command.type.startsWith('toolProgram.') || command.type.startsWith('pythonKernel.')) return this.programHost.command(command);
     if (command.type === 'memory.save' || command.type === 'memory.delete') return this.store.command(command, () => changeTaskMemory(this.store, thread.id, command.type === 'memory.save' ? 'save' : 'delete', p, 'user'));
     if (command.type === "message.send") return this.sendMessage(command, thread);
     if (command.type === "run.stop") {
@@ -1672,8 +1732,9 @@ export class Service {
     let contents=requestContextId?[this.requestCustody.resolvedPrompt(requestContextId,inputs[0].id)]:inputs.map(input=>input.content);
     if(!requestContextId&&this.source&&!thread.sideParentId&&contents.some(content=>/^\/learn(?:\s|$)/i.test(content.trim())))try{contents=await Promise.all(contents.map(async content=>/^\/learn(?:\s|$)/i.test(content.trim())?(await this.source!.runtime.sourceRequest<{prompt:string}>('learn.prompt',{request:content.trim().replace(/^\/learn\s*/i,'')})).prompt:content));}catch(error){this.runtimeFailure(ctx,error);return;}
     const userPrompt=inputs.map((input,index) => "Input " + input.id + ":\n" + contents[index]).join("\n\n");
+    const programTools = thread.sideParentId ? [] : this.programToolMetadata();
     const sourceContext = sourceContexts.map(context => context.text).join(''), deliveredRefs = sourceContexts.flatMap(context => context.refs);
-    let input: StartRun = { ...ctx,accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}), ...(deliveredRefs.length ? {sourceRefs: deliveredRefs} : {}), prompt: guidance+userPrompt+sourceContext };
+    let input: StartRun = { ...ctx, ...(programTools.length ? { programTools } : {}),accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}), ...(deliveredRefs.length ? {sourceRefs: deliveredRefs} : {}), prompt: guidance+userPrompt+sourceContext };
     if (!this.aborts.has(threadId) || !thread.runId) this.aborts.set(threadId, new AbortController());
     const control=this.aborts.get(threadId)!;this.retainController(control);
     let dispatched=false;
@@ -1796,6 +1857,7 @@ export class Service {
         this.backgroundWork.notifyHostEvent("runtime.settled", event.runId, `runtime.settled:${event.runId}`);
         this.backgroundWork.notifyHostEvent("runtime.settled", thread.id, `runtime.settled:${event.runId}`);
       } catch { /* A disabled background surface must not break settlement. */ }
+      this.background(this.programHost.cancelRun(event));
     }
     if (event.type === "settled" && !event.aborted) {
       // Hermes may still be closing its background review here. Only this
@@ -1927,6 +1989,10 @@ export class Service {
     this.effects.assertAdmissionsEnabled();
     if(owningThread.kind==='delegate')throw new HarnessError('AGENT_TOOL_DENIED','Delegated tools must use their parent-owned read-only coordinator.');
     if(owningThread.sideParentId&&call.name!=='task_finish')throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer in text; files, mutations and delegation are unavailable.');
+    if (PROGRAM_TOOL_NAMES.has(call.name)) {
+      if (call.name === 'python_cell' && owningThread.mode === 'plan') throw new HarnessError('PLAN_MODE_READ_ONLY', 'Switch to Build before running a Python cell');
+      return this.programHost.tool(call, ownerFor(owningThread, ctx));
+    }
     const limited = capabilityEnabled('context.compilerV1') && this.authority.definition(call.name)?.risk === 'READ';
     if (limited && this.activeContextReads >= 4) throw new HarnessError('CONTEXT_READ_LIMIT', 'Wait for an admitted context read to finish before requesting another.');
     if (limited) this.activeContextReads++;
@@ -2309,6 +2375,7 @@ export class Service {
     if(this.source)await this.source.library.initialize();
     if(this.memoryHostInstance?.busy)throw new HarnessError('MEMORY_SOURCE_BUSY','Active memory work must finish cleanup before host recovery.');
     this.planning.recover();
+    this.programHost.recover();
     sweepStaleAccountLeases(this.store);
     this.store.internal("workspace.recovered", null, () => {
       // A former host can no longer publish, but its unconfirmed native cleanup
@@ -2343,7 +2410,7 @@ export class Service {
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
     this.closed=true;this.projectTrustHostInstance?.dispose();this.requestCustody.dispose();this.relevanceObserver.clear();this.repositoryMaps.clear();this.inferenceOwners.clear();this.nativeCompactionAdmissions.clear();this.contextResultAuthorities.clear();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
-    const settled=await Promise.allSettled([this.backgroundWork.drain(),this.intake.drain(),this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
+    const settled=await Promise.allSettled([this.programHost.close(),this.backgroundWork.drain(),this.intake.drain(),this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
     this.backgroundWork.dispose();
     await Promise.allSettled([...this.pending]);
     this.compactionModelOwners.clear();

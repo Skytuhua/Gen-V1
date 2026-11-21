@@ -1,0 +1,10 @@
+{
+  "case": "vitest-continuation-v6",
+  "cut": "2e949a66937b5bf422def9fba75249df0d44d609",
+  "command": "pnpm exec vitest run tests/tool-program-continuation-v6.test.ts",
+  "exitCode": 0,
+  "startedAt": "2026-11-18T18:30:13+00:00",
+  "durationSec": 25,
+  "logDigest": "sha256:ba057db492fcc75e24c9e47802227cd2b6d7ac3b21f3391772fd93be2d6e5a0c",
+  "status": "PASS"
+}

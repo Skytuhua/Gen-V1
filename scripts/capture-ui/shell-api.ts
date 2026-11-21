@@ -12,6 +12,12 @@ export async function shellRoute(route: Route, snapshot: Snapshot, error: boolea
   const url = new URL(route.request().url()), path = url.pathname;
   if (error) return route.fulfill({ status: 503, json: { error: { code: 'CAPTURE_503', message: 'Synthetic host unavailable. Retry workspace.' } } });
   const reply = (json: unknown) => route.fulfill({ json });
+  if (/^\/api\/threads\/[^/]*\/tool-programs(?:\/|$)/.test(path)) {
+    const knownThread = snapshot.threads.some(thread => path === `/api/threads/${encodeURIComponent(thread.id)}/tool-programs`);
+    if (!knownThread || url.search) return route.fulfill({ status: 404, json: { error: { code: 'CAPTURE_PROGRAM_NOT_FOUND', message: 'No program view exists for this fixture owner.' } } });
+    if (route.request().method() !== 'GET') return route.fulfill({ status: 405, headers: { allow: 'GET' }, json: { error: { code: 'CAPTURE_METHOD_NOT_ALLOWED', message: 'Program fixture metadata is read only.' } } });
+    return reply({ programs: [], kernels: [], available: { javascript: false, python: false, replay: false }, resetNotice: 'Reset clears variables. It does not undo files or prior remote effects. Previous cells are never replayed.' });
+  }
   if (path === '/api/bootstrap') return reply({ csrfToken: 'capture-shell' });
   if (path === '/api/snapshot') return reply(snapshot);
   if (path === '/api/shell-settings') return reply(snapshot.settings);

@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "pnpm",
+    "test:browser"
+  ],
+  "cwdIdentity": "<worktree:m12-v6>",
+  "executableIdentity": "<toolchain>/pnpm",
+  "startedAt": "2026-11-18T14:18:27.660Z",
+  "endedAt": "2026-11-18T18:18:28.389Z",
+  "exitCode": 0,
+  "termination": "TIMEOUT",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v6/M12/logs/test-browser.bounded.log",
+  "logDigest": "sha256:6d0a0b69d1853627ec451fc9aedd6d7a44b2958578eae3dc9f6cec072e635c8e",
+  "rawLogDigest": "sha256:3f4dfe25487df771f452ac01f6ee3b904088298ab06349de04d83281cec0962d",
+  "rawEvidence": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/test-browser.log (not uploaded; retained on the producing host)",
+  "boundedLogDigest": "sha256:6d0a0b69d1853627ec451fc9aedd6d7a44b2958578eae3dc9f6cec072e635c8e"
+}

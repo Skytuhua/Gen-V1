@@ -1,0 +1,61 @@
+{
+  "schema": "M12IndependentReviewProbeV1",
+  "name": "noncooperative-host-read-deadline",
+  "recordedAt": "2026-11-15T11:06:17.859Z",
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3/",
+  "sourceSha256": {
+    "packages/core/tool-programs.ts": "207a4f44844a942bca721d07aaaefe35d074df0deb47cedcf3cb7d8fe18a9fa2",
+    "packages/contracts/tool-program.ts": "c07f95c57977707db55e73e2f24185c57c22f1056ea3269b983e53b5e9c6e645",
+    "packages/runtime/tool-program-worker.ts": "a12fc504668b882638e74394eeef65cf3ad5005238e085812eca578f6ee27c4f",
+    "packages/runtime/tool-program-worker-child.mjs": "b4883cd2eaae0e14cb6eb84e40ca05f2bee5f295ca57e81cd1da9c0057a0ec07"
+  },
+  "intendedNegative": true,
+  "liveExternalEffects": false,
+  "backend": {
+    "backendId": "quickjs-wasi-worker-3.6.2-v1",
+    "language": "JAVASCRIPT",
+    "runtimeFingerprint": "ca0ab3db65dea5acc44f7efc15a352e66e70bf2cb9496973c9366d75c9a9d7ab",
+    "platform": "linux-x64-node-24.22.1",
+    "isolation": "WASM_NO_HOST_IMPORTS",
+    "memoryScope": "GUEST_WASM_LINEAR",
+    "memoryLimitBytes": 134217728,
+    "wholeExecutorMemoryLimitBytes": null,
+    "hardMemoryLimit": true,
+    "tested": true,
+    "evidenceRef": "runtime-self-test:ca0ab3db65dea5acc44f7efc15a352e66e70bf2cb9496973c9366d75c9a9d7ab"
+  },
+  "requestedDeadlineMs": 300,
+  "observation": {
+    "elapsedMs": 671,
+    "programState": "FAILED",
+    "programError": "PROGRAM_DEADLINE",
+    "rpcSettled": false,
+    "readSettled": false,
+    "nestedState": "UNKNOWN",
+    "nestedEffectState": "UNKNOWN_EXTERNAL_OUTCOME"
+  },
+  "afterRelease": {
+    "elapsedMs": 672,
+    "rpcSettled": true,
+    "readSettled": true,
+    "state": "FAILED"
+  },
+  "conclusion": "Guest execution and admission are bounded; RPC completion and noncooperative host read teardown are not a hard deadline guarantee.",
+  "commandRecord": {
+    "argv": [
+      "node",
+      "--import",
+      "tsx",
+      "docs/implementation/v3/m12-artifacts/independent-review-deadline-probe.mts"
+    ],
+    "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "startedAt": "2026-11-15T11:06:16.226446+00:00",
+    "endedAt": "2026-11-15T11:06:17.927866+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m12-logs/independent-review-01-deadline.log",
+    "logDigest": "f6e9bd1e811a48d633263f7736712ae3c77b855d90aa78e569dca3a45d2e63dd"
+  }
+}

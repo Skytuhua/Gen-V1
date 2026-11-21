@@ -1,0 +1,6 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+
+> gen-v1@0.6.5 typecheck <worktree:m12-r03>
+> tsc --noEmit
+
+TSC_EXIT=0

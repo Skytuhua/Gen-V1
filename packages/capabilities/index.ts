@@ -16,6 +16,9 @@ export interface DomainContext {
   signal: AbortSignal;
   resolveResource(id: string, relativePath?: string, write?: boolean): Promise<string>;
   withResource?<T>(id: string, relativePath: string | undefined, write: boolean, action: (path: string) => Promise<T>): Promise<T>;
+  /** Host-owned byte read. The logical source path is preserved separately from
+   * any platform descriptor used to obtain the bytes. */
+  readResource?(id: string, relativePath: string | undefined, maxBytes: number): Promise<{ path: string; bytes: Buffer }>;
   managedGitFamily?(cwd: string): ManagedGitFamily | undefined | Promise<ManagedGitFamily | undefined>;
   publishData(value: unknown, provenance: string): DataRecord;
   prepareOperation(kind: string, args: Record<string, unknown>, resourceIds: string[], preconditions: Record<string, string>, description: string): Operation;
@@ -40,6 +43,12 @@ async function access<T>(ctx: DomainContext, id: string, path: string | undefine
   return withPathGuard([{ path: filename, leaf: !write }], ctx.signal, async () => { active(ctx); return action(filename); });
 }
 async function readResource(ctx: DomainContext, resourceId: string, path?: string, maxBytes = 8 * 1024 * 1024) {
+  if (ctx.readResource) {
+    active(ctx);
+    const source = await ctx.readResource(resourceId, path, maxBytes);
+    active(ctx);
+    return { filename: source.path, bytes: source.bytes, sha256: sha256(source.bytes) };
+  }
   return access(ctx, resourceId, path, false, async filename => {
     const bytes = await readBoundFile(filename, maxBytes); active(ctx);
     return { filename, bytes, sha256: sha256(bytes) };

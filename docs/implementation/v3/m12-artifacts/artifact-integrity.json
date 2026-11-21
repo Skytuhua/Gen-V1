@@ -1,0 +1,431 @@
+{
+  "schemaVersion": 1,
+  "scope": "Retained nonrecursive artifacts; command log digests are also validated by canonical evidence",
+  "artifacts": [
+    {
+      "path": "docs/implementation/v3/m12-artifacts/aggregation-benchmark.json",
+      "bytes": 23710,
+      "sha256": "f8737fbd2ea20b6c685b88458715cc86ca0d0d90f136bf4922bb0e613caa0be5"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/baseline-fcaa52-unit-summary.json",
+      "bytes": 116359,
+      "sha256": "4e2a2418c9d4501c73ce16db33928d8a3dca0bfacfd9d13961d1419fbf7910c2"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/benchmark-before-browser-fixtures.json",
+      "bytes": 23710,
+      "sha256": "1402e7af70de4cc86f43b2715b4fe745a73a51e153851e35d6d96f842b363238"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/benchmark-command-provenance-probe.py",
+      "bytes": 2493,
+      "sha256": "b9238d502ba5e5eb0cdaf68e0cf66c2660caf7a37a8bcb180845c191dc912350"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/benchmark-execution-link-before-browser-fixtures.json",
+      "bytes": 1474,
+      "sha256": "f2ab8ab04de98db32c879b028969e279657355f25fe09b7476d364efd369d7b6"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/benchmark-execution-link.json",
+      "bytes": 1520,
+      "sha256": "a574565ed7171f758f37ac3f37a33bacb08f8747398e451297ad1041b88cf117"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/browser-baseline-comparison.json",
+      "bytes": 89364,
+      "sha256": "262b7cb541a152698feebdb2c3ed56eec8dcdc90488cecd8241ba613dc7a6b69"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/browser-fixture-regression.json",
+      "bytes": 254442,
+      "sha256": "820868448ff36833661eafae2a7eb56b328b8cca9cf04bbf7ae792f298c46a47"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/browser-fixture-terminal-green.json",
+      "bytes": 12832,
+      "sha256": "76acbe5b76ce5fa941cdecf7a92dc5511dfa19e728514e598aebd3c6866f3ddd"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/browser-fixture-terminal-red.json",
+      "bytes": 31890,
+      "sha256": "0bcb940a1a6fac5332b61bf7f45f05482e89388c4a25ad0c3d0f2489caaef31b"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/browser-focused-regression.json",
+      "bytes": 7044,
+      "sha256": "f0557b32f19e6885370e4a63a7d617f3984fc073330ae3fb357460a7b37565d1"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/browser-full-summary.json",
+      "bytes": 2816682,
+      "sha256": "1f194a6520ee2886d50c35baf118982cd35db5a4ccc7581492548fd21505fb87"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/browser-tool-programs-final.json",
+      "bytes": 9496,
+      "sha256": "9bd7ce1c431faa7581778efae8700db38cb0fcd57f1f8d7e62ef71ca347d6ff1"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/browser-tool-programs-summary.json",
+      "bytes": 13857,
+      "sha256": "b1d68ed492bd624d2e3872efbf8ca75c39f996d29ea19ee38e3d89bcb5522319"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/candidate-vitest-after-review.json",
+      "bytes": 1386657,
+      "sha256": "b31e751366e883b1de30047d7964dad420ae2ae4d5e0d482428623a3d06ddcdc"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/candidate-vitest-unhandled-after-review.json",
+      "bytes": 8351,
+      "sha256": "00d4b7ee17a9a433fbd004ae9ebf89c3e3405023e7ee16d61fd67e929cc45416"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/candidate-vitest-unhandled-before-packaging.json",
+      "bytes": 8351,
+      "sha256": "319ca668c061e15a85def128fdfc0fd27467ad5c2d07e465329879c0afd152bf"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/candidate-vitest-unhandled.json",
+      "bytes": 8351,
+      "sha256": "00d4b7ee17a9a433fbd004ae9ebf89c3e3405023e7ee16d61fd67e929cc45416"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/candidate-vitest.json",
+      "bytes": 1393414,
+      "sha256": "398aa209753139d7ce2e8989bc29b6d7cbf013eb18735acfee43a3d1dcbe840d"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/command-record-reconciliation.json",
+      "bytes": 29978,
+      "sha256": "177d60c9918a9fd033ecc93d6a021712e9e3dd44f548c24fcb330e8f5979b62c"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/command-recorder.py",
+      "bytes": 3230,
+      "sha256": "e2805d102e727fa43bbd4b504cb67ac9f05a8ebf5841b69c443c49bf082fc5f8"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/command-records.json",
+      "bytes": 146360,
+      "sha256": "bbe3fb3ff8ad41e95e07f9e0c5d96d7050aeba2e5093959b4e7a97863c8470c5"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/compare-unit-reports.py",
+      "bytes": 14179,
+      "sha256": "6f2552f125d89d2719a640802048fea16f4bb84642ca404ebc68ab4293c7353c"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/current-main-source-drift-check.py",
+      "bytes": 4931,
+      "sha256": "15d533451a65297de3b3894093245d7e4caf605f7832d0b02d16e1e5b01dbe39"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/current-main-source-drift-review.json",
+      "bytes": 21256,
+      "sha256": "32151344c3ff11a6b3619ef5aa173829bea8597470a6f0b3de24d7f0dca9601d"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/current-main-source-drift-review.md",
+      "bytes": 10108,
+      "sha256": "4f059accf7e2757ec2a8140e4b5fcdba6b260b6beefeb4739e9b4fec1439b02f"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/current-main-source-drift.json",
+      "bytes": 26954,
+      "sha256": "8a71d35378e0f303726abd029d0a4f8f4dd132357e958e0599da05fad6966ebb"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/current-main-source-drift.md",
+      "bytes": 12132,
+      "sha256": "b4c777e101e6f4a433e09ee784aee00f28e54c3018b45191a2be4ebd4f037148"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/independent-review-benchmark-final-snapshot.json",
+      "bytes": 23710,
+      "sha256": "1402e7af70de4cc86f43b2715b4fe745a73a51e153851e35d6d96f842b363238"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/independent-review-benchmark-post-ir14-link.json",
+      "bytes": 1520,
+      "sha256": "a574565ed7171f758f37ac3f37a33bacb08f8747398e451297ad1041b88cf117"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/independent-review-benchmark-post-ir14-snapshot.json",
+      "bytes": 23710,
+      "sha256": "f8737fbd2ea20b6c685b88458715cc86ca0d0d90f136bf4922bb0e613caa0be5"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/independent-review-benchmark-snapshot.json",
+      "bytes": 23440,
+      "sha256": "6e2506540582287c5a92d97fca4bcdb38aa4f47b36e3f8c9b154ed033a009383"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/independent-review-current.md",
+      "bytes": 12939,
+      "sha256": "9cd79cdc19869bf7125da7e90069cd51ad8d2e3980a42dd8035c05c6e64c18c0"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/independent-review-deadline-observation.json",
+      "bytes": 2501,
+      "sha256": "2ab90b7c5ec3c4bbd0a7c4b428f98944cd77c79833878c7bf4ad2e2b8ec191e7"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/independent-review-deadline-probe.mts",
+      "bytes": 4554,
+      "sha256": "43b9737abfb9c8b18c4d3f8e4fa9a83dfabd30a20f496701431b8b1c0e2a220a"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/independent-review-final.json",
+      "bytes": 226425,
+      "sha256": "964cb5afac1baff1488324c4cd47392ca5cdfd483d36ac4615f36955a8630261"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/independent-review-final.md",
+      "bytes": 61923,
+      "sha256": "c88a88fb91128334288bf5b9708ca7bb956544766db34551f4ec982e634fe2da"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/independent-review-input-amplification-observation.json",
+      "bytes": 1902,
+      "sha256": "ab1d7a99c6d74212956b1cdac4a77a7e6d9e1895d5217d6cc90dfc9c8074915e"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/independent-review-input-amplification-probe.mts",
+      "bytes": 4051,
+      "sha256": "c560685613886ef95a6086d4872d99acf33fc38b4f3e802dcd4f56125e76b499"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/ir14-fixture-audit.md",
+      "bytes": 4760,
+      "sha256": "fecf93fbd50b7a05a89f9bd90d82677e38ec81c288922f472e309a2cbe799587"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/javascript-backend-attempt-1-command.json",
+      "bytes": 288,
+      "sha256": "4d56d39efacc5692b53a8c86752be27da108cb202181b4b072c54f88fc8d426a"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/javascript-backend-attempt-1.txt",
+      "bytes": 1166,
+      "sha256": "7e3776c3d5b9de9a6e99b6dc0252141dc5f28ec0aa445e2773c4446f55f98d19"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/javascript-backend-attempt-2-command.json",
+      "bytes": 288,
+      "sha256": "fae9afcd894313331663691ddbb6fc03f8a0684835fb6bc6788de595b889a8c6"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/javascript-backend-attempt-2.txt",
+      "bytes": 224,
+      "sha256": "005a82f9f851073bfd9bfcf22f8b283bfc5e8b502a1c07fc4c282500de8a2d20"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/javascript-backend-red.txt",
+      "bytes": 13770,
+      "sha256": "802d033c6f6d4486cf81138401bd65cb94adbe36cf0bd0ac9aa56d841f0f52ac"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/javascript-backend-review.md",
+      "bytes": 12080,
+      "sha256": "9ff7418693106e368cf9c3ca38ea1ad0a2705066f16fc35998cf09892b7dff3c"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/javascript-historical-attempts.json",
+      "bytes": 2868,
+      "sha256": "2193e7343dfef3115211656762c78c22c7166e7bfc6804f6bbf70a296df132fe"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/javascript-inspect-result.json",
+      "bytes": 4406,
+      "sha256": "a562f60024206d63df9cbb75c993e1a1cebfbebd100040760a109cd8d9ec359a"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/javascript-results.json",
+      "bytes": 3730,
+      "sha256": "482466fee6d8c2c349a445b7af115aeb5b3e805d203f7f96c7c2de8ecd569c29"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/native-pty-setup.py",
+      "bytes": 1516,
+      "sha256": "5b41743cc5f658ba26524a991c5f507f8a19ed47b1e6e9ec0bae431d40bb2795"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/plugin-tools-dock-diagnosis.json",
+      "bytes": 42314,
+      "sha256": "4e97cd6a104b942332e057554741075ee16549a6fcc68443cac905219862bec2"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/plugin-tools-dock-recheck.json",
+      "bytes": 4482,
+      "sha256": "f86c54baae03e71456c947177519f135f6ffa6f23fff6bb442414a98ed7a668a"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/pnpm-launcher.sh",
+      "bytes": 106,
+      "sha256": "6a8bdabcd1abe89a36aee5c9603ea6541fe3ba10fe691e11f564a2507ac5877c"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/pre-ir12-independent-review-final.json",
+      "bytes": 136084,
+      "sha256": "f0e253835eb446c807ab0175b3a9f133b2d24015cdd92fb4e2ea105facaf446c"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/pre-ir12-independent-review-final.md",
+      "bytes": 37674,
+      "sha256": "6fa96f1f039f7519d45504072814048315627f696c4d9d4540a4a03197a4b322"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/pre-ir12-source-cut.json",
+      "bytes": 56049,
+      "sha256": "37b215e6d4a69cf050a4ca3b96382649720ef10e71d6b9c4df1c0cbcd907398f"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/pre-ir14-independent-review-final.json",
+      "bytes": 163618,
+      "sha256": "b1a4928f15e3cdd4cdc7dffa9bc6b0ecce44f5aa5fca70aed31297d67316b6e7"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/pre-ir14-independent-review-final.md",
+      "bytes": 44721,
+      "sha256": "8822ff164f55b1c31080c76af13c366c395098d2558d9675ba09bc4159b696aa"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/pre-ir14-source-cut.json",
+      "bytes": 57106,
+      "sha256": "e6183f4ed56219611b7bd3352aa5d8412aced6d933380f7a85390fb2b9078ee1"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/pre-ir15-independent-review-final.json",
+      "bytes": 202450,
+      "sha256": "09b6d0b0ef63d0c7a31ee14723ac0eaea4d2b75209a374362a1e10bb1933fd6c"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/pre-ir15-independent-review-final.md",
+      "bytes": 53982,
+      "sha256": "4a92fde8127daa29cde6ea71548ec500663050bb5c84bd87b1c4ec10ed3a37fa"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/pre-ir15-source-cut.json",
+      "bytes": 59786,
+      "sha256": "8327bd5b99f29a5153504f993cc201e577543dbf43009b41cab2cf2697110384"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/pre-ir15-verify-evidence.mts.txt",
+      "bytes": 12241,
+      "sha256": "ed921e233d670161e95598b7133da5b9ce9c9a5fa60f370f370f3066c03ccf28"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/pre-ir16-build-evidence.py.txt",
+      "bytes": 19076,
+      "sha256": "bca61aacbb45a0270b5d45b861a9ee334b179dd9f504451b02e564bbeafa8881"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/prior-audit/M12-handoff.md",
+      "bytes": 21105,
+      "sha256": "627259ce9c61fc04f879678b905d855a2ba09773bdb99d6df95e3ea3fbf5fdd3"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/prior-audit/M12-source-audit.json",
+      "bytes": 16487,
+      "sha256": "266f89445f598fd5a6d75b164d36aa68985736837441e98de3b1d3e96716e2f3"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/prior-audit/M12-source-lock.json",
+      "bytes": 9891,
+      "sha256": "49b7563a4d8a550be9c6fb51624b7eebe7d3ceb8743b0021745ec734e67314e3"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/prior-audit/M12-verification.json",
+      "bytes": 30571,
+      "sha256": "0d3508a5deb5f4f25d2106864e2ad301ffcbb68e95b1e53b210c832a3ac552c9"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/prior-audit/M12-verify-evidence.mts",
+      "bytes": 5056,
+      "sha256": "9ef18d3edf5b5876f8323ca3374e41859a377a6fb3643dbee35d19af14951bab"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/public-source-manifest-additions.json",
+      "bytes": 3880,
+      "sha256": "17bf679918697aeafa1e5eacc6a007180cd08f46e5fa28385983c1dd9d31bc65"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/python-backend-review.md",
+      "bytes": 34773,
+      "sha256": "814845bbdf9b020b31cf00154e1cfcb244ed806fbf2f1573fb34d87942aab3f9"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/python-runtime-configuration.json",
+      "bytes": 5948,
+      "sha256": "635a66a02ac9a331c4e9e53d5fd3f54b089ee28d3921f98212f12d667e9f0311"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/replay-and-file-read-review.md",
+      "bytes": 11438,
+      "sha256": "682af3a460313b1de9babcfde97e7b4745d7cc3fce3b394852963abb6fda6959"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/source-inventory-negative-probe.mts",
+      "bytes": 9926,
+      "sha256": "1a7ce4827590862f1664c5d650fdea1487d9aa8b7287e85ef2859788bb16e520"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/summarize-browser.py",
+      "bytes": 16824,
+      "sha256": "82c8ce6e2318a420d1208841abb3902cbc3be028f91b49efd1f9ba31b08c6ed0"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/tokenizer-dependency-review.json",
+      "bytes": 1974,
+      "sha256": "f371f12a47b5de651fb17692e1f31a36df6d101bbfd049a9510f042df33f25c0"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/unit-baseline-comparison-before-packaging.json",
+      "bytes": 1741330,
+      "sha256": "8d6c08266ce294bf10760d8c4414ab666326cb1e30ec9891ce9696a44f1f36e7"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/unit-baseline-comparison-before-packaging.md",
+      "bytes": 4192,
+      "sha256": "a59cf3e7fe9a9357c440ada1bcc4d270bb31a0127f9df5afa5b8ad73fd353fea"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/unit-baseline-comparison.json",
+      "bytes": 1733820,
+      "sha256": "b0c18596f2bd9db2d3a277db0b7f6958a0a895eda58779d5ba2a2a93ad5b2af2"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/unit-baseline-comparison.md",
+      "bytes": 3002,
+      "sha256": "5925bec67471f38624328ac478182373cf6c61587b5a783c5e429e6119538774"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/unit-candidate-diagnosis-before-packaging.json",
+      "bytes": 14371,
+      "sha256": "2ee2707a9d08aad74d5207a633f8576a8081333f32002819969605e52c42099d"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/unit-regression-assessment.json",
+      "bytes": 8974,
+      "sha256": "85e508e67c7c06bb6db7e622210a16c5a12a31a31bdc4bb61c30f726511cf5b7"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/unit-regression-assessment.md",
+      "bytes": 4988,
+      "sha256": "e9d2929b71df4924b6531f507869b6d0a01b55cb8ff7caa9df4fc1ad2ab30e4d"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/unit-unhandled-reporter.mjs",
+      "bytes": 3311,
+      "sha256": "91070e6095a30d1c12f87715d071123617ebd22f7dd55607dd2305f77752ff3c"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/upstream-source-review.md",
+      "bytes": 10537,
+      "sha256": "aa087252b7ba97e58cfb48196e16f64c6d7df6cb18573726399d06d1de5dd334"
+    }
+  ]
+}

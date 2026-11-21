@@ -1,0 +1,33 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m<worktree:m12-r03>[39m
+
+(node:437124) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/python-kernel-v3.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 33111[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps one process between successful cells with fresh program admission each time [33m 6035[2mms[22m[39m
+   [33m[2m✓[22m[39m persists a new generation before reset accepts another cell and never reruns history [33m 557[2mms[22m[39m
+   [33m[2m✓[22m[39m fails exact owner checks for Stop and Reset without killing another owner process [33m 456[2mms[22m[39m
+   [33m[2m✓[22m[39m marks failed, cancelled or wedged cells reset-required and invalidates variables [33m 958[2mms[22m[39m
+   [33m[2m✓[22m[39m does not reconstruct retained variables after host recovery [33m 1323[2mms[22m[39m
+   [33m[2m✓[22m[39m invalidates generations on host rollback without replaying or removing receipts [33m 627[2mms[22m[39m
+   [33m[2m✓[22m[39m disposes an initial factory that resolves after Stop without resurrecting READY [33m 1279[2mms[22m[39m
+   [33m[2m✓[22m[39m cannot replace a reset generation with a late initial factory [33m 1375[2mms[22m[39m
+   [33m[2m✓[22m[39m disposes a late initial factory after host rollback and keeps the invalidated generation [33m 919[2mms[22m[39m
+   [33m[2m✓[22m[39m disposes a late initial factory after exact owner revocation [33m 2838[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a late initial factory after recovery changes its admission record without changing generation [33m 1098[2mms[22m[39m
+   [33m[2m✓[22m[39m revokes a pending initial factory when a changed configuration selects another kernel for the same owner [33m 1980[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects an executor whose explicit language is not Python even if its isolation claim matches [33m 1179[2mms[22m[39m
+   [33m[2m✓[22m[39m lets only the latest different-key create acquire the owner after a pending stop [33m 2817[2mms[22m[39m
+   [33m[2m✓[22m[39m lets reset supersede a different-key create while preserving custody of the stopping executor [33m 853[2mms[22m[39m
+   [33m[2m✓[22m[39m resets a previously selected key only after stopping the current different-key kernel [33m 873[2mms[22m[39m
+   [33m[2m✓[22m[39m cancels an old program prepared after stop without dispatching it or changing the new kernel state [33m 3780[2mms[22m[39m
+   [33m[2m✓[22m[39m cancels an old program prepared after reset without dispatching it or changing the new kernel state [33m 1087[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps cleanup custody after a failed result until reset can replace the process [33m 1281[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps cleanup custody after a prepare rejection until reset can replace the process [33m 1766[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m21 passed[39m[22m[90m (21)[39m
+[2m   Start at [22m 10:29:35
+[2m   Duration [22m 37.41s[2m (transform 608ms, setup 0ms, import 998ms, tests 33.11s, environment 0ms)[22m
+

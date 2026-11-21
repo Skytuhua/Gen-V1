@@ -102,6 +102,78 @@ Generated apps are enabled after actual-host isolation, checkpoint, reload, cont
 
 The controller terminates an unresponsive worker through a watchdog. This is application isolation, not a hard operating-system memory quota. Approved project tests and native runtimes still execute with local-user privileges.
 
+## Experimental bounded tool programs
+
+M12 adds a host-owned execution lane through `ToolProgramHost`, `ToolPrograms` and
+`PythonKernels`. Its three finite capability keys are `tools.jsReadProgramV1`,
+`tools.durableReplayExperimentV1` and `tools.pythonKernelV1`. Each defaults to
+false. Trusted Service composition must supply the selected tested backend and,
+for Python, an explicitly approved interpreter and M03 execution profile. Model
+arguments, plugins and UI preferences cannot activate these capabilities.
+
+Programs bind the complete thread/run/epoch/project/workspace/account owner,
+source and runtime fingerprints, and disclosed host tool definitions. Nested
+calls acquire a durable identity before dispatch and pass through M02 authority
+and the effect ledger. Only host-classified reads are eligible. Four admitted
+reads and 64 issued calls are the per-program ceilings; concurrent programs for
+one exact owner are rejected. Private arguments, source text and intermediate
+results stay in scoped Store entities. Model output contains the explicitly
+requested aggregate and authorized references, with a 256 KiB total envelope
+cap. Authenticated range inspection rechecks the original grants.
+
+Input references are unique, with at most 64 per program. Before backend
+dispatch, the host bounds the complete serialized `inputs` array to 4 MiB,
+100,000 JSON nodes and depth 64, including the outer array. Values are read
+sequentially and checked before retention; exact serialization accounts for
+text escaping and array framing. The host may inspect one additional bounded
+private source while checking admission. These are retained-data limits, not
+a process-memory ceiling. Current owner, grants and input access remain
+required on every read.
+
+The JavaScript backend uses the existing pinned QuickJS WASM dependency inside
+a dedicated worker. Guest code has no ambient Node, filesystem, network,
+process, module loader or credentials. A checked 128 MiB WASM linear-memory
+maximum constrains guest allocations. Trusted Node wrapper memory is outside
+that limit and has no claimed aggregate 128 MiB ceiling. The independent host
+deadline terminates and joins an unresponsive worker.
+
+Python uses an installed, content-pinned interpreter, an approved private
+working directory, bubblewrap filesystem/process namespaces and a syscall
+allowlist. The interpreter has a hard 128 MiB address-space ceiling. A separate
+trusted supervisor proves the guest is stopped before completing each cell;
+guest result frames cannot disable the watchdog while code continues running.
+Successful cells retain variables only in the live owned process. Stop,
+cancellation, failed cells and host recovery invalidate that state. Reset
+advances the generation before accepting another cell and never replays prior
+cells or reverses files and remote effects. Retained data in the private
+working directory is accounted before each cell launches and again after the
+supervisor proves the guest stopped, before a result is accepted: logical file
+length and allocated bytes each have a separate inclusive 64 MiB ceiling, and
+missing or invalid accounting refuses. An overage refuses the cell, or fails it
+and requires a kernel reset, without deleting retained files. This bounds
+accepted retained state only; it is not a hard filesystem quota, and transient
+disk use while a cell runs is not bounded. Aggregate process-tree memory is not
+claimed.
+
+Durable JavaScript replay is a separate experiment. Deterministic seed/clock,
+issued identities/counts and delivery order are committed before values reach
+the guest. Completed reads replay by private receipt. Changed source, runtime,
+definitions, arguments, ordering or deadline fail with an exact incompatibility;
+an admitted read without a committed outcome remains uncertain and is not
+redispatched. Python cells never replay. The 30-second execution deadline stops
+guest execution and new admission; a wedged host filesystem read may still need
+cleanup after that deadline. RPC completion and host I/O teardown have no
+separate hard deadline claim.
+
+Program cards show state, language, permitted tools, elapsed time, calls and
+output cap. Their call graphs expose metadata and explicit retained-result
+inspection. Kernel cards distinguish Stop from Reset and display generation
+and retained-state status. Rollback uses `Service.disableToolPrograms()` to stop
+admission, cancel owned workers and invalidate kernel generations while
+retaining receipts. Views are reconstructed from records, never by executing
+old source. [M12 verification](implementation/v3/M12-handoff.md) records actual
+contract/runtime/platform outcomes and remaining activation gates.
+
 ## Native desktop and recovery
 
 Electron uses a real Node sidecar for the host and narrowly typed preload methods for trusted application windows. Remote browser content has no application bridge or Node access. Conversations can detach into pinned native windows. The original workspace releases the conversation while the child owns it, and edit handoff runs before the conversation moves. Canvas panel detachment remains retired. Child surfaces retain their identities, placements and edit-handoff acknowledgments for recovery.

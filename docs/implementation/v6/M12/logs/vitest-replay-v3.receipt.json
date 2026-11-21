@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-replay-v3.test.ts"
+  ],
+  "cwdIdentity": "<worktree:m12-v6>",
+  "executableIdentity": "<toolchain>/pnpm",
+  "startedAt": "2026-11-18T12:02:14.362Z",
+  "endedAt": "2026-11-18T12:04:19.249Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v6/M12/logs/vitest-replay-v3.bounded.log",
+  "logDigest": "sha256:ab37d7231792574c5b45bb9f936589b73485f9cac27ff1485322bef1b68a87fa",
+  "rawLogDigest": "sha256:6c252fd06e8bef2ae323d15e30a4e6dae59fc5a60c4cb040f8a186e3b4351361",
+  "rawEvidence": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/vitest-replay-v3.log (not uploaded; retained on the producing host)",
+  "boundedLogDigest": "sha256:ab37d7231792574c5b45bb9f936589b73485f9cac27ff1485322bef1b68a87fa"
+}

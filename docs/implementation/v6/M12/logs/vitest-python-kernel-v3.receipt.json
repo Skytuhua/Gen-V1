@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/python-kernel-v3.test.ts"
+  ],
+  "cwdIdentity": "<worktree:m12-v6>",
+  "executableIdentity": "<toolchain>/pnpm",
+  "startedAt": "2026-11-18T12:07:41.313Z",
+  "endedAt": "2026-11-18T12:08:06.787Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v6/M12/logs/vitest-python-kernel-v3.bounded.log",
+  "logDigest": "sha256:4d1be1dd6bd579c72a597421718bb3eb87c45e3c924b54b2a554c7f28ecceb41",
+  "rawLogDigest": "sha256:c138e9e89153905906f1e3c0f37597add6e54d57e8d18a0e0899d2737ca62828",
+  "rawEvidence": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/vitest-python-kernel-v3.log (not uploaded; retained on the producing host)",
+  "boundedLogDigest": "sha256:4d1be1dd6bd579c72a597421718bb3eb87c45e3c924b54b2a554c7f28ecceb41"
+}

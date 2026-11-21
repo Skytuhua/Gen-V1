@@ -1,0 +1,615 @@
+{
+  "schemaVersion": 1,
+  "kind": "FIXED_SYNTHETIC_WORKFLOW_MEASUREMENT",
+  "liveModelEvaluation": false,
+  "expectedAnswer": {
+    "paidOrders": 307,
+    "refundedOrders": 77,
+    "soldUnits": 1225,
+    "salesCents": 274750,
+    "salesCentsByRegion": {
+      "north": 67000,
+      "south": 69975,
+      "east": 69025,
+      "west": 68750
+    }
+  },
+  "cases": [
+    {
+      "name": "success",
+      "direct": {
+        "state": "SUCCEEDED",
+        "answer": {
+          "paidOrders": 307,
+          "refundedOrders": 77,
+          "soldUnits": 1225,
+          "salesCents": 274750,
+          "salesCentsByRegion": {
+            "north": 67000,
+            "south": 69975,
+            "east": 69025,
+            "west": 68750
+          }
+        },
+        "modelRequests": {
+          "setup": 0,
+          "execution": 6,
+          "diagnostic": 0,
+          "total": 6
+        },
+        "modelRoundTrips": 6,
+        "modelVisibleBytes": {
+          "requests": 714,
+          "responses": 139918,
+          "total": 140632,
+          "diagnostic": 0
+        },
+        "sourceRowsVisible": true,
+        "trace": [
+          {
+            "phase": "execution",
+            "tool": "repository_read",
+            "failed": false,
+            "requestBytes": 119,
+            "responseBytes": 23327,
+            "requestSha256": "c214fa638a0e056347444d2decf8f4cd91523557c6a8aa185cdd74eb4af06eb3",
+            "responseSha256": "d883a2b74573befcd3c437640cd095123ad4ef645b737d21e211a355dcf0279e",
+            "elapsedMs": 10.669,
+            "tokens": {
+              "cl100k_base": {
+                "request": 38,
+                "response": 4462
+              },
+              "o200k_base": {
+                "request": 38,
+                "response": 4463
+              }
+            }
+          },
+          {
+            "phase": "execution",
+            "tool": "repository_read",
+            "failed": false,
+            "requestBytes": 119,
+            "responseBytes": 23327,
+            "requestSha256": "c3e11aa3f5f61768b1c4aff43d27b357dfa8264bd3b0fe41374730376c1ecb2d",
+            "responseSha256": "f571cc46f7730668e7baecad599e0351556dfc74cff9c089a761f269ed87f344",
+            "elapsedMs": 5.859,
+            "tokens": {
+              "cl100k_base": {
+                "request": 38,
+                "response": 4466
+              },
+              "o200k_base": {
+                "request": 38,
+                "response": 4467
+              }
+            }
+          },
+          {
+            "phase": "execution",
+            "tool": "repository_read",
+            "failed": false,
+            "requestBytes": 119,
+            "responseBytes": 23327,
+            "requestSha256": "a75b6c8f214789dd15e0bd82dc6118dfb2d0f2cbe1031cc66007e2689607ff74",
+            "responseSha256": "b1a282308d2a00107b784bd6242c76dd01892e07723ec234aecb0e0d784cdc9d",
+            "elapsedMs": 9.818,
+            "tokens": {
+              "cl100k_base": {
+                "request": 42,
+                "response": 4459
+              },
+              "o200k_base": {
+                "request": 42,
+                "response": 4460
+              }
+            }
+          },
+          {
+            "phase": "execution",
+            "tool": "repository_read",
+            "failed": false,
+            "requestBytes": 119,
+            "responseBytes": 23327,
+            "requestSha256": "1112375dd2178c3421614a46d457f3cbb5a2983eae2f01c76c6eea960b2af16d",
+            "responseSha256": "8feac8c7da4d8dc89c9e92e1f36696350aca2b8cf0c20e01051cb21b1cb0c283",
+            "elapsedMs": 2.741,
+            "tokens": {
+              "cl100k_base": {
+                "request": 35,
+                "response": 4468
+              },
+              "o200k_base": {
+                "request": 35,
+                "response": 4469
+              }
+            }
+          },
+          {
+            "phase": "execution",
+            "tool": "repository_read",
+            "failed": false,
+            "requestBytes": 119,
+            "responseBytes": 23323,
+            "requestSha256": "76d6c4e6b2eae7957c2538cdf42c89524d5e407ee259f8ec18a0afb8d40d090c",
+            "responseSha256": "e46dc76452fe7f7d032e5b4bc311b1bdd5b1ab4de1ed9b10e1e1964a02c6ea45",
+            "elapsedMs": 2.85,
+            "tokens": {
+              "cl100k_base": {
+                "request": 44,
+                "response": 4462
+              },
+              "o200k_base": {
+                "request": 44,
+                "response": 4463
+              }
+            }
+          },
+          {
+            "phase": "execution",
+            "tool": "repository_read",
+            "failed": false,
+            "requestBytes": 119,
+            "responseBytes": 23287,
+            "requestSha256": "51840732066fbe7d6bb2518dcc485763ac52dfb0c34ff5e6b3bf77d46f1e435c",
+            "responseSha256": "590268640f6de4c7475c9d013f99eac8ce69b427542213420caf54e37748b22b",
+            "elapsedMs": 2.618,
+            "tokens": {
+              "cl100k_base": {
+                "request": 39,
+                "response": 4442
+              },
+              "o200k_base": {
+                "request": 39,
+                "response": 4443
+              }
+            }
+          }
+        ],
+        "hostReadCalls": 6,
+        "sequentialReadDependencies": 5,
+        "elapsedMs": 35.374,
+        "bulkInPublicStorage": true,
+        "retainedSourceFailures": 0,
+        "originalFailureInspected": false
+      },
+      "program": {
+        "state": "SUCCEEDED",
+        "answer": {
+          "paidOrders": 307,
+          "refundedOrders": 77,
+          "soldUnits": 1225,
+          "salesCents": 274750,
+          "salesCentsByRegion": {
+            "north": 67000,
+            "south": 69975,
+            "east": 69025,
+            "west": 68750
+          }
+        },
+        "modelRequests": {
+          "setup": 1,
+          "execution": 1,
+          "diagnostic": 0,
+          "total": 2
+        },
+        "modelRoundTrips": 2,
+        "modelVisibleBytes": {
+          "requests": 997,
+          "responses": 1111,
+          "total": 2108,
+          "diagnostic": 0
+        },
+        "sourceRowsVisible": false,
+        "trace": [
+          {
+            "phase": "setup",
+            "tool": "tool_program_discover",
+            "failed": false,
+            "requestBytes": 69,
+            "responseBytes": 479,
+            "requestSha256": "87df9447ccd6bf14194fc1ef212b2b1f71b4e344c345606509813ff50aa77d56",
+            "responseSha256": "74ea3123dfc9a29d6e923a95110ad66f695f80d649190b672df0eab32e2d13c5",
+            "elapsedMs": 0.772,
+            "tokens": {
+              "cl100k_base": {
+                "request": 16,
+                "response": 133
+              },
+              "o200k_base": {
+                "request": 16,
+                "response": 139
+              }
+            }
+          },
+          {
+            "phase": "execution",
+            "tool": "tool_program",
+            "failed": false,
+            "requestBytes": 928,
+            "responseBytes": 632,
+            "requestSha256": "e410c62b0d02aeb336cb602ae5881d745de500939c8cdfec873d62bbbbc24fb1",
+            "responseSha256": "e5e0d6bbd0d7fea6553fac635c9c53b8b757fce3ffccffe7107be59a4f2f5357",
+            "elapsedMs": 278.338,
+            "tokens": {
+              "cl100k_base": {
+                "request": 263,
+                "response": 263
+              },
+              "o200k_base": {
+                "request": 263,
+                "response": 263
+              }
+            }
+          }
+        ],
+        "hostReadCalls": 6,
+        "elapsedMs": 279.268,
+        "sequentialReadDependencies": 5,
+        "bulkInPublicStorage": false,
+        "retainedSourceFailures": 0,
+        "originalFailureInspected": false
+      }
+    },
+    {
+      "name": "source_failure",
+      "direct": {
+        "state": "FAILED",
+        "answer": null,
+        "modelRequests": {
+          "setup": 0,
+          "execution": 3,
+          "diagnostic": 0,
+          "total": 3
+        },
+        "modelRoundTrips": 3,
+        "modelVisibleBytes": {
+          "requests": 357,
+          "responses": 46776,
+          "total": 47133,
+          "diagnostic": 0
+        },
+        "sourceRowsVisible": true,
+        "trace": [
+          {
+            "phase": "execution",
+            "tool": "repository_read",
+            "failed": false,
+            "requestBytes": 119,
+            "responseBytes": 23327,
+            "requestSha256": "c214fa638a0e056347444d2decf8f4cd91523557c6a8aa185cdd74eb4af06eb3",
+            "responseSha256": "d883a2b74573befcd3c437640cd095123ad4ef645b737d21e211a355dcf0279e",
+            "elapsedMs": 3.609,
+            "tokens": {
+              "cl100k_base": {
+                "request": 38,
+                "response": 4462
+              },
+              "o200k_base": {
+                "request": 38,
+                "response": 4463
+              }
+            }
+          },
+          {
+            "phase": "execution",
+            "tool": "repository_read",
+            "failed": false,
+            "requestBytes": 119,
+            "responseBytes": 23327,
+            "requestSha256": "c3e11aa3f5f61768b1c4aff43d27b357dfa8264bd3b0fe41374730376c1ecb2d",
+            "responseSha256": "f571cc46f7730668e7baecad599e0351556dfc74cff9c089a761f269ed87f344",
+            "elapsedMs": 3.822,
+            "tokens": {
+              "cl100k_base": {
+                "request": 38,
+                "response": 4466
+              },
+              "o200k_base": {
+                "request": 38,
+                "response": 4467
+              }
+            }
+          },
+          {
+            "phase": "execution",
+            "tool": "repository_read",
+            "failed": true,
+            "requestBytes": 119,
+            "responseBytes": 122,
+            "requestSha256": "a75b6c8f214789dd15e0bd82dc6118dfb2d0f2cbe1031cc66007e2689607ff74",
+            "responseSha256": "16e0c507d40520a0b00a9698cc3bd4fa98c9c9c0b822c5e4c3cfb275639516ce",
+            "elapsedMs": 1.731,
+            "tokens": {
+              "cl100k_base": {
+                "request": 42,
+                "response": 26
+              },
+              "o200k_base": {
+                "request": 42,
+                "response": 27
+              }
+            }
+          }
+        ],
+        "hostReadCalls": 3,
+        "sequentialReadDependencies": 2,
+        "elapsedMs": 9.309,
+        "bulkInPublicStorage": true,
+        "retainedSourceFailures": 0,
+        "originalFailureInspected": false
+      },
+      "program": {
+        "state": "FAILED",
+        "answer": null,
+        "modelRequests": {
+          "setup": 1,
+          "execution": 1,
+          "diagnostic": 1,
+          "total": 3
+        },
+        "modelRoundTrips": 3,
+        "modelVisibleBytes": {
+          "requests": 1173,
+          "responses": 1331,
+          "total": 2504,
+          "diagnostic": 584
+        },
+        "sourceRowsVisible": false,
+        "trace": [
+          {
+            "phase": "setup",
+            "tool": "tool_program_discover",
+            "failed": false,
+            "requestBytes": 69,
+            "responseBytes": 479,
+            "requestSha256": "87df9447ccd6bf14194fc1ef212b2b1f71b4e344c345606509813ff50aa77d56",
+            "responseSha256": "74ea3123dfc9a29d6e923a95110ad66f695f80d649190b672df0eab32e2d13c5",
+            "elapsedMs": 0.395,
+            "tokens": {
+              "cl100k_base": {
+                "request": 16,
+                "response": 133
+              },
+              "o200k_base": {
+                "request": 16,
+                "response": 139
+              }
+            }
+          },
+          {
+            "phase": "execution",
+            "tool": "tool_program",
+            "failed": false,
+            "requestBytes": 935,
+            "responseBytes": 437,
+            "requestSha256": "38f62b83b8f2e295481de0a6662d0159ae8607019965b742a6fe51af6b0fdd5c",
+            "responseSha256": "3a4d5c288e4929cab9bab00350421d60951a28a3e47b2ecb475cb43f64d669cd",
+            "elapsedMs": 130.224,
+            "tokens": {
+              "cl100k_base": {
+                "request": 265,
+                "response": 153
+              },
+              "o200k_base": {
+                "request": 265,
+                "response": 153
+              }
+            }
+          },
+          {
+            "phase": "diagnostic",
+            "tool": "tool_program_result",
+            "failed": false,
+            "requestBytes": 169,
+            "responseBytes": 415,
+            "requestSha256": "9b8c74a111bb21eb57adae4d716de1a4a5012659f637ca2af1431f12ceeaef17",
+            "responseSha256": "3bc748f35757f972d3081befe48ae851ee3feacb99e7c2082762ee5653bc29c0",
+            "elapsedMs": 0.964,
+            "tokens": {
+              "cl100k_base": {
+                "request": 70,
+                "response": 137
+              },
+              "o200k_base": {
+                "request": 69,
+                "response": 139
+              }
+            }
+          }
+        ],
+        "hostReadCalls": 3,
+        "elapsedMs": 131.713,
+        "sequentialReadDependencies": 2,
+        "bulkInPublicStorage": false,
+        "retainedSourceFailures": 1,
+        "originalFailureInspected": true
+      }
+    }
+  ],
+  "tokenization": {
+    "status": "MEASURED_OFFLINE",
+    "actualCounts": {
+      "cl100k_base": {
+        "success": {
+          "direct": {
+            "requests": 236,
+            "responses": 26759,
+            "total": 26995,
+            "diagnostic": 0
+          },
+          "program": {
+            "requests": 279,
+            "responses": 396,
+            "total": 675,
+            "diagnostic": 0
+          }
+        },
+        "source_failure": {
+          "direct": {
+            "requests": 118,
+            "responses": 8954,
+            "total": 9072,
+            "diagnostic": 0
+          },
+          "program": {
+            "requests": 351,
+            "responses": 423,
+            "total": 774,
+            "diagnostic": 207
+          }
+        }
+      },
+      "o200k_base": {
+        "success": {
+          "direct": {
+            "requests": 236,
+            "responses": 26765,
+            "total": 27001,
+            "diagnostic": 0
+          },
+          "program": {
+            "requests": 279,
+            "responses": 402,
+            "total": 681,
+            "diagnostic": 0
+          }
+        },
+        "source_failure": {
+          "direct": {
+            "requests": 118,
+            "responses": 8957,
+            "total": 9075,
+            "diagnostic": 0
+          },
+          "program": {
+            "requests": 350,
+            "responses": 431,
+            "total": 781,
+            "diagnostic": 208
+          }
+        }
+      }
+    },
+    "gate": "Named offline transcript encodings are measured. These counts do not measure provider framing, billing, context totals, or live model performance.",
+    "evidence": {
+      "package": "js-tiktoken",
+      "version": "1.0.21",
+      "entryPoint": "js-tiktoken/lite",
+      "registryIntegrity": "sha512-biOj/6M5qdgx5TKjDnFT1ymSpM5tbd3ylwDtrQvFQSu0Z7bBYko2dF+W/aUkXUPuk6IVpRxk/3Q2sHOzGlS36g==",
+      "dependencyReviewRef": "docs/implementation/v3/m12-artifacts/tokenizer-dependency-review.json",
+      "dependencyReviewSha256": "f371f12a47b5de651fb17692e1f31a36df6d101bbfd049a9510f042df33f25c0",
+      "implementationFilesSha256": {
+        "package.json": "5040ae37366971233fd53ef33360bc8d94159fa55c0c541f5663980b53b6b3b3",
+        "dist/chunk-VL2OQCWN.js": "4095335817189ee393ce99588744e53d04f1dd32b6c9a7d4a9f365d5e4569035",
+        "dist/lite.js": "e7f8d0900a29c70a1155838cff633f5a66eef660bd3c4fb452882ec7cc4a316c",
+        "dist/ranks/cl100k_base.js": "0e301a9c7f82e2353bc484be0149b2fb8a6db85d516620a34d06e587efe090bd",
+        "dist/ranks/o200k_base.js": "a9e8a0c1f332c58f1a9cef2f8d7be59b31bb4b42531a3a0a64d9ad3b3d19033b"
+      },
+      "vocabularies": {
+        "cl100k_base": {
+          "rankModuleSha256": "0e301a9c7f82e2353bc484be0149b2fb8a6db85d516620a34d06e587efe090bd",
+          "mergeRankDataSha256": "3d687fd92cd8fa61f6e26453365e1678e1c35674dd3fcb3d686235c46d16e118",
+          "patternSha256": "aab5f2624d4f164e161d4db2fa958ff25c813a6ebefd3c7ae807ffd0379a3fc4",
+          "specialTokensSha256": "d7bf33181b8bb517d67bb780efdfa51b7a0aaa25f9a462c4c1ade92b770af71e"
+        },
+        "o200k_base": {
+          "rankModuleSha256": "a9e8a0c1f332c58f1a9cef2f8d7be59b31bb4b42531a3a0a64d9ad3b3d19033b",
+          "mergeRankDataSha256": "46095c39ad133184da5315ac91dd491f39901e6d89a05f58f24717fd7cbf0523",
+          "patternSha256": "6f88fcc3dd53c515d0835648c274a7df6e686598d0f3d4981319b524ed55ddd2",
+          "specialTokensSha256": "0f733568e70c814cc1b4b10f43ca9da02b336bc236d241090f7d9aa7e9826b63"
+        }
+      },
+      "transitiveDependency": {
+        "name": "base64-js",
+        "version": "1.5.1",
+        "implementationSha256": "829eadd8a1a441d25be0cb93b00e16a0d0c20fd294db95d8f2ed87e6954b7182"
+      },
+      "roundTripValidated": true,
+      "networkUsed": false,
+      "countingRule": "Sum actual encode(text, [], []).length for every observed serialized request and response independently; special-token-like text is literal data.",
+      "variability": "Opaque result identities and elapsed fields are serialized as observed, so exact program token counts can vary between executions."
+    }
+  },
+  "provenance": {
+    "beganAt": "2026-11-15T11:50:39.471Z",
+    "finishedAt": "2026-11-15T11:50:45.709Z",
+    "gitHead": "4fe2e778a0007c91c4455aff62e2e4d74646a8ab",
+    "workingTreeSourceSha256": {
+      "tests/tool-program-benchmark-v3.test.ts": "49ee0fe8368680e284d938989dfe44149e536d3dabd83d9d5125515f468d9d72",
+      "tests/fixtures/tool-program-benchmark-v3.ts": "2a92719bd4929ce9cf3439bd8e72bab6fa5007c1b474deb5d745981a4c7b4894",
+      "tests/fixtures/tool-program-replay-harness-v3.ts": "938f3c8fd272aca77c06bc6a19c6b3b5e2ace44f122da89eb9ea32e3da0cc634",
+      "packages/core/tool-programs.ts": "4c6c73dd42d593b31ddffc9c4d8298d008bd60307d457cb656cadcaeb887715b",
+      "packages/core/tool-effects.ts": "25b1cc0e4320c272093a4d31f196ac7a4f9e1b442182c8dbf38e84c78dfe59b1",
+      "packages/core/tool-disclosure.ts": "d16bf7e57f7900e3410b88699d45ab07033ce650addf44c6477d5cba9c051ee3",
+      "packages/core/tool-results.ts": "f5fb4583792bf55eddd38922522c120e439fbe9d3f1329dbc84b972a85ed5f62",
+      "packages/core/tool-authority.ts": "bef3900a2a6419e00b2f89302e1aad11bc93d9be7464ac3aba3a606cc4f01465",
+      "packages/core/security.ts": "dd044a00969568dcdccb362595ca8df7174c4cf93a0f065faa27c15eda8f32e9",
+      "packages/storage/store.ts": "c4c53b6f7988b1471184a599fd16212f724afc243160b30675c6dceab651516b",
+      "packages/contracts/tool-program.ts": "2724f364d39f6d53dff5b7d4a85ed783b02ebaef3c70a14711f918ba6f16f1ff",
+      "packages/contracts/tool-results.ts": "b52f84f03e8571c09ece8e247af457aa249450a47a9dabd7b1ec4d17005a7b1d",
+      "packages/contracts/tool-effects.ts": "8b17ca030d0e9fb476b1694adbec1dc9e725c4cc20b7f8a1f4a60173de9fec2a",
+      "packages/runtime/tool-program-worker.ts": "a12fc504668b882638e74394eeef65cf3ad5005238e085812eca578f6ee27c4f",
+      "packages/runtime/tool-program-worker-child.mjs": "b4883cd2eaae0e14cb6eb84e40ca05f2bee5f295ca57e81cd1da9c0057a0ec07",
+      "package.json": "c788247258046e87662fd7feb4104471dee87bc59c74e2aa81ed41ab31924c0f",
+      "pnpm-lock.yaml": "af8c276d728a50815b46bff8b046900c6d4ae9590a7f8911f88c8e63ef7dbb16",
+      "docs/implementation/v3/m12-artifacts/tokenizer-dependency-review.json": "f371f12a47b5de651fb17692e1f31a36df6d101bbfd049a9510f042df33f25c0"
+    },
+    "node": "v24.22.1",
+    "v8": "13.6.233.17-node.58",
+    "platform": "linux",
+    "arch": "x64",
+    "packageManager": "pnpm@10.30.3",
+    "reproductionCommand": [
+      "corepack",
+      "pnpm@10.30.3",
+      "exec",
+      "vitest",
+      "run",
+      "tests/tool-program-benchmark-v3.test.ts"
+    ],
+    "commandEvidenceNote": "reproductionCommand is a standalone rerun recipe, not the command observed for this measurement. The outer command recorder and benchmark-execution-link.json identify the actual launch, working directory, timestamps and exit.",
+    "executorProof": {
+      "backendId": "quickjs-wasi-worker-3.6.2-v1",
+      "language": "JAVASCRIPT",
+      "runtimeFingerprint": "ca0ab3db65dea5acc44f7efc15a352e66e70bf2cb9496973c9366d75c9a9d7ab",
+      "platform": "linux-x64-node-24.22.1",
+      "isolation": "WASM_NO_HOST_IMPORTS",
+      "memoryScope": "GUEST_WASM_LINEAR",
+      "memoryLimitBytes": 134217728,
+      "wholeExecutorMemoryLimitBytes": null,
+      "hardMemoryLimit": true,
+      "tested": true,
+      "evidenceRef": "runtime-self-test:ca0ab3db65dea5acc44f7efc15a352e66e70bf2cb9496973c9366d75c9a9d7ab"
+    },
+    "datasetSha256": "56d2c1982200eda33d197d5c7889df75668fae22fbe2f2978617fd85fa9543b1",
+    "programSourceSha256": "f793d486228ef93c7367f19d479e67617f05c926afc366ea9126c087e806b423",
+    "sourceDefinitionDigest": "bcdce6dc46fa49353b952d86ca43e6fab73323a5860793247b0c6dcae6c57adf"
+  },
+  "methodology": {
+    "task": "Count paid and refunded orders; sum paid units and integer USD cents, including paid cents by region. Return no individual orders.",
+    "dataset": {
+      "partitions": 6,
+      "ordersPerPartition": 64,
+      "totalOrders": 384,
+      "currency": "USD",
+      "arithmetic": "integer cents",
+      "rowNoteBytes": 274
+    },
+    "answerQuality": "Exact object equality against a fixed independently calculated arithmetic oracle. No live model judgement or model success rate is measured.",
+    "controller": "Fixed direct-tool controller versus one authored JavaScript program using the real checked QuickJS executor and ToolPrograms host.",
+    "sourceDependency": "Only the first opaque source path is initial input. Each read returns nextPath, required by the following read; the host refuses an undisclosed next path. Five sequential information dependencies exist on success. Independent known reads could instead be natively batched and are not this benchmark task.",
+    "dependencyProof": {
+      "outOfOrderReadRejected": true,
+      "separateProbeReadAttempts": 1,
+      "initialKnownPaths": 1
+    },
+    "requests": "Observed provider-neutral scripted model/host request-response exchanges. Direct source requests require the preceding response; the program handles those dependencies privately. Cold program discovery and explicit failed-source inspection are included. No network round trip or LLM request is sent.",
+    "byteAccounting": "Sum UTF-8 bytes of JSON.stringify({name,args}) requests and complete JSON.stringify(result) responses. Includes program source, discovery schema, returned opaque handles and envelopes. Shared system prompt, preadvertised schema context, final user-facing answer and provider framing are excluded from both workflows.",
+    "failure": "The third sequential repository_read fails before aggregation completes. Neither workflow retries, resumes, or returns a partial answer. Program diagnostics add exactly one explicit bounded retained-source read; they do not execute the source tool again.",
+    "latency": "One local run per case. Timings include workflow setup and diagnostics, excluding fixture creation, the separate cursor guard probe, executor startup self-test and token counting. They are not a production speedup estimate.",
+    "persistence": "Synthetic repository data only. Program source rows and original source failure remain absent from public snapshot, events and effect projections.",
+    "toolClassification": "Existing host repository_read definition with READ_RETRYABLE classification; fixture uses actual file grants and M02 dispatch, with a synthetic JSON read handler."
+  }
+}

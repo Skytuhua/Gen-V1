@@ -1,0 +1,180 @@
+{
+  "cut": "2e949a66937b5bf422def9fba75249df0d44d609",
+  "parents": [
+    "e816a08123948f1c844f9a08138e2c613bbb513a",
+    "ff38c62c3b0f8856e08f528f3c2ea8b1c1fea199"
+  ],
+  "generatedAt": "2026-11-18T18:49:39.722867+00:00",
+  "scope": "R03 integrated-tree smoke: scoped typecheck + focused M12 suites only \u2014 not a full gate and no browser evidence. Browser receipt for e816a081 remains pending at generation time.",
+  "host": "linux-arm64; shared box load ~17-22 during runs",
+  "overall": "PASS (8/8 scoped cases; three first-attempt failures preserved and classified: V8 heap OOM, fresh-worktree prerequisites, load timeouts)",
+  "cases": [
+    {
+      "case": "typecheck",
+      "status": "PASS",
+      "note": "Run1 exit 134: V8 heap OOM under shared-host contention (no error TS). Retry with NODE_OPTIONS=--max-old-space-size=3072: exit 0, 0 type errors.",
+      "logs": [
+        {
+          "file": "logs/r03/typecheck-run1-oom.log",
+          "digest": "sha256:18a77f6d3e7fc8e1fc8f783786f2ef01fc75dcb9e96edb92c2428df9d0b6ee8d"
+        },
+        {
+          "file": "logs/r03/typecheck.log",
+          "digest": "sha256:44d5303f4810c9bea61105cb82194a3fd75bfe938a0d437bad635a7bc2469cab"
+        }
+      ],
+      "receipts": [
+        {
+          "file": "logs/r03/typecheck-run1.receipt.json",
+          "digest": "sha256:29c0c0b7cead363b288bd50251963d6ed723e8b687155b4abba04cc16a483bfd"
+        }
+      ]
+    },
+    {
+      "case": "vitest-tool-program-v3",
+      "status": "PASS",
+      "note": "22/22 incl. default maxCalls 64th-admitted/65th-denied boundary; 105s.",
+      "logs": [
+        {
+          "file": "logs/r03/vitest-tool-program-v3.log",
+          "digest": "sha256:786a53e39bf877baee13a3f1bfeaa9a6f932acce76f0800bf59e540446dc05e3"
+        }
+      ],
+      "receipts": [
+        {
+          "file": "logs/r03/vitest-tool-program-v3.receipt.json",
+          "digest": "sha256:92ff5f5eb4898e1e5e82e30730112c1498e5b5d9dceff64b83db63802c4f531e"
+        }
+      ]
+    },
+    {
+      "case": "vitest-tool-program-backend-v3",
+      "status": "PASS",
+      "note": "Pass; 11s.",
+      "logs": [
+        {
+          "file": "logs/r03/vitest-tool-program-backend-v3.log",
+          "digest": "sha256:7b8a89938f544a6862c5b6682c83c62b3514c3a5237d89dc5309e79201a4a13d"
+        }
+      ],
+      "receipts": [
+        {
+          "file": "logs/r03/vitest-tool-program-backend-v3.receipt.json",
+          "digest": "sha256:923d0db18fb6a375712da74af21dd97e28030ec9a6b2e7666d84e9778c481020"
+        }
+      ]
+    },
+    {
+      "case": "vitest-tool-program-integration-v3",
+      "status": "PASS",
+      "note": "Run1 failed: trusted widget receiver absent in fresh worktree (main prerequisite), then node-pty native binding unbuilt. After pnpm build:widgets + node-gyp rebuild: 6/6 pass.",
+      "logs": [
+        {
+          "file": "logs/r03/vitest-tool-program-integration-v3.log",
+          "digest": "sha256:86ea0287f04be84944f7e682b5406bcd804e4875a5b522c3732995f04ceffb33"
+        }
+      ],
+      "receipts": [
+        {
+          "file": "logs/r03/vitest-tool-program-integration-v3.receipt.json",
+          "digest": "sha256:420034c8b7a7e80d11fa29cc455505d7829f5e554fc6f72ff93085713fa75ba1"
+        }
+      ]
+    },
+    {
+      "case": "vitest-tool-program-recovery-v3",
+      "status": "PASS",
+      "note": "Run1: 2 committed-point cases hit the explicit 15_000ms test bound under load ~20. Rerun: both pass (5.6s, 8.6s). 15/15 across runs \u2014 contention flake, not regression; identical test file at e816a081.",
+      "logs": [
+        {
+          "file": "logs/r03/vitest-tool-program-recovery-v3.log",
+          "digest": "sha256:ca790a87b3f13e49e5c64fc59ce022b73689876a4ff0fcf0f6c91a136f19843b"
+        }
+      ],
+      "receipts": [
+        {
+          "file": "logs/r03/vitest-tool-program-recovery-v3.receipt.json",
+          "digest": "sha256:346b039cd9544812dcc69c897ac798108f4f88ee698bad1f340127065a43a941"
+        }
+      ]
+    },
+    {
+      "case": "vitest-replay-v3",
+      "status": "PASS",
+      "note": "33/33; 251s.",
+      "logs": [
+        {
+          "file": "logs/r03/vitest-replay-v3.log",
+          "digest": "sha256:d6929c1f0dc21029f8dfcbd14e16ecdc13933d730f4a6e75a5588bb11355862a"
+        }
+      ],
+      "receipts": [
+        {
+          "file": "logs/r03/vitest-replay-v3.receipt.json",
+          "digest": "sha256:06b828f4eae10661281aca68da3f99c5d12adc914194722a2425c69370563923"
+        }
+      ]
+    },
+    {
+      "case": "vitest-python-kernel-v3",
+      "status": "PASS",
+      "note": "21/21; 48s.",
+      "logs": [
+        {
+          "file": "logs/r03/vitest-python-kernel-v3.log",
+          "digest": "sha256:b0678894f78fe34c8eb69371dc1f5fbb77d12697aa920c7fd42eed49eef019da"
+        }
+      ],
+      "receipts": [
+        {
+          "file": "logs/r03/vitest-python-kernel-v3.receipt.json",
+          "digest": "sha256:a544bb9b1a671e161e34f2e616508bd63a8e662f9db2a0efa352ab334f634351"
+        }
+      ]
+    },
+    {
+      "case": "vitest-continuation-v6",
+      "status": "PASS",
+      "note": "7/7 D-cases; 25s.",
+      "logs": [
+        {
+          "file": "logs/r03/vitest-continuation-v6.log",
+          "digest": "sha256:ba057db492fcc75e24c9e47802227cd2b6d7ac3b21f3391772fd93be2d6e5a0c"
+        }
+      ],
+      "receipts": [
+        {
+          "file": "logs/r03/vitest-continuation-v6.receipt.json",
+          "digest": "sha256:bdc54b79400c213755a6d773862cce1c26ece5f9a5a77d058183822f3055b613"
+        }
+      ]
+    }
+  ],
+  "extraEvidence": [
+    {
+      "file": "logs/r03/build-widgets.log",
+      "digest": "sha256:ea604ae3ffd105a8bd37d1ba7de09b5a87c38dacc961f085a37e013611bb443d"
+    },
+    {
+      "file": "logs/r03/vitest-tool-program-integration-v3-rerun1.log",
+      "digest": "sha256:c4d066d7f06e331eee5301ba1644ac2739970ff1607bc771cb497614f7cabcee"
+    },
+    {
+      "file": "logs/r03/vitest-tool-program-integration-v3-rerun2.log",
+      "digest": "sha256:12394a9d2a28dacbbd655c957c7dbac62f93de052e8e3463e3b9823d5afe951f"
+    },
+    {
+      "file": "logs/r03/vitest-tool-program-recovery-v3-rerun2.log",
+      "digest": "sha256:b0277f0132566b4b39232d8000203eecb0a7824a6f8208b400edce2d543e850f"
+    },
+    {
+      "file": "logs/r03/vitest-tool-program-recovery-v3-committed-rerun.log",
+      "digest": "sha256:70e330848c93b5e787b657f57162c0fbb752cc0039b96119612fb854a3d96637"
+    }
+  ],
+  "worktreePrep": [
+    "pnpm install --frozen-lockfile",
+    "pnpm build:widgets (required by main-added trusted widget receiver)",
+    "node-gyp rebuild for node-pty linux-arm64 (no prebuild shipped)"
+  ]
+}

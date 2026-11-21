@@ -1,0 +1,169 @@
+{
+  "version": 1,
+  "reporter": "unit-unhandled-reporter.mjs",
+  "vitestVersionVerified": "4.1.12",
+  "reason": "failed",
+  "observedAt": "2026-11-15T11:49:26.041Z",
+  "reportedTestFileCount": 338,
+  "unhandledErrorCount": 4,
+  "recordedErrorCount": 4,
+  "errorsTruncated": false,
+  "maximumErrors": 128,
+  "fieldCharacterLimits": {
+    "name": 256,
+    "type": 256,
+    "code": 256,
+    "message": 8192,
+    "stack": 16384,
+    "VITEST_TEST_PATH": 4096,
+    "VITEST_TEST_NAME": 4096
+  },
+  "redactionApplied": true,
+  "errors": [
+    {
+      "index": 0,
+      "fields": {
+        "name": {
+          "text": "HarnessError",
+          "truncated": false,
+          "originalCharacters": 12
+        },
+        "type": {
+          "text": "Unhandled Rejection",
+          "truncated": false,
+          "originalCharacters": 19
+        },
+        "code": {
+          "text": "CAPABILITY_DENIED",
+          "truncated": false,
+          "originalCharacters": 17
+        },
+        "message": {
+          "text": "File access check failed — the folder could not be opened safely for this action",
+          "truncated": false,
+          "originalCharacters": 80
+        },
+        "stack": {
+          "text": "HarnessError: File access check failed — the folder could not be opened safely for this action\n    at denied (/workspace/scratch/dbebe44a9817/m12-v3/packages/core/linux-path-guard.ts:11:18)\n    at /workspace/scratch/dbebe44a9817/m12-v3/packages/core/linux-path-guard.ts:88:24\n    at withLinuxDirectoryGuard (/workspace/scratch/dbebe44a9817/m12-v3/packages/core/linux-path-guard.ts:152:42)\n    at withAccountLogin (/workspace/scratch/dbebe44a9817/m12-v3/packages/runtime-login/account-login.ts:18:5)",
+          "truncated": false,
+          "originalCharacters": 498
+        },
+        "VITEST_TEST_PATH": {
+          "text": "/workspace/scratch/dbebe44a9817/m12-v3/tests/account-login.test.ts",
+          "truncated": false,
+          "originalCharacters": 66
+        },
+        "VITEST_TEST_NAME": {
+          "text": "does not admit a successor sign-in when an expired lease still has a live owner",
+          "truncated": false,
+          "originalCharacters": 79
+        }
+      }
+    },
+    {
+      "index": 1,
+      "fields": {
+        "name": {
+          "text": "AssertionError",
+          "truncated": false,
+          "originalCharacters": 14
+        },
+        "type": {
+          "text": "Unhandled Rejection",
+          "truncated": false,
+          "originalCharacters": 19
+        },
+        "message": {
+          "text": "expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }\n(2 matching properties omitted from actual)",
+          "truncated": false,
+          "originalCharacters": 152
+        },
+        "stack": {
+          "text": "Error: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }\n(2 matching properties omitted from actual)\n    at _Assertion.__VITEST_REJECTS__ (file:///workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17)\n    at _Assertion.propertyGetter (file:///workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1607:27)\n    at Reflect.get (<anonymous>)\n    at Object.proxyGetter [as get] (file:///workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1696:22)\n    at /workspace/scratch/dbebe44a9817/m12-v3/tests/github-workspace.test.ts:159:52\n    at file:///workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20",
+          "truncated": false,
+          "originalCharacters": 899
+        },
+        "VITEST_TEST_PATH": {
+          "text": "/workspace/scratch/dbebe44a9817/m12-v3/tests/github-workspace.test.ts",
+          "truncated": false,
+          "originalCharacters": 69
+        },
+        "VITEST_TEST_NAME": {
+          "text": "fences cancel during private credential writing before rename and preserves the prior token",
+          "truncated": false,
+          "originalCharacters": 91
+        }
+      }
+    },
+    {
+      "index": 2,
+      "fields": {
+        "name": {
+          "text": "AssertionError",
+          "truncated": false,
+          "originalCharacters": 14
+        },
+        "type": {
+          "text": "Unhandled Rejection",
+          "truncated": false,
+          "originalCharacters": 19
+        },
+        "message": {
+          "text": "expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }\n(2 matching properties omitted from actual)",
+          "truncated": false,
+          "originalCharacters": 152
+        },
+        "stack": {
+          "text": "Error: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }\n(2 matching properties omitted from actual)\n    at _Assertion.__VITEST_REJECTS__ (file:///workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17)\n    at _Assertion.propertyGetter (file:///workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1607:27)\n    at Reflect.get (<anonymous>)\n    at Object.proxyGetter [as get] (file:///workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1696:22)\n    at /workspace/scratch/dbebe44a9817/m12-v3/tests/github-workspace.test.ts:159:52\n    at file:///workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20",
+          "truncated": false,
+          "originalCharacters": 899
+        },
+        "VITEST_TEST_PATH": {
+          "text": "/workspace/scratch/dbebe44a9817/m12-v3/tests/github-workspace.test.ts",
+          "truncated": false,
+          "originalCharacters": 69
+        },
+        "VITEST_TEST_NAME": {
+          "text": "fences replace during private credential writing before rename and preserves the prior token",
+          "truncated": false,
+          "originalCharacters": 92
+        }
+      }
+    },
+    {
+      "index": 3,
+      "fields": {
+        "name": {
+          "text": "AssertionError",
+          "truncated": false,
+          "originalCharacters": 14
+        },
+        "type": {
+          "text": "Unhandled Rejection",
+          "truncated": false,
+          "originalCharacters": 19
+        },
+        "message": {
+          "text": "expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }\n(2 matching properties omitted from actual)",
+          "truncated": false,
+          "originalCharacters": 152
+        },
+        "stack": {
+          "text": "Error: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }\n(2 matching properties omitted from actual)\n    at _Assertion.__VITEST_REJECTS__ (file:///workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17)\n    at _Assertion.propertyGetter (file:///workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1607:27)\n    at Reflect.get (<anonymous>)\n    at Object.proxyGetter [as get] (file:///workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1696:22)\n    at /workspace/scratch/dbebe44a9817/m12-v3/tests/github-workspace.test.ts:159:52\n    at file:///workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20",
+          "truncated": false,
+          "originalCharacters": 899
+        },
+        "VITEST_TEST_PATH": {
+          "text": "/workspace/scratch/dbebe44a9817/m12-v3/tests/github-workspace.test.ts",
+          "truncated": false,
+          "originalCharacters": 69
+        },
+        "VITEST_TEST_NAME": {
+          "text": "fences expire during private credential writing before rename and preserves the prior token",
+          "truncated": false,
+          "originalCharacters": 91
+        }
+      }
+    }
+  ]
+}

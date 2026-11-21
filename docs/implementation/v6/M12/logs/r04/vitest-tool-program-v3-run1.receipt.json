@@ -1,0 +1,14 @@
+{
+  "case": "vitest-tool-program-v3",
+  "cut": "d9bc6df00fab7f819aebf56be71ad88516ea89d9",
+  "command": "pnpm exec vitest run tests/tool-program-v3.test.ts --maxWorkers=1 (NODE_OPTIONS=--max-old-space-size=3072)",
+  "exitCode": 1,
+  "status": "FAIL",
+  "note": "21/22; \"bounds admitted concurrency and call count\" ran 77.3s>30s deadline => PROGRAM_DEADLINE (wall-clock under load ~17). Same class as preserved e816a081 run1-loaded receipt. Coverage not reduced.",
+  "startedAt": "2026-11-18T21:52Z",
+  "durationSec": 148,
+  "logDigest": "sha256:271447c372b7c61e05db86a195df8fd29d40826c746ccbc333922c910f1908a1",
+  "log": "logs/r04/vitest-tool-program-v3-run1.bounded.log",
+  "rawLogDigest": "sha256:51f9d0a4acdaad89257eb056e89a6ea5395de66c3423254b984f7a0c1db8b25d",
+  "rawEvidence": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r04/vitest-tool-program-v3-run1.log (not uploaded; retained on the producing host)"
+}

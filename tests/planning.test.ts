@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Store } from '../packages/storage/store.ts';
-import { HarnessError, type RunContext, type RuntimeAdapter, type RuntimeCallbacks, type StartRun, type Thread } from '../packages/contracts/index.ts';
+import { HarnessError, type ResourceGrant, type RunContext, type RuntimeAdapter, type RuntimeCallbacks, type StartRun, type Thread } from '../packages/contracts/index.ts';
 import { PlanningCoordinator, type PlanningHooks } from '../packages/core/planning.ts';
 import { agentProgress, PlanUpdateSchema } from '../packages/contracts/planning.ts';
 import { PLANNING_TOOLS } from '../packages/core/planning-tools.ts';
@@ -11,6 +11,7 @@ import type { DomainContext } from '../packages/capabilities/index.ts';
 import {createRuntime} from '../packages/runtime/index.ts';
 import {accountResolver,beginAccountLogin} from '../packages/core/accounts.ts';
 import {applySkillOperations} from '../packages/core/skills.ts';
+import {readResourceGrant} from '../packages/core/file-access.ts';
 
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => { for (const clean of cleanups.splice(0)) await clean(); });
@@ -47,6 +48,41 @@ function setup() {
   const tool = (i: number, name: string, args = {}) => children[i].callbacks.onTool({ name, args }, children[i].input!);
   return { store, coordinator, ctx, controller, children, domain, hooks, directory, tasks, waitStarted, event, tool, revoke: () => { valid = false; } };
 }
+
+it.runIf(process.platform === 'linux')('forwards the parent-owned granted byte reader to delegates without exposing descriptor aliases', async () => {
+  const x = setup(), source = mkdtempSync(join(tmpdir(), 'm12-delegate-read-'));
+  cleanups.push(async () => { rmSync(source, { recursive: true, force: true }); });
+  writeFileSync(join(source, 'ordinary.txt'), 'actual delegated source');
+  const grant: ResourceGrant = { id: 'source', threadId: x.ctx.threadId, kind: 'project', path: source, label: 'Source', writable: false, createdAt: '' };
+  x.store.internal('fixture.grant', x.ctx.threadId, () => x.store.put('resource', grant.id, x.ctx.threadId, grant));
+  x.domain.readResource = vi.fn((id, path, maxBytes) => {
+    expect(id).toBe(grant.id);
+    return readResourceGrant(grant, x.store.dataDir, path, maxBytes, x.controller.signal);
+  });
+  x.domain.withResource = vi.fn(async () => { throw new Error('Delegates must use the granted byte boundary'); });
+  const pending = x.coordinator.delegate(x.ctx, { commandId: 'bounded-byte-read', tasks: x.tasks() }, x.controller.signal);
+  await x.waitStarted();
+  try {
+    await x.tool(0, 'repository_read', { resourceId: 'source', path: 'ordinary.txt' });
+    expect(x.domain.readResource).toHaveBeenCalledOnce();
+    expect(x.domain.withResource).not.toHaveBeenCalled();
+    expect(x.domain.publishData).toHaveBeenCalledWith(expect.objectContaining({ text: 'actual delegated source' }), expect.stringContaining('resource:source/ordinary.txt'));
+    expect(JSON.stringify(vi.mocked(x.domain.publishData).mock.calls)).not.toContain('/proc/self/fd/');
+  } finally { x.event(0, 'settled'); await pending; }
+});
+
+it('revokes delegated byte reads again after asynchronous delivery', async () => {
+  const x = setup();
+  x.domain.readResource = vi.fn(async () => { x.revoke(); return { path: 'ordinary.txt', bytes: Buffer.from('must not publish') }; });
+  x.domain.withResource = vi.fn(async () => { throw new Error('Delegates must use the granted byte boundary'); });
+  const pending = x.coordinator.delegate(x.ctx, { commandId: 'revoked-byte-read', tasks: x.tasks() }, x.controller.signal);
+  await x.waitStarted();
+  try {
+    await expect(x.tool(0, 'repository_read', { resourceId: 'source', path: 'ordinary.txt' })).rejects.toMatchObject({ code: 'CANCELLED_RUN' });
+    expect(x.domain.readResource).toHaveBeenCalledOnce();
+    expect(x.domain.publishData).not.toHaveBeenCalled();
+  } finally { x.event(0, 'settled'); await pending; }
+});
 
 it('lets auxiliary readers load shared skills while denying library mutations',async()=>{
  const x=setup();x.store.internal('fixture.skill',null,()=>applySkillOperations(x.store,[{action:'create',name:'inspect-failure',description:'Inspect a failing check using actual evidence.',content:'Read the failing assertion before changing its source.',baseRevision:0}],{kind:'user'}));

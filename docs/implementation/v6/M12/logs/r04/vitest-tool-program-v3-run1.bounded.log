@@ -1,0 +1,54 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m<worktree:m12-r03>[39m
+
+(node:531979) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/tool-program-v3.test.ts [2m([22m[2m22 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 140271[2mms[22m[39m
+     [32m✓[39m bounds every program budget and rejects ambient capability fields[32m 8[2mms[22m[39m
+     [32m✓[39m requires durable owner, digests and state on programs and calls[32m 10[2mms[22m[39m
+     [32m✓[39m requires deterministic journal start data and an explicit kernel generation[32m 4[2mms[22m[39m
+     [32m✓[39m registers exactly the three requested default-off flags[32m 2[2mms[22m[39m
+     [33m[2m✓[22m[39m persists identity and M02 dispatch before the read and keeps bulk out of snapshots and events [33m 8594[2mms[22m[39m
+     [33m[2m✓[22m[39m denies repository_log before an executor dispatch [33m 2776[2mms[22m[39m
+     [33m[2m✓[22m[39m denies file_replace_prepare before an executor dispatch [33m 2507[2mms[22m[39m
+     [33m[2m✓[22m[39m denies unregistered before an executor dispatch [33m 1100[2mms[22m[39m
+     [33m[2m✓[22m[39m denies account drift after preparation and before any read [33m 990[2mms[22m[39m
+[31m     [31m×[31m bounds admitted concurrency and call count before dispatch[39m[33m 77251[2mms[22m[39m
+     [33m[2m✓[22m[39m retains a rejected source as failed even when its thrown value is undefined [33m 6231[2mms[22m[39m
+     [33m[2m✓[22m[39m retains a rejected source as failed even when its thrown value is null [33m 2834[2mms[22m[39m
+     [33m[2m✓[22m[39m retains a rejected source as failed even when its thrown value is false [33m 1417[2mms[22m[39m
+     [33m[2m✓[22m[39m retains a rejected source as failed even when its thrown value is 0 [33m 1384[2mms[22m[39m
+     [33m[2m✓[22m[39m retains a rejected source as failed even when its thrown value is Error: ordinary source error [33m 1881[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves a source failure even if a script catches it and returns an aggregate [33m 1515[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects oversized visible aggregates and cancellation fences queued reads [33m 693[2mms[22m[39m
+     [33m[2m✓[22m[39m admits only one owned program at a time so parallel tool envelopes cannot multiply the read budget [33m 1632[2mms[22m[39m
+     [33m[2m✓[22m[39m bounds failure envelopes and references after exhausting a small visible budget [33m 25890[2mms[22m[39m
+     [33m[2m✓[22m[39m retains explicitly unsuccessful source outcomes as failures: {"error":"explicit source failure"} [33m 1165[2mms[22m[39m
+     [33m[2m✓[22m[39m retains explicitly unsuccessful source outcomes as failures: {"ok":false} [33m 1007[2mms[22m[39m
+     [33m[2m✓[22m[39m retains explicitly unsuccessful source outcomes as failures: {"success":false} [33m 1375[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/tool-program-v3.test.ts[2m > [22mM12 non-replaying synthetic host protocol[2m > [22mbounds admitted concurrency and call count before dispatch
+[31m[1mAssertionError[22m: expected 'PROGRAM_DEADLINE' to be 'CALL_LIMIT' // Object.is equality[39m
+
+Expected: [32m"CALL_LIMIT"[39m
+Received: [31m"PROGRAM_DEADLINE"[39m
+
+[36m [2m❯[22m tests/tool-program-v3.test.ts:[2m142:32[22m[39m
+    [90m140|[39m     const result = await f.programs.run(program.programId, owner, exec…
+    [90m141|[39m     [34mexpect[39m(result[33m.[39mstate)[33m.[39m[34mtoBe[39m([32m'FAILED'[39m)[33m;[39m
+    [90m142|[39m     [34mexpect[39m(result[33m.[39merror[33m?.[39mcode)[33m.[39m[34mtoBe[39m([32m'CALL_LIMIT'[39m)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m143|[39m     [34mexpect[39m(calls)[33m.[39m[34mtoBe[39m([34m64[39m)[33m;[39m
+    [90m144|[39m     [34mexpect[39m(maximum)[33m.[39m[34mtoBe[39m([34m4[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m21 passed[39m[22m[90m (22)[39m
+[2m   Start at [22m 13:52:18
+[2m   Duration [22m 148.05s[2m (transform 2.76s, setup 0ms, import 7.18s, tests 140.27s, environment 0ms)[22m
+
