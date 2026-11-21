@@ -20,7 +20,7 @@ import { digest } from "../storage/store.ts";
 /** Where a call's effect is executed. "internal" bindings only mutate the
  * host-owned store/presentation under the caller's owner; external bindings
  * escape it (filesystem, process, network, domain executor). */
-export type ExecutorBinding = "read" | "store" | "presentation" | "domain-prepare" | "domain" | "process" | "network";
+type ExecutorBinding = "read" | "store" | "presentation" | "domain-prepare" | "domain" | "process" | "network";
 const INTERNAL_BINDINGS: ReadonlySet<ExecutorBinding> = new Set(["read", "store", "presentation", "domain-prepare"]);
 export type { ActorRole };
 

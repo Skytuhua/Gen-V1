@@ -4,15 +4,10 @@ import './tokens.css';
 import './feedback.css';
 
 /** A retry button already says what to do, so the sentence should not repeat it. */
-export const withoutRetryHint = (message: string) => message.replace(/([.!?])\s*(?:Retry|Try again|Please try again)\.?\s*$/i, '$1').trim() || message;
+const withoutRetryHint = (message: string) => message.replace(/([.!?])\s*(?:Retry|Try again|Please try again)\.?\s*$/i, '$1').trim() || message;
 
 export function Spinner({ size = 14 }: { size?: number }) { return <LoaderCircle className="ui-spinner" size={size} aria-hidden="true" />; }
 
-export function EmptyState({ title, children, icon, action, compact, className = '' }: { title?: string; children?: ReactNode; icon?: ReactNode; action?: ReactNode; compact?: boolean; className?: string }) {
-  return <div className={`ui-empty ${className}`.trim()} data-compact={compact || undefined}>
-    {icon}{title ? <strong>{title}</strong> : null}{children !== undefined && children !== null && children !== false ? <p>{children}</p> : null}{action}
-  </div>;
-}
 
 export function ErrorState({ message, onRetry, retryLabel = 'Retry', busy, live = 'alert', className = '', children, retryRef }: {
   message: string; onRetry?: () => void; retryLabel?: string; busy?: boolean; live?: 'alert' | 'status'; className?: string; children?: ReactNode; retryRef?: Ref<HTMLButtonElement>;
