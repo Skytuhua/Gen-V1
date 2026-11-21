@@ -283,18 +283,18 @@ export function createHermesEngine(options:HermesEngineOptions,dependencies:Herm
   try{const {writeFile,rename}=await import('node:fs/promises');const tmp=cut+'.'+randomUUID()+'.tmp';await writeFile(tmp,text);await rename(tmp,cut);}catch(failure){throw failure instanceof HarnessError?failure:error('HERMES_CUT_WRITE','The immutable turn cut could not be persisted.');}
   return{cutId,path:cut};
  }
- async function hydrateSessionGeneration(cutPath:string,input:StartRun):Promise<string>{
-  const cut=resolve(cutPath),generation=input.sessionGeneration;validateSessionGeneration(generation);
-  const match=/\.cut-(c[0-9a-f]{16})\.json$/.exec(cut);if(!within(sessions,cut)||!match)throw error('HERMES_SESSION_INVALID','Hydration requires an immutable app-owned turn cut.');
-  await safeFile(cut);const text=await readFile(cut,'utf8');if(Buffer.byteLength(text)>MODEL_ONLY_MAX_WIRE_BYTES||turnCutId(text)!==match[1])throw error('HERMES_CUT_INVALID','The turn cut is stale or corrupt.');
-  const hydrated=hydrateGeneration(JSON.parse(text),pathFor(input),generation!);
+ async function hydrateSessionGeneration(cutPath:string|null,input:StartRun):Promise<string>{
+  const generation=input.sessionGeneration;validateSessionGeneration(generation);
+  const hydrated=cutPath===null
+   ?{format:'hermes-source-session-v1',sourceCommit:'c627ec84664d43e0b18b95d9d86d8963747d56c7',ownership:{threadId:input.threadId,accountId:input.accountId??null,sessionPath:pathFor(input),sourceCommit:'c627ec84664d43e0b18b95d9d86d8963747d56c7',sessionGeneration:generation},messages:[]}
+   :hydrateGeneration(JSON.parse(await (async()=>{const cut=resolve(cutPath),match=/\.cut-(c[0-9a-f]{16})\.json$/.exec(cut);if(!within(sessions,cut)||!match)throw error('HERMES_SESSION_INVALID','Hydration requires an immutable app-owned turn cut.');await safeFile(cut);const text=await readFile(cut,'utf8');if(Buffer.byteLength(text)>MODEL_ONLY_MAX_WIRE_BYTES||turnCutId(text)!==match[1])throw error('HERMES_CUT_INVALID','The turn cut is stale or corrupt.');return text;})()),pathFor(input),generation!);
   if(hydrated.ownership!.threadId!==input.threadId||(hydrated.ownership!.accountId??null)!==(input.accountId??null))throw error('HERMES_CUT_OWNER','The turn cut belongs to another thread or account.');
   const target=pathFor(input);await safeFile(target);const{writeFile,rename}=await import('node:fs/promises');await secureDirectory(root,dirname(target));const tmp=target+'.'+randomUUID()+'.tmp';await writeFile(tmp,JSON.stringify(hydrated));await rename(tmp,target);return target;
  }
  const runtime:HermesEngine={
   configure(value){callbacks=value;},
  async captureTurnCut(path){return captureTurnCut(path);},
- async hydrateSessionGeneration(cut,input){activeSource();return hydrateSessionGeneration(cut,input);},models(value){activeSource();return catalog.models(value);},async invalidateModels(value){activeSource();await catalog.invalidateModels?.(value);},
+ async hydrateSessionGeneration(cut,input){activeSource();return hydrateSessionGeneration(cut as string|null,input);},models(value){activeSource();return catalog.models(value);},async invalidateModels(value){activeSource();await catalog.invalidateModels?.(value);},
   get sourceBusy(){return!!admission||!!active?.foreground;},get reviewBusy(){return!!active?.review||!!active&&!active.foreground;},
   async sourceTool(params,authority){activeSource();authority?.check();while(admission){await admission.done;activeSource();authority?.check();}const captured=active?.settings??await settings();authority?.check();return exclusive(async()=>{authority?.check();const source=await ensureSource(active?.settings??captured);authority?.check();const work=source.request(params.releaseOwner===true?'skills.releaseOwner':'skills.tool',params);authority?.track(work);return work;});},
   async refreshIntegrations(disabledIds){const revision=++integrationRevision;for(const id of disabledIds)revokedIntegrations.set(id,revision);integrationConfig={...integrationConfig,enabled:integrationConfig.enabled.filter(id=>!disabledIds.includes(id))};if(active?.settings.integrations)active.settings.integrations={...active.settings.integrations,enabled:active.settings.integrations.enabled.filter(id=>!disabledIds.includes(id))};const config=structuredClone(integrationConfig),projectRoot=integrationProject;if(ready){const source=await ready;await source.request('integrations.refresh',{config,projectRoot,disabledIds,integrationRevision:revision});}},
