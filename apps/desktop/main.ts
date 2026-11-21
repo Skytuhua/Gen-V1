@@ -13,6 +13,10 @@ import {DESKTOP_CHANNELS as channels,desktopId,desktopSurfaceKey,parseDesktopSur
 import {allowRemoteBrowserUrl,clampDesktopBounds,pluginDesktopChannelAllowed,pluginDesktopRequiresGrant,nativeTitlebarOptions,nativeTitlebarTheme,needsEditorHandoff,desktopSurfaceAllowed,isTrustedDesktopSender,parseBrowserCommand,remoteBrowserUrl,surfaceSize,trustedDesktopUrl,trustedDesktopSubframe,type DesktopBounds} from './window-policy.ts';
 import {createBrowserProxy,type BrowserProxy} from './browser-proxy.ts';
 import {createStartupOutputCapture,finishBackendStartup,nodeSidecarArguments,requestBackendShutdown,startupErrorDiagnostic,waitForBackendReady,writeStartupDiagnostic,type StartupDiagnostic,type StartupObservation} from './backend-policy.ts';
+import {taskbarReadResultSchema,type TaskbarReadResult} from '../../packages/desktop-contract/index.ts';
+import {createTaskbarRefresher,failureOverlayBitmap,type NativeTaskbarState} from './taskbar-policy.ts';
+import {applyJumpList} from './jump-list.ts';
+import {createLaunchRequestQueue,parseLaunchRequest} from './launch-requests.ts';
 import {releaseOwnedBrowsers,detachOwnedBrowser} from './browser-lifecycle.ts';
 import {ensureMainDockedBrowser} from './docked-browser.ts';
 import {nativeBrowserBounds} from './browser-bounds.ts';
@@ -40,6 +44,8 @@ function startupDiagnostic(stage:StartupDiagnostic['stage'],error:StartupDiagnos
 }
 const observeStartup=(value:StartupObservation)=>startupDiagnostic(value.stage,value.error);
 app.setName('Gen V1');
+// The NSIS installer registers shortcuts under the same electron-builder appId.
+if(process.platform==='win32')app.setAppUserModelId('local.generativeharness.desktop');
 const profileRoot=testData?resolve(testData,'desktop-profile'):join(app.getPath('appData'),'GenerativeHarnessDesktop');mkdirSync(profileRoot,{recursive:true});mkdirSync(join(profileRoot,'session'),{recursive:true});app.setPath('userData',profileRoot);app.setPath('sessionData',join(profileRoot,'session'));
 app.commandLine.appendSwitch('disable-quic');app.commandLine.appendSwitch('disable-features','WebTransport,DirectSockets');
 const stateFile=join(app.getPath('userData'),'desktop-windows.json');
@@ -167,6 +173,8 @@ async function openSurface(raw:unknown,sourceBounds?:DesktopBounds):Promise<Desk
  native.webContents.setWindowOpenHandler(details=>githubDevicePopup(details,{surface,expectedUrl:url.split('#')[0]!,currentUrl:native.webContents.mainFrame.url.split('#')[0]!},()=>shell.openExternal(GITHUB_DEVICE_URL,{activate:true})));native.webContents.on('will-attach-webview',event=>event.preventDefault());
  native.webContents.on('will-navigate',(event,next)=>{if(next!==url)event.preventDefault();});native.webContents.on('will-redirect',(event,next)=>{if(next!==url)event.preventDefault();});
  native.webContents.on('will-frame-navigate',event=>{if(!event.isMainFrame&&!trustedDesktopSubframe(event.url,backendOrigin,`http://localhost:${widgetPort}`))event.preventDefault();});
+ // A reloaded renderer re-subscribes; held launch requests re-deliver on ready.
+ if(surface.kind==='main')native.webContents.on('did-start-loading',()=>launchQueue.markNotReady());
  native.webContents.session.setPermissionRequestHandler((_contents,_permission,callback)=>callback(false));native.webContents.session.setPermissionCheckHandler(()=>false);secureSessionDownloads(native.webContents.session);
  native.on('close',event=>{if(!quitting){event.preventDefault();void requestClose(record).then(allow=>{if(allow)destroyWindow(record);else cancelClose(record);}).catch(()=>cancelClose(record));}});
  native.on('closed',()=>{clearTimeout(record.readyTimer);if(!record.settled){record.settled=true;record.rejectReady(Error('The detached window closed before it was ready'));}windows.delete(id);if(record.closeRequest){clearTimeout(record.closeRequest.timer);record.closeRequest.resolve(false);}broadcast();});
@@ -198,8 +206,46 @@ function requestClose(record:WindowRecord):Promise<boolean>{
  return requestNativeClose(record,id=>record.window.webContents.send(channels.closeRequest,id));
 }
 function destroyWindow(record:WindowRecord){if(record.window.isDestroyed())return;remember(record,quitting);loseBrowserOwner(record);record.window.destroy();}
+let taskbarRefresher:ReturnType<typeof createTaskbarRefresher>|undefined,failureIcon:ReturnType<typeof nativeImage.createFromBitmap>|undefined,jumpListAppliedKey:string|undefined;
+const launchQueue=createLaunchRequestQueue({deliver:delivery=>{const main=[...windows.values()].find(record=>record.surface.kind==='main'&&record.ready&&!record.window.isDestroyed());if(main)main.window.webContents.send(channels.launchRequest,delivery);},id:randomUUID,now:Date.now});
+function mainRecord():WindowRecord|undefined{return [...windows.values()].find(record=>record.surface.kind==='main'&&!record.window.isDestroyed());}
+/** R01: all native taskbar/jump-list calls are Windows-only and try/caught. */
+function applyTaskbarState(state:NativeTaskbarState){
+ if(process.platform!=='win32')return;
+ try{const record=mainRecord();if(!record)return;
+  record.window.setProgressBar(state.progress,{mode:state.mode});
+  if(state.overlay){failureIcon??=failureOverlayImage();record.window.setOverlayIcon(failureIcon,'A task failed');}
+  else record.window.setOverlayIcon(null,'');
+ }catch{}
+}
+function failureOverlayImage(){
+ const image=nativeImage.createFromBitmap(Buffer.from(failureOverlayBitmap(1)),{width:16,height:16,scaleFactor:1});
+ image.addRepresentation({width:32,height:32,scaleFactor:2,buffer:Buffer.from(failureOverlayBitmap(2))});
+ return image;
+}
+function refreshJumpList(result:TaskbarReadResult){
+ if(process.platform!=='win32'||!app.isPackaged)return;
+ try{
+  const next=result.jumpList.enabled+'|'+result.jumpList.projects.map(project=>project.id+':'+project.name).join(';');
+  if(next===jumpListAppliedKey)return;
+  const applied=applyJumpList(app,{execPath:process.execPath,projects:result.jumpList.projects,includeProjects:result.jumpList.enabled});
+  if(applied.key)jumpListAppliedKey=next;
+ }catch{}
+}
+function taskbarFeatures(){
+ if(taskbarRefresher)return;
+ taskbarRefresher=createTaskbarRefresher({
+  read:async()=>{const result=taskbarReadResultSchema.parse(await backendRequest('harness.taskbar.read'));refreshJumpList(result);return result;},
+  apply:applyTaskbarState,
+ });
+ taskbarRefresher.refresh();
+}
+function clearTaskbarFeatures(){
+ taskbarRefresher?.stop();taskbarRefresher=undefined;
+ try{const record=mainRecord();if(record&&process.platform==='win32'){record.window.setProgressBar(-1,{mode:'none'});record.window.setOverlayIcon(null,'');}}catch{}
+}
 async function mainWindow(){const existing=[...windows.values()].find(record=>record.surface.kind==='main');if(existing){existing.visible=true;if(existing.window.isMinimized())existing.window.restore();existing.window.show();existing.window.focus();remember(existing);broadcast();await existing.readyPromise;return existing;}const result=await openSurface({kind:'main'});return windows.get(result.id)!;}
-function backendRequest(type:'harness.stopAll'|'harness.layout.save'|'harness.plugin.validate'|'harness.update.readiness'|'harness.update.prepare'|'harness.attention.read'|'harness.attention.open'|'harness.attention.dismiss',extra:Record<string,unknown>={}):Promise<Record<string,unknown>>{
+function backendRequest(type:'harness.stopAll'|'harness.layout.save'|'harness.plugin.validate'|'harness.update.readiness'|'harness.update.prepare'|'harness.attention.read'|'harness.attention.open'|'harness.attention.dismiss'|'harness.taskbar.read',extra:Record<string,unknown>={}):Promise<Record<string,unknown>>{
  const child=backend,token=launchToken,requestId=randomUUID(),reply=type==='harness.stopAll'?'harness.stoppedAll':type==='harness.layout.save'?'harness.layout.saved':type==='harness.plugin.validate'?'harness.plugin.validated':type+'.result';
  if(!child?.connected||child.exitCode!==null||child.signalCode)return Promise.reject(Error('The local backend is unavailable. Restore the workspace and retry.'));
  return new Promise((resolve,reject)=>{const finish=(error?:Error,value?:Record<string,unknown>)=>{clearTimeout(timer);child.removeListener('message',receive);child.removeListener('exit',exited);child.removeListener('disconnect',exited);if(error)reject(error);else resolve(value!);};const receive=(raw:unknown)=>{if(!raw||typeof raw!=='object'||Array.isArray(raw))return;const value=raw as Record<string,unknown>;if(value.type===reply&&value.token===token&&value.requestId===requestId){if(value.error)finish(Error(String(value.error).slice(0,500)));else finish(undefined,value);}};const exited=()=>finish(Error('The local backend disconnected before acknowledging the action.'));const timer=setTimeout(()=>finish(Error('The local backend did not acknowledge the action. Restore the workspace and retry.')),15000);child.on('message',receive);child.once('exit',exited);child.once('disconnect',exited);try{child.send({type,token,requestId,...extra},error=>{if(error)finish(error);});}catch(error){finish(error instanceof Error?error:Error(String(error)));}});
@@ -241,7 +287,9 @@ function registerIpc(){
  handle(channels.memoryExport,(record,value)=>memoryExports.export({contents:record.window.webContents,surface:record.surface,documentUrl:record.url,isCurrent:()=>!quitting&&!quitPending&&windows.get(record.id)===record&&!record.window.isDestroyed()&&record.ready},value));
  handle(channels.theme,(record,value)=>{const theme=nativeTitlebarTheme(value);if(process.platform==='win32')record.window.setTitleBarOverlay(theme);});
  handle(channels.update,async(_record,value)=>{if(value!=='check'&&value!=='restart')throw Error('Invalid update action.');if(value==='check')return updater?await updater.check():updateStatus;if(updateStatus.state!=='ready'&&updateStatus.state!=='deferred')return updateStatus;if(osSessionEnding||signInFlows.isBusy()||(await backendRequest('harness.update.readiness')).idle!==true){updateStatus={state:'deferred',message:'Finish the current work before restarting to update.'};broadcast();return updateStatus;}restartForUpdate=true;app.quit();return updateStatus;});
- handle(channels.ready,record=>{if(!record.ready){try{if(record.surface.kind==='browser')moveBrowser(browserRecord(record.surface.browserId),record,false);record.ready=true;record.settled=true;clearTimeout(record.readyTimer);if(record.visible)record.window.show();record.resolveReady(info(record));remember(record);broadcast();}catch(error){record.settled=true;clearTimeout(record.readyTimer);record.rejectReady(error instanceof Error?error:Error(String(error)));loseBrowserOwner(record);record.window.destroy();throw error;}}return context(record);});
+ handle(channels.ready,record=>{if(!record.ready){try{if(record.surface.kind==='browser')moveBrowser(browserRecord(record.surface.browserId),record,false);record.ready=true;record.settled=true;clearTimeout(record.readyTimer);if(record.visible)record.window.show();record.resolveReady(info(record));remember(record);broadcast();if(record.surface.kind==='main')taskbarRefresher?.reapply();}catch(error){record.settled=true;clearTimeout(record.readyTimer);record.rejectReady(error instanceof Error?error:Error(String(error)));loseBrowserOwner(record);record.window.destroy();throw error;}}return context(record);});
+ handle(channels.launchRequestReady,record=>{if(record.surface.kind==='main')launchQueue.markReady();return{};});
+ handle(channels.launchRequestAck,(record,value)=>{if(record.surface.kind!=='main')throw Error('This action is unavailable outside the main workspace.');if(typeof value==='string'&&desktopId(value))launchQueue.acknowledge(value);return{};});
  handle(channels.list,caller=>[...windows.values()].filter(record=>caller.surface.kind!=='plugin'||record.surface.kind==='plugin'&&record.surface.pluginId===caller.surface.pluginId&&record.surface.scopeId===caller.surface.scopeId).map(info));
  handle(channels.captureLayout,()=>captureLayout());
  handle(channels.applyLayout,(_record,value)=>handoff(()=>applyLayout(parseDesktopLayout(value))));
@@ -321,7 +369,7 @@ async function startBackend():Promise<void>{
  await finishBackendStartup(child,oldRelay?.close(),()=>stderr,()=>{
   backendOrigin=value.origin as string;
   if(value.nativeLayout!==undefined)try{hostLayout=parseDesktopLayout(value.nativeLayout);}catch{layoutError='The saved host workspace layout is invalid. The local backup is retained.';}
-  workspaceRelay=workspaceEvents(backendOrigin,change=>{for(const record of windows.values())if(!record.window.isDestroyed())record.window.webContents.send(channels.workspaceChanged,change);},token);
+  workspaceRelay=workspaceEvents(backendOrigin,change=>{for(const record of windows.values())if(!record.window.isDestroyed())record.window.webContents.send(channels.workspaceChanged,change);taskbarRefresher?.refresh();},token);
   child.once('exit',()=>{if(closing||backend!==child)return;backendError='The local backend stopped. Reconnecting…';broadcast();if(restarting)return;restarting=true;setTimeout(()=>{void startBackend().catch(error=>{backendError='Backend restart failed: '+String(error instanceof Error?error.message:error).slice(0,500);broadcast();}).finally(()=>{restarting=false;});},700);});
   backendError=undefined;broadcast();
  },observeStartup);
@@ -364,7 +412,7 @@ async function closeApplication(){
  savedStateFlushed=!layoutError;
  try{await backendRequest('harness.layout.save',{layout:captureLayout()});}catch{savedStateFlushed=false;}
  if(!activeWorkAtClose&&savedStateFlushed&&updater){try{if((await backendRequest('harness.update.prepare')).idle!==true)activeWorkAtClose=true;}catch{activeWorkAtClose=true;}}
- quitting=true;attentionPopups?.stop();attentionPopups=undefined;for(const record of [...windows.values()])destroyWindow(record);clearTimeout(saveTimer);
+ quitting=true;attentionPopups?.stop();attentionPopups=undefined;clearTaskbarFeatures();for(const record of [...windows.values()])destroyWindow(record);clearTimeout(saveTimer);
  try{await persistence.enqueue(async()=>{await mkdir(dirname(stateFile),{recursive:true});await writeFile(stateFile,JSON.stringify({version:1,windows:saved.slice(-24)}),{encoding:'utf8',mode:0o600});});}catch{savedStateFlushed=false;}
  const backendStoppedCleanly=await stopBackend();
  for(const browser of browsers.values())if(!browser.view.webContents.isDestroyed())browser.view.webContents.close({waitForBeforeUnload:false});
@@ -374,7 +422,7 @@ async function closeApplication(){
 }
 
 if(!app.requestSingleInstanceLock()){app.exit(0);}else{
- app.on('second-instance',()=>{void mainWindow().catch(()=>{});});
+ app.on('second-instance',(_event,argv)=>{const{request}=parseLaunchRequest(argv??[]);if(request)launchQueue.offer(request);void mainWindow().catch(()=>{});});
  app.on('window-all-closed',()=>{if(!quitting)app.quit();});
  app.on('before-quit',event=>{if(quitting)return;event.preventDefault();if(quitPending)return;quitPending=true;void closeApplication().catch(()=>{for(const record of windows.values())cancelClose(record);}).finally(()=>{quitPending=false;if(!quitting)restartForUpdate=false;});});
  void app.whenReady().then(async()=>{
@@ -388,6 +436,7 @@ if(!app.requestSingleInstanceLock()){app.exit(0);}else{
   const failures:string[]=[];for(const entry of initial)try{await openSurface(entry.surface);}catch(error){failures.push(displayTitle(entry.surface)+': '+String(error instanceof Error?error.message:error));}
   restoringLayout=false;if(failures.length){layoutError='Some saved windows could not restore. Their layout is retained: '+failures.join('; ').slice(0,800);broadcast();}else if(!layoutError)persist();
   startUpdater();startAttention();
+  taskbarFeatures();const cold=parseLaunchRequest(process.argv);if(cold.request)launchQueue.offer(cold.request);
   const displaysChanged=()=>{attentionPopups?.displayChanged();const all=displays();for(const record of windows.values()){record.monitorRescued=!!record.placement&&!all.some(display=>display.id===record.placement!.displayId);applyPlacement(record,restoreDesktopPlacement(record.placement,all,surfaceSize(record.surface)));}installApplicationMenu();};screen.on('display-removed',displaysChanged);screen.on('display-added',displaysChanged);screen.on('display-metrics-changed',displaysChanged);startupSettled=true;
  }).catch(async error=>{startupDiagnostic('startup-failed',startupErrorDiagnostic(error));startupSettled=true;clearTimeout(startupTimer);startup?.destroy();startup=undefined;const message=String(error instanceof Error?error.message:error).slice(0,1200);process.stderr.write('Gen V1 startup failed: '+message+'\n');quitting=true;await stopBackend();if(!testData)await dialog.showMessageBox({type:'error',title:'Gen V1 could not start',message,buttons:['Close']});app.exit(1);});
 }

@@ -34,6 +34,9 @@ import {SideRuntime} from './side-runtime.ts';
 import {ComposerPredictions,predictionContext,type PredictionBasis,type PredictionRequest} from './composer-prediction.ts';
 import {PlanningQuestionSchema} from '../contracts/planning-question.ts';
 import { getPreferences, mergePreferences } from "../contracts/preferences.ts";
+import { AttentionRepository } from './attention.ts';
+import type { ProjectSummary } from '../contracts/workspace.ts';
+import type { TaskbarMode, TaskbarReadResult } from '../desktop-contract/index.ts';
 import {accountResolver,assertAccountAvailable,changeAccount,modelProvider,sweepStaleAccountLeases} from './accounts.ts';
 import {isConnectionProviderId} from '../contracts/connections.ts';
 import {applySkillOperations,curateSkills,decideSkillProposal,listSkills,setSkillFlags,skillIndex,viewSkill,viewSkillProposal} from './skills.ts';
@@ -411,6 +414,25 @@ export class Service {
       &&!this.store.all<Lease>('lease').some(lease=>lease.expiresAt>Date.now());
   }
   freezeForUpdate():boolean {this.updateClosing=true;return this.isUpdateIdle();}
+  /** Single aggregate taskbar + jump-list state for the desktop shell (R02/R06). */
+  taskbarStatus():TaskbarReadResult {
+    const threads=this.store.all<Thread>('thread').filter(thread=>thread.kind!=='side'&&!this.store.get('archivedThread',thread.id));
+    const active=threads.filter(thread=>thread.runId||thread.status==='working'||thread.status==='awaiting_input'||this.planning.hasActiveChildren(thread.id));
+    const items=new AttentionRepository(this.store).read().items;
+    const failed=items.some(item=>item.kind==='thread-failed'&&!item.read);
+    const needsInput=threads.some(thread=>thread.status==='awaiting_input')||items.some(item=>item.state==='needs-input'&&!item.read);
+    const steps=active.flatMap(thread=>this.planning.inspect(thread.id)?.value.steps??[]);
+    const progress=steps.length?Math.min(.98,Math.max(.02,steps.filter(step=>step.status==='completed'||step.state==='completed'||step.state==='accepted').length/steps.length)):null;
+    const mode:TaskbarMode=failed?'error':needsInput?'paused':!active.length?'none':steps.length?'normal':'indeterminate';
+    const recency=new Map<string,string>();
+    for(const thread of threads)if(thread.projectId){const seen=recency.get(thread.projectId);if(!seen||thread.updatedAt>seen)recency.set(thread.projectId,thread.updatedAt);}
+    const projects=this.store.all<ProjectSummary>('workspaceProject')
+      .map(project=>({id:project.id,name:project.name,sort:recency.get(project.id)??project.createdAt}))
+      .toSorted((a,b)=>b.sort.localeCompare(a.sort)||a.id.localeCompare(b.id)).slice(0,5)
+      .map(({id,name})=>({id,name}));
+    const preferences=this.preferences;
+    return{taskbar:{enabled:preferences.taskbarProgress,mode,progress,failed},jumpList:{enabled:preferences.jumpListRecentProjects,projects}};
+  }
   private get reviewing():boolean{return this.source?.runtime.reviewBusy??this.learning.busy;}
   private get preferences() { return getPreferences(this.store.get<Snapshot['settings']>('settings','global') ?? {}); }
   private cancelReview():Promise<void>{return this.source?.runtime.cancelBackground()??this.learning.cancel();}

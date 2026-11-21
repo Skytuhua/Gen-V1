@@ -50,6 +50,8 @@ const preferenceRows: Record<string, { key: keyof UiPreferences; options?: reado
   'working-shelf': { key: 'showWorkingSection', description: 'Group active tasks in the Working section.' },
   'thread-notifications': { key: 'threadNotifications', options: ['off', 'notifications', 'sound', 'both'], labels: ['Off', 'Popups', 'Sound', 'Popups and sound'], description: 'Task completion, failure, and input requests.' },
   'in-app-notifications': { key: 'inAppNotifications', description: 'Show notices for other tasks in the app.' },
+  'taskbar-progress': { key: 'taskbarProgress', description: 'Show task progress on the taskbar.' },
+  'jump-list-recent-projects': { key: 'jumpListRecentProjects', description: 'Show recent projects in the jump list.' },
   'live-usage': { key: 'showUsageFooter', description: 'Show the compact Live usage summary.' },
   'send-shortcut': { key: 'sendShortcut', options: ['enter', 'mod-enter-multiline', 'mod-enter'], labels: ['Enter to send', 'Ctrl / ⌘ Enter; expandable input', 'Ctrl / ⌘ Enter to send'], description: 'Shift Enter inserts a new line.' },
   'diff-layout': { key: 'diffLayout', options: ['stacked', 'split'], labels: ['Stacked', 'Side by side'], description: 'Layout for recorded before/after comparisons. Unified source patches stay verbatim.' },
@@ -69,7 +71,7 @@ export const SETTINGS_ROWS: SettingsInventoryRow[] = [
   row('project-overview', 'Granted resources', 'projects', 'project folder working copies permissions access'),
   row('diff-layout', 'Diff layout', 'diffs'), row('hide-whitespace-changes', 'Hide whitespace changes', 'diffs'), row('default-diff-file-state', 'Expand diffs', 'diffs'), row('diff-color-scheme', 'Diff colors', 'diffs'),
   row('harness-skills', 'Skills & learning', 'skills', 'library proposals automatic learning review archive restore rollback'), row('harness-integrations', 'Bundled integrations', 'skills', 'humanizer impeccable graphify superpowers ponytail tools hooks mcp'),
-  row('thread-notifications', 'Task notifications', 'notifications', 'sound popup'), row('in-app-notifications', 'In-app notifications', 'notifications'), row('live-usage', 'Live usage', 'notifications'), row('harness-notification-controls', 'Notification preferences', 'notifications', 'volume sound preview privacy quiet hours'),
+  row('thread-notifications', 'Task notifications', 'notifications', 'sound popup'), row('in-app-notifications', 'In-app notifications', 'notifications'), row('taskbar-progress', 'Show task progress on the taskbar', 'notifications', 'taskbar progress windows'), row('jump-list-recent-projects', 'Show recent projects', 'notifications', 'jump list taskbar projects windows'), row('live-usage', 'Live usage', 'notifications'), row('harness-notification-controls', 'Notification preferences', 'notifications', 'volume sound preview privacy quiet hours'),
   row('browser-start-page', 'Start page', 'browser', 'manual browser address website'),
   ...PREFERENCE_BINDINGS.map(({ preference, label }) => row(`harness-keybinding-${preference}`, label, 'keybindings', `keyboard shortcut ${preference}`)),
   row('harness-keyboard-reference', 'Shortcut reference', 'keybindings', 'all shortcuts cheat sheet kbd keys chords bindings list'),
@@ -150,7 +152,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
     await persist({ preferences: value });
   };
   const searching = query.trim().length > 0;
-  const rows = searching ? searchSettings(query, SUPPORTED_SETTINGS, desktop ? 'desktop' : 'browser') : SUPPORTED_SETTINGS.filter(item => item.section === section);
+  const rows = searching ? searchSettings(query, SUPPORTED_SETTINGS, desktop ? 'desktop' : 'browser') : SUPPORTED_SETTINGS.filter(item => item.section === section && (item.platform === 'all' || item.platform === (desktop ? 'desktop' : 'browser')));
   const matches = (id: string) => rows.some(item => item.id === id);
   const heading = searching ? `Search results (${rows.length})` : SETTINGS_SECTIONS.find(([id]) => id === section)?.[1];
   const HeadingIcon = searching ? Search : SECTION_ICONS[section] ?? Settings2;

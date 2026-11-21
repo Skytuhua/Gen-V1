@@ -50,6 +50,8 @@ const indexedSettings: IndexedSetting[] = [
   ["days-before-auto-settle", "Days of inactivity before auto-settle", "threads", "thread timeout activity sidebar"],
   ["thread-notifications", "Thread notifications", "general", "notification sound alert completion input approval desktop"],
   ["in-app-notifications", "In-app notifications", "general", "notification toast popup completion input approval failure"],
+  ["taskbar-progress", "Show task progress on the taskbar", "general", "taskbar progress windows desktop running paused error"],
+  ["jump-list-recent-projects", "Show recent projects", "general", "jump list taskbar recent projects desktop windows"],
   ["time-format", "Time format", "general", "timestamp clock locale system browser os 12 hour 24 hour"],
   ["response-streaming", "Response streaming", "threads", "output token paragraph buffered wait turn legacy"],
   ["hide-whitespace-changes", "Hide whitespace changes", "diffs", "diff ignore spaces edits default"],
