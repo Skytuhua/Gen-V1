@@ -1,5 +1,6 @@
 import {attestVerificationArtifacts} from './verification-artifacts.ts';
-import { storeThreadAttachment } from './generated-images.ts';
+import { storeThreadAttachment, validateImageBytes } from './generated-images.ts';
+import { nextCopyName, validateImageSavePath, writeImageFile } from './image-save.ts';
 import { randomUUID, createHash } from "node:crypto";
 import { MODEL_ONLY_MAX_PROMPT_BYTES } from '../runtime/model-only.ts';
 import type { ContextRequestObservationV1 } from '../contracts/request-context.ts';
@@ -13,7 +14,7 @@ import { withApprovedProjectContext } from './approved-project-context.ts';
 import { createRepositoryMapReader } from './repository-map-host.ts';
 import type {AccountAuthTarget} from '../contracts/authentication.ts';
 import {privateFamilyForBinding} from '../workspace/git-storage.ts';
-import { stat, open } from "node:fs/promises";
+import { stat, open, readFile, mkdir } from "node:fs/promises";
 import { existsSync, lstatSync, realpathSync } from 'node:fs';
 import { basename, relative, resolve, sep } from "node:path";
 import { Store, digest, compactionOwnerKey, type CompactionAttemptRecord } from "../storage/store.ts";
@@ -1230,6 +1231,43 @@ export class Service {
       const bytes = Buffer.from(base64, "base64");
       const { grant } = await storeThreadAttachment({ dataDir: this.store.dataDir }, thread.id, command.id, name, bytes);
       return this.store.command(command, () => { this.store.put("resource", grant.id, thread.id, grant); return grant; });
+    }
+    if (command.type === "image.save") {
+      const imageId = text(p, "imageId", 200);
+      const imageGrant = this.store.get<ResourceGrant>("resource", imageId);
+      if (!imageGrant || imageGrant.threadId !== thread.id || imageGrant.kind !== "attachment") throw new HarnessError("INVALID_RESOURCE", "The image is not available to this thread");
+      const project = (this.store.all("resource", thread.id) as ResourceGrant[]).find(grant => grant.kind === "project" && grant.writable);
+      if (!project) throw new HarnessError("CAPABILITY_DENIED", "No writable project is granted to this thread");
+      const bytes = await readFile(imageGrant.path);
+      const detected = validateImageBytes(bytes);
+      const mode = p.saveAsCopy === true ? "copy" : typeof p.expectedSha256 === "string" ? "overwrite" : "fail";
+      const expectedSha256 = typeof p.expectedSha256 === "string" ? p.expectedSha256 : undefined;
+      if (expectedSha256 !== undefined && !/^[a-f0-9]{64}$/.test(expectedSha256)) throw new HarnessError("INVALID_INPUT", "expectedSha256 must be a SHA-256 hex digest");
+      let relativePath = validateImageSavePath(text(p, "path", 1024), detected.format);
+      const root = await canonical(project.path);
+      if (mode === "copy") relativePath = nextCopyName(relativePath, candidate => existsSync(resolve(root, candidate)));
+      const parent = resolve(root, relativePath.split("/").slice(0, -1).join("/"));
+      if (!inside(root, parent)) throw new HarnessError("CAPABILITY_DENIED", "Save paths must stay inside the project");
+      await mkdir(parent, { recursive: true }); // DESIGN 4: parent folders are created under the root
+      const filename = await resolveGrant(project, relativePath, true, this.store.dataDir);
+      const written = await writeImageFile(filename, bytes, { mode: mode === "copy" ? "fail" : mode, expectedSha256 });
+      const artifactId = typeof p.artifactId === "string" ? p.artifactId : undefined;
+      return this.store.command(command, () => {
+        let cardUpdated = false;
+        if (artifactId) {
+          const artifact = this.store.get<ArtifactRecord>("artifact", artifactId);
+          if (artifact && artifact.threadId === thread.id && artifact.spec) {
+            const elements = { ...artifact.spec.elements };
+            const target = Object.keys(elements).find(key => Array.isArray(elements[key].props.saved));
+            if (target) {
+              elements[target] = { ...elements[target], props: { ...elements[target].props, saved: [...(elements[target].props.saved as unknown[]), relativePath] } };
+              this.store.put("artifact", artifact.id, thread.id, { ...artifact, spec: { ...artifact.spec, elements }, revision: artifact.revision + 1, updatedAt: now() });
+              cardUpdated = true;
+            }
+          }
+        }
+        return { imageId, path: relativePath, sha256: written.sha256, bytes: written.bytes, artifactId: cardUpdated ? artifactId! : null };
+      });
     }
     const receipt = this.store.command(command, () => this.applyCommand(command, this.thread(thread.id)));
     if (["request.respond","request.detail","action.submit","operation.reject"].includes(command.type)) this.background(this.deliverOutbox(thread.id));
