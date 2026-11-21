@@ -8,6 +8,20 @@ import {quiescent} from './settle';
 
 const fixture=()=>{const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Review the current changes.'}}}});snapshot.settings.theme='dark';return snapshot;};
 
+for(const policy of ['system','reduced','off'] as const)test(`sidebar keyboard collapse skips travel under ${policy}`,async({page})=>{
+ await serveTaskFixture(page,fixture());await openApp(page);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
+ await page.evaluate(policy=>{
+  document.documentElement.dataset.motion=policy;const animate=Element.prototype.animate,records:Keyframe[][]=[];Object.assign(window,{sidebarMotionRecords:records});
+  Element.prototype.animate=function(frames,options){if(this.closest('.sidebar-collapse-overlay'))records.push(frames as Keyframe[]);return animate.call(this,frames,options);};
+ },policy);
+ const collapse=page.getByRole('button',{name:'Collapse sidebar',exact:true}),open=page.getByRole('button',{name:'Open sidebar',exact:true});
+ await collapse.focus();await collapse.press('Enter');await expect(open).toBeVisible();
+ expect(await page.evaluate(()=>(window as unknown as {sidebarMotionRecords:Keyframe[][]}).sidebarMotionRecords.length)).toBe(0);
+ await open.click();await expect(collapse).toBeVisible();
+ const count=await page.evaluate(()=>(window as unknown as {sidebarMotionRecords:Keyframe[][]}).sidebarMotionRecords.length);expect(count).toBe(policy==='system'?1:0);
+ await collapse.focus();await collapse.press('Enter');await expect(page.locator('.sidebar-collapse-overlay')).toHaveCount(0);
+});
+
 test('the empty composer is compact, grows for multiline work and keeps its draft',async({page})=>{
  await serveTaskFixture(page,fixture());await openApp(page);const input=page.getByRole('textbox',{name:'Message',exact:true}),composer=page.locator('form.composer');await expect(input).toBeEnabled();
  expect((await composer.boundingBox())!.height).toBeLessThanOrEqual(96);expect((await input.boundingBox())!.height).toBeLessThanOrEqual(32);

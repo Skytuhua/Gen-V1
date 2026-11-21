@@ -6,6 +6,20 @@ import {plateauThenJump} from './settle';
 
 const flushFrames=(page:Page)=>page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
 
+for(const policy of ['system','reduced','off'] as const)test(`streaming retains the reading position and DOM selection under ${policy}`,async({page})=>{
+ await page.route('**/reading-fixture',route=>route.fulfill({contentType:'text/html',body:'<!doctype html><style>#reading{height:240px;width:600px;overflow:auto;overflow-anchor:none}p{height:60px}</style><div id="reading"><div id="messages"></div></div>'}));await page.goto('/reading-fixture');
+ const result=await page.evaluate(async policy=>{
+  document.documentElement.dataset.motion=policy;const path='/src/conversation-scroll.ts',module=await import(path),viewport=document.getElementById('reading')!,messages=document.getElementById('messages')!;
+  for(let i=0;i<20;i++){const row=document.createElement('p');row.textContent=`Message ${i}: retained readable content`;messages.append(row);}
+  const controller=module.createConversationScroll(viewport);controller.update('one',{top:0,tail:true});
+  const text=messages.lastElementChild!.firstChild!,range=document.createRange();range.setStart(text,0);range.setEnd(text,10);const selection=getSelection()!;selection.removeAllRanges();selection.addRange(range);
+  await new Promise(requestAnimationFrame);await new Promise(requestAnimationFrame);const before=viewport.scrollTop;
+  for(let i=0;i<5;i++){messages.lastElementChild!.append(' More streamed content.');const row=document.createElement('p');row.textContent='Later output';messages.append(row);controller.update('one',{top:before,tail:true});await new Promise(requestAnimationFrame);}
+  const after={top:viewport.scrollTop,text:selection.toString(),sameNode:selection.anchorNode===text,offset:selection.anchorOffset,end:selection.focusOffset};controller.dispose();return {before,after};
+ },policy);
+ expect(result.after).toEqual({top:result.before,text:'Message 19',sameNode:true,offset:0,end:10});
+});
+
 test('choosing Plan for a first thread migrates the current composer draft',async({page})=>{
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Ready'}}}}),created=structuredClone(snapshot.threads[0]);created.id='new-plan';created.title='New plan';snapshot.threads=[];snapshot.messages=[];snapshot.artifacts=[];snapshot.userStates=[];snapshot.data=[];snapshot.activeThreadId=null;
  await serveTaskFixture(page,snapshot);await page.route('**/api/commands',async route=>{const command=route.request().postDataJSON();if(command.type==='thread.create'){snapshot.threads.push(created);return route.fulfill({json:{commandId:command.id,eventSeq:++snapshot.seq,result:created}});}if(command.type==='thread.mode'){created.mode='plan';return route.fulfill({json:{commandId:command.id,eventSeq:++snapshot.seq,result:created}});}return route.fallback();});

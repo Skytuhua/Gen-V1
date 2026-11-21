@@ -40,6 +40,19 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
     return sizing==='content'?clampFloatingLayout({...restored,height:initial.height},areaFor(restored.collapsed),minSize):restored;
   });
   const current=useRef(layout);current.current=layout;
+  const handoffOrigin=useRef<DOMRect|undefined>(undefined),handoff=useRef<Animation|undefined>(undefined);
+  const cancelHandoff=()=>{handoffOrigin.current=undefined;handoff.current?.cancel();handoff.current=undefined;if(shell.current)shell.current.style.removeProperty('transition');};
+  const prepareHandoff=()=>{const bounds=shell.current?.getBoundingClientRect();cancelHandoff();if(!shell.current||minimizeOnly)return;handoffOrigin.current=bounds;shell.current.style.transition='none';};
+  useLayoutEffect(()=>{
+    const before=handoffOrigin.current,node=shell.current;handoffOrigin.current=undefined;
+    if(!before||!node)return;
+    const after=node.getBoundingClientRect();
+    const animation=node.closest('.app-shell')?.getAttribute('data-panel-animations')==='false'?undefined:animateTask(node,[{opacity:.6,transform:`translate(${before.left-after.left}px,${before.top-after.top}px)`},{opacity:1,transform:'translate(0px,0px)'}],0,{duration:'--ui-motion-panel-enter',easing:'--ui-ease-enter'});
+    handoff.current=animation;
+    const done=()=>{if(handoff.current===animation){handoff.current=undefined;node.style.removeProperty('transition');}};
+    if(animation)void animation.finished.then(done).catch(done);else done();
+  },[layout]);
+  useLayoutEffect(()=>()=>cancelHandoff(),[]);
   const resizeOrigin=useRef({layout,width:window.visualViewport?.width??window.innerWidth,height:window.visualViewport?.height??window.innerHeight});
   const [layer,setLayer]=useState(()=>layerFor(id)),[interacting,setInteracting]=useState(false),[adjusting,setAdjusting]=useState(Boolean(rail)),[rendered,setRendered]=useState(open);
   const update=(next:FloatingLayout,persist=false,intent=persist)=>{
@@ -125,6 +138,7 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
   const close=()=>{stopInteraction.current();onClose?.();};
   const restorePosition=()=>{
     stopInteraction.current();collapsedOrigin.current=undefined;
+    prepareHandoff();
     const before=current.current,area=areaFor(before.collapsed,!rail),visibleHeight=before.collapsed?FLOATING_COLLAPSED_HEIGHT:before.height;
     update({...before,floating:!rail,x:(area.right??area.width)-before.width-(rail?0:8),y:anchor==='bottom-right'?(area.bottom??area.height)-visibleHeight-(rail?0:8):(rail?0:Math.max(72,area.top??0))},true);
   };
@@ -141,11 +155,13 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
     const step=event.altKey?2:12;
     if(event.key==='Home'){restorePosition();return;}
     if(event.shiftKey&&sizing==='content')return;
+    if(rail&&!floating.current)prepareHandoff();
     const before=release(),dx=event.key==='ArrowLeft'?-step:event.key==='ArrowRight'?step:0,dy=event.key==='ArrowUp'?-step:event.key==='ArrowDown'?step:0;
     update(resize||event.shiftKey?{...before,width:before.width+dx,height:before.height+dy}:{...before,x:before.x+dx,y:before.y+dy},true);
   };
   const pointer=(event:PointerEvent<HTMLElement>,resize=false)=>{
     if(event.button!==0||minimizeOnly||activePointer.current!==null)return;
+    cancelHandoff();
     event.preventDefault();bringForward(id);collapsedOrigin.current=undefined;
     event.currentTarget.focus({preventScroll:true});const element=event.currentTarget,start=release(),x=event.clientX,y=event.clientY,pointerId=event.pointerId;
     setInteracting(true);document.documentElement.classList.add('floating-window-interaction');element.setPointerCapture?.(pointerId);activePointer.current=pointerId;

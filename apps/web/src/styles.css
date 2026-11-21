@@ -357,6 +357,9 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
 @keyframes ui-item-out { to { opacity:0; transform:translateY(3px); } }
 :where(.message[data-arrival="true"], .resource-chip:not([data-leaving])) { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter); }
 :where(.resource-chip[data-leaving]) { pointer-events:none; animation: ui-item-out var(--ui-motion-remove) var(--ui-ease-move) both; }
+@keyframes ui-confirmation { from { opacity:0; transform:scale(.96); } to { opacity:1; transform:scale(1); } }
+:where(.success-confirmation,.save-state[data-save-state="saved"]>svg,.message-user[data-arrival="true"]) { animation:ui-confirmation var(--ui-motion-success) var(--ui-ease-enter); }
+@media(prefers-reduced-motion:reduce) { :where(.success-confirmation,.save-state[data-save-state="saved"]>svg,.message-user[data-arrival="true"]) { animation-name:ui-popover-fade; animation-delay:0s; } }
 
 /* Chromium details-content: height transition needs the opt-in. */
 @supports (interpolate-size: allow-keywords) {

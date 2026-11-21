@@ -2,14 +2,15 @@ import {test,expect,type Page} from '@playwright/test';
 import {resolve} from 'node:path';
 import {mkdir} from 'node:fs/promises';
 import {taskFixture,serveTaskFixture} from './task-interface-fixture';
+import {BOOT_TIMEOUT} from './app-ready';
 
-type FixtureKind='toolbar'|'markdown'|'combined';
+type FixtureKind='toolbar'|'markdown'|'combined'|'copy';
 async function mount(page:Page,kind:FixtureKind,props:Record<string,unknown>){
- await serveTaskFixture(page,taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Fixture'}}}}));await page.goto('/');await expect(page.locator('html')).toHaveAttribute('data-motion','system');
+ await serveTaskFixture(page,taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Fixture'}}}}));await page.goto('/');await expect(page.locator('html')).toHaveAttribute('data-motion','system',{timeout:BOOT_TIMEOUT});
  const source=await (await page.request.get('/src/Markdown.tsx')).text(),main=await (await page.request.get('/src/main.tsx')).text();
  const modules={react:source.match(/["']([^"']*\/react\.js[^"']*)["']/)![1],dom:main.match(/["']([^"']*\/react-dom_client\.js[^"']*)["']/)![1]};
  await page.evaluate(async({kind,props,modules})=>{
-  const reactModule=await import(modules.react),domModule=await import(modules.dom),React=reactModule.default??reactModule,DOM=domModule.default??domModule,entry=kind==='toolbar'?'/src/ComposerToolbar.tsx':'/src/Markdown.tsx',module=await import(entry),Component=kind==='toolbar'?module.ComposerToolbar:module.Markdown;
+  const reactModule=await import(modules.react),domModule=await import(modules.dom),React=reactModule.default??reactModule,DOM=domModule.default??domModule,entry=kind==='toolbar'?'/src/ComposerToolbar.tsx':kind==='copy'?'/src/CopyButton.tsx':'/src/Markdown.tsx',module=await import(entry),Component=kind==='toolbar'?module.ComposerToolbar:kind==='copy'?module.CopyButton:module.Markdown;
   document.documentElement.style.setProperty('--ui-popup-layer','10001');const target=document.createElement('section');target.className='component-fixture';target.setAttribute('aria-label','Component fixture');target.style.cssText='position:fixed;inset:0;padding:32px;background:var(--surface);z-index:10000;overflow:auto';document.body.append(target);const root=DOM.createRoot(target);const events:{type:string;value?:unknown}[]=[];
   let current={...props};const callbacks={onModelChange:(value:string)=>events.push({type:'model',value}),onThinkingChange:(value:string)=>events.push({type:'thinking',value}),onProject:()=>events.push({type:'project'}),onChanges:()=>events.push({type:'changes'}),onCreatePR:()=>events.push({type:'pr'}),onTranscript:(value:string)=>events.push({type:'transcript',value})};
   const toolbarEntry='/src/ComposerToolbar.tsx',toolbarModule=kind==='combined'?await import(toolbarEntry):null;
@@ -27,6 +28,35 @@ async function mount(page:Page,kind:FixtureKind,props:Record<string,unknown>){
 const props={models:[{id:'test/sol',name:'Sol',provider:'test',thinkingLevels:['low','medium','high']}],modelId:'test/sol',thinkingLevel:'medium',projectLabel:'checkout',changeSummary:{added:12,removed:4}};
 const update=(page:Page,next:Record<string,unknown>)=>page.evaluate(next=>(window as unknown as {componentFixture:{update:(next:Record<string,unknown>)=>void}}).componentFixture.update(next),next);
 const events=(page:Page)=>page.evaluate(()=>(window as unknown as {componentFixture:{events:{type:string;value?:unknown}[]}}).componentFixture.events);
+
+for(const policy of ['system','reduced','off'] as const)test(`menu initiation respects ${policy} without replaying on filtering`,async({page})=>{
+ await mount(page,'toolbar',props);await page.evaluate(policy=>document.documentElement.dataset.motion=policy,policy);
+ const trigger=page.locator('.component-fixture').getByRole('combobox',{name:'Model',exact:true}),popup=page.locator('.model-picker-popover');
+ await trigger.click();await expect(popup).toHaveAttribute('data-motion-origin','pointer');
+ const pointer=await popup.evaluate(node=>({name:getComputedStyle(node).animationName,delay:getComputedStyle(node).animationDelay}));
+ if(policy==='system')expect(pointer.name).toBe('model-picker-in');else expect(pointer.name).toBe('none');
+ await page.keyboard.press('Escape');await expect(popup).not.toBeVisible();await trigger.focus();await trigger.press('ArrowDown');
+ await expect(popup).toHaveAttribute('data-motion-origin','keyboard');
+ const keyboard=await popup.evaluate(node=>({name:getComputedStyle(node).animationName,delay:getComputedStyle(node).animationDelay,transform:getComputedStyle(node).transform}));
+ expect(keyboard.name).toBe(policy==='system'?'ui-popover-fade':'none');expect(keyboard.delay).toBe('0s');expect(keyboard.transform).toBe('none');
+ const identity=await popup.elementHandle();await popup.evaluate(async node=>{await Promise.allSettled(node.getAnimations().map(animation=>animation.finished));Object.assign(node,{replays:0});node.addEventListener('animationstart',()=>{(node as HTMLElement&{replays:number}).replays++;});});
+ await page.getByRole('searchbox',{name:'Search models',exact:true}).fill('No model matches');await expect(popup).toContainText('No models');
+ expect(await popup.evaluate((node,previous)=>node===previous,identity)).toBe(true);expect(await popup.evaluate(node=>(node as HTMLElement&{replays:number}).replays)).toBe(0);
+});
+
+for(const policy of ['system','reduced','off'] as const)test(`copy, save and send confirmations share ${policy} feedback`,async({page})=>{
+ await mount(page,'copy',{text:'Reviewed output'});await page.evaluate(policy=>{document.documentElement.dataset.motion=policy;Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async()=>{}}});},policy);
+ const fixture=page.locator('.component-fixture');await fixture.getByRole('button',{name:'Copy',exact:true}).click();await expect(fixture.getByRole('status')).toHaveText('Copied');
+ const names=await fixture.locator('.success-confirmation').evaluate(node=>{
+  const saved=document.createElement('button');saved.className='save-state';saved.dataset.saveState='saved';saved.innerHTML='<svg></svg>';
+  const sent=document.createElement('div');sent.className='message message-user';sent.dataset.arrival='true';node.parentElement!.append(saved,sent);
+  const styles=[node,saved.firstElementChild!,sent].map(element=>{const style=getComputedStyle(element);return {name:style.animationName,delay:style.animationDelay};});saved.remove();sent.remove();return styles;
+ });
+ expect(names.map(style=>style.name)).toEqual(Array(3).fill(policy==='system'?'ui-confirmation':'none'));expect(names.every(style=>style.delay==='0s')).toBe(true);
+ await update(page,{text:'Different output'});await expect(fixture.getByRole('status')).toBeEmpty();await expect(fixture.locator('.success-confirmation')).toHaveCount(0);
+ await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async()=>{throw Error('Clipboard denied');}}}));
+ await fixture.getByRole('button',{name:'Copy',exact:true}).click();await expect(fixture.getByRole('status')).toBeEmpty();await expect(fixture.locator('.success-confirmation')).toHaveCount(0);await expect(page.getByText('Copy failed. Select the text and copy manually.')).toBeVisible();
+});
 
 test('composer exposes concise project, changes and PR actions and only actual thinking levels',async({page})=>{
  await mount(page,'toolbar',props);const fixture=page.getByRole('region',{name:'Component fixture',exact:true});

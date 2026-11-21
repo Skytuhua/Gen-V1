@@ -29,6 +29,17 @@ export function Popover({ anchor, getAnchorRect, contentRef, initialFocus, open,
   const ready = useRef(onReady); ready.current = onReady;
   const [placement, setPlacement] = useState<PopoverPlacement | null>(null);
   const [root, setRoot] = useState<HTMLElement | null>(null);
+  const modality = useRef('pointer'), origin = useRef('pointer'), previousOpen = useRef(false);
+  if (open && !previousOpen.current) origin.current = anchor.current?.matches(':focus-visible') ? 'keyboard' : modality.current;
+  previousOpen.current = open;
+  useLayoutEffect(() => {
+    const owner = anchor.current?.ownerDocument ?? document;
+    const pointer = () => { modality.current = 'pointer'; };
+    const keyboard = () => { modality.current = 'keyboard'; };
+    owner.addEventListener('pointerdown', pointer, true);
+    owner.addEventListener('keydown', keyboard, true);
+    return () => { owner.removeEventListener('pointerdown', pointer, true); owner.removeEventListener('keydown', keyboard, true); };
+  }, [anchor]);
   // Without an owner-managed `present`, stay mounted until the CSS exit finishes.
   const [exit, setExit] = useState({ open, leaving: false });
   if (exit.open !== open) setExit({ open, leaving: !open && present === undefined });
@@ -114,7 +125,7 @@ export function Popover({ anchor, getAnchorRect, contentRef, initialFocus, open,
   if (!(present ?? (open || leaving)) || !root || !placement) return null;
   const { side, ...geometry } = placement;
   return createPortal(<div {...attributes} ref={content} className={`ui-popover ${className}`} data-side={side} data-escape-scope
-    data-state={open ? 'open' : 'closed'} aria-hidden={!open} inert={!open}
+    data-state={open ? 'open' : 'closed'} data-motion-origin={origin.current} aria-hidden={!open} inert={!open}
     style={{ ...style, ...geometry, position: 'fixed' }} onKeyDown={event => {
       onKeyDown?.(event);
       if (event.key === 'Escape' && !event.defaultPrevented && !event.nativeEvent.isComposing && event.keyCode !== 229) {
