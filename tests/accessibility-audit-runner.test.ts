@@ -82,6 +82,8 @@ function fakeHost(contents: AuditWebContents): AuditHost & {
 							session as unknown as { requestListener?: unknown }
 						).requestListener = listener;
 					},
+					onCompleted() {},
+					onErrorOccurred() {},
 				},
 			} as never;
 			host.sessions.push(session);

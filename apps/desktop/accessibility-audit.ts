@@ -4,7 +4,7 @@ import type { AccessibilityAuditOutcome } from "../../packages/desktop-contract/
 import { normalizeAudit } from "./accessibility-normalize.ts";
 
 export const AUDIT_WORLD_ID = 1099;
-export const AUDIT_RUNNER = `(async()=>{const r=await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']},resultTypes:['violations'],iframes:true,elementRef:false,selectors:true,ancestry:false,xpath:false,absolutePaths:false});return {version:axe.version,url:location.href,title:document.title,width:innerWidth,height:innerHeight,violations:r.violations.map(v=>({id:v.id,impact:v.impact,help:v.help,description:v.description,helpUrl:v.helpUrl,tags:v.tags,nodes:v.nodes.map(n=>({target:n.target,html:n.html,failureSummary:n.failureSummary}))}))};})()`;
+export const AUDIT_RUNNER = `(async()=>{const r=await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']},resultTypes:['violations'],iframes:false,elementRef:false,selectors:true,ancestry:false,xpath:false,absolutePaths:false});return {version:axe.version,url:location.href,title:document.title,width:innerWidth,height:innerHeight,violations:r.violations.map(v=>({id:v.id,impact:v.impact,help:v.help,description:v.description,helpUrl:v.helpUrl,tags:v.tags,nodes:v.nodes.map(n=>({target:n.target,html:n.html,failureSummary:n.failureSummary}))}))};})()`;
 
 const LOAD_TIMEOUT_MS = 30_000,
 	RUN_TIMEOUT_MS = 30_000,
@@ -24,6 +24,7 @@ export interface AuditWebContents {
 	setWindowOpenHandler?(
 		handler: (details: { url: string }) => { action: "deny" },
 	): void;
+	setWebRTCIPHandlingPolicy?(policy: string): void;
 	enableDeviceEmulation?(parameters: unknown): void;
 }
 export interface AuditSession {
@@ -42,7 +43,10 @@ export interface AuditSession {
 	setProxy(config: { mode: string }): Promise<unknown>;
 	clearStorageData(): Promise<unknown>;
 	clearCache(): Promise<unknown>;
-	on(event: string, listener: () => void): void;
+	on(
+		event: string,
+		listener: (event: { preventDefault(): void }) => void,
+	): void;
 	webRequest: {
 		onBeforeRequest(
 			listener: (
@@ -50,6 +54,8 @@ export interface AuditSession {
 				callback: (response: { cancel?: boolean }) => void,
 			) => void,
 		): void;
+		onCompleted(listener: (details: { url: string }) => void): void;
+		onErrorOccurred(listener: (details: { url: string }) => void): void;
 	};
 }
 export interface AuditWindow {
@@ -188,17 +194,28 @@ export async function runLocalAudit(
 	if (signal.aborted) return { status: "cancelled" };
 	const session = host.createSession("a11y-audit-" + randomUUID());
 	let blockedRequests = 0,
-		lastRequestAt = 0;
+		lastRequestAt = 0,
+		pendingRequests = 0;
 	session.setPermissionRequestHandler((_c, _p, callback) => callback(false));
 	session.setPermissionCheckHandler(() => false);
-	session.on("will-download", () => {});
+	session.on("will-download", (event) => event.preventDefault());
 	session.webRequest.onBeforeRequest((details, callback) => {
 		lastRequestAt = Date.now();
-		if (auditRequestAllowed(details.url, target.origin)) callback({});
-		else {
+		if (auditRequestAllowed(details.url, target.origin)) {
+			pendingRequests++;
+			callback({});
+		} else {
 			blockedRequests++;
 			callback({ cancel: true });
 		}
+	});
+	session.webRequest.onCompleted(() => {
+		lastRequestAt = Date.now();
+		pendingRequests = Math.max(0, pendingRequests - 1);
+	});
+	session.webRequest.onErrorOccurred(() => {
+		lastRequestAt = Date.now();
+		pendingRequests = Math.max(0, pendingRequests - 1);
 	});
 	await session.setProxy({ mode: "direct" });
 	const width = viewport === "mobile" ? 390 : 1280,
@@ -221,6 +238,7 @@ export async function runLocalAudit(
 	});
 	const contents = window_.webContents;
 	contents.setWindowOpenHandler?.(() => ({ action: "deny" }));
+	contents.setWebRTCIPHandlingPolicy?.("disable_non_proxied_udp");
 	const preventLeave = (event: { preventDefault(): void }, url: string) => {
 		if (!sameOrigin(url, target.origin)) event.preventDefault();
 	};
@@ -274,7 +292,11 @@ export async function runLocalAudit(
 			await new Promise((resolve) =>
 				setTimeout(resolve, Math.min(50, idleDeadline - Date.now())),
 			);
-			if (Date.now() - lastRequestAt >= IDLE_WINDOW_MS) break;
+			if (
+				pendingRequests === 0 &&
+				Date.now() - lastRequestAt >= IDLE_WINDOW_MS
+			)
+				break;
 		}
 		if (signal.aborted) return { status: "cancelled" };
 		const run = await runAudit(contents, axeSource, signal);
