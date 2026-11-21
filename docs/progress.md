@@ -8,6 +8,8 @@ The active `SETTINGS_SECTIONS` registry in `apps/web/src/Settings.tsx` contains 
 
 `GENERATED_APPS_ENABLED = true` in `packages/core/widgets.ts`. It controls generated-app discovery, the `ui_create_widget` creation gate and the artifact mount endpoint. Generated apps are **preview**: this label is the PM default pending owner confirmation. The 0.6.0 changelog records the earlier actual-host acceptance; it does not establish acceptance of every later revision or the broader quality pilot.
 
+`ui.fileMentionsV1` (issue #1242, in review) adds @-mention of project files in the composer: a bounded suggestion endpoint, acceptance-time host capture and quoted prompt context, capped at 8 mentions / 1 MiB per file / 64 KiB injected per file / 192 KiB per message. The flag defaults off and stays off until frontend design review and owner acceptance complete; enabling it is a separate one-line change.
+
 The sections below preserve historical checkpoint results, not current-main verification counts or availability. Current usage and limits are in [the visual workspace guide](visual-workspace.md) and [public release notes](public/release-notes.md).
 
 ## M01–M17 implementation, acceptance and activation

@@ -93,6 +93,11 @@ export type M14FlagKey = (typeof M14_FLAG_KEYS)[number];
 export const M15_FLAG_KEYS = ["ui.sourceWorkbenchV1"] as const;
 export type M15FlagKey = (typeof M15_FLAG_KEYS)[number];
 
+// File mentions flag set: composer @-mention file picks and quoted send
+// context stay off until their own proof gates pass.
+export const FILE_MENTION_FLAG_KEYS = ["ui.fileMentionsV1"] as const;
+export type FileMentionFlagKey = (typeof FILE_MENTION_FLAG_KEYS)[number];
+
 // M10 flag set: durable background work and human handoffs. Each risky
 // sub-capability keeps its own key and proof; contracts and ordinary RUN jobs
 // never unlock service lifetime, idle review forks or external intake.
@@ -121,10 +126,11 @@ export type M13FlagKey = (typeof M13_FLAG_KEYS)[number];
 export const M17_FLAG_KEYS = ["remote.readSyncV1", "remote.submitInputV1"] as const;
 export type M17FlagKey = (typeof M17_FLAG_KEYS)[number];
 
-export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey | M14FlagKey | M15FlagKey | M10FlagKey | M16FlagKey | M13FlagKey | M17FlagKey;
+export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey | M14FlagKey | M15FlagKey | M10FlagKey | M16FlagKey | M13FlagKey | M17FlagKey | FileMentionFlagKey;
 
 const hostDefinitions: readonly CapabilityFlagDefinition[] = [
   { key: "ui.sourceWorkbenchV1", owner: "m15", description: "Owner-validated source selections and read-only operator workbench contributions." },
+  { key: "ui.fileMentionsV1", owner: "composer", description: "Composer @-mentions of project files as quoted message context." },
   { key: "control.consentedBrowserV1", owner: "m16", description: "Consented control of an explicitly selected browser tab; requires an approved driver and explicit per-session consent." },
   { key: "control.selectedDesktopV1", owner: "m16", description: "Consented control of an explicitly selected desktop application; requires an approved driver and explicit per-session consent." },
   { key: "context.compilerV1", owner: "m04-core", description: "Host-issued immutable request preparation and measured context receipts." },

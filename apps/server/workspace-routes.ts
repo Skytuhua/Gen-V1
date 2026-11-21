@@ -13,6 +13,8 @@ import {SplitWorkspaceRepository} from '../../packages/core/split-workspace.ts';
 import {WorkspaceActionOutcomes} from '../../packages/workspace/action-outcomes.ts';
 import {workspaceActionTypeSchema,workspaceActionOperationSchema} from '../../packages/contracts/workspace-action-outcomes.ts';
 import {capabilityEnabled} from '../../packages/core/capability-flags.ts';
+import {fileSuggestionsQuerySchema} from '../../packages/contracts/file-mentions.ts';
+import {FileSuggestions} from '../../packages/workspace/file-suggestions.ts';
 import {workspaceOwnerScope} from '../../packages/workspace/edit-journal.ts';
 import {CheckpointService} from '../../packages/workspace/checkpoints.ts';
 import type {CheckpointScope} from '../../packages/contracts/workspace-checkpoints.ts';
@@ -31,7 +33,33 @@ export function registerWorkspaceRoutes(app:FastifyInstance,service:Service){
  registerEnvironmentRoutes(app,service);
  const host=workspaceHost(service),{projects,terminals}=host,github=githubFor(host);projects.workspace.migrateProjects();
  registerIntegrationSecretReferenceRoutes(app,host);
- const actionOutcomes=new WorkspaceActionOutcomes(projects,github);
+ const actionOutcomes=new WorkspaceActionOutcomes(projects,github),fileSuggestions=new FileSuggestions(projects),activeSuggestions=new Set<AbortController>();
+ app.register(async scope=>{
+  // onSend also covers errors sent by the parent's earlier auth hooks.
+  scope.addHook('onSend',async(_request,reply,payload)=>{reply.header('Cache-Control','no-store');return payload;});
+  scope.get('/api/projects/:projectId/file-suggestions',async(request,reply)=>{
+   const{projectId}=z.strictObject({projectId:identifier}).parse(request.params);
+   const raw=request.raw.url??request.url,query:Record<string,string> = Object.create(null);
+   for(const pair of (raw.includes('?')?raw.slice(raw.indexOf('?')+1):'').split('&')){
+    if(!pair)continue;
+    const split=pair.indexOf('='),encodedKey=split<0?pair:pair.slice(0,split),encodedValue=split<0?'':pair.slice(split+1);
+    let key:string,value:string;
+    try{key=decodeURIComponent(encodedKey.replaceAll('+',' '));value=decodeURIComponent(encodedValue.replaceAll('+',' '));}
+    catch{throw new HarnessError('INVALID_INPUT','File suggestion queries must use valid UTF-8.');}
+    if(Object.hasOwn(query,key))throw new HarnessError('INVALID_INPUT','File suggestion query keys must be unique.');
+    query[key]=value;
+   }
+   if(query.limit!==undefined&&!/^[0-9]+$/.test(query.limit))throw new HarnessError('INVALID_INPUT','Choose a file suggestion limit from 1 to 50.');
+   if(request.body!==undefined||Number(request.headers['content-length']??0)>0||request.headers['transfer-encoding']!==undefined)throw new HarnessError('INVALID_INPUT','File suggestions does not accept a body.');
+   const{threadId,q,limit}=fileSuggestionsQuerySchema.parse(query),enabled=capabilityEnabled('ui.fileMentionsV1');
+   if(!enabled)return{enabled,projectId,threadId,query:q,items:[],complete:true};
+   const controller=new AbortController(),cancel=()=>controller.abort(),close=()=>{if(!reply.raw.writableFinished)cancel();};
+   activeSuggestions.add(controller);request.raw.once('aborted',cancel);reply.raw.once('close',close);
+   try{return{enabled,projectId,threadId,query:q,...await fileSuggestions.suggest(projectId,threadId,q.trim(),limit,controller.signal)};}
+   finally{activeSuggestions.delete(controller);request.raw.removeListener('aborted',cancel);reply.raw.removeListener('close',close);}
+  });
+ });
+ app.addHook('preClose',async()=>{for(const controller of activeSuggestions)controller.abort();});
  // Read-only inspection uses POST so private journal payloads never enter URLs.
  app.post('/api/projects/:projectId/action-outcomes/inspect',{bodyLimit:1024*1024},async(request,reply)=>{
   reply.header('Cache-Control','no-store');

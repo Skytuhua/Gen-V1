@@ -71,6 +71,10 @@ import {WorkspaceControls,panelLabels} from './WorkspaceControls';
 import {WorkspaceHost,type ConversationHost} from './WorkspaceHost';
 import type {SharedAgentComposers, ComposerState, ConversationComposerTarget} from './agents-workspace/composer';
 import {ComposerCommands,ComposerSkillBindings,type ComposerCommandsHandle} from './ComposerCommands';
+import {ComposerMentions,type ComposerMentionsHandle} from './ComposerMentions';
+import {MessageFileMentions} from './MessageFileMentions';
+import {activeMentions} from './composer-mentions';
+import {FILE_MENTION_LIMITS,fileMentionsV1Schema,type FileMentionV1} from '../../../packages/contracts/file-mentions';
 import type {ModelPickerHandle} from './ModelPicker';
 import {useComposerSkills,skillDraftKey,readSkillBindings,clearAcceptedSkills} from './composer-skill-drafts';
 import {useWorkspaceState} from './workspace-api';
@@ -294,7 +298,13 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
   const preferences = getPreferences(snapshot.settings);
 
   const [dragging, setDragging] = useState(false);
-  const input = useRef<HTMLTextAreaElement>(null), commands = useRef<ComposerCommandsHandle>(null), modelPicker = useRef<ModelPickerHandle>(null), openedModelRequest = useRef<number | undefined>(undefined);
+  const input = useRef<HTMLTextAreaElement>(null), commands = useRef<ComposerCommandsHandle>(null), mentions = useRef<ComposerMentionsHandle>(null), modelPicker = useRef<ModelPickerHandle>(null), openedModelRequest = useRef<number | undefined>(undefined);
+  const [mentionsOpen, setMentionsOpen] = useState(false);
+  const [localMentions, setLocalMentions] = useState<FileMentionV1[]>([]);
+  useEffect(()=>{if(shared)return;let current=true;const accept=(value:unknown)=>{try{setLocalMentions(fileMentionsV1Schema.parse(value??[]));}catch{setLocalMentions([]);setError('File mentions could not be recovered. Keep this workspace open.');}};const unsubscribe=journalSubscribe(`mentions:${key}`,value=>{if(draftTarget.current===key)accept(value);});void journalReadRecord(`mentions:${key}`).then(record=>{if(current)accept(record?.value);}).catch(()=>{if(current)setError('File mentions could not be recovered. Keep this workspace open.');});return()=>{current=false;unsubscribe();};},[key,shared]);
+  const fileMentions=shared?sharedState.fileMentions??[]:localMentions,fileMentionsLatest=useRef(fileMentions);fileMentionsLatest.current=fileMentions;
+  const mentionOwner=thread?.projectId?{projectId:thread.projectId,threadId:thread.id}:undefined;
+  const addMention=(path:string)=>{const next=[...fileMentionsLatest.current.filter(mention=>mention.path!==path),{path}].slice(-FILE_MENTION_LIMITS.maxMentions);void journalWrite(`mentions:${shared&&sharedTarget?sharedTarget.threadId:draftTarget.current}`,next).catch(()=>setError('File mentions could not be stored locally.'));};
   const [skillOwner,setSkillOwner]=useState(key);
   const localSkills = useComposerSkills(skillOwner, !shared), skills = shared ? sharedState.skills ?? [] : localSkills.skills;
   const skillsReady = shared || localSkills.ready;
@@ -310,7 +320,7 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
   useEffect(()=>{const model=models.find(model=>model.id===modelId);if(model&&thinkingLevel&&!model.thinkingLevels?.includes(thinkingLevel))chooseThinking('');},[models,modelId,thinkingLevel]);
   useEffect(() => { if (shared) return; let current = true; void journalRead<string>(`draft:${key}`).then(value => { if (current) { setDraft(value ?? ''); setReady(true); } }).catch(() => { if (current) { setReady(true); setError('Draft recovery is unavailable. Keep this tab open until your message is sent.'); } }); return () => { current = false; }; }, [key, shared]);
   useEffect(() => shared ? undefined : journalSubscribe(`draft:${key}`, value => { if (draftTarget.current === key) { prediction.dismiss(); setDraft(typeof value === 'string' ? value : ''); } }), [key, shared]);
-  const prediction = useComposerPrediction({ thread, snapshot, modelId, enabled: preferences.composerPredictions, ready, blocked: predictionBlocked || busy || unavailable || contextOpen, draft, generation: journalGeneration(`draft:${key}`), input });
+  const prediction = useComposerPrediction({ thread, snapshot, modelId, enabled: preferences.composerPredictions, ready, blocked: predictionBlocked || busy || unavailable || contextOpen || mentionsOpen, draft, generation: journalGeneration(`draft:${key}`), input });
   useLayoutEffect(() => {
     const textarea = input.current;
     if (!textarea) return;
@@ -340,6 +350,8 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
       const selected=await journalReadRecord(skillDraftKey(key));
       await journalWrite(skillDraftKey(id),readSkillBindings(selected?.value));
       if(retireSource&&selected)await journalCompareAndSwap(skillDraftKey(key),selected.generation,[]);
+      const mentioned=await journalReadRecord(`mentions:${key}`);
+      if(mentioned){await journalWrite(`mentions:${id}`,mentioned.value);if(retireSource)await journalCompareAndSwap(`mentions:${key}`,mentioned.generation,[]);}
       if(!thread&&draftMode==='plan')await command('thread.mode',{mode:'plan'},id);
     }
     const generation = id !== key ? await journalWrite(`draft:${id}`, source?.value ?? fallback) : journalGeneration(`draft:${key}`);
@@ -365,7 +377,7 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
     if (working && workbench?.draft?.sendMode !== 'AFTER_CURRENT' || unavailable) return;
     await runAction(async () => {
       setError('');
-      const submittedDraft = draft, submittedSkills = skills.slice(), submittedThinking = thinkingLatest.current || null;
+      const submittedDraft = draft, submittedSkills = skills.slice(), submittedThinking = thinkingLatest.current || null, submittedMentions = activeMentions(draft, fileMentionsLatest.current);
       const submittedGeneration = journalGeneration(`draft:${key}`), submittedExcerptGeneration = journalGeneration(excerptDraftKey(key));
       try {
         const submittedExcerpts=readTerminalExcerpts(excerpts,thread?.projectId?{projectId:thread.projectId,threadId:thread.id}:undefined);
@@ -375,13 +387,14 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
         const id = await ensureThread(async id => { migrated = await migrateDraft(id, submittedDraft, true); });
         if (sharedComposers) {
           const target: ConversationComposerTarget = {kind: 'conversation', projectId:thread?.projectId, workspaceId:thread?.workspaceId, threadId: id, modelId, working};
-          await sharedComposers.prepare(target); await sharedComposers.submit(target, {sourceContextVisible:Boolean(workbench?.draft&&workbench.owner?.threadId===id),thinkingLevel: submittedThinking, ...(requestContextId ? {requestContextId} : {}),submission:{content:submittedDraft,generation:id===key?submittedGeneration:migrated&&migrated.source?.generation===submittedGeneration?migrated.generation:undefined,skills:submittedSkills,excerpts:submittedExcerpts,excerptGeneration:submittedExcerptGeneration}});
+          await sharedComposers.prepare(target); await sharedComposers.submit(target, {sourceContextVisible:Boolean(workbench?.draft&&workbench.owner?.threadId===id),thinkingLevel: submittedThinking, ...(requestContextId ? {requestContextId} : {}),submission:{content:submittedDraft,generation:id===key?submittedGeneration:migrated&&migrated.source?.generation===submittedGeneration?migrated.generation:undefined,skills:submittedSkills,excerpts:submittedExcerpts,excerptGeneration:submittedExcerptGeneration,fileMentions:submittedMentions}});
           await refresh(); return;
         }
         if(workbench?.draft?.sourceRefs.length||workbench?.draft?.sendMode==='AFTER_CURRENT')throw Error('Source-aware sending is unavailable in this composer. The draft was retained.');
-        await command('message.send', { content: submittedPrompt, modelId, thinkingLevel:submittedThinking, ...(requestContextId ? {requestContextId} : {}), ...(submittedSkills.length?{skills:submittedSkills.map(binding=>binding.ref)}:{}) }, id);
+        await command('message.send', { content: submittedPrompt, modelId, thinkingLevel:submittedThinking, ...(requestContextId ? {requestContextId} : {}), ...(submittedMentions.length?{fileMentions:submittedMentions}:{}) , ...(submittedSkills.length?{skills:submittedSkills.map(binding=>binding.ref)}:{}) }, id);
         await clearAcceptedSkills(skillDraftKey(id),submittedSkills);
         await clearAcceptedExcerpts(id,submittedExcerptGeneration);
+        await journalWrite(`mentions:${id}`,[]);
         await journalCompareAndSwap(`draft:${key}`, submittedGeneration, '');
         if (id !== key && migrated && migrated.source?.generation === submittedGeneration) await journalCompareAndSwap(`draft:${id}`, migrated.generation, '');
         await refresh();
@@ -426,6 +439,7 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
       <ComposerAttachments resources={resources} excerpts={excerpts} disabled={busy||!ready||retry} onEditExcerpt={(id,text)=>updateExcerpt(id,text)} onRemoveExcerpt={id=>updateExcerpt(id)} timeFormat={getPreferences(snapshot.settings).timeFormat}/>
       <ComposerSkillBindings bindings={skills} retry={retry} onRemove={id=>{void (sharedComposers&&sharedTarget?sharedComposers.removeSkill(sharedTarget,id):localSkills.remove(id)).catch(cause=>fail(cause));}}/>
       <ComposerCommands ref={commands} input={input} draft={draft} threadId={thread?.id} projectId={thread?.projectId} disabled={!ready||!skillsReady||busy||predictionBlocked} onDraft={updateDraft} onModel={()=>modelPicker.current?.open()} onMode={chooseMode}/>
+      <ComposerMentions ref={mentions} input={input} draft={draft} owner={mentionOwner} disabled={!ready||!skillsReady||busy||predictionBlocked} onDraft={updateDraft} onSelect={addMention} onOpenChange={setMentionsOpen}/>
       <div className="composer-entry-row">
       <div className="composer-input">
         <textarea ref={input} aria-label="Message" placeholder={prediction.candidate ? '' : dragging ? 'Drop files to attach' : 'Ask anything…'} value={draft} disabled={!ready} onChange={event => updateDraft(event.target.value)} onPaste={prediction.dismiss} onCompositionStart={prediction.dismiss} onKeyDown={event => {
@@ -433,11 +447,12 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
           const submitKey = event.key === 'Enter' && !event.shiftKey && (preferences.sendShortcut === 'enter' || event.ctrlKey || event.metaKey);
           if (submitKey && /^\/(?:btw|side)$/i.test(draft.trim())) { event.preventDefault(); void send(); return; }
           if(commands.current?.keyDown(event))return;
+          if(mentions.current?.keyDown(event))return;
           if (prediction.candidate && event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); prediction.dismiss(); return; }
           if (event.key === 'Tab' && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey && acceptPrediction()) { event.preventDefault(); return; }
           if (submitKey) { event.preventDefault(); void send(); }
         }} rows={1} />
-        {prediction.candidate && <div ref={ghost} className="composer-prediction-text" aria-hidden="true">{prediction.candidate}</div>}
+        {prediction.candidate && !mentionsOpen && <div ref={ghost} className="composer-prediction-text" aria-hidden="true">{prediction.candidate}</div>}
       </div>
       <ComposerTaskActions changeSummary={changes} onChanges={inspectChanges} onCreatePR={preparePR} disabled={busy||!ready} working={working}/>
       </div>
@@ -449,7 +464,7 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
         trailing={working?<>{workbench?.enabled&&workbench.draft?.sendMode==='AFTER_CURRENT'&&<button type="button" className="secondary" disabled={busy||!retry&&preparedMemory.blocked||!ready||skillsBlocked||!draft.trim()} onClick={()=>void send()}>Queue after current</button>}{/^\/(?:btw|side)(?:\s|$)/i.test(draft.trim())&&<button type="button" className="send-button" aria-label="Send side question" disabled={busy||!ready||skillsBlocked} onClick={()=>void send()}><ArrowUp size={17}/></button>}<button type="button" className="send-button stop-button" aria-label="Stop agent" disabled={shared && sharedState.stopping} onClick={()=>{void (sharedComposers && sharedTarget ? sharedComposers.stop(sharedTarget) : command('run.stop',{},thread!.id)).then(()=>refresh()).catch(error=>fail(error));}}><CircleStop size={20}/></button></>:<button className="send-button" aria-label={retry ? "Retry send" : "Send message"} disabled={busy||!retry&&preparedMemory.blocked||!skillsReady||skillsBlocked||unavailable||!draft.trim() && !excerpts.length && !retry||!ready||!shared&&!excerptsReady} title={unavailable?'Connect an available model in Settings to send.':'Send message (Enter)'}>{busy?<LoaderCircle size={17} className="spinning"/>:<ArrowUp size={19}/>}</button>}
       />
     </ComposerView>
-    <div className="composer-caption">{prediction.candidate ? <span className="composer-prediction-controls"><span className="composer-prediction-keyboard" aria-hidden="true">Tab to accept · Esc to dismiss</span><button type="button" className="composer-prediction-use" onPointerDown={event => event.preventDefault()} onClick={acceptPrediction}>Use suggestion</button></span> : unavailable ? <button onClick={setup}>Connect a model to start<ChevronRight size={12} /></button> : null}</div>
+    <div className="composer-caption">{prediction.candidate && !mentionsOpen ? <span className="composer-prediction-controls"><span className="composer-prediction-keyboard" aria-hidden="true">Tab to accept · Esc to dismiss</span><button type="button" className="composer-prediction-use" onPointerDown={event => event.preventDefault()} onClick={acceptPrediction}>Use suggestion</button></span> : unavailable ? <button onClick={setup}>Connect a model to start<ChevronRight size={12} /></button> : null}</div>
   </div>;
 }
 
@@ -1175,7 +1190,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
         {!loaded && !error && <LoadingState pending hasContent={false} label="Opening workspace…" skeleton={<ConversationSkeleton/>}/>}
         {loaded && !allMessages.length && !artifacts.length && <div className="empty-state"><div className="empty-symbol"><MessageSquare size={25} strokeWidth={1.25} /></div><h1>{thread?.status==='working'?'Run in progress':'What are we working on?'}</h1><p>{thread?.status==='working'?'The transcript will appear here as the agent works.':'Start with a question, file, or project.'}</p>{!models.length && <button className="setup-inline" onClick={() => { setSettingsSection('providers'); setSettingsOpen(true); }}><CircleHelp size={15} /><span>Connect a model to get started</span><ChevronRight size={14} /></button>}</div>}
         {canLoadHistory && <button ref={historyId===activeHistoryId?activeHistoryControl:undefined} className="load-history quiet" onClick={() => { if (historyStart > 0) { captureHistoryAnchor(historyId); historyStarts.current.set(historyId, Math.max(0, historyStart - 100)); setHistoryCounts(previous => ({ ...previous, [historyId]: (previous[historyId] ?? 0) + 1 })); } else if (thread?.id) { const topId = allMessages[historyStart]?.id; const stored = olderMessages.current.get(historyId) ?? [], head = messages[0]?.id; const anchor = stored.length && lastWindowHeads.current.get(historyId) === head ? stored[0].id : head; lastWindowHeads.current.set(historyId, head); void getThreadMessages(thread.id, anchor).then(page => { const known = new Set(stored.map(item => item.id)), fresh = page.messages.filter(item => !known.has(item.id)); const merged = [...stored, ...fresh].sort((a, b) => a.createdAt.localeCompare(b.createdAt)); olderMessages.current.set(historyId, merged); while (olderMessages.current.size > 8) { const stale = [...olderMessages.current.keys()].find(key => key !== historyId); if (stale === undefined) break; olderMessages.current.delete(stale); lastWindowHeads.current.delete(stale); historyStarts.current.delete(stale); readingPositions.current.delete(stale); } const topIndex = merged.findIndex(item => item.id === topId); historyStarts.current.set(historyId, Math.max(0, (topIndex === -1 ? merged.length : topIndex) - 100)); captureHistoryAnchor(historyId); setOlderPageTick(value => value + 1); }).catch(cause => setError(messageOf(cause))); } }}>Load earlier messages</button>}
-        {messageRows.map(({ message, updates }) => <div key={message.id} data-message-id={message.id} data-arrival={liveMessages.current.has(message.id)?'true':undefined} className={`message message-${message.role}`}><span className="sr-only">{message.role === 'user' ? 'You' : message.role === 'assistant' ? 'Assistant' : 'Tool'}</span><div className="message-content">{updates ? <WorkActivity updates={updates} /> : message.role==='assistant'?<SourceMessage id={message.id} threadId={message.threadId} text={message.content}><AssistantProse message={message} arrivals={liveMessages.current} active={Boolean(thread?.runId&&thread.runId===message.runId)} /></SourceMessage>:<Markdown text={message.content} />}{!updates&&<CopyButton text={message.content} label="Copy message"/>}</div>{artifacts.filter(artifact => artifact.messageId === message.id).map(artifact => <Artifact key={artifact.id} artifact={artifact} snapshot={snapshot} theme={theme} refresh={refresh} onDirtyWidget={onDirtyWidget} suspended={threadHeld} active={thread?.id===resolvedMainId} animateEntry={liveEntries.current.has(artifact.id)} />)}</div>)}
+        {messageRows.map(({ message, updates }) => <div key={message.id} data-message-id={message.id} data-arrival={liveMessages.current.has(message.id)?'true':undefined} className={`message message-${message.role}`}><span className="sr-only">{message.role === 'user' ? 'You' : message.role === 'assistant' ? 'Assistant' : 'Tool'}</span><div className="message-content">{updates ? <WorkActivity updates={updates} /> : message.role==='assistant'?<SourceMessage id={message.id} threadId={message.threadId} text={message.content}><AssistantProse message={message} arrivals={liveMessages.current} active={Boolean(thread?.runId&&thread.runId===message.runId)} /></SourceMessage>:<Markdown text={message.content} />}{!updates&&<CopyButton text={message.content} label="Copy message"/>}{message.role==='user'&&message.fileMentions?.length?<MessageFileMentions mentions={message.fileMentions}/>:null}</div>{artifacts.filter(artifact => artifact.messageId === message.id).map(artifact => <Artifact key={artifact.id} artifact={artifact} snapshot={snapshot} theme={theme} refresh={refresh} onDirtyWidget={onDirtyWidget} suspended={threadHeld} active={thread?.id===resolvedMainId} animateEntry={liveEntries.current.has(artifact.id)} />)}</div>)}
         {artifacts.filter(artifact => !messages.some(message => message.id === artifact.messageId)).map(artifact => <Artifact key={artifact.id} artifact={artifact} snapshot={snapshot} theme={theme} refresh={refresh} onDirtyWidget={onDirtyWidget} suspended={threadHeld} active={thread?.id===resolvedMainId} animateEntry={liveEntries.current.has(artifact.id)} />)}
         {requests.map(request => <InputDecision key={request.presentation?`${request.id}:${JSON.stringify(request.responseSchema)}`:`${request.id}:${request.revision}`} request={request} snapshot={snapshot} refresh={refresh} />)}{operations.map(operation => <OperationDecision key={`${operation.id}:${operation.revision}`} operation={operation} refresh={refresh} owner={thread} />)}
         {thread?.error && <p className="notice" role="status">{thread.error}</p>}
