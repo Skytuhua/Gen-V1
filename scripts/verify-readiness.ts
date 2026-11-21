@@ -63,6 +63,9 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
   // control can conceal a credential start marker; suppress all subsequent
   // child output rather than risk emitting its following unclassified lines.
   let unsafeControlOutput=false;
+  // A dangling known credential label may introduce a multiline value on
+  // either child pipe. Without a provable boundary, discard later output.
+  const danglingCredentialLabel=/(?:^|[\s,(])(?:api[_-]?key|apikey|access[_-]?token|auth[_-]?token|token|secret|password|passwd|authorization)["']?\s*[:=]\s*["']?\s*$|(?:^|\s)bearer\s*$/i;
   const normalizeTerminalLine=(line:string):string=>{
     if(unsafeControlOutput)return '';
     const uncolored=line.replace(/\x1b\[(?:[0-9]{1,3}(?:;[0-9]{1,3})*)?m/g,'');
@@ -75,6 +78,10 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
   const scrubLine=(source:Source,line:string):string=>{
     const normalized=normalizeTerminalLine(line);
     if(unsafeControlOutput)return normalized;
+    if(danglingCredentialLabel.test(normalized)){
+      unsafeControlOutput=true;
+      return '[REDACTED MULTILINE CREDENTIAL]';
+    }
     let remaining=normalized,visible='';
     while(remaining){
       if(privateKeyEnd[source]!==null){
@@ -114,6 +121,10 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
           // Suppress other-pipe output before the header's line can finish.
           unsafeControlOutput=true;
           stream.write('[REDACTED PRIVATE KEY]\n');
+        }else if(danglingCredentialLabel.test(checked)){
+          // The label may not have a newline yet; block the other pipe now.
+          unsafeControlOutput=true;
+          stream.write('[REDACTED MULTILINE CREDENTIAL]\n');
         }
       }
       taintedCarry[source]=suppressOther||(lines.length===0&&carryWasTainted);

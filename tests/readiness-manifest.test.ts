@@ -434,4 +434,35 @@ describe('aggregate and manifest',()=>{
     expect(log).not.toContain('OPPOSITE_PEM_CANARY_7345');
   });
 
+
+  it('suppresses a credential value on the next stdout line',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("password:\nSYNTHETIC_MULTILINE_VALUE_9911\n");`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('[REDACTED MULTILINE CREDENTIAL]');
+    expect(log).not.toContain('SYNTHETIC_MULTILINE_VALUE_9911');
+  });
+
+  it('suppresses a bearer value emitted on the other child pipe',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("Authorization: Bearer\n");setTimeout(()=>process.stderr.write("SYNTHETIC_MULTILINE_VALUE_9912\n"),50);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('[REDACTED MULTILINE CREDENTIAL]');
+    expect(log).not.toContain('SYNTHETIC_MULTILINE_VALUE_9912');
+  });
+
+  it('blocks other-pipe output before an unfinished password label is flushed',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("password:");setTimeout(()=>process.stderr.write("SYNTHETIC_MULTILINE_VALUE_9913\n"),50);setTimeout(()=>process.stdout.write("\n"),100);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('[REDACTED MULTILINE CREDENTIAL]');
+    expect(log).not.toContain('SYNTHETIC_MULTILINE_VALUE_9913');
+  });
+
 });
