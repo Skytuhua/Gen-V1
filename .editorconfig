@@ -1,0 +1,32 @@
+root = true
+
+# .gitattributes keeps exact bytes on checkout (* -text); these settings tell
+# editors what format new and edited files should use.
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# Markdown uses trailing double-space line breaks.
+[*.md]
+trim_trailing_whitespace = false
+
+# Exact-byte vendor trees and fixtures pinned in .gitattributes.
+[third-party/**]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+indent_size = unset
+
+[scripts/cursor-offline-executor.mjs]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+indent_size = unset
