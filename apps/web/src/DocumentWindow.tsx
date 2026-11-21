@@ -1,4 +1,5 @@
 import {useEffect,useId,useLayoutEffect,useRef,useState,type CSSProperties,type PointerEvent} from 'react';
+import { storageKeyFor, readJson, writeJson } from './local-store';
 import {createPortal} from 'react-dom';
 import {useStateStore} from '@json-render/react';
 import {FileText,GripVertical,PanelRightClose,PanelRightOpen,X} from 'lucide-react';
@@ -51,10 +52,10 @@ export function WindowDocument({props,text}:{props:Record<string,unknown>;text?:
  // The owning artifact is stable across expansion and workspace placement.
  // Keeping its window in that DOM branch preserves modal focus and editor identity.
  useLayoutEffect(()=>{setPortalRoot(opener.current?.closest('.artifact')??document.body);},[]);
- const viewKey=`harness:document-view:${scope?.threadId}:${scope?.artifactId}:${String(props.editableStateKey??props.dataBinding??resourceId??'document')}`,restoredView=useRef('');
- const rememberView=()=>{const node=editor.current??windowRef.current?.querySelector<HTMLElement>('.document-window-prose');if(!node)return;try{localStorage.setItem(viewKey,JSON.stringify({sourceId,top:node.scrollTop}));}catch{/* Text drafts do not depend on optional view preferences. */}};
+ const viewKey=storageKeyFor.documentView(String(scope?.threadId),String(scope?.artifactId),String(props.editableStateKey??props.dataBinding??resourceId??'document')),restoredView=useRef('');
+ const rememberView=()=>{const node=editor.current??windowRef.current?.querySelector<HTMLElement>('.document-window-prose');if(!node)return;writeJson(viewKey,{sourceId,top:node.scrollTop});/* Text drafts do not depend on optional view preferences. */};
  useDesktopCloseGuard(`document-view:${id}`,async()=>rememberView());
- useLayoutEffect(()=>{if(!open){restoredView.current='';return;}if(visibleSource===undefined||restoredView.current===sourceId)return;const node=editor.current??windowRef.current?.querySelector<HTMLElement>('.document-window-prose');if(!node)return;restoredView.current=sourceId;try{const saved=JSON.parse(localStorage.getItem(viewKey)??'null');if(saved?.sourceId===sourceId&&Number.isFinite(saved.top)&&saved.top>=0&&saved.top<=10_000_000)node.scrollTop=saved.top;}catch{/* A stale layout preference cannot block the document. */}},[open,sourceId,visibleSource,viewKey,portalRoot]);
+ useLayoutEffect(()=>{if(!open){restoredView.current='';return;}if(visibleSource===undefined||restoredView.current===sourceId)return;const node=editor.current??windowRef.current?.querySelector<HTMLElement>('.document-window-prose');if(!node)return;restoredView.current=sourceId;const saved=readJson<{sourceId?:string;top?:number}|null>(viewKey,null);if(saved?.sourceId===sourceId&&typeof saved.top==='number'&&Number.isFinite(saved.top)&&saved.top>=0&&saved.top<=10_000_000)node.scrollTop=saved.top;/* A stale layout preference cannot block the document. */},[open,sourceId,visibleSource,viewKey,portalRoot]);
  const close=()=>{rememberView();stopDrag.current();controlled?workspace.closeDocument?.(id):setLocalOpen(false);opener.current?.focus({preventScroll:true});};
  const place=(next:'docked'|'floating')=>{controlled?workspace.placeDocument?.(id,next):setLocalPlacement(next);};
  useEffect(()=>{if(!open||!resourceId||!allowed)return;const controller=new AbortController();let current=true;setReading(true);setLoaded(null);setError('');const timer=setTimeout(()=>controller.abort(),15_000);

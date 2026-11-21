@@ -1,4 +1,5 @@
 import {useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ComponentProps, type CSSProperties, type ReactNode} from 'react';
+import { storageKeys, readString, readWorkspaceMode, writeString } from './local-store';
 import {Menu, PanelLeftOpen, X} from 'lucide-react';
 import {threadNavigationRevision,type ThreadNavigationRow} from '../../../packages/contracts/shell-read-models';
 import type {PanelBinding, WorkspacePreset} from '../../../packages/contracts/workspace';
@@ -95,7 +96,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
   const preset = workspace.envelope?.state.canvases.find(canvas => canvas.id === activeCanvasId)?.preset;
   // Retired presets (T05/R12) resolve to a supported Workspace before any host mounts; stored records are never rewritten.
   // Explicit retained-canvas restoration keeps rendering the saved record through the retained renderer (legacy compatibility).
-  const retainedCanvasMode = (() => {try {const saved = localStorage.getItem('harness:workspace-mode:v3') ?? localStorage.getItem('harness:workspace-mode:v2'); return saved === 'retained-canvas';} catch {return false;}})();
+  const retainedCanvasMode = readWorkspaceMode() === 'retained-canvas';
   const retiredActive = Boolean(preset && !isSupportedWorkspacePreset(preset) && !retainedCanvasMode);
   const monitored = preset === 'all-agents' && Boolean(settings);
   useLayoutEffect(() => {if (!monitored) return; void controller.start(); return () => controller.pause();}, [monitored, controller]);
@@ -115,7 +116,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
       let threadId = binding?.authority.kind === 'local' ? binding.threadId : undefined;
       if (!canvas && !binding && (next === 'research' || next === 'code-review')) {
         let id = selected.current;
-        if (!id) try {id = localStorage.getItem('harness:selected-thread') ?? undefined;} catch { /* The server still validates an unbound preset. */ }
+        if (!id) {id = readString(storageKeys.selectedThread) ?? undefined;/* The server still validates an unbound preset. */ }
         if (id) threadId = next === 'code-review' ? id : (await getShellNavigationItem(id)).id;
       }
       // Ordinary preset navigation carries a suitable current owner, or opens the owner picker.
@@ -146,7 +147,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
         selected.current=scope.threadId;changed=true;
         setIntent({id:++intentSequence.current,kind:'linked-pull-requests',review:{...target,threadId:scope.threadId,projectId:scope.projectId!}});
       },undefined,isCurrent);
-      if(isCurrent())try{localStorage.setItem('harness:selected-thread',scope.threadId);}catch{/* The explicit owner still reaches the mounted conversation. */}
+      if(isCurrent())writeString(storageKeys.selectedThread,scope.threadId);/* The explicit owner still reaches the mounted conversation. */
     }catch(cause){if(changed){selected.current=previous;setIntent(undefined);}if(alive.current)setError(message(cause));throw cause;}
   };
   const openConversation = async (id?: string, kind?: ConversationIntent, pluginTarget?: {pluginId: string; workspaceId: string}) => {
@@ -157,7 +158,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
         selected.current = id; changed = true;
         if (kind) setIntent({id: ++intentSequence.current, kind, ...pluginTarget}); else setIntent(undefined);
       });
-      if (id) try {localStorage.setItem('harness:selected-thread', id);} catch { /* The explicit owner still reaches the mounted conversation. */ }
+      if (id) writeString(storageKeys.selectedThread, id);/* The explicit owner still reaches the mounted conversation. */
     } catch (cause) {if (changed) {selected.current = previous; setIntent(undefined);} throw cause;}
   };
   const fail = (action: () => Promise<unknown>) => {void action().catch(cause => {if (alive.current) setError(message(cause));});};

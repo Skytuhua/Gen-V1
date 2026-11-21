@@ -33,7 +33,7 @@ function DockedWindow({layout,onLayout,notice,...props}:FloatingWindowProps&{lay
 }
 
 /** Recover before mounting: opaque frames cannot use the personal browser's
- * localStorage. Retain legacy placement fields, but only present bounded docks. */
+ * browser storage. Retain legacy placement fields, but only present bounded docks. */
 export function PluginFloatingWindow(props:FloatingWindowProps){
  const currentOwner=useMemo(()=>({id:props.id}),[props.id]),owner=useRef<typeof currentOwner|null>(currentOwner);
  useLayoutEffect(()=>{owner.current=currentOwner;},[currentOwner]);

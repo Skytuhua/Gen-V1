@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { storageKeys, readJson, writeJson } from './local-store';
 import type { WorkspaceTab } from './workspace-context';
 
 export interface ShellLayout { sidebarCollapsed: boolean; sidebarWidth: number; rightPanelOpen: boolean; rightPanelWidth: number; rightPanelMaximized: boolean; activeTab: WorkspaceTab; openTabs: WorkspaceTab[]; activeArtifactId: string | null; folded: Record<string, boolean> }
@@ -6,7 +7,7 @@ const defaults: ShellLayout = { sidebarCollapsed: false, sidebarWidth: 248, righ
 export const WORKSPACE_TABS: WorkspaceTab[] = ['artifact', 'plan', 'files', 'diff', 'notes', 'output', 'usage', 'terminal', 'pull-request', 'linked-pull-requests'];
 export function readShellLayout(): ShellLayout {
   try {
-    const saved: unknown = JSON.parse(localStorage.getItem('harness:shell-layout:v1') ?? 'null');
+    const saved = readJson<unknown>(storageKeys.shellLayoutV1, null);
     if (!saved || typeof saved !== 'object') return defaults;
     const value = saved as Partial<ShellLayout>;
     return { ...defaults, sidebarCollapsed: value.sidebarCollapsed === true, sidebarWidth: typeof value.sidebarWidth === 'number' && Number.isFinite(value.sidebarWidth) ? Math.max(200, Math.min(380, value.sidebarWidth)) : defaults.sidebarWidth,
@@ -17,7 +18,7 @@ export function readShellLayout(): ShellLayout {
 }
 export function useShellLayout() {
   const [layout, setLayout] = useState(readShellLayout);
-  useEffect(() => { try { localStorage.setItem('harness:shell-layout:v1', JSON.stringify(layout)); } catch { /* Panel layout remains usable without local storage. */ } }, [layout]);
+  useEffect(() => { writeJson(storageKeys.shellLayoutV1, layout); /* Panel layout remains usable without local storage. */ }, [layout]);
   return [layout, setLayout] as const;
 }
 export function matchesShortcut(event: Pick<KeyboardEvent, 'key' | 'ctrlKey' | 'metaKey' | 'shiftKey' | 'altKey'>, shortcut: string) {

@@ -1,3 +1,4 @@
+import { storageKeyFor, readString, writeJson, remove } from './local-store';
 export interface JournalRecord<T = unknown> { value: T; updatedAt: number; generation: string }
 let database: Promise<IDBDatabase> | undefined;
 const memory = new Map<string, JournalRecord>();
@@ -80,19 +81,19 @@ function notifyOtherWindows(key:string,generation:string){journalChannel?.postMe
 if(journalChannel)journalChannel.onmessage=event=>{const value=event.data;if(!value||value.sender===journalSender||typeof value.key!=='string'||value.key.length>2048||typeof value.generation!=='string'||value.generation.length>128)return;const key=value.key;void observeJournalOperation([key],'read',()=>open().then(db=>new Promise<JournalRecord|undefined>((resolve,reject)=>{const request=db.transaction('entries').objectStore('entries').get(key);request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);}))).then(record=>{if(!record||record.generation!==value.generation||pendingRecord(key)&&pendingRecord(key)?.generation!==record.generation)return;const previous=memory.get(key);if(previous&&previous.updatedAt>record.updatedAt)return;memory.set(key,record);observeJournalRecord(key,record);notifyLocal(key,record.value);}).catch(()=>{});};
 export async function journalFlush(){while(writes.size)await Promise.all([...writes]);const failed=[...failedWrites].filter(([key,record])=>memory.get(key)?.generation===record.generation);if(failed.length)await Promise.all(failed.map(([key,record])=>persist(key,record)));}
 export async function journalEntries():Promise<{key:string;record:JournalRecord}[]>{await journalFlush();const db=await open();const rows=await new Promise<{key:string;record:JournalRecord}[]>((resolve,reject)=>{const transaction=db.transaction('entries'),store=transaction.objectStore('entries'),keys=store.getAllKeys(),values=store.getAll();transaction.oncomplete=()=>resolve(keys.result.map((key,index)=>({key:String(key),record:values.result[index]})));transaction.onerror=()=>reject(transaction.error);});const entries=new Map(rows.map(row=>[row.key,row.record]));for(const [key,record]of memory)entries.set(key,record);return [...entries].map(([key,record])=>{observeJournalRecord(key,record);return {key,record};});}
-const pendingKey = (key: string) => `harness:journal-pending:${encodeURIComponent(key)}`;
+const pendingKey = storageKeyFor.journalPending;
 function pendingRecord(key: string): JournalRecord | undefined {
   try {
-    const raw = localStorage.getItem(pendingKey(key)); if (!raw) return;
+    const raw = readString(pendingKey(key)); if (!raw) return;
     const record = JSON.parse(raw) as JournalRecord;
     if (record && typeof record.generation === 'string' && record.generation.length <= 128 && Number.isFinite(record.updatedAt) && Object.hasOwn(record, 'value')) return record;
   } catch { /* IndexedDB remains the primary journal if synchronous storage is unavailable. */ }
 }
 function stage(key: string, record: JournalRecord) {
-  try { localStorage.setItem(pendingKey(key), JSON.stringify(record)); } catch { /* The awaited IndexedDB write still reports storage failures. */ }
+  writeJson(pendingKey(key), record); /* The awaited IndexedDB write still reports storage failures. */
 }
 function clearStaged(key: string, generation: string) {
-  try { if (pendingRecord(key)?.generation === generation) localStorage.removeItem(pendingKey(key)); } catch { /* A retained staging record is recoverable. */ }
+  if (pendingRecord(key)?.generation === generation) remove(pendingKey(key)); /* A retained staging record is recoverable. */
 }
 async function persistRecord(key: string, record: JournalRecord): Promise<void> {
   const db = await open();
