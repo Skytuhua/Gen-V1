@@ -42,6 +42,10 @@ Expect Windows SmartScreen to show a
   agent chats and recoverable sidebar navigation down to narrow window sizes.
 - Refine shared menus, dialogs, model/reasoning selection with favorites, loading
   states, motion, keyboard navigation, touch controls and polite live regions.
+- Add a command menu (Ctrl+K, or Ctrl+Shift+P as the command-palette alias) for
+  running workspace actions, panel switches, project/thread navigation,
+  Settings sections and personal skills from one searchable overlay; sidebar
+  thread search moves to Ctrl+Shift+F.
 - Retire the built-in Code Review, Research, Custom and Visuals presets without
   discarding saved canvas records; keep optional visual tools separate.
 
