@@ -270,7 +270,7 @@ export function ShellSidebar({
               <span className="thread-project-monogram" style={{ color: projectColor({ kind: 'local' }, item.projectId, preferences.projectColors) }} aria-hidden="true">
                 {projectMonogram(item.projectName)}
               </span>
-              <span className="thread-item-title">
+              <span className="thread-item-title" title={item.title}>
                 {item.presentation?.unread && <span className="unread-dot" />}
                 {item.title}
               </span>
@@ -286,7 +286,7 @@ export function ShellSidebar({
                     {projectMonogram(item.projectName)}
                   </span>
                   {item.presentation?.pinned && <Pin size={10} className="thread-pin-icon" aria-hidden="true" />}
-                  <span className="thread-project-label">{item.projectName || 'Personal'}</span>
+                  <span className="thread-project-label" title={item.projectName || 'Personal'}>{item.projectName || 'Personal'}</span>
                 </span>
                 <span className="thread-item-meta" data-thread-state={item.runId ? 'working' : item.status}>
                   {showStatus && (
@@ -302,7 +302,7 @@ export function ShellSidebar({
                   <time dateTime={item.updatedAt}>{threadAge(item.updatedAt)}</time>
                 </span>
               </span>
-              <span className="thread-item-title">
+              <span className="thread-item-title" title={item.title}>
                 {item.presentation?.unread && <span className="unread-dot" />}
                 {item.title}
               </span>

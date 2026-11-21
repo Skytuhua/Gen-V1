@@ -13,7 +13,7 @@
 
 .app-shell .sidebar .brand-row strong,
 .sidebar .brand-row strong {
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: -0.015em;
 }
@@ -56,7 +56,7 @@
   width: 100%;
   height: 100%;
   padding: 0;
-  font-size: 12.5px;
+  font-size: 0.7812rem;
   background: transparent;
   border: 0;
 }
@@ -119,7 +119,7 @@
 
 .sidebar .thread-group h2 {
   padding: 0;
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 .sidebar .thread-group h2 > button {
@@ -128,7 +128,7 @@
   align-items: center;
   justify-content: flex-start;
   gap: 6px;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--muted);
   padding: 6px 8px;
@@ -218,7 +218,7 @@
   justify-content: space-between;
   gap: 8px;
   min-width: 0;
-  line-height: 16px;
+  line-height: 1rem;
 }
 
 .sidebar .thread-project-chip {
@@ -239,7 +239,7 @@
   border-radius: 4px;
   background: var(--subtle);
   border: 1px solid var(--border);
-  font-size: 9px;
+  font-size: 0.5625rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   line-height: 1;
@@ -258,8 +258,8 @@
 }
 
 .sidebar .thread-project-label {
-  font-size: 11.5px;
-  line-height: 16px;
+  font-size: 0.7188rem;
+  line-height: 1rem;
   color: var(--muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -268,9 +268,9 @@
 
 .app-shell .sidebar .sidebar-thread-row .thread-item-title,
 .sidebar .sidebar-thread-row .thread-item-title {
-  font-size: 13.5px;
+  font-size: 0.8438rem;
   font-weight: 500;
-  line-height: 19px;
+  line-height: 1.1875rem;
   color: var(--text);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -291,8 +291,8 @@
   flex: 0 0 auto;
   min-width: 0;
   min-height: 16px;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 0.75rem;
+  line-height: 1rem;
   text-transform: none;
   font-variant-numeric: tabular-nums;
 }
@@ -304,7 +304,7 @@
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
-  font-size: 11.5px;
+  font-size: 0.7188rem;
 }
 
 .sidebar .thread-item-status > svg {
@@ -326,7 +326,7 @@
 
 .sidebar .thread-item-meta time {
   flex: 0 0 auto;
-  font-size: 11.5px;
+  font-size: 0.7188rem;
   color: var(--muted);
 }
 
@@ -335,8 +335,8 @@
   align-items: center;
   gap: 8px;
   min-width: 0;
-  font-size: 11.5px;
-  line-height: 15px;
+  font-size: 0.7188rem;
+  line-height: 0.9375rem;
   color: var(--muted);
   margin-top: 1px;
 }
@@ -356,7 +356,7 @@
 }
 
 .sidebar .thread-item-kind {
-  font-size: 11.5px;
+  font-size: 0.7188rem;
   color: var(--muted);
   flex: 0 0 auto;
 }
@@ -390,9 +390,9 @@
 .sidebar .sidebar-settled-row .thread-item-title {
   flex: 1;
   min-width: 0;
-  font-size: 12.5px;
+  font-size: 0.7812rem;
   font-weight: 450;
-  line-height: 17px;
+  line-height: 1.0625rem;
   color: color-mix(in srgb, var(--text) 78%, var(--muted));
 }
 
@@ -409,7 +409,7 @@
   padding: 6px 8px;
   margin-top: 2px;
   border-radius: 7px;
-  font-size: 12px;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 
@@ -467,7 +467,7 @@
   min-height: 30px;
   padding: 5px 8px;
   border-radius: 7px;
-  font-size: 12.5px;
+  font-size: 0.7812rem;
   color: var(--muted);
 }
 
@@ -592,8 +592,8 @@
   padding: 8px 9px;
   border: 1px dashed color-mix(in srgb, var(--border) 85%, transparent);
   border-radius: 9px;
-  font-size: 11.5px;
-  line-height: 15px;
+  font-size: 0.7188rem;
+  line-height: 0.9375rem;
   color: var(--muted);
 }
 
@@ -635,7 +635,7 @@
 
 .sidebar .sidebar-footer > button > span {
   max-width: 100%;
-  font-size: 9px;
+  font-size: 0.5625rem;
   line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;

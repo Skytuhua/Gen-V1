@@ -2715,6 +2715,7 @@
     "pnpm-workspace.yaml",
     "run_m16_bounded.py",
     "scripts/analyze-initiated-motion.ts",
+    "scripts/audit-589-zoom.ts",
     "scripts/browser-suites.ts",
     "scripts/build-desktop.ts",
     "scripts/build-plugin-api.mjs",

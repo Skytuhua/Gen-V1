@@ -10,7 +10,7 @@
   background: var(--surface);
   color: var(--text);
   font-family: inherit;
-  font-size: 12px;
+  font-size: 0.75rem;
   line-height: 1.5;
   overflow-wrap: anywhere;
   scrollbar-width: thin;
@@ -21,9 +21,9 @@
 .thread-hover-card[data-state="open"] { transition: none; }
 .thread-hover-card[data-state="closed"] { opacity: 0; pointer-events: none; animation: none; }
 .thread-hover-body { display: flex; flex-direction: column; gap: var(--ui-space-2); min-width: 0; }
-.thread-hover-title { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.4; white-space: pre-wrap; }
+.thread-hover-title { margin: 0; font-size: 1rem; font-weight: 600; line-height: 1.4; white-space: pre-wrap; }
 .thread-hover-project { display: flex; align-items: baseline; gap: var(--ui-space-2); min-width: 0; }
-.thread-hover-monogram { flex-shrink: 0; font-size: 12px; font-weight: 600; }
+.thread-hover-monogram { flex-shrink: 0; font-size: 0.75rem; font-weight: 600; }
 .thread-hover-dot { flex: 0 0 8px; height: 8px; align-self: center; border-radius: 50%; background: currentColor; }
 .thread-hover-facts { display: flex; flex-direction: column; gap: var(--ui-space-1); margin: 0; }
 .thread-hover-fact { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: var(--ui-space-2); }

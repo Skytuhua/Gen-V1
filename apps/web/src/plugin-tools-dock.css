@@ -9,7 +9,7 @@ body:has(>.ui-tool-dock>.plugin-tool-window:not([hidden]))>div:empty:not(#root) 
 .plugin-tool-window>p {padding:12px;margin:0;}
 .plugin-tool-window :is(button,input,textarea,summary):focus-visible {outline:2px solid var(--ui-focus-ring,#808080);outline-offset:-2px;}
 .plugin-tool-window>.floating-window-header {flex-shrink:0;}
-.plugin-tool-window>.floating-window-header>.floating-window-summary {font-size:12px;white-space:normal;text-align:left;}
+.plugin-tool-window>.floating-window-header>.floating-window-summary {font-size:0.75rem;white-space:normal;text-align:left;}
 .plugin-tool-window>.floating-window-body[hidden] {display:none;}
 .plugin-tool-window>.floating-window-body {padding:12px;}
 @media(max-width:705px) {
