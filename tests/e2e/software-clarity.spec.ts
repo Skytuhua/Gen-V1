@@ -16,6 +16,19 @@ test('diagnostics make the failure and complete check inventory readable without
  await expect(page.locator('.software-diagnostic-details')).not.toHaveAttribute('open');
 });
 
+test('diagnostics keep long check names separate from source metadata',async({page})=>{
+ await page.setViewportSize({width:1280,height:800});
+ await open(page,'Diagnostics');
+ const row=page.locator('.software-check-inventory button').first();
+ const label=row.locator('.software-item-copy>span').last();
+ const meta=row.locator('.software-item-meta');
+ await expect(label).toHaveCSS('white-space','nowrap');
+ await expect(label).toHaveCSS('text-overflow','ellipsis');
+ const nameRect=await label.boundingBox(),metaRect=await meta.boundingBox();
+ expect(nameRect).not.toBeNull();expect(metaRect).not.toBeNull();
+ expect(metaRect!.y).toBeGreaterThanOrEqual(nameRect!.y+nameRect!.height-1);
+});
+
 test('a proposed patch exposes accurate old and new line numbers without changing the file',async({page})=>{
  const host=await open(page,'ChangeSet');const patch=page.getByLabel('Selected patch',{exact:true});
  await expect(patch.locator('[data-line-kind="removed"]')).toHaveAttribute('data-old-line','2');
