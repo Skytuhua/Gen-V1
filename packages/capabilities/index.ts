@@ -8,6 +8,8 @@ import { databaseJob, validateStatements } from "./database.ts";
 import { inspectPdf, renderPdf } from "./pdf.ts";
 import { gitExecutable, runProcess } from "./process.ts";
 import { readBoundFile, removeOwnedFile, replaceOwnedFile, withPathGuard } from "../core/file-access.ts";
+import { validateImageBytes } from "../core/generated-images.ts";
+import { validateImageSavePath, writeImageFile } from "../core/image-save.ts";
 import { withGitMetadata, type ManagedGitFamily } from "./git-access.ts";
 import { validateCanonicalPng } from './signature-png.ts';
 import { parseRepositoryTestOperation, requireRepositoryTestBinding, withRepositoryTestBinding } from './repository-test-binding.ts';
@@ -148,6 +150,47 @@ export async function handleDomainTool(name: string, rawArgs: unknown, ctx: Doma
       const rendered = await renderPdf(source.bytes, a, marks.images, ctx.signal); // Validate before offering approval; no writes.
       return ctx.prepareOperation("pdf.export", a, pdfResources(a), { sha256: source.sha256, ...marks.hashes, output: "absent", outputSha256: sha256(rendered) }, `Fill PDF and place ${(a.signatures ?? []).length} visual signature marks in new local export ${a.outputPath}; no certificate or delivery`);
     }
+    case "image_save_prepare": {
+      const a = parse("image_save_prepare", rawArgs);
+      const source = await readResource(ctx, a.resourceId, undefined, 21 * 1024 * 1024);
+      const detected = validateImageBytes(source.bytes);
+      const target = validateImageSavePath(a.path, detected.format);
+      const exists = async (candidate: string): Promise<boolean> => access(ctx, a.projectResourceId, candidate, true, async filename => {
+        try { await lstat(filename); return true; } catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return false; throw error; }
+      });
+      const preconditions: Record<string, string> = { sha256: source.sha256 };
+      let resolved = target;
+      if (a.saveAsCopy === true) {
+        const extension = resolved.slice(resolved.lastIndexOf("."));
+        const stem = resolved.slice(0, resolved.length - extension.length);
+        resolved = "";
+        for (let index = 1; index <= 999; index++) {
+          const candidate = index === 1 ? target : `${stem}-${index}${extension}`;
+          if (!(await exists(candidate))) { resolved = candidate; break; }
+        }
+        if (!resolved) throw new HarnessError("PATH_CONFLICT", "No free copy name is available");
+        preconditions.output = "absent";
+      } else if (a.expectedSha256) {
+        const current = await access(ctx, a.projectResourceId, target, true, async filename => {
+          try {
+            const info = await lstat(filename);
+            if (!info.isFile() || info.isSymbolicLink()) throw new HarnessError("INVALID_RESOURCE", "Overwrite target must be a regular file");
+            return sha256(await readBoundFile(filename, 21 * 1024 * 1024));
+          } catch (error) {
+            if (error instanceof HarnessError) throw error;
+            if ((error as NodeJS.ErrnoException).code === "ENOENT") throw new HarnessError("PATH_CONFLICT", "No file exists at that path to overwrite");
+            throw error;
+          }
+        });
+        if (current !== a.expectedSha256) throw new HarnessError("PRECONDITION_FAILED", "The file on disk differs from expectedSha256");
+        preconditions.outputSha256 = a.expectedSha256;
+      } else {
+        if (await exists(target)) throw new HarnessError("PATH_CONFLICT", "A file already exists at that path");
+        preconditions.output = "absent";
+      }
+      const args = { ...a, resolvedPath: resolved };
+      return ctx.prepareOperation("image.save", args, [a.resourceId, a.projectResourceId], preconditions, `Save image into the project as ${resolved}`);
+    }
   }
 }
 function operationResources(operation: Operation, expected: string[]) {
@@ -217,6 +260,21 @@ export async function executeDomainOperation(operation: Operation, ctx: DomainCo
       publish(ctx, result, `operation:${operation.id}; source ${provenance(a.resourceId, a.path, source.sha256)}; exported ${provenance(a.exportResourceId, a.outputPath, result.sha256)}`); ctx.progress("PDF exported locally", { completed: 1, total: 1 }); return result;
       });
     }
+    case "image.save": {
+      const a = parse("image_save_prepare", operation.args); operationResources(operation, [a.resourceId, a.projectResourceId]);
+      const source = await readResource(ctx, a.resourceId, undefined, 21 * 1024 * 1024);
+      if (source.sha256 !== operation.preconditions.sha256) throw new HarnessError("PRECONDITION_FAILED", "Image changed since preparation");
+      const detected = validateImageBytes(source.bytes);
+      const rel = validateImageSavePath(a.resolvedPath ?? a.path, detected.format);
+      const mode = operation.preconditions.outputSha256 ? "overwrite" : "fail";
+      if (mode === "fail" && operation.preconditions.output !== "absent") throw new HarnessError("INVALID_OPERATION", "Image saves require an absent destination or a pinned overwrite hash");
+      return access(ctx, a.projectResourceId, rel, true, async filename => {
+        const written = await writeImageFile(filename, source.bytes, { mode, expectedSha256: operation.preconditions.outputSha256, signal: ctx.signal });
+        const result = { resourceId: a.resourceId, projectResourceId: a.projectResourceId, path: rel, sha256: written.sha256, bytes: written.bytes };
+        ctx.completedWrite?.({ path: filename, sha256: written.sha256, bytes: written.bytes });
+        publish(ctx, result, `operation:${operation.id}; saved ${provenance(a.resourceId, undefined, source.sha256)} -> ${provenance(a.projectResourceId, rel, written.sha256)}`); ctx.progress("Image saved", { completed: 1, total: 1 }); return result;
+      });
+    }
     default: throw new HarnessError("UNKNOWN_OPERATION", `Unknown domain operation ${operation.kind}`);
   }
 }
@@ -240,6 +298,15 @@ export async function reconcileDomainOperation(operation: Operation, ctx: Domain
         if (exported.sha256 === operation.preconditions.outputSha256) return { status: "succeeded", basis: "postcondition", result: { sha256: exported.sha256, resourceId: a.exportResourceId, path: a.outputPath }, message: "Export bytes match the prepared output hash; the original PDF was not changed by this operation." };
         return unknown("Export exists but its hash differs from the prepared output. Never overwrite it.", { sha256: exported.sha256 });
       } catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return unknown("Export is absent; execution history remains unknown. No automatic retry."); throw error; }
+    }
+    case "image.save": {
+      const a = parse("image_save_prepare", operation.args); operationResources(operation, [a.resourceId, a.projectResourceId]);
+      const resolved = a.resolvedPath ?? a.path;
+      try {
+        const saved = await readResource(ctx, a.projectResourceId, resolved, 21 * 1024 * 1024);
+        if (saved.sha256 === operation.preconditions.sha256) return { status: "succeeded", basis: "postcondition", result: { sha256: saved.sha256, path: resolved, projectResourceId: a.projectResourceId }, message: "Saved bytes match the prepared image hash; the source attachment was not changed by this operation." };
+        return unknown("Save target exists but its hash differs from the prepared image. Never overwrite it.", { sha256: saved.sha256 });
+      } catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return unknown("Save target is absent; execution history remains unknown. No automatic retry."); throw error; }
     }
     case "database.transaction":
     case "database.migration": {

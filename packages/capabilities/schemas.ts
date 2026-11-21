@@ -20,10 +20,12 @@ export const toolSchemas = {
   database_prepare: z.strictObject({ ...resource, mode: z.enum(["transaction", "migration"]), statements: z.array(statement).min(1).max(100) }),
   pdf_inspect: z.strictObject(resource),
   pdf_prepare: z.strictObject({ ...resource, exportResourceId: id, outputPath: relativePath.refine(s => s.toLowerCase().endsWith(".pdf")), fields: z.record(z.string().min(1).max(300), z.union([z.string().max(10_000), z.boolean(), z.array(z.string().max(1000)).max(100)])).optional(), signatures: z.array(z.union([z.strictObject({ kind: z.literal("typed"), text: z.string().min(1).max(200), ...placement }), z.union([z.strictObject({ kind: z.literal("drawn"), points: z.array(point).min(2).max(2000), ...placement }), z.strictObject({ kind: z.literal("drawn"), strokes: z.array(z.array(point).min(2).max(2000)).min(1).max(1000).refine(strokes => strokes.reduce((sum, stroke) => sum + stroke.length, 0) <= 2000, "At most 2000 total signature points"), ...placement })]), z.strictObject({ kind: z.literal("image"), resourceId: id.refine(value => !/[\u0000-\u0020/\\?#]/.test(value) && ![".", ".."].includes(value)), ...placement })])).max(20).optional() }),
+  image_save_prepare: z.strictObject({ resourceId: id, projectResourceId: id, path: relativePath.refine(s => /\.(?:png|jpe?g|webp)$/i.test(s), "Name a .png, .jpg/.jpeg or .webp target"), expectedSha256: sha.optional(), saveAsCopy: z.boolean().optional(), resolvedPath: relativePath.optional() }),
 };
 export type ToolName = keyof typeof toolSchemas;
 export type DatabaseArgs = z.infer<typeof toolSchemas.database_prepare>;
 export type PdfArgs = z.infer<typeof toolSchemas.pdf_prepare>;
+export type ImageSaveArgs = z.infer<typeof toolSchemas.image_save_prepare>;
 export const descriptions: Record<ToolName, string> = {
   repository_files: "List granted project files (bounded, excludes .git/node_modules, never follows symlinks).",
   repository_read: "Read one granted UTF-8 source file with SHA-256 and provenance.",
@@ -38,4 +40,5 @@ export const descriptions: Record<ToolName, string> = {
   database_prepare: "Prepare an external SQLite transaction/migration with database version, integrity checks, bounded SQL, exact expected DML counts and rollback on mismatch. No ATTACH/extension/PRAGMA or harness database access.",
   pdf_inspect: "Inspect local PDF pages, supported form fields and best-effort unencrypted text streams. No OCR or complete custom-font extraction.",
   pdf_prepare: "Prepare supported PDF form fill and visual typed/drawn/PNG signature placement in a NEW local PDF export. No certificate signatures, OCR or email delivery; existing exports are never overwritten.",
+  image_save_prepare: "Prepare saving a granted image attachment into a writable project grant. New file by default; overwrite only with the current file's exact SHA-256; saveAsCopy picks a free -N name. Approval required.",
 };
