@@ -104,6 +104,12 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
         const safe=scrubLine(source,lines[i]!);
         if(!suppress&&(safe||(!unsafeControlOutput&&privateKeyEnd[source]===null)))stream.write(safe+'\n');
       }
+      // A partial line can already contain an ambiguous terminal control.
+      // Lock suppression before the other pipe can emit an unclassified key body.
+      if(!unsafeControlOutput&&carry[source]){
+        const checked=normalizeTerminalLine(carry[source]);
+        if(unsafeControlOutput)stream.write(checked+'\n');
+      }
       taintedCarry[source]=suppressOther||(lines.length===0&&carryWasTainted);
     },
     end(){
