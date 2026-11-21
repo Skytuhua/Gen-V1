@@ -131,7 +131,7 @@ export const CiFailureSendV1 = z.object({ reportId: z.string().max(128), jobIds:
 
 ### 2. Host
 
-2.1 **Excerpt extraction** — `packages/workspace/ci-logs.ts` (new, pure): `extractFailureExcerpt(raw: string): {excerpt, lines, truncated}` implementing R04 exactly. Timestamp regex `^\uFEFF?\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z ?`; ANSI regex `\u001b\[[0-9;?]*[ -/]*[@-~]`; split on `\r?\n`. `isBlobMissing(raw)` detects `<Code>BlobNotFound</Code>`.
+2.1 **Excerpt extraction** — `packages/workspace/ci-logs.ts` (new, pure): `extractFailureExcerpt(raw: string): {excerpt, lines, truncated}` implementing R04 exactly. Timestamp regex `^\uFEFF?\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z ?`; ANSI sequences = the ESC character (U+001B) followed by `[`, then parameter bytes `[0-9;?]*`, intermediate bytes `[ -/]*` and one final byte `[@-~]`; split on `\r?\n`. `isBlobMissing(raw)` detects `<Code>BlobNotFound</Code>`.
 
 2.2 **`GitHubTools.failedChecks(projectId, threadId, number, {refresh})`** in `github.ts`:
 1. `details()` (existing) → `item.headRefOid`, `statusCheckRollup`, local `head`.
