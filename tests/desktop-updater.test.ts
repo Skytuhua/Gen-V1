@@ -65,6 +65,21 @@ it('requires the verified download event and a completed nonempty download resul
   await f.controller.check();expect(f.controller.status().state).toBe('failed');expect(JSON.stringify(f.controller.status())).not.toContain('private-native-error');expect(f.updater.installs).toEqual([]);f.controller.dispose();
  }
 });
+it('keeps the current version when an update is signed by another publisher',async()=>{
+ const f=fixture();const proof={activeWorkAtClose:false,osSessionEnding:false,savedStateFlushed:true,backendStoppedCleanly:true};
+ f.updater.downloadAction=async()=>{throw Object.assign(Error('not signed'),{code:'ERR_UPDATER_INVALID_SIGNATURE'});};
+ await f.controller.check();
+ expect(f.controller.status()).toEqual({state:'failed',message:'The update was not signed by the expected publisher. Gen will keep the current version.'});
+ expect(await f.controller.installAfterClose(proof,true)).toBe(false);
+ expect(f.updater.installs).toEqual([]);f.controller.dispose();
+});
+it('keeps the generic message for download failures that are not signature mismatches',async()=>{
+ const f=fixture();
+ f.updater.downloadAction=async()=>{throw Error('private-native-error');};
+ await f.controller.check();
+ expect(f.controller.status()).toEqual({state:'failed',message:'The update could not be verified. Gen will keep the current version.'});
+ f.controller.dispose();
+});
 it('invalidates a failed check and permits a later successful retry',async()=>{
  const f=fixture();f.updater.checkAction=async()=>{throw Error('credential-bearing-error');};await f.controller.check();expect(f.controller.status().state).toBe('failed');expect(JSON.stringify(f.controller.status())).not.toContain('credential-bearing-error');
  f.updater.checkAction=undefined;await f.controller.check();expect(f.controller.status().state).toBe('ready');f.controller.dispose();
