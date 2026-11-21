@@ -116,3 +116,10 @@
 .settings-shortcuts-keys { display:flex;flex:0 0 auto;gap:4px; }
 .settings-shortcuts-keys kbd { padding:1px 5px;border:1px solid var(--border);border-radius:4px;font-size:11px;color:var(--muted);white-space:nowrap; }
 .settings-shortcuts-label small { display:block;margin-top:1px;font-size:12px;line-height:1.4;color:var(--muted); }
+
+.settings-row-reveal { display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows var(--ui-motion-popup-enter) var(--ui-ease-enter),opacity var(--ui-motion-popup-enter) var(--ui-ease-enter); }
+.settings-row-reveal[data-open="true"] { grid-template-rows:1fr;opacity:1; }
+.settings-row-reveal>.settings-row { overflow:hidden;min-height:0;transform:translateY(-4px);transition:transform var(--ui-motion-popup-enter) var(--ui-ease-enter); }
+.settings-row-reveal[data-open="true"]>.settings-row { transform:none; }
+@media(prefers-reduced-motion:reduce) { .settings-row-reveal,.settings-row-reveal>.settings-row { transition:none; } }
+:root:is([data-motion="reduced"],[data-motion="off"]) .settings-row-reveal,:root:is([data-motion="reduced"],[data-motion="off"]) .settings-row-reveal>.settings-row { transition:none; }
