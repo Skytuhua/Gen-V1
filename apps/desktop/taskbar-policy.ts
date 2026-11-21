@@ -18,11 +18,12 @@ export function taskbarNativeState(status:TaskbarStatus|undefined):NativeTaskbar
 }
 export function sameNativeState(a:NativeTaskbarState,b:NativeTaskbarState):boolean{return a.mode===b.mode&&a.overlay===b.overlay&&Math.round(a.progress*100)===Math.round(b.progress*100);}
 
-/** VD-03 failure badge: 12px #E5484D circle ringed #0F0F0F at (11,11), white exclamation. */
+/** VD-03 failure badge: 12px #E5484D circle ringed #0F0F0F at (11,11), white exclamation.
+ * createFromBitmap expects BGRA, so channels are written blue-first. */
 export function failureOverlayBitmap(scale:number):Uint8Array{
  const size=Math.round(16*scale),pixels=new Uint8Array(size*size*4);
  const cx=11*scale,cy=11*scale,radius=6*scale,ring=1*scale;
- const set=(x:number,y:number,r:number,g:number,b:number,a:number)=>{const o=(y*size+x)*4;pixels[o]=r;pixels[o+1]=g;pixels[o+2]=b;pixels[o+3]=a;};
+ const set=(x:number,y:number,r:number,g:number,b:number,a:number)=>{const o=(y*size+x)*4;pixels[o]=b;pixels[o+1]=g;pixels[o+2]=r;pixels[o+3]=a;};
  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
   const distance=Math.hypot(x+.5-cx,y+.5-cy);
   if(distance>radius+.5)continue;

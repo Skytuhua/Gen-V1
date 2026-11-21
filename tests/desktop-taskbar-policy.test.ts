@@ -29,20 +29,21 @@ describe("taskbarNativeState", () => {
 });
 
 describe("failureOverlayBitmap", () => {
+ // createFromBitmap expects BGRA, so stored bytes are [blue, green, red, alpha].
  const pixel = (bitmap: Uint8Array, scale: number, x: number, y: number) => { const size = Math.round(16 * scale), o = (y * size + x) * 4; return [bitmap[o], bitmap[o + 1], bitmap[o + 2], bitmap[o + 3]]; };
  it("draws the red circle, dark ring and white exclamation", () => {
   const bitmap = failureOverlayBitmap(1);
-  expect(pixel(bitmap, 1, 8, 8)).toEqual([0xE5, 0x48, 0x4D, 255]);
+  expect(pixel(bitmap, 1, 8, 8)).toEqual([0x4D, 0x48, 0xE5, 255]);
   expect(pixel(bitmap, 1, 15, 8)).toEqual([0x0F, 0x0F, 0x0F, 255]);
   expect(pixel(bitmap, 1, 11, 9)).toEqual([255, 255, 255, 255]);
   expect(pixel(bitmap, 1, 11, 13)).toEqual([255, 255, 255, 255]);
-  expect(pixel(bitmap, 1, 11, 12)).toEqual([0xE5, 0x48, 0x4D, 255]);
+  expect(pixel(bitmap, 1, 11, 12)).toEqual([0x4D, 0x48, 0xE5, 255]);
   expect(pixel(bitmap, 1, 0, 0)).toEqual([0, 0, 0, 0]);
  });
  it("scales to 32x32 at scale 2", () => {
   const bitmap = failureOverlayBitmap(2);
   expect(bitmap.length).toBe(32 * 32 * 4);
-  expect(pixel(bitmap, 2, 18, 17)).toEqual([0xE5, 0x48, 0x4D, 255]);
+  expect(pixel(bitmap, 2, 18, 17)).toEqual([0x4D, 0x48, 0xE5, 255]);
  });
 });
 
