@@ -42,12 +42,12 @@ async function pendingReads(page:Page,kind:'models'|'context'){
  return()=>page.evaluate(()=>(window as any).__pendingWorkspaceReads.map(({id,url,hasSignal,aborted,completed}:any)=>({id,url,hasSignal,aborted,completed})) as {id:number;url:string;hasSignal:boolean;aborted:boolean;completed:boolean}[]);
 }
 const panel=(id:string,threadId:string,x:number,kind:PanelPlacement['kind']='thread'):PanelPlacement=>({id,kind,canvasId:'canvas',binding:{authority:{kind:'local'},threadId,...(kind==='agent'?{agentId:'agent-one'}:{})},placement:'canvas',visible:true,collapsed:false,bounds:{x,y:56,width:480,height:600},order:0,alwaysOnTop:false});
-async function fixture(page:Page,panels:PanelPlacement[],beforeCommand?:(type:string,envelope:WorkspaceEnvelope)=>void|{code:string;message:string},preset:'custom'|'workspace'='custom'){
+async function fixture(page:Page,panels:PanelPlacement[],beforeCommand?:(type:string,envelope:WorkspaceEnvelope)=>void|{code:string;message:string},preset:'custom'|'workspace'='custom',projectId?:string){
  // This suite exercises explicit retained canvas recovery; normal Custom is covered by workspace-host.
  if(preset==='custom')await page.addInitScript(()=>localStorage.setItem('harness:workspace-mode:v3','retained-canvas'));
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Unused artifact fixture'}}}});
  snapshot.artifacts=[];snapshot.userStates=[];snapshot.settings.theme='dark';
- snapshot.threads[0]={...snapshot.threads[0],title:'Main investigation'};
+ snapshot.threads[0]={...snapshot.threads[0],title:'Main investigation',...(projectId?{projectId}:{})};
  snapshot.threads.push({...snapshot.threads[0],id:'side',title:'Side investigation',sideParentId:'task-thread'}, {...snapshot.threads[0],id:'child',title:'Delegated investigation',kind:'delegate',parentThreadId:'task-thread'});
  snapshot.messages=[{id:'parent-message',threadId:'task-thread',role:'assistant',content:'Parent transcript only',runId:null,createdAt:stamp},...Array.from({length:105},(_,index)=>({id:'child-'+index,threadId:'child',role:'assistant' as const,content:'Actual child message '+index,runId:null,createdAt:stamp}))];
  snapshot.data.push({id:planDataId('task-thread'),threadId:'task-thread',revision:1,provenance:PLANNING_PROVENANCE,createdAt:stamp,value:{version:1,title:'Parent plan',steps:[],agents:[{id:'agent-one',name:'Delegated investigation',commandId:'delegate-command',taskId:'delegate-task',createdAt:stamp,updatedAt:stamp,completedRequirementIds:[],reportedPercent:null,status:'working',task:'Inspect the child source',childThreadId:'child',requirements:[]}]}});
@@ -63,6 +63,29 @@ async function fixture(page:Page,panels:PanelPlacement[],beforeCommand?:(type:st
  else await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeVisible();
  return {...host,envelope};
 }
+
+test('Project overview is anchored in the workspace header',async({page})=>{
+ await fixture(page,[],undefined,'workspace');
+ const trigger=page.getByRole('button',{name:'Project overview',exact:true}),dialog=page.getByRole('dialog',{name:'Project overview',exact:true});
+ await expect(page.locator('.summary-overview')).toHaveCount(0);await expect(dialog).toBeHidden();
+ await trigger.click();await expect(dialog).toBeVisible();await expect(dialog).toBeFocused();
+ const anchor=(await trigger.boundingBox())!,popup=(await dialog.boundingBox())!;
+ expect(popup.y).toBeGreaterThanOrEqual(anchor.y+anchor.height);expect(popup.x+popup.width).toBeLessThanOrEqual(page.viewportSize()!.width);
+ await page.keyboard.press('Escape');await expect(dialog).toBeHidden();await expect(trigger).toBeFocused();
+ await trigger.click();await page.getByRole('textbox',{name:'Message',exact:true}).click();await expect(dialog).toBeHidden();
+});
+test('overview remains usable without a project',async({page})=>{
+ await fixture(page,[],undefined,'workspace');
+ await page.getByRole('button',{name:'Project overview',exact:true}).click();
+ await expect(page.getByRole('dialog',{name:'Project overview',exact:true}).getByRole('button',{name:'Connect project',exact:true})).toBeVisible();
+});
+test('overview exposes context read errors for its bound project',async({page})=>{
+ await fixture(page,[],undefined,'workspace','unreachable-project');
+ await page.route('**/api/projects/*/context*',route=>route.fulfill({status:500,json:{error:{code:'INTERNAL',message:'Synthetic context read failed'}}}));
+ await page.reload();
+ await page.getByRole('button',{name:'Project overview',exact:true}).click();
+ await expect(page.getByRole('dialog',{name:'Project overview',exact:true})).toContainText('Synthetic context read failed');
+});
 
 test('primary Workspace keeps tools fixed and preserves its anchored draft through close reopen and reload',async({page})=>{
  const host=await fixture(page,[],undefined,'workspace'),draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep the primary draft');
