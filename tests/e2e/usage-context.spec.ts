@@ -343,7 +343,11 @@ test('accepted receipt needs exact ownership; measured freed count is optional a
 });
 test('reported segments fit their capacity track without cumulative separator overflow', async ({ page }) => {
   await page.goto('/usage-context'); await update(page, 'categories'); await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
-  const track = (await context(page).locator('.context-segment-bar').boundingBox())!;
+  const segmentTrack = context(page).locator('.context-segment-bar');
+  await expect(segmentTrack).toHaveCSS('display', 'flex');
+  await expect(segmentTrack).toHaveCSS('height', '10px');
+  const track = (await segmentTrack.boundingBox())!;
+  expect(track.height).toBeGreaterThanOrEqual(9.9);
   const end = (await context(page).locator('.context-segment').last().boundingBox())!;
   expect(end.x + end.width).toBeLessThanOrEqual(track.x + track.width + 0.1);
 });
