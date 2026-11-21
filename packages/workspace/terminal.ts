@@ -35,7 +35,10 @@ export class TerminalHost{
   // Trusted integration programs retain their explicitly pinned environments.
   const pty=spawn(input.program??shell,input.args??args,{name:'xterm-256color',cwd:binding.path,cols:dimension.parse(input.cols??100),rows:dimension.parse(input.rows??30),env:(input.environment??{...processEnvironment(),...configured}) as Record<string,string>,useConpty:true});
   let finish!:()=>void;const session:Session={id:terminalId,projectId,...(threadId?{threadId}:{}),path:binding.path,pty,output:'',offset:0,exited:false,exitCode:null,done:new Promise<void>(resolve=>{finish=resolve;})};
-  this.sessions.set(terminalId,session);this.persist(session);
+  this.sessions.set(terminalId,session);
+  // A failed open must not leave a live process registered: the durable
+  // record is the registration, so a persist failure rolls both back.
+  try{this.persist(session);}catch(error){this.sessions.delete(terminalId);try{session.pty.kill();}catch{/* The failed open still releases its process. */}throw error;}
   pty.onData(data=>{
    session.output+=data;
    if(session.output.length>512*1024){
