@@ -52,16 +52,19 @@ export function redactSecrets(text:string):string{
   return redacted;
 }
 
-// Line-buffered so a secret split across stream chunks is still redacted whole.
+// Keep partial lines from different pipes separate before redaction.
 function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
-  let carry='';
+  const carry={stdout:'',stderr:''};
   return {
-    write(chunk:Buffer|string){
-      carry+=String(chunk);
-      const lines=carry.split('\n');carry=lines.pop()!;
+    write(source:keyof typeof carry,chunk:string){
+      const lines=(carry[source]+chunk).split('\n');carry[source]=lines.pop()!;
       for(const line of lines)stream.write(redactSecrets(line)+'\n');
     },
-    end(){if(carry)stream.write(redactSecrets(carry));stream.end();},
+    end(){
+      const tails=Object.values(carry).filter(Boolean).map(redactSecrets);
+      if(tails.length)stream.write(tails.join('\n'));
+      stream.end();
+    },
   };
 }
 
@@ -122,8 +125,8 @@ export async function runCheck(spec:CheckSpec):Promise<CheckResult>{
       resolvePromise(finish({status:'FAIL',errorKind:'log-error'}));
     });
     // Decode each byte stream incrementally before merging and redacting lines.
-    child.stdout?.setEncoding('utf8').on('data',chunk=>{if(!settled)sink.write(chunk);});
-    child.stderr?.setEncoding('utf8').on('data',chunk=>{if(!settled)sink.write(chunk);});
+    child.stdout?.setEncoding('utf8').on('data',chunk=>{if(!settled)sink.write('stdout',chunk);});
+    child.stderr?.setEncoding('utf8').on('data',chunk=>{if(!settled)sink.write('stderr',chunk);});
     child.once('error',(error:NodeJS.ErrnoException)=>{
       settle(error.code==='ENOENT'
         ?{status:'BLOCKED',errorKind:'missing-binary'}

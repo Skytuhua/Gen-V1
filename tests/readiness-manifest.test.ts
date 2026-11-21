@@ -56,6 +56,14 @@ describe('runCheck child-process contract',()=>{
     expect(result.errorKind).toBe('nonzero-exit');
   });
 
+  it('keeps split stdout lines separate from complete stderr lines',async()=>{
+    const directory=temporaryDirectory();
+    const code="process.stdout.write('first-half');setTimeout(()=>process.stderr.write('other-line\\n'),150);setTimeout(()=>process.stdout.write('-second-half\\n'),300)";
+    const spec=specFor(directory,{args:['-e',code]});
+    expect((await runCheck(spec)).status).toBe('PASS');
+    expect(readFileSync(spec.logPath,'utf8').trimEnd().split('\n').sort()).toEqual(['first-half-second-half','other-line']);
+  });
+
   it('missing binary yields BLOCKED, never PASS',async()=>{
     const directory=temporaryDirectory();
     const result=await runCheck(specFor(directory,{command:'f01-definitely-missing-binary'}));
