@@ -9,6 +9,9 @@ import {useAppearance} from './useAppearance';
 import {LoadingState} from './LoadingState';
 import {SettingsSkeleton} from './ViewSkeletons';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
+import {withTimeout} from './with-timeout';
+
+const SETTINGS_LOAD_ERROR = "Settings didn't load. Check your connection and try again.";
 
 export type CompactSettingsProps = Pick<SettingsActions, 'close' | 'addResource' | 'initialSection' | 'openBrowser' | 'environmentSettings'> & {
   /** Host identity. Changing it disposes this Settings view and its metadata scope. */
@@ -27,14 +30,14 @@ function ScopedSettings(actions: Omit<CompactSettingsProps, 'scopeKey'>) {
     const controller = new AbortController(); read.current = controller;
     setLoading(true); setError('');
     try {
-      const next = await loadCompactSettings(controller.signal);
+      const next = await withTimeout(loadCompactSettings(controller.signal), 8_000).catch(cause => {if (cause instanceof Error && cause.message === 'settings-load-timeout') {controller.abort(); throw new Error(SETTINGS_LOAD_ERROR);} throw cause;});
       controller.signal.throwIfAborted();
       if (generation.current === request) setData(next);
     } catch (cause) {
-      if (!controller.signal.aborted && generation.current === request) setError(cause instanceof Error ? cause.message : 'Settings could not load.');
+      if (generation.current === request) setError(cause instanceof Error ? cause.message : 'Settings could not load.');
       throw cause;
     } finally {
-      if (!controller.signal.aborted && generation.current === request) setLoading(false);
+      if (generation.current === request) setLoading(false);
     }
   }, []);
   useLayoutEffect(() => {
@@ -49,7 +52,7 @@ function ScopedSettings(actions: Omit<CompactSettingsProps, 'scopeKey'>) {
     signal.throwIfAborted(); return result;
   }, []);
   return <>
-    {error && <ErrorState className="notice error-text" message={error} retryLabel="Retry settings" busy={loading} onRetry={() => void refresh().catch(() => {})}/>}
+    {error && <ErrorState className="notice error-text" message={error} retryLabel="Reload settings" busy={loading} onRetry={() => void refresh().catch(() => {})}><p style={{fontSize: '12px', color: 'var(--muted)'}}>If this keeps happening, reload the app.</p></ErrorState>}
     <LoadingState pending={loading} hasContent={Boolean(data)} label="Opening settings…" skeleton={<SettingsSkeleton/>} className="view-loading-state">
     {data && <AcceptedSettings {...actions} data={data} draftReferences={draftReferences} modelError="" refresh={refresh} loadModels={async () => {}} environmentSettings={actions.environmentSettings ?? <EnvironmentSettings/>}/>}
     </LoadingState>
