@@ -1,6 +1,6 @@
 import {createHash} from 'node:crypto';
 import {existsSync,readFileSync} from 'node:fs';
-import {implementationEvidenceV3Schema,sourceLockV3Schema,validateImplementationEvidence} from './packages/contracts/implementation-evidence.ts';
+import {implementationEvidenceV3Schema,sourceLockV3Schema,validateImplementationEvidence} from '../packages/contracts/implementation-evidence.ts';
 
 const read=(p:string)=>readFileSync(p,'utf8');
 const hash=(p:string)=>createHash('sha256').update(readFileSync(p)).digest('hex');
@@ -15,7 +15,7 @@ check(evidence.flags.every(f=>f.enabled===false),'production flags must stay fal
 check(evidence.baseSha==='f20b92c636f9ba749a2a2ac027a9e1f053574198','baseSha drifted');
 check(lock.executionBaseSha===evidence.baseSha,'lock base differs');
 
-for(const issue of validateImplementationEvidence(evidence))issues.push(`${issue.code}: ${issue.description}`);
+for(const issue of validateImplementationEvidence(evidence))issues.push(`${issue.code}: ${issue.message}`);
 for(const phase of evidence.phases){
  for(const command of phase.commands){
   check(existsSync(command.boundedLogRef),`missing log ${command.boundedLogRef}`);
