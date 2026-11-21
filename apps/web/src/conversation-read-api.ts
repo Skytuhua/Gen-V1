@@ -1,8 +1,8 @@
 import {z} from 'zod';
 import {
   conversationTargetSchema, conversationHistoryQuerySchema, conversationContextSchema, conversationHistoryPageSchema,
-  conversationContentPageSchema, conversationUpdatesSchema, conversationMessageSchema,
-  type ConversationContext, type ConversationTarget, type ConversationHistoryPage, type ConversationContentPage, type ConversationMessage, type ConversationUpdates,
+  conversationContentPageSchema, conversationUpdatesSchema, conversationMessageSchema, conversationTurnsSchema,
+  type ConversationContext, type ConversationTarget, type ConversationHistoryPage, type ConversationContentPage, type ConversationMessage, type ConversationUpdates, type ConversationTurns,
 } from '../../../packages/contracts/conversation-read-models.ts';
 import {ApiError, authenticated, read} from './api.ts';
 
@@ -33,6 +33,10 @@ export async function getConversationContext(input: ConversationTarget, signal?:
   const {threadId, ...target} = conversationTargetSchema.parse(input), context = checkedContext(await get(threadId, '', target, signal));
   if (context.owner.threadId !== threadId || context.includeArchived !== target.includeArchived) throw invalid();
   return context;
+}
+export async function getConversationTurns(input: ConversationContext, query: {turnId?: string} = {}, signal?: AbortSignal): Promise<ConversationTurns> {
+  const context = checkedContext(input), page = parse(conversationTurnsSchema, await get(context.owner.threadId, '/turns', {...scope(context), turnId: query.turnId}, signal));
+  checkEnvelope(context, page); return page;
 }
 export async function getConversationHistory(input: ConversationContext, query: {limit?: number; cursor?: string} = {}, signal?: AbortSignal): Promise<ConversationHistoryPage> {
   const context = checkedContext(input), options = conversationHistoryQuerySchema.pick({limit: true, cursor: true}).parse(query);
