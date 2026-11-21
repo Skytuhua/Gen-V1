@@ -1,0 +1,39 @@
+T06 verify-power-keeper run — 2026-11-21 (UTC) — worker devin-t3local-53006c
+Host: Windows x64, S0 Low Power Idle (modern standby), standby-timeout-ac was already 0 (never).
+Build: PR #1370 head cc2281bb, real Electron from dist/desktop-app, isolated temp profile,
+seeded fixtures via Store (same technique as tests/power-activity.test.ts), real /api/commands.
+
+powercfg -requests probe => POWERCFG-FAILED rc=1: This command requires administrator
+privileges and must be executed from an elevated command prompt.
+  (powercfg /requests is elevation-gated on this build; native sudo.exe is disabled;
+  Win32_PowerRequest WMI class does not exist here. OS-level proof is therefore the
+  DesktopState.power surface — 'holding' is published only while
+  powerSaveBlocker.isStarted() is true — plus the 75s no-suspend-gap check below.)
+standby query => POWERCFG-FAILED rc=1 (STANDBYIDLE absent on S0 boxes)
+original standby-timeout-ac = 0 min (restored afterwards)
+
+PASS | a: switches off + working thread -> idle (no hold) | power={"state":"idle"} after 577ms
+PASS | b: keepAwakeTasks on + working thread -> holding | power={"state":"holding","reason":"tasks"} in 526ms
+PASS | b+: 75s elapsed with 1-min standby, no suspend gap, still holding | elapsed=74998ms (suspend would inflate); power={"state":"holding","reason":"tasks"}
+PASS | c: task completed -> released | power={"state":"off"} in 532ms
+PASS | d-1: re-held for stop check | in 520ms
+PASS | d: live work stopped -> released (tray stopAll shares this release path) | in 528ms
+PASS | g-1: armed schedule + keepAwakeSchedules -> holding | power={"state":"holding","reason":"schedules"} in 520ms
+PASS | g-2: schedule paused -> released | power={"state":"off"} in 520ms
+PASS | f-1: re-held before backend kill | in 527ms
+PASS | f: backend killed -> released (state leaves holding) | power={"state":"off"} after 538ms; killed pid 31720
+PASS | f+: backend restart -> dead run swept, no stale hold (state=off) | power={"state":"off"} sampled 10s after reconnect
+PASS | shots-setup: holding state for capture | power={"state":"holding","reason":"tasks"}
+PASS | shots: reduced-motion disables holding pulse | animationName=none
+PASS | shots-setup: idle state for capture | power={"state":"idle"}
+PASS | shots: power status captured (holding+idle, dark+light) | shots/
+PASS | e: quit while holding -> process exited, OS request released | held=true in 528ms; exited=true
+
+Corroborating unit evidence on cc2281bb (run earlier this session):
+pnpm exec vitest run tests/preferences.test.ts tests/desktop-host-controls.test.ts
+  tests/power-activity.test.ts tests/desktop-power-keeper.test.ts
+  tests/desktop-state-broadcast.test.ts tests/settings-registry.test.ts
+  tests/settings-search-filter.test.ts
+=> 7 files, 43 tests, all passed.
+pnpm build + pnpm desktop:build => web + desktop shell built clean
+  (only pre-existing >500kB chunk warnings).

@@ -1,5 +1,4 @@
 import { expect, test } from '@playwright/test';
-import type { HostCommand } from '../../packages/contracts';
 import { serveTaskFixture, taskFixture } from './task-interface-fixture';
 
 async function openSettings(page: import('@playwright/test').Page) {

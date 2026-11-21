@@ -1,0 +1,87 @@
+{
+  "directory": "C:\\Users\\user\\AppData\\Local\\Temp\\gen-power-wqVRwX",
+  "hostPort": 58717,
+  "requestsProbe": "POWERCFG-FAILED rc=1: This command requires administrator privileges and must be executed from an elevated command prompt. Command failed: powercfg -requests This command requires administrator privileges and must be executed from an elevated command prompt. ",
+  "results": [
+    {
+      "step": "a: switches off + working thread -> idle (no hold)",
+      "pass": true,
+      "detail": "power={\"state\":\"idle\"} after 577ms"
+    },
+    {
+      "step": "b: keepAwakeTasks on + working thread -> holding",
+      "pass": true,
+      "detail": "power={\"state\":\"holding\",\"reason\":\"tasks\"} in 526ms"
+    },
+    {
+      "step": "b+: 75s elapsed with 1-min standby, no suspend gap, still holding",
+      "pass": true,
+      "detail": "elapsed=74998ms (suspend would inflate); power={\"state\":\"holding\",\"reason\":\"tasks\"}"
+    },
+    {
+      "step": "c: task completed -> released",
+      "pass": true,
+      "detail": "power={\"state\":\"off\"} in 532ms"
+    },
+    {
+      "step": "d-1: re-held for stop check",
+      "pass": true,
+      "detail": "in 520ms"
+    },
+    {
+      "step": "d: live work stopped -> released (tray stopAll shares this release path)",
+      "pass": true,
+      "detail": "in 528ms"
+    },
+    {
+      "step": "g-1: armed schedule + keepAwakeSchedules -> holding",
+      "pass": true,
+      "detail": "power={\"state\":\"holding\",\"reason\":\"schedules\"} in 520ms"
+    },
+    {
+      "step": "g-2: schedule paused -> released",
+      "pass": true,
+      "detail": "power={\"state\":\"off\"} in 520ms"
+    },
+    {
+      "step": "f-1: re-held before backend kill",
+      "pass": true,
+      "detail": "in 527ms"
+    },
+    {
+      "step": "f: backend killed -> released (state leaves holding)",
+      "pass": true,
+      "detail": "power={\"state\":\"off\"} after 538ms; killed pid 31720"
+    },
+    {
+      "step": "f+: backend restart -> dead run swept, no stale hold (state=off)",
+      "pass": true,
+      "detail": "power={\"state\":\"off\"} sampled 10s after reconnect"
+    },
+    {
+      "step": "shots-setup: holding state for capture",
+      "pass": true,
+      "detail": "power={\"state\":\"holding\",\"reason\":\"tasks\"}"
+    },
+    {
+      "step": "shots: reduced-motion disables holding pulse",
+      "pass": true,
+      "detail": "animationName=none"
+    },
+    {
+      "step": "shots-setup: idle state for capture",
+      "pass": true,
+      "detail": "power={\"state\":\"idle\"}"
+    },
+    {
+      "step": "shots: power status captured (holding+idle, dark+light)",
+      "pass": true,
+      "detail": "C:\\Users\\user\\AppData\\Local\\Temp\\gen-power-wqVRwX\\shots"
+    },
+    {
+      "step": "e: quit while holding -> process exited, OS request released",
+      "pass": true,
+      "detail": "held=true in 528ms; exited=true (process death clears ES state)"
+    }
+  ]
+}

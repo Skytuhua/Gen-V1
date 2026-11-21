@@ -2802,6 +2802,7 @@
     "scripts/verify-packaged-pdf.mjs",
     "scripts/verify-packaged-providers.ts",
     "scripts/verify-physical-displays.ts",
+    "scripts/verify-power-keeper.ts",
     "scripts/verify-review.ts",
     "scripts/verify-smooth-review.ts",
     "scripts/verify-subscription-accounts.ts",
