@@ -13,7 +13,7 @@ export const CONTEXT_DESCRIBE_TOOL = {
   description: 'Read an admitted tool schema and include it in the next request. Does not invoke a tool or grant access.',
   parameters: z.toJSONSchema(contextDescribeArgs) as Record<string, unknown>,
 };
-const deferredReads = new Set(['repository_map', 'repository_status', 'repository_log', 'database_inspect', 'pdf_inspect']);
+const deferredReads = new Set(['repository_map', 'repository_status', 'repository_log', 'database_inspect', 'database_schema', 'database_query', 'pdf_inspect']);
 const blockedHostNames = new Set(['bash', 'powershell', 'read', 'write', 'edit', 'find', 'grep', 'ls', 'codemode', 'tool_search']);
 export const hermesContextExposure = (name: string, widgetsEnabled: boolean): ContextToolExposure =>
   blockedHostNames.has(name) || name === 'ui_create_widget' && !widgetsEnabled ? 'HIDDEN' : deferredReads.has(name) ? 'DEFERRED' : 'DIRECT';

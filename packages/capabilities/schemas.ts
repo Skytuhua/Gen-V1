@@ -2,8 +2,12 @@ import { z } from "zod";
 const id = z.string().min(1).max(200);
 export const relativePath = z.string().min(1).max(1024).refine(s => !s.includes("\0") && !/^(?:[a-z]:|[\\/])|(?:^|[\\/])\.\.(?:[\\/]|$)|:/.test(s), "Path must stay within a resource grant");
 const resource = { resourceId: id, path: relativePath.optional() };
+const boundedQuery = { sql: z.string().min(1).max(32_000), limit: z.number().int().min(1).max(1000).optional(), timeoutMs: z.number().int().min(100).max(30_000).optional() };
+const target = { resourceId: id.optional(), path: relativePath.optional(), attachmentId: z.string().uuid().optional() };
+const oneTarget = (a: { resourceId?: string; attachmentId?: string }) => (a.attachmentId !== undefined) !== (a.resourceId !== undefined);
 const sha = z.string().regex(/^[a-f0-9]{64}$/);
 const statement = z.strictObject({ sql: z.string().min(1).max(32_000), params: z.array(z.union([z.string().max(100_000), z.number().finite(), z.null()])).max(200).optional(), expectedChanges: z.number().int().min(0).max(1_000_000).optional() });
+const databaseStatements = { mode: z.enum(["transaction", "migration"]), statements: z.array(statement).min(1).max(100) };
 const point = z.strictObject({ x: z.number().min(0).max(1), y: z.number().min(0).max(1) });
 const placement = { page: z.number().int().min(1), x: z.number().min(0), y: z.number().min(0), width: z.number().positive().max(2000), height: z.number().positive().max(2000) };
 export const toolSchemas = {
@@ -17,7 +21,9 @@ export const toolSchemas = {
   text_import: z.strictObject({ ...resource, title: z.string().max(300).optional() }),
   knowledge_publish: z.strictObject({ sources: z.array(z.strictObject(resource)).min(1).max(20), title: z.string().min(1).max(300), value: z.json() }),
   database_inspect: z.strictObject({ ...resource, table: z.string().min(1).max(200).optional(), limit: z.number().int().min(1).max(500).optional() }),
-  database_prepare: z.strictObject({ ...resource, mode: z.enum(["transaction", "migration"]), statements: z.array(statement).min(1).max(100) }),
+  database_schema: z.strictObject(target).refine(oneTarget, "Exactly one of resourceId or attachmentId"),
+  database_query: z.strictObject({ ...target, ...boundedQuery }).refine(oneTarget, "Exactly one of resourceId or attachmentId"),
+  database_prepare: z.strictObject({ ...target, ...databaseStatements }).refine(oneTarget, "Exactly one of resourceId or attachmentId"),
   pdf_inspect: z.strictObject(resource),
   pdf_prepare: z.strictObject({ ...resource, exportResourceId: id, outputPath: relativePath.refine(s => s.toLowerCase().endsWith(".pdf")), fields: z.record(z.string().min(1).max(300), z.union([z.string().max(10_000), z.boolean(), z.array(z.string().max(1000)).max(100)])).optional(), signatures: z.array(z.union([z.strictObject({ kind: z.literal("typed"), text: z.string().min(1).max(200), ...placement }), z.union([z.strictObject({ kind: z.literal("drawn"), points: z.array(point).min(2).max(2000), ...placement }), z.strictObject({ kind: z.literal("drawn"), strokes: z.array(z.array(point).min(2).max(2000)).min(1).max(1000).refine(strokes => strokes.reduce((sum, stroke) => sum + stroke.length, 0) <= 2000, "At most 2000 total signature points"), ...placement })]), z.strictObject({ kind: z.literal("image"), resourceId: id.refine(value => !/[\u0000-\u0020/\\?#]/.test(value) && ![".", ".."].includes(value)), ...placement })])).max(20).optional() }),
 };
@@ -35,7 +41,9 @@ export const descriptions: Record<ToolName, string> = {
   text_import: "Import a granted UTF-8 source document as reusable data with exact SHA-256 provenance. No network fetch.",
   knowledge_publish: "Publish derived structured data referencing granted source documents and their hashes. Provenance identifies synthesis, not independently verified truth.",
   database_inspect: "Inspect a selected external SQLite database: integrity, schema, real counts and bounded rows. WAL databases are unsupported; harness storage is denied by the host resolver.",
-  database_prepare: "Prepare an external SQLite transaction/migration with database version, integrity checks, bounded SQL, exact expected DML counts and rollback on mismatch. No ATTACH/extension/PRAGMA or harness database access.",
+  database_schema: "Read the schema of a saved database attachment or a granted SQLite file. Attachment targets require the database browser capability flag.",
+  database_query: "Run one bounded read-only SELECT against a saved attachment or granted SQLite file; results publish as thread data. At most 200 rows with cells truncated to 1 KiB.",
+  database_prepare: "Prepare an external SQLite transaction/migration with database version, integrity checks, bounded SQL, exact expected DML counts and rollback on mismatch. No ATTACH/extension/PRAGMA or harness database access. A writable database attachment target requires the database browser capability flag.",
   pdf_inspect: "Inspect local PDF pages, supported form fields and best-effort unencrypted text streams. No OCR or complete custom-font extraction.",
   pdf_prepare: "Prepare supported PDF form fill and visual typed/drawn/PNG signature placement in a NEW local PDF export. No certificate signatures, OCR or email delivery; existing exports are never overwritten.",
 };

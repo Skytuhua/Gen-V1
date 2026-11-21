@@ -57,6 +57,13 @@ it('exposes an exact registered read schema through native tool metadata and def
   expect(metadata?.parameters).toMatchObject({ type: 'object', additionalProperties: false });
   expect(hermesContextExposure('repository_map', false)).toBe('DEFERRED');
   expect(isBoundedContextRead('repository_map')).toBe(true);
+  for (const name of ['database_schema', 'database_query']) {
+    expect(hermesContextExposure(name, false)).toBe('DEFERRED');
+    expect(isBoundedContextRead(name)).toBe(true);
+  }
+  const flagOffTools = await loadDomainTools();
+  expect(flagOffTools.map(t => t.name)).not.toContain('database_schema');
+  expect(flagOffTools.map(t => t.name)).not.toContain('database_query');
 });
 
 it('returns verified import edges and export lines through the actual Service tool with held custody', async () => {

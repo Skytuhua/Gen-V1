@@ -73,6 +73,8 @@ const CLASSIFICATION: Row[] = [
   ["repository_diff", "READ", "READ_RETRYABLE", READ_ROLES, "read", "none"],
   ["repository_log", "READ", "READ_RETRYABLE", READ_ROLES, "read", "none"],
   ["database_inspect", "READ", "READ_RETRYABLE", RUN, "read", "none"],
+  ["database_schema", "READ", "READ_RETRYABLE", RUN, "read", "none"],
+  ["database_query", "READ", "READ_RETRYABLE", RUN, "read", "none"],
   ["pdf_inspect", "READ", "READ_RETRYABLE", RUN, "read", "none"],
   ["text_import", "READ", "READ_RETRYABLE", READ_ROLES, "read", "none"],
   ["knowledge_publish", "WORKSPACE_WRITE", "PROVIDER_IDEMPOTENT", ["run", "planning_child"], "store", "none"],
