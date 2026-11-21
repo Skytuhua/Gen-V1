@@ -80,15 +80,20 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
     write(source:Source,chunk:string){
       const lines=(carry[source]+chunk).split('\n');carry[source]=lines.pop()!;
       for(const line of lines){
+        // A private key begun on either pipe may continue on the other pipe.
+        const other:Source=source==='stdout'?'stderr':'stdout';
+        const suppress=privateKeyEnd[other]!==null;
         const safe=scrubLine(source,line);
-        if(safe||privateKeyEnd[source]===null)stream.write(safe+'\n');
+        if(!suppress&&(safe||privateKeyEnd[source]===null))stream.write(safe+'\n');
       }
     },
     end(){
       for(const source of ['stdout','stderr'] as const){
         if(carry[source]){
+          const other:Source=source==='stdout'?'stderr':'stdout';
+          const suppress=privateKeyEnd[other]!==null;
           const safe=scrubLine(source,carry[source]);
-          if(safe)stream.write(safe);
+          if(!suppress&&safe)stream.write(safe);
         }
       }
       stream.end();
