@@ -117,7 +117,8 @@ function blocks(text:string,animate:boolean):ReactNode[]{
       const start=++index,character=opening[1]![0]!,minimum=opening[1]!.length;
       while(index<lines.length&&!new RegExp(`^ {0,3}${character}{${minimum},}[ \\t]*$`).test(lines[index]!))index++;
       const code=lines.slice(start,index).join('\n')+(index<lines.length&&index>start?'\n':'');
-      nodes.push(<CodeBlock key={key} code={code} tag={parseFenceLanguage(opening[2]??'')} animate={animate}/>);if(index<lines.length)index++;continue;
+      const tag=parseFenceLanguage(opening[2]??'');
+      nodes.push(<CodeBlock key={`${key}:${tag??''}`} code={code} tag={tag} animate={animate}/>);if(index<lines.length)index++;continue;
     }
     const title=heading(lines[index]!);
     if(title){const Heading=`h${title[1]!.length}` as 'h1'|'h2'|'h3'|'h4'|'h5'|'h6';nodes.push(<Heading key={key}>{inline(title[2]!)}</Heading>);index++;continue;}
