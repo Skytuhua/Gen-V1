@@ -7,10 +7,14 @@ import {snapshot,compare} from '../scripts/rc-review/profile-manifest.ts';
 import {flagsOff} from '../scripts/rc-review/flags-off.ts';
 import {pnpm,run} from '../scripts/rc-review/common.ts';
 import {archiveProfile,restoreProfile} from '../scripts/rc-review/profile-archive.ts';
-import {assertCleanLifecycle} from '../scripts/rc-review/run-rc-review.ts';
+import {assertCleanLifecycle,preserveNativeFailure} from '../scripts/rc-review/run-rc-review.ts';
 import {compareNativeGeometry} from '../scripts/rc-review/upgrade-check.ts';
 
 const roots:string[]=[];
+const nativeFailure=(stdout?:string)=>Object.assign(Error('verify exited 2'),stdout===undefined?{}:{stdout});
+it('keeps the native subprocess failure primary when the receipt collection also fails',async()=>{const primary=nativeFailure('partial log');await expect(preserveNativeFailure(primary,async()=>{throw Error('receipt unreadable');})).rejects.toBe(primary);});
+it('rethrows the native subprocess failure after a successful receipt attempt and collects the stdout verbatim',async()=>{const primary=nativeFailure('partial log');let attached='';await expect(preserveNativeFailure(primary,async(log:string)=>{attached=log;})).rejects.toBe(primary);expect(attached).toBe('partial log');});
+it('skips the receipt attempt entirely when the failure carries no stdout',async()=>{const primary=nativeFailure();let called=false;await expect(preserveNativeFailure(primary,async()=>{called=true;})).rejects.toBe(primary);expect(called).toBe(false);});
 it('compares native geometry in one API space without throwing on a mismatch',()=>{const expected={left:80,top:80,width:1100,height:780};expect(compareNativeGeometry(expected,expected).status).toBe('passed');expect(compareNativeGeometry(expected,{left:72,top:80,width:1116,height:788}).status).toBe('passed');expect(compareNativeGeometry(expected,{...expected,left:113}).status).toBe('failed');expect(compareNativeGeometry(expected,undefined).status).toBe('failed');expect(compareNativeGeometry({},expected).status).toBe('failed');});
 it('requires candidate-bound completed cleanup and explicit opt-in after a failed clean lifecycle',()=>{const receipt={passed:true,setupSha256:'candidate',memoryRetentionRequested:true,cleanup:{status:'uninstalled-owned-installation'}};expect(()=>assertCleanLifecycle(receipt,'candidate')).not.toThrow();expect(()=>assertCleanLifecycle({...receipt,passed:false},'candidate')).toThrow('explicit');expect(()=>assertCleanLifecycle({...receipt,passed:false},'candidate',true)).not.toThrow();for(const invalid of [{},{...receipt,setupSha256:'other'},{...receipt,cleanup:{status:'preserved-for-inspection'}}])expect(()=>assertCleanLifecycle(invalid,'candidate',true)).toThrow('candidate-bound');});
 it('retains captured failure output for review evidence',async()=>{await expect(run(process.execPath,['-e',"console.log('failure evidence');process.exit(3)"],{capture:true})).rejects.toMatchObject({stdout:'failure evidence',exitCode:3});});
