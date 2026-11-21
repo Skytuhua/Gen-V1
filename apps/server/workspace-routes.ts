@@ -164,6 +164,14 @@ export function registerWorkspaceRoutes(app:FastifyInstance,service:Service){
   if((op.args as{owner?:{projectId?:string}}).owner?.projectId!==projectId)throw new HarnessError('CAPABILITY_DENIED','The check belongs to another project.');
   return service.dispatchOperation(op.id);
  });
+ app.post('/api/projects/:projectId/dependency-check/scan/cancel',{bodyLimit:64*1024},async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),input=z.strictObject({threadId:identifier,operationId:identifier}).parse(request.body);
+  if(!depEnabled())throw new HarnessError('CAPABILITY_DENIED','Dependency check is disabled.');
+  const op=depScan!.cancel(input.operationId,input.threadId);
+  if((op.args as{owner?:{projectId?:string}}).owner?.projectId!==projectId)throw new HarnessError('CAPABILITY_DENIED','The check belongs to another project.');
+  return op;
+ });
  app.get('/api/projects/:projectId/dependency-check/result',async request=>{
   const{projectId}=z.object({projectId:identifier}).parse(request.params),{threadId,...q}=querySchema.extend({scanId:identifier.optional(),cursor:z.string().max(64).optional()}).parse(request.query);
   if(!depEnabled())return{available:false};

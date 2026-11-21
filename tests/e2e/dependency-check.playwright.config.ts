@@ -1,0 +1,3 @@
+import {defineConfig} from '@playwright/test';
+import {resolve} from 'node:path';
+export default defineConfig({testDir:'.',testMatch:'dependency-check.spec.ts',workers:1,timeout:30000,outputDir:resolve('.harness-ui-shell/dependency-check'),use:{baseURL:'http://127.0.0.1:5537',viewport:{width:1440,height:900},trace:'retain-on-failure'},webServer:process.env.GEN_WO5_SERVER_EXTERNAL==='1'?undefined:{cwd:resolve(import.meta.dirname,'../..'),command:(process.platform==='win32'?'':'exec timeout --kill-after=5s 300s ')+'pnpm exec vite --config tests/e2e/dependency-check.vite.config.ts --configLoader runner',url:'http://127.0.0.1:5537/fixture',reuseExistingServer:false}});
