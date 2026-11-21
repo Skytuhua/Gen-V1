@@ -1,7 +1,6 @@
 import {createServer,request as httpRequest,type IncomingMessage,type RequestOptions} from 'node:http';
 import {connect as netConnect,type Socket} from 'node:net';
 import {connect as tlsConnect} from 'node:tls';
-import {request as httpsRequest} from 'node:https';
 import {isIP} from 'node:net';
 import {lookup} from 'node:dns/promises';
 import type {Duplex} from 'node:stream';
@@ -16,7 +15,6 @@ export interface BrowserProxyOptions {
  /** #1531 T04: corporate upstream snapshot provider (revision-aware); throwing fails closed. */
  upstream?:()=>Promise<NetworkProxySnapshot|null>;
  connectTls?:(options:{host:string;port:number;servername:string})=>Socket;
- requestTls?:(options:RequestOptions,callback:(response:IncomingMessage)=>void)=>ReturnType<typeof httpRequest>;
 }
 const hopHeaders=new Set(['connection','proxy-connection','proxy-authorization','proxy-authenticate','keep-alive','te','trailer','transfer-encoding','upgrade']);
 function cleanHeaders(headers:IncomingMessage['headers']) {
@@ -71,7 +69,7 @@ async function upstreamTunnel(up:NetworkProxySnapshot,target:{host:string;port:n
  });
 }
 export async function createBrowserProxy(options:BrowserProxyOptions={}):Promise<BrowserProxy> {
- const sockets=new Set<Duplex>(),connect=options.connect??netConnect,request=options.request??httpRequest,connectTls=options.connectTls??(tlsConnect as unknown as NonNullable<BrowserProxyOptions['connectTls']>),requestTls=options.requestTls??(httpsRequest as unknown as NonNullable<BrowserProxyOptions['requestTls']>);
+ const sockets=new Set<Duplex>(),connect=options.connect??netConnect,request=options.request??httpRequest,connectTls=options.connectTls??(tlsConnect as unknown as NonNullable<BrowserProxyOptions['connectTls']>);
  const server=createServer({maxHeaderSize:16*1024,requestTimeout:30000,headersTimeout:15000},(incoming,outgoing)=>{
   void (async()=>{
    if(!incoming.url||incoming.method==='CONNECT'||incoming.headers.upgrade)throw Error('Unsupported proxy request');
@@ -79,13 +77,13 @@ export async function createBrowserProxy(options:BrowserProxyOptions={}):Promise
    const length=Number(incoming.headers['content-length']??0);if(!Number.isFinite(length)||length<0||length>8*1024*1024)throw Error('Browser request is too large');
    const up=await options.upstream?.();const viaHop=up?.url&&!bypassesHost(up.bypass,target.url.hostname,target.port);
    const resolveHost=options.resolve??(async hostname=>lookup(hostname,{all:true,verbatim:true}));
-   const hop=viaHop?await pinnedUpstreamAddress(up!.url!,resolveHost):null;
-   const auth=hop?proxyAuthHeader(up!.credentials):undefined;
-   const headers={...cleanHeaders(incoming.headers),host:target.url.host,...(auth?{'proxy-authorization':auth}:{})};
-   // Via-hop requests keep the origin Host but name the vetted numeric target so
-   // the upstream never re-resolves the destination (DNS rebind cannot detour).
-   const viaPath=hop?'http://'+literal(target.host)+(target.port===80?'':':'+target.port)+target.url.pathname+target.url.search:target.url.pathname+target.url.search;
-   const upstream=(hop?.secure?requestTls:request)(hop?{hostname:hop.address,family:hop.family,port:hop.port,path:viaPath,method:incoming.method,headers,agent:false,timeout:30000}:{hostname:target.host,family:target.family,port:target.port,path:viaPath,method:incoming.method,headers,agent:false,timeout:30000},response=>{
+   const headers={...cleanHeaders(incoming.headers),host:target.url.host};
+   // Via-hop HTTP rides the same CONNECT tunnel as HTTPS: the upstream is dialed
+   // to the vetted numeric target and the request keeps origin-form + Host, so
+   // virtual-hosted sites and rebind checks both hold.
+   const tunneled=viaHop?await upstreamTunnel(up!,{host:target.host,port:target.port},resolveHost,connect,connectTls):null;
+   if(tunneled){sockets.add(tunneled);tunneled.once('close',()=>sockets.delete(tunneled));}
+   const upstream=request({hostname:target.host,family:target.family,port:target.port,path:target.url.pathname+target.url.search,method:incoming.method,headers,agent:false,timeout:30000,...(tunneled?{createConnection:()=>tunneled}:{})},response=>{
     outgoing.writeHead(response.statusCode??502,cleanHeaders(response.headers));response.pipe(outgoing);response.on('error',()=>outgoing.destroy());
    });
    upstream.on('timeout',()=>upstream.destroy(Error('Browser request timed out')));
