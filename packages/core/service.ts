@@ -23,6 +23,8 @@ import { admitSchema, validateJson, widgetDefinition, GENERATED_APPS_ENABLED } f
 import { patchSpec, protectedFingerprint } from "./presentation.ts";
 import { admitArtifactContents, threadData } from "./ui-admission.ts";
 import { changeTaskMemory, taskMemories, taskMemoryContext } from './task-memory.ts';
+import { changeReviewComment, markCommentsSent, dispatchReviewComments, reviewBlockFor, settleReviewComments, applyAgentResolution } from './review-comments.ts';
+import { ReviewCommentIdsV1, ReviewResolveToolInput } from '../contracts/review-comments.ts';
 import { discoverCapabilities } from './discovery.ts';
 import { inspectTask } from './task-inspection.ts';
 import {PlanningCoordinator} from './planning.ts';
@@ -79,7 +81,7 @@ import {ExternalIntakeCoordinator,type IntakeAuth} from './external-intake.ts';
 import type {ModelRequestGate} from '../runtime/model-capacity.ts';
 import type {BackgroundWorkKind} from '../contracts/background-work.ts';
 
-type Outbox = WorkbenchQueuedInput & {messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic;sendMode?:SendModeV1};
+type Outbox = WorkbenchQueuedInput & {messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic;sendMode?:SendModeV1;reviewCommentIds?:string[]};
 type Lease = { id: string; threadId: string; clientId: string; fields: string[]; expiresAt: number };
 type FinishRecord = { inputIds: string[]; invalidated?: boolean; [key: string]: unknown };
 const text = (p: Record<string, unknown>, key: string, max = 128 * 1024): string => {
@@ -109,6 +111,9 @@ export interface ServiceOptions {
   agentWorkRuntimeFactory?:ConstructorParameters<typeof AgentWorkCoordinator>[0]['runtimeFactory'];
   predictionRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;learningRuntimeFactory?:(job:LearningJob)=>RuntimeAdapter|Promise<RuntimeAdapter>;
   prepareWorkspace?:(thread:Thread)=>Promise<void>;
+  /** Host-injected best-effort Git revision for review-comment outdated flags;
+   * absent or erroring -> comments dispatch with outdated:false. */
+  reviewGitRevision?:(projectId:string,threadId:string)=>Promise<string|null>;
   /** Trusted host activation only. Never accepted from UI preferences or commands. */
   requestContextEnabled?:boolean;
   requestContextHooks?:RequestContextHooks;
@@ -1170,6 +1175,10 @@ export class Service {
       return this.agentWorkCommand(ctx, command);
     }
     if (command.type === 'memory.save' || command.type === 'memory.delete') return this.store.command(command, () => changeTaskMemory(this.store, thread.id, command.type === 'memory.save' ? 'save' : 'delete', p, 'user'));
+    if (command.type.startsWith('review.comment.')) {
+      if (!capabilityEnabled('ui.reviewCommentsV1')) throw new HarnessError('CAPABILITY_DENIED', 'Review comments are disabled on this host.');
+      return this.store.command(command, () => changeReviewComment(this.store, thread, command));
+    }
     if (command.type === "message.send") return this.sendMessage(command, thread);
     if (command.type === "run.stop") {
       const pending=[...this.teardowns.values()].find(owner=>owner.ctx.threadId===thread.id);
@@ -1489,10 +1498,12 @@ export class Service {
     const sourceRefs = sourceRefsV1Schema.parse(command.payload.sourceRefs ?? []), sendMode = sendModeV1Schema.parse(command.payload.sendMode ?? 'NOW');
     if ((sourceRefs.length || sendMode === 'AFTER_CURRENT') && !capabilityEnabled('ui.sourceWorkbenchV1')) throw new HarnessError('CAPABILITY_DENIED', 'The source workbench is disabled on this host.');
     if ((sourceRefs.length || sendMode === 'AFTER_CURRENT') && (thread.sideParentId || thread.kind === 'side' || thread.kind === 'delegate')) throw new HarnessError('CAPABILITY_DENIED', 'This task does not admit source workbench mutations.');
+    const reviewCommentIds = command.payload.reviewCommentIds === undefined ? null : ReviewCommentIdsV1.parse(command.payload.reviewCommentIds);
+    if (reviewCommentIds && (!capabilityEnabled('ui.reviewCommentsV1') || thread.sideParentId || thread.kind === 'side' || thread.kind === 'delegate')) throw new HarnessError('CAPABILITY_DENIED', 'Review comments are unavailable for this task.');
     const sourceOwner = sourceRefs.length ? this.sourceWorkbench.owner(thread.id) : null;
     this.assertNoOtherRun(thread.id);
     if (["stopped", "interrupted"].includes(thread.status)) throw new HarnessError("RESUME_REQUIRED", "Resume this thread before sending more work");
-    const content = text(command.payload, "content", 64 * 1024), modelId = text(command.payload, "modelId", 300);
+    const content = (command.payload.content === undefined || command.payload.content === '') && reviewCommentIds ? 'Please address my review comments.' : text(command.payload, "content", 64 * 1024), modelId = text(command.payload, "modelId", 300);
     const providerId=modelProvider(modelId),binding=this.binding(thread,providerId);
     if(this.reviewing){await this.cancelReview();this.assertBinding(this.thread(thread.id),providerId,binding);}
     const availableModels = await this.runtime.models({accountId:binding.accountId});
@@ -1526,9 +1537,10 @@ export class Service {
       const bindCapturedAccount = this.sourceWorkbench.prepareInitialAccountBinding(thread.id, command.id, binding.accountId);
       const before=requestContextId?this.requestBasis(this.thread(thread.id),modelId,thinkingLevel):null;
       if(requestContextId)rollbackClaim=this.requestCustody.claim(requestContextId,command.id,content,before!);
+      const sentComments = reviewCommentIds ? markCommentsSent(this.store, thread.id, reviewCommentIds, command.id) : null;
       const sourceFields = {...(sourceRefs.length ? {sourceRefs} : {}), ...(sendMode === 'AFTER_CURRENT' ? {sendMode} : {})};
-      const message: Message = { id: randomUUID(), threadId: thread.id, role: "user", content, createdAt: now(), runId: current.runId, ...sourceFields };
-      const input: Outbox = { id: command.id, threadId: thread.id, content, status: "persisted", runId: null,messageId:message.id,...(requestContextId?{requestContextId}:{}), ...sourceFields };
+      const message: Message = { id: randomUUID(), threadId: thread.id, role: "user", content, createdAt: now(), runId: current.runId, ...sourceFields, ...(sentComments ? {reviewComments: sentComments.map(c => ({id: c.id, path: c.anchor.path, side: c.anchor.side, startLine: c.anchor.startLine, endLine: c.anchor.endLine}))} : {}) };
+      const input: Outbox = { id: command.id, threadId: thread.id, content, status: "persisted", runId: null,messageId:message.id,...(requestContextId?{requestContextId}:{}), ...(reviewCommentIds?{reviewCommentIds}:{}), ...sourceFields };
       this.store.put("message", message.id, thread.id, message); this.enqueueInput(input);
       this.store.put("thread", thread.id, thread.id, { ...current, accountId:binding.accountId,modelId, thinkingLevel, error: null, ...(["completed", "failed"].includes(current.status) ? { status: "ready" } : {}), updatedAt: now(), ...(current.title === "New thread" ? { title: content.slice(0, 65) } : {}) });
       bindCapturedAccount?.();
@@ -1642,6 +1654,9 @@ export class Service {
     const ctx = { threadId, runId: thread.runId ?? randomUUID(), epoch: thread.runId ? thread.epoch : thread.epoch + 1 };
     const binding=this.binding(thread,modelProvider(modelId));
     const completedWrites:CompletedWriteReceipt[]=[];
+    const reviewIds=inputs.flatMap(input=>input.reviewCommentIds??[]);
+    let reviewRevision:string|null=null;
+    if(reviewIds.length&&thread.projectId&&this.options.reviewGitRevision)try{reviewRevision=await this.options.reviewGitRevision(thread.projectId,threadId);}catch{reviewRevision=null;}
     this.store.internal("input.processing", threadId, () => {
       for (const input of inputs) this.assertSavedInput(input);
       this.assertBinding(this.thread(threadId),modelProvider(modelId),binding);
@@ -1660,6 +1675,7 @@ export class Service {
           if(valid&&!overflow)completedWrites.push({...receipt,delivery:ctx});
         }
         this.store.put("outbox", input.id, threadId, { ...input,...claimed,status: "processing", runId: ctx.runId, enteredRuntime: false });
+        if(input.reviewCommentIds?.length)dispatchReviewComments(this.store,threadId,input.reviewCommentIds,ctx.runId);
         if(receipt){const op=this.store.get<Operation>('operation',receipt.operationId);if(op)this.operationData(op);}
       }
       if(before)this.requestCustody.advanceAdmission(before,this.requestBasis(this.thread(threadId),modelId,thread.thinkingLevel));
@@ -1673,7 +1689,8 @@ export class Service {
     if(!requestContextId&&this.source&&!thread.sideParentId&&contents.some(content=>/^\/learn(?:\s|$)/i.test(content.trim())))try{contents=await Promise.all(contents.map(async content=>/^\/learn(?:\s|$)/i.test(content.trim())?(await this.source!.runtime.sourceRequest<{prompt:string}>('learn.prompt',{request:content.trim().replace(/^\/learn\s*/i,'')})).prompt:content));}catch(error){this.runtimeFailure(ctx,error);return;}
     const userPrompt=inputs.map((input,index) => "Input " + input.id + ":\n" + contents[index]).join("\n\n");
     const sourceContext = sourceContexts.map(context => context.text).join(''), deliveredRefs = sourceContexts.flatMap(context => context.refs);
-    let input: StartRun = { ...ctx,accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}), ...(deliveredRefs.length ? {sourceRefs: deliveredRefs} : {}), prompt: guidance+userPrompt+sourceContext };
+    const reviewBlock = reviewIds.length ? reviewBlockFor(this.store, threadId, reviewIds, reviewRevision) : '';
+    let input: StartRun = { ...ctx,accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}), ...(deliveredRefs.length ? {sourceRefs: deliveredRefs} : {}), prompt: guidance+userPrompt+sourceContext+reviewBlock };
     if (!this.aborts.has(threadId) || !thread.runId) this.aborts.set(threadId, new AbortController());
     const control=this.aborts.get(threadId)!;this.retainController(control);
     let dispatched=false;
@@ -1732,8 +1749,10 @@ export class Service {
     if (!thread || thread.epoch !== ctx.epoch || thread.runId !== ctx.runId) return;
     this.inferenceOwners.delete(thread.id);
     this.flushDeltas(thread.id);
+    const failedReviewIds:string[]=[];
     this.store.internal("run.failed", thread.id, () => {
       this.failUnansweredDetails(ctx,'The explanation could not finish. Resume the task to retry.');
+      failedReviewIds.push(...settleReviewComments(this.store, thread.id, ctx.runId));
       const intent = this.store.get<{kind:string;previousStatus:Thread["status"]}>("runtimeIntent", ctx.runId);
       const stamp=now();
       if(intent?.kind!=="compaction"){
@@ -1743,6 +1762,7 @@ export class Service {
       this.store.put("thread", thread.id, thread.id, { ...thread, runId: null, status: intent?.kind === "compaction" ? this.afterMaintenance(thread.id, intent.previousStatus) : "interrupted", error: error instanceof Error ? error.message : String(error), updatedAt: stamp });
       return { runId: ctx.runId };
     });
+    if(failedReviewIds.length)this.store.internal('review.comment.changed',thread.id,()=>({commentIds:failedReviewIds,status:'unaddressed'}));
     // Clearing the projection must never detach a still-busy SDK session.
     this.aborts.get(thread.id)?.abort();
     this.background(this.cancelRun(ctx,!!thread.sideParentId).then(()=>this.deliverOutbox(thread.id)));
@@ -1809,6 +1829,7 @@ export class Service {
     }
   }
   private commitRuntimeProjection(thread: Thread, event: RuntimeEvent): void {
+    const settledReviewIds:string[]=[];
     this.store.internal("runtime." + event.type, thread.id, () => {
       // Accepted queued inputs follow this owner's ordinary session and settle
       // transitions. Unclaimed previews remain stale. A revoked source never
@@ -1918,9 +1939,11 @@ export class Service {
         const old = this.store.get<{ value: RuntimeUsage }>("usage", thread.id)?.value ?? EMPTY_USAGE; this.store.put("usage", thread.id, thread.id, { id: thread.id, value: { ...old, activity: "idle" } });
         advanceLifecycle();
         if(!event.aborted&&!unresolved&&intent?.kind!=='compaction')this.memoryHostInstance?.scheduleSettled(event);
+        settledReviewIds.push(...settleReviewComments(this.store, thread.id, event.runId));
       }
       return { runId: event.runId };
     });
+    if(settledReviewIds.length)this.store.internal('review.comment.changed',thread.id,()=>({commentIds:settledReviewIds,status:'unaddressed'}));
   }
   async tool(call: ToolCall, ctx: RunContext): Promise<unknown> {
     const owningThread=this.assertRun(ctx);
@@ -2009,6 +2032,15 @@ export class Service {
       const { bytes, ...summary } = result;
       try { return { ...summary, text: new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes) }; }
       catch { return { ...summary, encoding: 'base64', data: Buffer.from(bytes).toString('base64') }; }
+    }
+    if (call.name === 'review_comment_resolve') {
+      if (!capabilityEnabled('ui.reviewCommentsV1')) throw new HarnessError('CAPABILITY_DENIED', 'Review comments are disabled on this host.');
+      const { commandId: _commandId, ...rest } = args;
+      const parsed = ReviewResolveToolInput.parse(rest);
+      const apply = () => { this.assertRun(ctx); return applyAgentResolution(this.store, ctx, parsed); };
+      return typeof args.commandId === 'string'
+        ? this.store.command({ id: text(args, 'commandId', 200), type: 'review.comment.resolve.agent', threadId: ctx.threadId, payload: args }, apply).result
+        : this.store.internal('review.comment.changed', ctx.threadId, apply);
     }
     if (call.name === "ui_discover") return discoverCapabilities(args);
     if (call.name === "ui_inspect") return inspectTask(this.store, this.thread(ctx.threadId), this.planning.inspect(ctx.threadId), args);
