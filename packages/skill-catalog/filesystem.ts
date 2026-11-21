@@ -6,7 +6,7 @@ import {readBoundFile,withPathGuard} from '../core/file-access.ts';
 import {inside} from '../core/security.ts';
 import {catalogHash,catalogItem,deniedItem,personalScope,unavailable,type CatalogCustody,type CatalogFileCustody,type CatalogInventory,type CatalogItem,type SkillCatalogCapabilityProvider} from './repository.ts';
 
-export const CATALOG_LIMITS={entries:8192,skills:2048,depth:12,files:512,fileBytes:4*1024*1024,packageBytes:16*1024*1024,rootBytes:64*1024*1024,metadataBytes:256*1024} as const;
+const CATALOG_LIMITS={entries:8192,skills:2048,depth:12,files:512,fileBytes:4*1024*1024,packageBytes:16*1024*1024,rootBytes:64*1024*1024,metadataBytes:256*1024} as const;
 type Limits={ [K in keyof typeof CATALOG_LIMITS]:number };
 const invalid=()=>new HarnessError('INVALID_SKILL_CATALOG','Skill metadata is unavailable.');
 const limit=()=>new HarnessError('RESOURCE_LIMIT','Skill discovery exceeds its bounded inventory.');
@@ -35,7 +35,7 @@ export function parseSkillMetadata(document:string):{name:string;description:str
  for(let i=1;i<end;i++){
   const match=/^(name|description):\s*(.*)$/.exec(lines[i]);if(!match)continue;
   const [,key,raw]=match;if(values.has(key))throw invalid();let value=raw;
-  if(/^[|>][+-]?$/.test(raw.trim())||!raw.trim()){
+  if(/^[|>][+-]?(?:[ \t]+#.*)?$/.test(raw.trim())||!raw.trim()){
    const chunks:string[]=[];while(i+1<end&&(/^[ \t]+\S/.test(lines[i+1])||!lines[i+1].trim()))chunks.push(lines[++i].trim());
    if(raw.trim()&&!chunks.length)throw invalid();value=chunks.join(' ');
   }else {

@@ -17,24 +17,24 @@ const binding={ctx,sessionPath:'/owned/checkpoint/session.jsonl',modelId:'openai
 const ack=(request:{requestId:string})=>({apiVersion:2 as const,requestId:request.requestId,checkpointId:'saved-checkpoint',digest:'a'.repeat(64),persisted:true as const});
 const temporary:string[]=[];
 afterEach(async()=>{vi.useRealTimers();vi.restoreAllMocks();await Promise.all(temporary.splice(0).map(path=>rm(path,{recursive:true,force:true})));});
-const barrier=()=>{let resolve!:(value:any)=>void;const promise=new Promise<any>(done=>{resolve=done;});return{promise,resolve};};
+const barrier=()=>{let resolve!:(value:unknown)=>void;const promise=new Promise<unknown>(done=>{resolve=done;});return{promise,resolve};};
 
-function piFixture(request:(value:any,signal?:AbortSignal)=>Promise<any>,extra:Record<string,unknown>={}){
+function piFixture(request:(value:import('../packages/contracts/memory-checkpoint.ts').MemoryCheckpointRequestV1,signal?:AbortSignal)=>Promise<import('../packages/contracts/memory-checkpoint.ts').MemoryCheckpointAckV1>,extra:Record<string,unknown>={}){
  const failures:unknown[]=[],loader=createHostResourceLoader(sdk,undefined,false,undefined,{requirement,binding:()=>binding,request,onFailure:error=>failures.push(error),...extra});
  const extensions=loader.getExtensions(),manager=sdk.SessionManager.inMemory();
  for(let n=0;n<4;n++)manager.appendMessage({role:'user',content:'Native transcript '+n+' '+('x'.repeat(300)),timestamp:n+1});
  const runner=new sdk.ExtensionRunner(extensions.extensions,extensions.runtime,process.cwd(),manager,{} as never);
- const events:any[]=[],summary=vi.fn(async()=>{throw Error('summary-boundary');});
+ const events:unknown[]=[],summary=vi.fn(async()=>{throw Error('summary-boundary');});
  const native=Object.create(sdk.AgentSession.prototype);
  Object.defineProperty(native,'model',{value:{id:'model',provider:'openai'}});
- Object.assign(native,{sessionManager:manager,settingsManager:{getCompactionSettings:()=>({enabled:true,reserveTokens:1,keepRecentTokens:1})},_extensionRunner:runner,abort:async()=>{},_emit:(event:any)=>events.push(event),_runDefaultCompaction:summary,_clearManualCompactionState:()=>{},_emitSessionCompactFailed:async()=>{},_resolveIdleWaitIfIdle:()=>{}});
+ Object.assign(native,{sessionManager:manager,settingsManager:{getCompactionSettings:()=>({enabled:true,reserveTokens:1,keepRecentTokens:1})},_extensionRunner:runner,abort:async()=>{},_emit:(event:unknown)=>events.push(event),_runDefaultCompaction:summary,_clearManualCompactionState:()=>{},_emitSessionCompactFailed:async()=>{},_resolveIdleWaitIfIdle:()=>{}});
  return{loader,runner,native,events,summary,failures,manager};
 }
 
 describe('pinned native Pi checkpoint boundary',()=>{
  it.each(['manual','threshold','overflow'] as const)('waits for a persistence receipt before the actual %s summary entrypoint',async reason=>{
-  const hold=barrier(),request=vi.fn((_request:any)=>hold.promise),f=piFixture(request),before=JSON.stringify(f.manager.getEntries());
-  const work=reason==='manual'?sdk.AgentSession.prototype.compact.call(f.native).catch(error=>error):(f.native as any)._runAutoCompaction(reason,false);
+  const hold=barrier(),request=vi.fn((_request:import('../packages/contracts/memory-checkpoint.ts').MemoryCheckpointRequestV1)=>hold.promise as Promise<import('../packages/contracts/memory-checkpoint.ts').MemoryCheckpointAckV1>),f=piFixture(request),before=JSON.stringify(f.manager.getEntries());
+  const work=reason==='manual'?sdk.AgentSession.prototype.compact.call(f.native).catch(error=>error):(f.native as {_runAutoCompaction(reason:string,arg:boolean):Promise<unknown>})._runAutoCompaction(reason,false);
   await vi.waitFor(()=>expect(request).toHaveBeenCalledOnce());expect(f.summary).not.toHaveBeenCalled();expect(JSON.stringify(f.manager.getEntries())).toBe(before);
   expect(request.mock.calls[0][0]).toMatchObject({...binding,adapterId:'pi',apiVersion:2,reason});
   hold.resolve(ack(request.mock.calls[0][0]));await work;expect(f.summary).toHaveBeenCalledOnce();expect(f.failures).toEqual([]);
@@ -45,11 +45,11 @@ describe('pinned native Pi checkpoint boundary',()=>{
   expect(f.summary).not.toHaveBeenCalled();expect(JSON.stringify(f.manager.getEntries())).toBe(before);expect(f.events).toContainEqual(expect.objectContaining({type:'compaction_end',aborted:true}));expect(f.failures).toHaveLength(1);
  });
  it.each([{}, {persisted:false}, {apiVersion:1}, {requestId:'foreign'}, {digest:'invalid'}])('does not let an invalid host receipt reach native compaction: %j',async patch=>{
-  const f=piFixture(async request=>Object.keys(patch).length?{...ack(request),...patch}:{});
+  const f=piFixture(async request=>(Object.keys(patch).length?{...ack(request),...patch}:{}) as import('../packages/contracts/memory-checkpoint.ts').MemoryCheckpointAckV1);
   await expect(sdk.AgentSession.prototype.compact.call(f.native)).rejects.toThrow('Compaction cancelled');expect(f.summary).not.toHaveBeenCalled();
  });
  it('revalidates local authority after an awaited receipt and never supplies native replacement history',async()=>{
-  const hold=barrier();let current=true;const request=vi.fn((_request:any)=>hold.promise),f=piFixture(request,{assertCurrent:()=>{if(!current)throw Error('revoked');}});
+  const hold=barrier();let current=true;const request=vi.fn((_request:import('../packages/contracts/memory-checkpoint.ts').MemoryCheckpointRequestV1)=>hold.promise as Promise<import('../packages/contracts/memory-checkpoint.ts').MemoryCheckpointAckV1>),f=piFixture(request,{assertCurrent:()=>{if(!current)throw Error('revoked');}});
   const work=sdk.AgentSession.prototype.compact.call(f.native).catch(error=>error);
   await vi.waitFor(()=>expect(request).toHaveBeenCalledOnce());current=false;hold.resolve(ack(request.mock.calls[0][0]));expect(await work).toMatchObject({message:'Compaction cancelled'});expect(f.summary).not.toHaveBeenCalled();
   expect(JSON.stringify(request.mock.calls[0][0])).not.toContain('Native transcript');
@@ -90,7 +90,7 @@ describe('native checkpoint owner routing',()=>{
   try{await runtime.compact(ctx,path,modelId,null);expect((external?official:pi).runtime.compact).toHaveBeenCalledExactlyOnceWith(ctx,path,modelId);}finally{await runtime.dispose();}
  });
  it('rechecks the captured owner after persistence and rejects receipts arriving after cancellation',async()=>{
-  const root=await mkdtemp(join(tmpdir(),'memory-checkpoint-router-'));temporary.push(root);const pi=mockAdapter(),official=mockAdapter(),hold=barrier(),callback=vi.fn(()=>hold.promise),runtime=createRuntime({dataDir:root},{pi:()=>pi.runtime,official:()=>official.runtime});
+  const root=await mkdtemp(join(tmpdir(),'memory-checkpoint-router-'));temporary.push(root);const pi=mockAdapter(),official=mockAdapter(),hold=barrier(),callback=vi.fn(()=>hold.promise as Promise<import('../packages/contracts/memory-checkpoint.ts').MemoryCheckpointAckV1>),runtime=createRuntime({dataDir:root},{pi:()=>pi.runtime,official:()=>official.runtime});
   runtime.configure({onEvent:()=>{},onTool:async()=>{},onMemoryCheckpoint:callback});const input={...ctx,modelId:binding.modelId,accountId:null,sessionPath:null,prompt:'request',inputId:'input',resources:[],memoryCheckpoint:requirement};
   try{await runtime.start(input);const request={...binding,sessionPath:join(root,'tasks','session.jsonl'),apiVersion:2 as const,adapterId:'pi' as const,requestId:'request',reason:'manual' as const};const work=pi.callbacks.onMemoryCheckpoint!(request);const rejected=expect(work).rejects.toMatchObject({code:'STALE_RUN'});await vi.waitFor(()=>expect(callback).toHaveBeenCalledOnce());await runtime.cancel(ctx);hold.resolve(ack(request));await rejected;}finally{await runtime.dispose();}
  });
@@ -102,12 +102,12 @@ describe('native checkpoint owner routing',()=>{
  });
 });
 
-async function hermesFixture(capability:unknown={apiVersion:2,hostOwned:true},callback:(request:any)=>Promise<any>=async request=>ack(request)){
- const dataDir=await mkdtemp(join(tmpdir(),'memory-checkpoint-hermes-'));temporary.push(dataDir);let options!:ConstructorParameters<typeof HermesClient>[0];const calls:{method:string;params:any}[]=[],catalog=mockAdapter();
+async function hermesFixture(capability:unknown={apiVersion:2,hostOwned:true},callback:(request:import('../packages/contracts/memory-checkpoint.ts').MemoryCheckpointRequestV1)=>Promise<import('../packages/contracts/memory-checkpoint.ts').MemoryCheckpointAckV1>=async request=>ack(request)){
+ const dataDir=await mkdtemp(join(tmpdir(),'memory-checkpoint-hermes-'));temporary.push(dataDir);let options!:ConstructorParameters<typeof HermesClient>[0];const calls:{method:string;params:Record<string,unknown>}[]=[],catalog=mockAdapter();
  const source:HermesSourceClient={async request<T>(method:string,params={}){calls.push({method,params});if(method==='hello')return{protocolVersion:1,engineClass:'run_agent.AIAgent',sourceCommit:'c627ec84664d43e0b18b95d9d86d8963747d56c7',memoryCheckpoint:capability} as T;if(method==='agent.start'||method==='agent.followUp')return{accepted:true} as T;if(method==='agent.compact')return{compacted:true} as T;return{} as T;},dispose:async()=>{}};
  const runtime=createHermesEngine({dataDir,nativeCatalog:catalog.runtime,hostTools:[]},{createClient:value=>{options=value;return source;},createNativeRuntime:()=>mockAdapter().runtime});runtime.configure({onEvent:()=>{},onTool:async()=>{},onMemoryCheckpoint:callback});
  const input:StartRun={...ctx,modelId:'openai/model',sessionPath:null,accountId:null,prompt:'request',inputId:'input',resources:[],memoryCheckpoint:requirement};
- const start=()=>calls.find(call=>call.method==='agent.start')!.params;
+ const start=()=>calls.find(call=>call.method==='agent.start')!.params as {ctx:Record<string,unknown>;sessionPath:string;memoryCheckpoint?:unknown;prompt?:string};
  const settle=async()=>{options.onEvent!({event:'foreground_settled',ctx:start().ctx,data:{}});options.onEvent!({event:'settled',ctx:start().ctx,data:{}});await vi.waitFor(()=>expect(runtime.reviewBusy).toBe(false));};
  const request=(patch:Record<string,unknown>={})=>({apiVersion:2,requestId:'checkpoint',adapterId:'hermes',ctx:{...ctx},sessionPath:start().sessionPath,modelId:input.modelId,accountId:null,reason:'automatic',...patch});
  return{runtime,input,calls,start,settle,request,source,foregroundSettled:()=>options.onEvent!({event:'foreground_settled',ctx:start().ctx,data:{}}),host:(args:Record<string,unknown>,context=start().ctx)=>options.onHostCall!({id:'host-call',name:'$memory.checkpoint',args,ctx:context})};

@@ -4,9 +4,9 @@ const key = z.string().regex(/^[a-zA-Z_][a-zA-Z0-9_-]{0,127}$/).refine(value => 
 const label = z.string().min(1).max(500);
 const detail = z.string().max(2_000).optional();
 const nodeId = z.string().min(1).max(200).regex(/^[^\s\u0000-\u001f]+$/);
-export const workflowStatus = z.enum(['neutral', 'pending', 'running', 'success', 'error', 'merged']);
+const workflowStatus = z.enum(['neutral', 'pending', 'running', 'success', 'error', 'merged']);
 export const payloadFromState = z.record(key, key).refine(map => Object.keys(map).length <= 40, 'Map at most 40 saved fields').optional();
-export const sourceCheck = z.strictObject({ label, status: workflowStatus, detail });
+const sourceCheck = z.strictObject({ label, status: workflowStatus, detail });
 const sourceSummary = z.strictObject({ label, status: workflowStatus, detail });
 // Source-bound records are validated again at render time; their status is never inferred
 // from a label, an action click, or elapsed time.
@@ -29,12 +29,10 @@ export const relationshipData = z.strictObject({
 });
 export type RelationshipData = z.infer<typeof relationshipData>;
 export const disclosureData = z.strictObject({ status: z.enum(['idle', 'pending', 'ready', 'error']), answer: z.string().max(100_000).optional(), error: z.string().max(2_000).optional(), followupsPending: z.boolean().optional() });
-export type DisclosureData = z.infer<typeof disclosureData>;
 export const tableChangesData = z.strictObject({
   revision: z.number().int().nonnegative().optional(), activeRowId: nodeId.optional(),
   rows: z.array(z.strictObject({ id: nodeId, status: z.enum(['added', 'updated', 'removed']).optional(), cells: z.array(z.strictObject({ key, status: z.enum(['added', 'updated', 'removed']).optional(), before: z.union([z.string().max(2_000), z.number().finite(), z.boolean(), z.null()]).optional(), detail })).max(40).optional() })).max(2_000),
 }).refine(data => new Set(data.rows.map(row => row.id)).size === data.rows.length, 'Changed row identities must be unique');
-export type TableChangesData = z.infer<typeof tableChangesData>;
 export const tabStateData = z.strictObject({
   title: z.string().max(300).optional(), detail: z.string().max(500).optional(), status: workflowStatus.optional(),
   items: z.array(z.strictObject({ label: z.string().max(500), status: workflowStatus.optional(), detail: z.string().max(500).optional(), code: z.string().max(2_000).optional() })).max(20),
@@ -50,7 +48,6 @@ export const mapData = z.strictObject({
   if (data.routes?.some(route => route.pointIds.some(id => !ids.has(id)))) ctx.addIssue({ code: 'custom', message: 'Every route point must reference a source point' });
   if (data.routes && new Set(data.routes.map(route => route.id)).size !== data.routes.length) ctx.addIssue({ code: 'custom', message: 'Map route identities must be unique' });
 });
-export type MapData = z.infer<typeof mapData>;
 export const statusData = z.strictObject({ status: workflowStatus, label, detail });
 export const operationStatusData = z.object({
   operationId: z.string().min(1).max(200), status: z.enum(['prepared', 'running', 'succeeded', 'failed', 'cancelled', 'unknown']),

@@ -17,15 +17,16 @@ async function data(auth = 'oauth-personal') {
   return dir;
 }
 function acp(options: { version?: number; http?: boolean; google?: boolean; config?: boolean; holdPrompt?: boolean; holdInitialize?:boolean; replay?: string[];commands?:boolean } = {}) {
-  const messages: any[] = []; const children: any[] = []; const calls: any[] = [];
-  const spawn = vi.fn((_file: string, _args: string[], settings: any) => {
+  const messages: {method?:string;id?:unknown;params?:{sessionId?:string;mcpServers?:unknown[];update?:unknown;prompt?:unknown;clientCapabilities?:{terminal?:boolean}}}[] = []; const children: AcpChild[] = []; const calls: {file:string;args:string[];settings:{env?:Record<string,string>}}[] = [];
+  interface AcpChild extends EventEmitter { stdout: PassThrough; stderr: PassThrough; stdin: Writable; exitCode: number | null; signalCode: NodeJS.Signals | null; killed: boolean; kill(): boolean; update(update: unknown, sessionId?: string): boolean; reply(request: {id?:unknown}, result: unknown): boolean; }
+  const spawn = vi.fn((_file: string, _args: string[], settings: {env?:Record<string,string>}) => {
     calls.push({ file: _file, args: _args, settings });
-    const child: any = new EventEmitter();
+    const child = new EventEmitter() as AcpChild;
     child.stdout = new PassThrough(); child.stderr = new PassThrough(); child.exitCode = null; child.signalCode = null;
     child.killed = false;
     child.kill = () => { child.killed = true; child.exitCode = 0; child.emit('exit', 0, null); return true; };
-    const reply = (request: any, result: any) => child.stdout.write(`${JSON.stringify({ jsonrpc: '2.0', id: request.id, result })}\n`);
-    const update = (update: any, sessionId = 'official-session') => child.stdout.write(`${JSON.stringify({ jsonrpc: '2.0', method: 'session/update', params: { sessionId, update } })}\n`);
+    const reply = (request: {id?:unknown}, result: unknown) => child.stdout.write(`${JSON.stringify({ jsonrpc: '2.0', id: request.id, result })}\n`);
+    const update = (update: unknown, sessionId = 'official-session') => child.stdout.write(`${JSON.stringify({ jsonrpc: '2.0', method: 'session/update', params: { sessionId, update } })}\n`);
     child.update = update; child.reply = reply;
     const configOptions = [{ id: 'selected-model', category: 'model', type: 'select', currentValue: 'official-model', options: [{ value: 'official-model', name: 'Official model' }] }];
     child.stdin = new Writable({ write(chunk, _encoding, done) {
@@ -49,7 +50,7 @@ function acp(options: { version?: number; http?: boolean; google?: boolean; conf
     }, final(done) { child.exitCode = 0; queueMicrotask(() => child.emit('exit', 0, null)); done(); } });
     children.push(child); return child;
   });
-  return { spawn: spawn as any, messages, calls, children };
+  return { spawn: spawn as unknown as typeof import('node:child_process').spawn, messages, calls, children };
 }
 
 describe('official Gemini CLI ACP runtime', () => {
@@ -58,10 +59,10 @@ describe('official Gemini CLI ACP runtime', () => {
     runtime.configure({onEvent:event=>events.push(event),onTool});
     try{
       await runtime.start(run());await vi.waitFor(()=>expect(fake.messages.some(message=>message.method==='session/prompt')).toBe(true));
-      expect(fake.messages.find(message=>message.method==='session/new')?.params.mcpServers).toEqual([]);
-      const env=fake.calls[0].settings.env,settings=JSON.parse(await readFile(env.GEMINI_CLI_SYSTEM_SETTINGS_PATH,'utf8')),system=await readFile(env.GEMINI_SYSTEM_MD,'utf8');
+      expect(fake.messages.find(message=>message.method==='session/new')?.params!.mcpServers).toEqual([]);
+      const env=fake.calls[0].settings.env,settings=JSON.parse(await readFile(env!.GEMINI_CLI_SYSTEM_SETTINGS_PATH,'utf8')),system=await readFile(env!.GEMINI_SYSTEM_MD,'utf8');
       expect(settings.mcp.allowed).toEqual([]);expect(settings.mcpServers).toEqual({});expect(settings.tools.core).toEqual(['mcp_host_no_tools']);expect(system).toContain('text-model transport for Hermes');expect(system).not.toContain('ui_present');
-      const content='<tool_call>{"name":"skill_manage"}</tool_call>\n日本語';fake.children[0].update({sessionUpdate:'agent_message_chunk',content:{type:'text',text:content}});fake.children[0].reply(fake.messages.find(message=>message.method==='session/prompt'),{stopReason:'end_turn'});
+      const content='<tool_call>{"name":"skill_manage"}</tool_call>\n日本語';fake.children[0].update({sessionUpdate:'agent_message_chunk',content:{type:'text',text:content}});fake.children[0].reply(fake.messages.find(message=>message.method==='session/prompt')!, {stopReason:'end_turn'});
       await vi.waitFor(()=>expect(events.some(event=>event.type==='assistant.message'&&event.content===content)).toBe(true));expect(onTool).not.toHaveBeenCalled();
     }finally{await runtime.dispose();}
   });
@@ -93,7 +94,7 @@ describe('official Gemini CLI ACP runtime', () => {
     runtime.configure({onEvent:event=>events.push(event),onTool:async()=>null});
     try{
       const compact=runtime.compact(run(),manifest.path,'gemini-cli/official-model');
-      if(advertised){await compact;await vi.waitFor(()=>expect(events.map(event=>event.type)).toEqual(expect.arrayContaining(['compaction.start','compaction.end','settled'])));expect(fake.messages.find(message=>message.method==='session/prompt').params.prompt).toEqual([{type:'text',text:'/compress'}]);}
+      if(advertised){await compact;await vi.waitFor(()=>expect(events.map(event=>event.type)).toEqual(expect.arrayContaining(['compaction.start','compaction.end','settled'])));expect(fake.messages.find(message=>message.method==='session/prompt')!.params!.prompt).toEqual([{type:'text',text:'/compress'}]);}
       else{await expect(compact).rejects.toMatchObject({code:'OFFICIAL_COMPACTION_UNSUPPORTED'});expect(fake.messages.some(message=>message.method==='session/prompt')).toBe(false);}
       expect(events.some(event=>event.type==='assistant.message'||event.type==='input.processing')).toBe(false);
     }finally{await runtime.dispose();}
@@ -103,9 +104,9 @@ describe('official Gemini CLI ACP runtime', () => {
     runtime.configure({onEvent:event=>events.push(event),onTool:async()=>null});
     try{
       await runtime.start(run({memory:'Preserve the current task note'}));
-      const original=fake.calls[0].settings.env,settings=await readFile(original.GEMINI_CLI_SYSTEM_SETTINGS_PATH,'utf8'),prompt=await readFile(original.GEMINI_SYSTEM_MD,'utf8');
+      const original=fake.calls[0].settings.env!,settings=await readFile(original.GEMINI_CLI_SYSTEM_SETTINGS_PATH,'utf8'),prompt=await readFile(original.GEMINI_SYSTEM_MD,'utf8');
       await runtime.history(String(events.find(event=>event.type==='session')!.sessionPath));
-      expect(fake.calls[1].settings.env.GEMINI_CLI_SYSTEM_SETTINGS_PATH).not.toBe(original.GEMINI_CLI_SYSTEM_SETTINGS_PATH);
+      expect(fake.calls[1].settings.env!.GEMINI_CLI_SYSTEM_SETTINGS_PATH).not.toBe(original.GEMINI_CLI_SYSTEM_SETTINGS_PATH);
       expect(await readFile(original.GEMINI_CLI_SYSTEM_SETTINGS_PATH,'utf8')).toBe(settings);expect(await readFile(original.GEMINI_SYSTEM_MD,'utf8')).toBe(prompt);expect(prompt).toContain('Preserve the current task note');
     }finally{await runtime.dispose();}
   });
@@ -119,16 +120,16 @@ describe('official Gemini CLI ACP runtime', () => {
     expect(events.some(event => event.type === 'input.processing')).toBe(false);
     const prompt = fake.messages.find(message => message.method === 'session/prompt');
     fake.children[0].update({ sessionUpdate: 'agent_message_chunk', content: { type: 'text', text: 'first answer' } });
-    fake.children[0].reply(prompt, { stopReason: 'end_turn' });
+    fake.children[0].reply(prompt!, { stopReason: 'end_turn' });
     await vi.waitFor(() => expect(fake.messages.filter(message => message.method === 'session/prompt')).toHaveLength(2));
     expect(events.find(event => event.type === 'assistant.message')?.inputIds).toEqual(['input-1']);
     expect(events.some(event => event.type === 'settled')).toBe(false);
-    const systemSettings = JSON.parse(await readFile(fake.calls[0].settings.env.GEMINI_CLI_SYSTEM_SETTINGS_PATH, 'utf8'));
+    const systemSettings = JSON.parse(await readFile(fake.calls[0].settings.env!.GEMINI_CLI_SYSTEM_SETTINGS_PATH, 'utf8'));
     expect(systemSettings.tools.core.length).toBeGreaterThan(0);
     expect(systemSettings.tools.core.every((name: string) => name.startsWith('mcp_host_'))).toBe(true);
     expect(systemSettings.hooksConfig.enabled).toBe(false);
-    expect(fake.messages.find(message => message.method === 'session/new').params.mcpServers[0]).toMatchObject({ type: 'http', name: 'host' });
-    expect(fake.messages.find(message => message.method === 'initialize').params.clientCapabilities.terminal).toBe(false);
+    expect(fake.messages.find(message => message.method === 'session/new')!.params!.mcpServers![0]).toMatchObject({ type: 'http', name: 'host' });
+    expect(fake.messages.find(message => message.method === 'initialize')!.params!.clientCapabilities!.terminal).toBe(false);
     await runtime.dispose();
   });
 
