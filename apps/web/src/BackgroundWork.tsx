@@ -114,14 +114,14 @@ function HumanStepCard({ step, work, onRespond, onDecline, onSettled }: { step: 
       ? <p className="background-note">This step needs a credential. Use the secure credential surface in Settings; never type secrets into a message or this card.</p>
       : <form onSubmit={event => { event.preventDefault(); void run(() => onRespond(step.requestId, step.questionRevision, values, step.owner.threadId)); }}>
         <p className="background-note">{step.requiredAction === 'approval' ? 'Answering correlates input only. Approving an operation still requires its exact approval envelope in the task.' : 'Answer the exact blocked step to resume this work.'}</p>
-        <fieldset disabled={busy}><SchemaFields schema={step.responseSchema} value={values} onChange={setValues} /></fieldset>
-        {cardError && <p role="status" className="error-text">{cardError}</p>}
+        <fieldset disabled={busy} aria-label={`Response for ${work.title}`}><SchemaFields schema={step.responseSchema} value={values} onChange={setValues} /></fieldset>
+        {cardError && <p role="alert" className="error-text">{cardError}</p>}
         <div className="background-actions">
-          <button type="button" className="quiet" disabled={busy} onClick={() => void run(() => onDecline(step.requestId, step.questionRevision, step.owner.threadId))}>Decline</button>
+          <button type="button" className="quiet" aria-label={`Decline response for ${work.title}`} disabled={busy} onClick={() => void run(() => onDecline(step.requestId, step.questionRevision, step.owner.threadId))}>Decline</button>
           <button className="primary" disabled={busy}>{busy ? 'Submitting…' : 'Respond'}</button>
         </div>
       </form>}
-    {step.requiredAction === 'credential' && cardError && <p role="status" className="error-text">{cardError}</p>}
+    {step.requiredAction === 'credential' && cardError && <p role="alert" className="error-text">{cardError}</p>}
   </section>;
 }
 
@@ -155,11 +155,11 @@ function WorkCard({ work, step, props }: { work: Work; step: Step | undefined; p
       {work.state === 'BLOCKED' && work.blockedReason && <div><dt>Blocked</dt><dd>{work.blockedReason}</dd></div>}
       {work.state === 'UNKNOWN' && <div><dt>Uncertainty</dt><dd>{work.error ?? 'The outcome was not observed.'}</dd></div>}
     </dl>
-    {actionError && <p role="status" className="error-text">{actionError}</p>}
+    {actionError && <p role="alert" className="error-text">{actionError}</p>}
     <div className="background-actions">
-      <button type="button" className="quiet" onClick={() => props.onOpenThread(work.owner.threadId)}>Open child task</button>
-      <button type="button" className="quiet" aria-expanded={output !== null} aria-controls={output !== null ? outputId : undefined} onClick={() => output === null ? void load(0) : setOutput(null)}>Output</button>
-      {['QUEUED', 'RUNNING', 'WAITING_EVENT', 'WAITING_HUMAN'].includes(work.state) && <button type="button" className="quiet" disabled={busy} onClick={() => void cancel()}>Cancel</button>}
+      <button type="button" className="quiet" aria-label={`Open child task for ${work.title}`} onClick={() => props.onOpenThread(work.owner.threadId)}>Open child task</button>
+      <button type="button" className="quiet" aria-label={`Output for ${work.title}`} aria-expanded={output !== null} aria-controls={output !== null ? outputId : undefined} onClick={() => output === null ? void load(0) : setOutput(null)}>Output</button>
+      {['QUEUED', 'RUNNING', 'WAITING_EVENT', 'WAITING_HUMAN'].includes(work.state) && <button type="button" className="quiet" aria-label={`Cancel ${work.title}`} disabled={busy} onClick={() => void cancel()}>Cancel</button>}
     </div>
     {output && <div className="background-output" id={outputId} role="region" aria-label={`Output for ${work.title}`}>
       <pre>{output.output || '(no output yet)'}</pre>
@@ -168,7 +168,7 @@ function WorkCard({ work, step, props }: { work: Work; step: Step | undefined; p
         <button type="button" className="quiet" onClick={() => void load(output.cursor)}>Refresh output</button>
       </div>
     </div>}
-    {outputError && <p role="status" className="error-text">{outputError}</p>}
+    {outputError && <p role="alert" className="error-text">{outputError}</p>}
     {step && step.deliveryState === 'PENDING' && work.state === 'WAITING_HUMAN' && <HumanStepCard step={step} work={work} onRespond={props.onRespond} onDecline={props.onDecline} onSettled={restore} />}
   </article>;
 }
@@ -190,7 +190,7 @@ function ScheduleRow({ schedule, props }: { schedule: Schedule; props: Backgroun
       <span className="background-state" data-state={schedule.state.toLowerCase()}>{schedule.paused ? 'Paused' : schedule.state}</span>
       <button type="button" className="quiet" disabled={busy || schedule.state === 'CANCELLED'} onClick={() => void toggle()}>{schedule.paused ? 'Resume' : 'Pause'}</button>
     </div>
-    {rowError && <p role="status" className="error-text">{rowError}</p>}
+    {rowError && <p role="alert" className="error-text">{rowError}</p>}
   </li>;
 }
 
@@ -214,7 +214,7 @@ function IntakeSection({ intake, models, defaultModelId, props }: { intake: Back
     {!intake.status.available && <p className="background-note">Intake is unavailable: connect the authenticated GitHub connection and enable polling. No webhook listener exists.</p>}
     {intake.status.available && !intake.status.enabled && <p className="background-note">Polling is paused by configuration.</p>}
     {intake.status.config && <p className="background-muted">repository {String(intake.status.config.repositoryId)} · source {intake.status.config.sourceInstallation ?? 'authenticated GitHub'} · last poll {intake.status.lastPollAt ?? 'never'}{intake.status.lastError ? ` · ${intake.status.lastError}` : ''}</p>}
-    {intakeError && <p role="status" className="error-text">{intakeError}</p>}
+    {intakeError && <p role="alert" className="error-text">{intakeError}</p>}
     <h4>Proposed</h4>
     {proposed.length === 0 && <p className="background-muted">No proposed external work.</p>}
     <ul data-intake-list="proposed">
@@ -222,7 +222,7 @@ function IntakeSection({ intake, models, defaultModelId, props }: { intake: Back
         <div><strong>{record.proposedTask.title}</strong><span className="background-muted">issue {String(record.proposedTask.issueNumber)} · {record.sourceInstallation} · {record.receivedAt}</span></div>
         <div className="background-actions">
           <div className="background-model">
-            <Select aria-label="Approval model" value={modelId} onValueChange={setModelId} disabled={models.length === 0}
+            <Select aria-label={`Model for approved task: ${record.proposedTask.title}`} value={modelId} onValueChange={setModelId} disabled={models.length === 0}
               options={[{ value: '', label: 'Choose a model' }, ...models.map(model => ({ value: model.id, label: model.name }))]} />
           </div>
           <button type="button" className="quiet" disabled={busyId === record.intakeId} onClick={() => void act(record.intakeId, () => props.onReject(record.intakeId))}>Reject</button>
@@ -235,7 +235,7 @@ function IntakeSection({ intake, models, defaultModelId, props }: { intake: Back
     <ul data-intake-list="approved">
       {approved.map(record => <li key={record.intakeId} tabIndex={-1} className="background-intake-row" data-intake-id={record.intakeId}>
         <div><strong>{record.proposedTask.title}</strong><span className="background-muted">approved · {record.sourceInstallation}</span></div>
-        {record.decision?.threadId && <button type="button" className="quiet" onClick={() => props.onOpenThread(record.decision!.threadId!)}>Open child task</button>}
+        {record.decision?.threadId && <button type="button" className="quiet" aria-label={`Open child task for ${record.proposedTask.title}`} onClick={() => props.onOpenThread(record.decision!.threadId!)}>Open child task</button>}
       </li>)}
     </ul>
     {rejected.length > 0 && <p className="background-muted">Rejected or duplicate deliveries: {String(rejected.length)}{rejected[0]?.rejectionReason ? ` (${rejected[0].rejectionReason})` : ''}</p>}
@@ -244,11 +244,13 @@ function IntakeSection({ intake, models, defaultModelId, props }: { intake: Back
 
 export function BackgroundWorkView(props: BackgroundWorkViewProps) {
   const { data, loading, error } = props;
+  const announce = loading && !data ? '' : data ? `Background work updated: ${data.works.length} work item(s), ${data.schedules.length} schedule(s), ${data.intake.records.length} intake record(s).` : '';
   return <div className="background-work">
     <header className="background-toolbar">
       <h2>Background work</h2>
       <button type="button" className="quiet" onClick={props.onRefresh}>Refresh</button>
     </header>
+    <p className="sr-only" role="status" aria-live="polite">{announce}</p>
     <p className="background-close-warning" role="note">
       {data?.closeSummary.serviceSupervisorProven
         ? 'An approved service supervisor keeps proven service work running after close.'
