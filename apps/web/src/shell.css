@@ -34,7 +34,7 @@
 .shell-workarea>.workspace>.workspace-header {width:100%;min-width:0;gap:10px;padding-inline:20px;}
 .shell-workarea .workspace-header>.breadcrumb {flex:1;}
 .conversation-heading { display:flex;flex-direction:column;justify-content:center;gap:1px;flex:1;min-width:0; }
-.conversation-metadata { margin:0;font-size:11px;line-height:1.2;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.conversation-metadata { margin:0;font-size:11px;line-height:1.2;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40%; }
 .shell-workarea .workspace-header>.header-actions {flex-shrink:0;margin-left:auto;gap:7px;}
 /* Expanded tools get room beside the chat; minimized bars reserve no column. */
 @media(min-width:1101px) {
