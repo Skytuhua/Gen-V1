@@ -53,7 +53,7 @@ try {
   [Console]::Out.WriteLine('{"type":"error"}')
   exit 1
 } finally {
-  if ($process -and -not $process.HasExited) { try { & "$env:SystemRoot\System32\taskkill.exe" /PID $process.Id /T /F 1>$null 2>$null } catch {} }
+  if ($process -and -not $process.HasExited) { try { & "$env:SystemRoot\System32\taskkill.exe" /PID $process.Id /T /F 1>$null 2>$null } catch { <# Best effort; the child may already be gone. #> } }
 }
 `;
 

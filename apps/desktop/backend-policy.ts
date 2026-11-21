@@ -49,9 +49,9 @@ function parseStartupDiagnostic(value:unknown):StartupDiagnostic|undefined{
 }
 /** Optional diagnostics can neither throw nor serialize an unvalidated caller value. */
 export function writeStartupDiagnostic(sink:(line:string)=>void,value:unknown):void{
- try{const item=parseStartupDiagnostic(value);if(item)sink(PREFIX+JSON.stringify(item)+'\n');}catch{}
+ try{const item=parseStartupDiagnostic(value);if(item)sink(PREFIX+JSON.stringify(item)+'\n');}catch{/* Diagnostics are optional; an unserializable or invalid value is dropped. */}
 }
-function observeStartup(observe:((value:StartupObservation)=>void)|undefined,value:StartupObservation):void{try{observe?.(value);}catch{}}
+function observeStartup(observe:((value:StartupObservation)=>void)|undefined,value:StartupObservation):void{try{observe?.(value);}catch{/* An observer callback must not break stream processing. */}}
 /** Hash and parse only the first 256 KiB of each stream; continue counting/draining every chunk. */
 export function createStartupOutputCapture(clock:()=>number=Date.now,observe?:(value:StartupDiagnostic)=>void){
  const started=clock(),make=()=>({bytes:0,hashedBytes:0,hash:createHash('sha256'),line:[] as number[],dropping:false});
@@ -59,11 +59,11 @@ export function createStartupOutputCapture(clock:()=>number=Date.now,observe?:(v
  let firstFailure:typeof events[number]|null=null,rejectedLines=0,overlongLines=0;
  const retain=(stream:'stdout'|'stderr',line:string)=>{
   if(!line.startsWith(PREFIX))return;
-  let value:StartupDiagnostic|undefined;try{value=parseStartupDiagnostic(JSON.parse(line.slice(PREFIX.length)));}catch{}
+  let value:StartupDiagnostic|undefined;try{value=parseStartupDiagnostic(JSON.parse(line.slice(PREFIX.length)));}catch{/* A malformed diagnostic line counts as rejected below. */}
   if(!value){rejectedLines++;return;}
   const event={...value,stream,observedElapsedMs:Math.max(0,clock()-started)};
   if(value.error!==null||/-(?:failed|error|exit|disconnect|deadline|stopped|gone)$/.test(value.stage))firstFailure??=event;
-  if(events.length<EVENT_LIMIT){events.push(event);try{observe?.(value);}catch{}}
+  if(events.length<EVENT_LIMIT){events.push(event);try{observe?.(value);}catch{/* An observer callback must not break stream processing. */}}
  };
  const summary=(value:typeof streams.stdout):StartupOutputSummary=>({bytes:value.bytes,hashedBytes:value.hashedBytes,sha256:value.hash.copy().digest('hex'),truncated:value.bytes>OUTPUT_LIMIT});
  return {
@@ -77,7 +77,7 @@ export function createStartupOutputCapture(clock:()=>number=Date.now,observe?:(v
      else if(!value.dropping){if(value.line.length===LINE_LIMIT){value.line=[];value.dropping=true;overlongLines++;}else value.line.push(byte);}
     }
     if(value.hashedBytes===OUTPUT_LIMIT){value.line=[];value.dropping=true;}
-   }catch{}
+   }catch{/* Capturing backend output is best effort; the child must keep running. */}
   },
   read:()=>({hashScope:'prefix' as const,hashLimitBytes:OUTPUT_LIMIT,lineLimitBytes:LINE_LIMIT,eventLimit:EVENT_LIMIT,streams:{stdout:summary(streams.stdout),stderr:summary(streams.stderr)},events:events.slice(),firstFailure,rejectedLines,overlongLines})
  };
@@ -96,7 +96,7 @@ export function waitForBackendReady(child:ChildProcess,token:string,port:number,
   const finish=(error?:Error,value?:Record<string,unknown>)=>{if(done)return;done=true;clearTimeout(timer);child.removeListener('message',message);child.removeListener('error',failed);child.removeListener('exit',exited);child.removeListener('disconnect',disconnected);if(error)reject(error);else resolveReady(value!);};
   const failed=(error:Error)=>{observeStartup(observe,{stage:'backend-spawn-error',error:startupErrorDiagnostic(error)});finish(error);},exited=(code:number|null)=>{observeStartup(observe,{stage:'backend-exit',error:null});finish(Error('The local backend stopped during startup ('+code+'). '+stderr().slice(-500)));};
   const disconnected=()=>{observeStartup(observe,{stage:'backend-disconnect',error:null});finish(Error('The local backend disconnected during startup.'));};
-  const message=(raw:unknown)=>{if(!raw||typeof raw!=='object')return;const value=raw as Record<string,unknown>;if(value.token!==token)return;if(value.type==='harness.error'){let error=unknownError();try{error=parseStartupError(value.diagnostic)??error;}catch{}observeStartup(observe,{stage:'backend-error',error});finish(Error(typeof value.message==='string'?value.message:'The local backend failed'));}if(value.type==='harness.ready'&&value.origin==='http://127.0.0.1:'+port&&value.pid===child.pid){observeStartup(observe,{stage:'backend-ready',error:null});finish(undefined,value);}};
+  const message=(raw:unknown)=>{if(!raw||typeof raw!=='object')return;const value=raw as Record<string,unknown>;if(value.token!==token)return;if(value.type==='harness.error'){let error=unknownError();try{error=parseStartupError(value.diagnostic)??error;}catch{/* Fall back to the built-in unknown error. */}observeStartup(observe,{stage:'backend-error',error});finish(Error(typeof value.message==='string'?value.message:'The local backend failed'));}if(value.type==='harness.ready'&&value.origin==='http://127.0.0.1:'+port&&value.pid===child.pid){observeStartup(observe,{stage:'backend-ready',error:null});finish(undefined,value);}};
   child.on('message',message);child.once('error',failed);child.once('exit',exited);child.once('disconnect',disconnected);
  });
 }

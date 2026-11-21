@@ -60,8 +60,8 @@ export async function openClaude(context: DriverContext, sdk: ClaudeSdk, modelId
         rejectIo(failed); input.close(); compact?.reject(failed); compact = undefined;
         // An observer failure must neither escape a native stream listener nor
         // prevent the independent settlement/teardown notification.
-        try { context.event('error', { message: failed.message }); } catch {}
-        try { context.event('settled', { aborted: false }); } catch {}
+        try { context.event('error', { message: failed.message }); } catch { /* Reporting the failure must not throw inside the error path. */ }
+        try { context.event('settled', { aborted: false }); } catch { /* Reporting settlement must not throw inside the error path. */ }
       };
       child.on('error', failIo);
       for (const stream of [child.stdin, child.stdout, child.stderr]) stream?.on('error', failIo);
