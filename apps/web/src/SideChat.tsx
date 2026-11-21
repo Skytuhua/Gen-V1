@@ -1,4 +1,5 @@
 import {useEffect,useImperativeHandle,useLayoutEffect,useRef,useState,type Ref} from 'react';
+import { storageKeyFor, readString, writeString, remove } from './local-store';
 import {ArrowUp,CircleStop,LoaderCircle,Plus} from 'lucide-react';
 import type {Snapshot,Thread} from '../../../packages/contracts';
 import {command} from './api';
@@ -13,8 +14,8 @@ import './side-chat.css';
 export interface SideChatHandle {ask(content:string):Promise<void>}
 const errorMessage=(cause:unknown)=>cause instanceof Error?cause.message:'The side question could not be sent.';
 export function SideChat({parent,snapshot,modelId,open,onClose,refresh,ref}:{parent:Thread;snapshot:Snapshot;modelId:string;open:boolean;onClose:()=>void;refresh:()=>Promise<void>;ref?:Ref<SideChatHandle>}){
- const storageKey='harness:side-selected:'+parent.id;
- const [selectedId,setSelectedId]=useState<string|null>(()=>{try{return localStorage.getItem(storageKey);}catch{return null;}});
+ const storageKey=storageKeyFor.sideSelected(parent.id);
+ const [selectedId,setSelectedId]=useState<string|null>(()=>readString(storageKey));
  const side=snapshot.threads.find(thread=>thread.id===selectedId&&thread.sideParentId===parent.id);
  const histories=snapshot.threads.filter(thread=>thread.sideParentId===parent.id).toSorted((a,b)=>b.createdAt.localeCompare(a.createdAt));
  const draftKey=`side-draft:${parent.id}:${selectedId??'new'}`;
@@ -25,7 +26,7 @@ export function SideChat({parent,snapshot,modelId,open,onClose,refresh,ref}:{par
  const threadMessages=useThreadMessages(snapshot,side?.id,true),messages=threadMessages.messages.filter(message=>message.role!=='activity');
  useLayoutEffect(()=>{if(draftTarget.current!==draftKey){draftEpoch.current++;draftTarget.current=draftKey;}},[draftKey]);
  useLayoutEffect(()=>()=>{draftEpoch.current++;},[]);
- useEffect(()=>{try{if(selectedId)localStorage.setItem(storageKey,selectedId);else localStorage.removeItem(storageKey);}catch{/* Drafts remain in the journal. */}},[storageKey,selectedId]);
+ useEffect(()=>{if(selectedId)writeString(storageKey,selectedId);else remove(storageKey);/* Drafts remain in the journal. */},[storageKey,selectedId]);
  useEffect(()=>{let active=true;setReady(false);void journalRead<string>(draftKey).then(value=>{if(active){setDraft(value??'');setReady(true);}}).catch(()=>{if(active){setReady(true);setError('Draft recovery is unavailable. Keep this window open.');}});return()=>{active=false;};},[draftKey]);
  useEffect(()=>journalSubscribe(draftKey,value=>{if(draftTarget.current===draftKey)setDraft(typeof value==='string'?value:'');}),[draftKey]);
  useEffect(()=>{if(open&&ready)input.current?.focus({preventScroll:true});},[open,ready]);

@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useSyncExternalStore, type ReactNode } from 'react';
+import { storageKeys, readString, writeString, writeJson, remove, keysWithPrefix } from './local-store';
 import { useStateStore } from '@json-render/react';
 import type { ResourceGrant } from '../../../packages/contracts';
 import { MAX_SIGNATURE_PNG_BYTES, validateSignaturePng } from '../../../packages/ui-catalog/signature-data';
@@ -15,7 +16,7 @@ const emit = () => { version++; listeners.forEach(listener => listener()); };
 const keyFor = (threadId: string, stateId = '') => `${prefix}${encodeURIComponent(threadId)}:${encodeURIComponent(stateId)}`;
 const pathFor = (key: string) => `/values/${key.replace(/~/g, '~0').replace(/\//g, '~1')}`;
 function read(key: string): Pending[] {
-  const raw = localStorage.getItem(key);
+  const raw = readString(key);
   if (!raw) return [];
   let records: unknown;
   try { records = JSON.parse(raw); }
@@ -23,20 +24,20 @@ function read(key: string): Pending[] {
   if (!Array.isArray(records) || records.length > 100 || records.some(record => !record || typeof record.id !== 'string' || typeof record.stateKey !== 'string' || typeof record.base64 !== 'string' || record.base64.length > 700_000)) throw new Error('The pending signature journal is invalid. Clear the mark to continue.');
   return records;
 }
-const corruptPrefix = 'harness:signature-assets-corrupt:v1:';
+const corruptPrefix = storageKeys.signatureAssetsCorruptPrefixV1;
 function readSafe(key: string): Pending[] | null { try { return read(key); } catch { return null; } }
 /** Move an unreadable journal aside (raw payload preserved for diagnosis) so recovery paths can never wedge. */
-function quarantine(key: string) { const raw = localStorage.getItem(key); if (raw !== null) { try { localStorage.setItem(corruptPrefix + key, raw); } catch { /* Quota failures still unwedge the journal. */ } localStorage.removeItem(key); } emit(); }
+function quarantine(key: string) { const raw = readString(key); if (raw !== null) { writeString(corruptPrefix + key, raw); /* Quota failures still unwedge the journal. */ remove(key); } emit(); }
 function recover(key: string): Pending[] { const records = readSafe(key); if (records !== null) return records; quarantine(key); return []; }
 function write(key: string, records: Pending[]) {
-  if (records.length) localStorage.setItem(key, JSON.stringify(records)); else localStorage.removeItem(key);
+  if (records.length) writeJson(key, records); else remove(key);
   emit();
 }
 export function hasPendingDocumentAssets(threadId?: string, stateId?: string) {
   if (threadId !== undefined && stateId !== undefined) {const key=keyFor(threadId,stateId),records=readSafe(key);return (preparationCounts.get(key)??0)>0||(records===null||records.length>0);}
   const start = threadId === undefined ? prefix : `${prefix}${encodeURIComponent(threadId)}:`;
   if([...preparationCounts].some(([key,count])=>key.startsWith(start)&&count>0))return true;
-  for (let index = 0; index < localStorage.length; index++) { const key = localStorage.key(index); if (key?.startsWith(start)) { const records = readSafe(key); if (records === null || records.length) return true; } }
+  for (const key of keysWithPrefix(start)) { const records = readSafe(key); if (records === null || records.length) return true; }
   return false;
 }
 const subscribe = (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener); }; };

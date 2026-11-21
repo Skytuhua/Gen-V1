@@ -1,4 +1,5 @@
 import {useCallback,useEffect,useLayoutEffect,useRef,useState} from 'react';
+import { storageKeyFor, readJson, writeJson } from './local-store';
 import {pluginSurfaceSchema,type PluginManifest,type PluginSurface,type PluginWorkspaceContribution} from '../../../packages/plugins/contracts';
 import type {ExtensionViewV1} from '../../../packages/contracts/plugin-worker';
 import {parsePluginFrameRequest,pluginFrameReply,pluginFrameSource,pluginWindowOperation} from '../../../packages/plugins/frame-protocol';
@@ -10,7 +11,7 @@ import {desktopSurfaceKey} from '../../../packages/desktop-contract';
 type PluginFrameProps={plugin:PluginManifest;theme:'light'|'dark';active?:boolean;surface?:PluginSurface;workspace?:PluginWorkspaceContribution;projectColors?:Record<string,string>;onReady?:()=>void};
 /** Presentation preferences live host-side: the sandboxed frame has an opaque origin and no storage. */
 function readPluginPresentation(pluginId:string):{introDismissed:boolean} {
-  try{const value:unknown=JSON.parse(localStorage.getItem(`harness:plugin-ui:${pluginId}`)??'null');return {introDismissed:Boolean(value&&typeof value==='object'&&(value as Record<string,unknown>).introDismissed===true)};}catch{return {introDismissed:false};}
+  {const value=readJson<unknown>(storageKeyFor.pluginUi(pluginId),null);return {introDismissed:Boolean(value&&typeof value==='object'&&(value as Record<string,unknown>).introDismissed===true)};}
 }
 export function PluginFrame(props:PluginFrameProps){const [generation,reload]=useState(0);return <PluginFrameBody key={`${props.surface?desktopSurfaceKey(props.surface):props.plugin.id}:${props.workspace?.id??'conversation'}:${generation}`} {...props} reload={()=>reload(value=>value+1)}/>;}
 function PluginFrameBody({plugin,theme,active=true,surface,workspace,projectColors={},onReady,reload}:PluginFrameProps&{reload:()=>void}) {
@@ -73,7 +74,7 @@ function PluginFrameBody({plugin,theme,active=true,surface,workspace,projectColo
           const input=request.input;
           if(!input||typeof input!=='object'||Array.isArray(input)||typeof (input as Record<string,unknown>).introDismissed!=='boolean')throw Error('Invalid plug-in presentation preference.');
           uiPresentation.current={introDismissed:(input as Record<string,unknown>).introDismissed===true};
-          try{localStorage.setItem(`harness:plugin-ui:${plugin.id}`,JSON.stringify(uiPresentation.current));}catch{/* Storage may be unavailable; the preference still applies to this session. */}
+          writeJson(storageKeyFor.pluginUi(plugin.id),uiPresentation.current);/* Storage may be unavailable; the preference still applies to this session. */
           return null;
         }
         if(request.operation==='window.capabilities')return desktop?{available:true}:{available:false,reason:'Native windows are only available in the desktop app.'};

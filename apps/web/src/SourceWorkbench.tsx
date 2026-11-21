@@ -1,4 +1,5 @@
 import {createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ComponentType, type ReactNode} from 'react';
+import { storageKeys, readString, writeString } from './local-store';
 import {Modal} from '../../../packages/ui-shell/Modal';
 import {Select} from '../../../packages/ui-shell/Select';
 import type {Snapshot} from '../../../packages/contracts';
@@ -22,7 +23,7 @@ const messageOf=(cause:unknown)=>cause instanceof Error?cause.message:'The sourc
 const shortRevision=(value:string)=>value.length>16?`${value.slice(0,12)}\u2026`:value;
 const formatCaptured=(iso:string)=>{const time=Date.parse(iso);return Number.isNaN(time)?iso:new Date(time).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'});};
 function sourceRange(ref:SourceRefV1){const source=ref.source;switch(source.kind){case 'MESSAGE':return `UTF-16 [${source.range.start}, ${source.range.end})`;case 'FILE_RANGE':return `Lines ${source.range.startLine} to ${source.range.endLine}`;case 'DIFF_HUNK':return `Hunk lines ${source.range.startLine} to ${source.range.endLine}`;case 'ARTIFACT_REGION':return `Binding ${source.binding}, pointer ${source.range.pointer||'(root)'}`;}}
-function localDevice(){try{const key='harness:workbench-device',existing=localStorage.getItem(key);if(existing)return existing;const id=crypto.randomUUID();localStorage.setItem(key,id);return id;}catch{return 'local-window';}}
+function localDevice(){const existing=readString(storageKeys.workbenchDevice);if(existing)return existing;const id=crypto.randomUUID();return writeString(storageKeys.workbenchDevice,id)?id:'local-window';}
 type PanelTab=WorkbenchPanelTab;
 interface WorkbenchContext {
  owner?:LogicalOwnerV1; enabled:boolean; draft?:SourceDraftSnapshot; error:string;

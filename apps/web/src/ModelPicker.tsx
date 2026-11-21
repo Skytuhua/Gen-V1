@@ -16,9 +16,9 @@ export interface ModelPickerProps {
 }
 const providerLabel=(provider:string)=>SUBSCRIPTION_CONNECTIONS.find(connection=>connection.id===provider)?.label??provider;
 const effortLabel=(value:string)=>value==='xhigh'?'Extra high':value.replaceAll('_',' ').replaceAll('-',' ').replace(/\b\w/g,letter=>letter.toUpperCase());
-const FAVORITES_KEY='harness:model-favorites:v1';
+import { storageKeys, readJson, writeJson } from './local-store';
 function readFavorites():string[]{
- try{const value:unknown=JSON.parse(localStorage.getItem(FAVORITES_KEY)??'[]');return Array.isArray(value)?value.filter((id):id is string=>typeof id==='string'):[];}catch{return [];}
+ {const value=readJson<unknown>(storageKeys.modelFavoritesV1,[]);return Array.isArray(value)?value.filter((id):id is string=>typeof id==='string'):[];}
 }
 type ModelFilter={kind:'all'|'favorites'}|{kind:'provider';provider:string};
 
@@ -53,7 +53,7 @@ export function ModelPicker({ref,models,modelId,onChange,disabled=false,thinking
  function toggleFavorite(model:ModelInfo){
   const next=favorites.includes(model.id)?favorites.filter(value=>value!==model.id):[...favorites,model.id];
   setFavorites(next);
-  try{localStorage.setItem(FAVORITES_KEY,JSON.stringify(next));}catch{/* Favorites still work for this session without storage. */}
+  writeJson(storageKeys.modelFavoritesV1,next);/* Favorites still work for this session without storage. */
  }
  function navigate(event:KeyboardEvent<HTMLInputElement>){
   if(isComposing(event)){if(event.key==='Escape')event.preventDefault();return;}

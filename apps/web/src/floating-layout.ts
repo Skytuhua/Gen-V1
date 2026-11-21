@@ -1,8 +1,9 @@
+import { storageKeyFor, readString, writeJson } from './local-store';
 export type FloatingAnchor = 'top-right' | 'bottom-right';
 export interface FloatingLayout {x:number;y:number;width:number;height:number;collapsed:boolean;floating?:boolean}
 export interface FloatingViewport {width:number;height:number;left?:number;right?:number;top?:number;bottom?:number;gutter?:number;pinned?:'left'|'right'}
 export interface FloatingSize {width:number;height:number}
-export const floatingLayoutKey=(id:string)=>`harness:floating:${id}:v1`;
+export const floatingLayoutKey=storageKeyFor.floatingLayout;
 const finite=(value:unknown,fallback:number)=>typeof value==='number'&&Number.isFinite(value)?value:fallback;
 const between=(value:number,minimum:number,maximum:number)=>Math.max(minimum,Math.min(maximum,value));
 export const FLOATING_COLLAPSED_HEIGHT=36;
@@ -20,7 +21,7 @@ export function clampFloatingLayout(layout:FloatingLayout,viewport:FloatingViewp
 }
 export function readFloatingLayout(id:string,initial:FloatingLayout,viewport:FloatingViewport,minSize:FloatingSize):FloatingLayout {
   try {
-    const raw=localStorage.getItem(floatingLayoutKey(id));
+    const raw=readString(floatingLayoutKey(id));
     if(!raw||raw.length>1024)return clampFloatingLayout(initial,viewport,minSize);
     const saved:unknown=JSON.parse(raw);
     if(!saved||typeof saved!=='object'||Array.isArray(saved))return clampFloatingLayout(initial,viewport,minSize);
@@ -29,5 +30,5 @@ export function readFloatingLayout(id:string,initial:FloatingLayout,viewport:Flo
   }catch{return clampFloatingLayout(initial,viewport,minSize);}
 }
 export function writeFloatingLayout(id:string,layout:FloatingLayout):void {
-  try {localStorage.setItem(floatingLayoutKey(id),JSON.stringify(layout));}catch{/* The window remains usable if browser preference storage is unavailable. */}
+  writeJson(floatingLayoutKey(id),layout);/* The window remains usable if browser preference storage is unavailable. */
 }

@@ -22,7 +22,8 @@ export interface PlanStatusProps {
   onOpenAgentTranscript?: (job: AgentJob, threadId: string) => void;
 }
 type PlanContext = Pick<Thread, "runId" | "epoch" | "status">;
-export const collapseStorageKey = "harness:plan-collapse:v2";
+import { storageKeys, readString, writeJson } from './local-store';
+export const collapseStorageKey = storageKeys.planCollapseV2;
 export const legacyCollapseStorageKey = "harness:plan-collapse:v1";
 const maxKeyLength = 400, maxEntries = 128, maxRecordBytes = 65536;
 export const planDefaultCollapsed = (kind: string, status: string | undefined): boolean =>
@@ -127,11 +128,11 @@ export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, o
   if (retained.threadId !== threadId || retained.record !== record || retained.owner !== owner || retained.unavailable !== unavailable)
     setRetained({ threadId, record, owner, unavailable });
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
-    readPlanCollapse((key) => localStorage.getItem(key)),
+    readPlanCollapse(readString),
   );
   useEffect(() => {
     try {
-      localStorage.setItem(collapseStorageKey, JSON.stringify(boundPlanCollapse(collapsed)));
+      writeJson(collapseStorageKey, boundPlanCollapse(collapsed));
     } catch {
       /* Optional disclosure preferences never block the plan. */
     }
