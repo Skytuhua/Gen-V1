@@ -25,6 +25,10 @@ import { ShellSidebar, threadStatus } from './ShellSidebar';
 import { ProjectPicker } from './ProjectPicker';
 import { projectColorKey } from './project-colors';
 import { useShellLayout, matchesShortcut } from './shell-layout';
+import { ariaKeyShortcuts } from './keyboard-bindings';
+import { usePromptHistory } from './usePromptHistory';
+import { PromptHistorySearch, type PromptHistorySearchHandle } from './PromptHistorySearch';
+import './prompt-history.css';
 import {useSidebarCollapse} from './sidebar-collapse';
 import {sameSplitWorkspaceView,createSplitWorkspaceLayout,applySplitWorkspaceCommand} from '../../../packages/core/split-workspace-layout';
 import { ResizeHandle, WorkspacePanel } from './WorkspacePanel';
@@ -294,7 +298,7 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
   const preferences = getPreferences(snapshot.settings);
 
   const [dragging, setDragging] = useState(false);
-  const input = useRef<HTMLTextAreaElement>(null), commands = useRef<ComposerCommandsHandle>(null), modelPicker = useRef<ModelPickerHandle>(null), openedModelRequest = useRef<number | undefined>(undefined);
+  const input = useRef<HTMLTextAreaElement>(null), commands = useRef<ComposerCommandsHandle>(null), modelPicker = useRef<ModelPickerHandle>(null), historySearch = useRef<PromptHistorySearchHandle>(null), openedModelRequest = useRef<number | undefined>(undefined);
   const [skillOwner,setSkillOwner]=useState(key);
   const localSkills = useComposerSkills(skillOwner, !shared), skills = shared ? sharedState.skills ?? [] : localSkills.skills;
   const skillsReady = shared || localSkills.ready;
@@ -307,10 +311,12 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
   const resources = snapshot.resources.filter(item => item.threadId === thread?.id);
   const unavailable = !models.length || !models.some(model => model.id === modelId);
   const project=resources.find(resource=>resource.kind==='project');const changes=useMemo(()=>recordedChangeSummary(snapshot.data,thread?.id),[snapshot.data,thread?.id]);
+  const historyTitles = useMemo(() => new Map(snapshot.threads.map(item => [item.id, item.title])), [snapshot.threads]);
   useEffect(()=>{const model=models.find(model=>model.id===modelId);if(model&&thinkingLevel&&!model.thinkingLevels?.includes(thinkingLevel))chooseThinking('');},[models,modelId,thinkingLevel]);
   useEffect(() => { if (shared) return; let current = true; void journalRead<string>(`draft:${key}`).then(value => { if (current) { setDraft(value ?? ''); setReady(true); } }).catch(() => { if (current) { setReady(true); setError('Draft recovery is unavailable. Keep this tab open until your message is sent.'); } }); return () => { current = false; }; }, [key, shared]);
   useEffect(() => shared ? undefined : journalSubscribe(`draft:${key}`, value => { if (draftTarget.current === key) { prediction.dismiss(); setDraft(typeof value === 'string' ? value : ''); } }), [key, shared]);
-  const prediction = useComposerPrediction({ thread, snapshot, modelId, enabled: preferences.composerPredictions, ready, blocked: predictionBlocked || busy || unavailable || contextOpen, draft, generation: journalGeneration(`draft:${key}`), input });
+  const promptHistory = usePromptHistory({ messages: snapshot.messages, threads: snapshot.threads, truncated: snapshot.messagesTruncated?.[thread?.id ?? ''] ?? 0, threadId: thread?.id, draft, write: value => updateDraft(value), input, disabled: !ready || busy });
+  const prediction = useComposerPrediction({ thread, snapshot, modelId, enabled: preferences.composerPredictions, ready, blocked: predictionBlocked || busy || unavailable || contextOpen || promptHistory.browsing, draft, generation: journalGeneration(`draft:${key}`), input });
   useLayoutEffect(() => {
     const textarea = input.current;
     if (!textarea) return;
@@ -426,13 +432,16 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
       <ComposerAttachments resources={resources} excerpts={excerpts} disabled={busy||!ready||retry} onEditExcerpt={(id,text)=>updateExcerpt(id,text)} onRemoveExcerpt={id=>updateExcerpt(id)} timeFormat={getPreferences(snapshot.settings).timeFormat}/>
       <ComposerSkillBindings bindings={skills} retry={retry} onRemove={id=>{void (sharedComposers&&sharedTarget?sharedComposers.removeSkill(sharedTarget,id):localSkills.remove(id)).catch(cause=>fail(cause));}}/>
       <ComposerCommands ref={commands} input={input} draft={draft} threadId={thread?.id} projectId={thread?.projectId} disabled={!ready||!skillsReady||busy||predictionBlocked} onDraft={updateDraft} onModel={()=>modelPicker.current?.open()} onMode={chooseMode}/>
+      <PromptHistorySearch ref={historySearch} input={input} open={promptHistory.searchOpen} entries={promptHistory.entries} titles={historyTitles} onClose={promptHistory.closeSearch} onChoose={promptHistory.choose}/>
       <div className="composer-entry-row">
       <div className="composer-input">
-        <textarea ref={input} aria-label="Message" placeholder={prediction.candidate ? '' : dragging ? 'Drop files to attach' : 'Ask anything…'} value={draft} disabled={!ready} onChange={event => updateDraft(event.target.value)} onPaste={prediction.dismiss} onCompositionStart={prediction.dismiss} onKeyDown={event => {
+        <textarea ref={input} aria-label="Message" aria-keyshortcuts={ariaKeyShortcuts(['prompt-history-previous', 'prompt-history-next', 'prompt-history-search'])} placeholder={prediction.candidate ? '' : dragging ? 'Drop files to attach' : 'Ask anything…'} value={promptHistory.browsing ? promptHistory.shown : draft} disabled={!ready} onChange={event => { promptHistory.onDraftChange(); updateDraft(event.target.value); }} onPaste={prediction.dismiss} onCompositionStart={prediction.dismiss} onKeyDown={event => {
           if (event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229) return;
           const submitKey = event.key === 'Enter' && !event.shiftKey && (preferences.sendShortcut === 'enter' || event.ctrlKey || event.metaKey);
           if (submitKey && /^\/(?:btw|side)$/i.test(draft.trim())) { event.preventDefault(); void send(); return; }
           if(commands.current?.keyDown(event))return;
+          if(historySearch.current?.keyDown(event))return;
+          if (promptHistory.keyDown(event)) { prediction.dismiss(); return; }
           if (prediction.candidate && event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); prediction.dismiss(); return; }
           if (event.key === 'Tab' && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey && acceptPrediction()) { event.preventDefault(); return; }
           if (submitKey) { event.preventDefault(); void send(); }
@@ -441,7 +450,7 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
       </div>
       <ComposerTaskActions changeSummary={changes} onChanges={inspectChanges} onCreatePR={preparePR} disabled={busy||!ready} working={working}/>
       </div>
-      <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{prediction.candidate ? `Suggested message: ${prediction.candidate} Tab to accept. Escape to dismiss.` : ''}</span>
+      <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{promptHistory.browsing ? `Prompt ${promptHistory.position} of ${promptHistory.total} from history${promptHistory.sourceTitle ? `, from ${promptHistory.sourceTitle}` : ''}` : prediction.candidate ? `Suggested message: ${prediction.candidate} Tab to accept. Escape to dismiss.` : ''}</span>
       <ComposerToolbar modelPickerRef={modelPicker} models={models} modelId={modelId} onModelChange={id=>{chooseThinking('');setModelId(id);}} modelScopeHint={thread?'New conversations only.':'Applies to new tasks.'} onModelNewTask={onNewTask} thinkingLevel={thinkingLevel} onThinkingChange={chooseThinking} projectLabel={thread?.projectName??project?.label} changeSummary={changes} onProject={async()=>{if(!selectProject){await addResource();return;}const opener=document.activeElement as HTMLElement|null;selectProject(thread?.id,opener,thread?undefined:id=>migrateDraft(id,draftLatest.current,true));}} onChanges={inspectChanges} onCreatePR={preparePR} onTranscript={text=>{const current=draftLatest.current;updateDraft(current+(current&&!/\s$/.test(current)?' ':'')+text);}} disabled={busy||!ready} working={working} separateActions
         leading={<>{savedDraftOwner?<SavedDrafts owner={savedDraftOwner} input={input} disabled={busy||!ready||retry||predictionBlocked}/>:<button type="button" className="quiet saved-drafts-trigger" disabled title={thread?'Saved drafts are waiting for the owning project context.':'Start a conversation to save named drafts.'}>Saved drafts</button>}<button type="button" className="icon-button attach-button" aria-label="Attach files" title="Attach files" disabled={busy} onClick={()=>file.current?.click()}><Plus size={18}/></button><input type="file" multiple ref={file} hidden onChange={event=>{if(event.target.files)void upload(event.target.files);event.target.value='';}}/></>}
         runtime={<>{thread?.accountId!=null&&<span className="composer-account" title="Account for this task">{snapshot.accounts?.find(account=>account.id===thread.accountId)?.label??'Account unavailable'}</span>}<span className="pill runtime-pill" title="Local workspace"><Laptop size={14}/>Local</span><button type="button" className="mode-toggle" aria-label="Task mode" aria-pressed={(thread?.mode??draftMode)==='plan'} title={(thread?.mode??draftMode)==='plan'?'Switch to Build':'Switch to Plan'} disabled={working||busy} onClick={()=>{void chooseMode((thread?.mode??draftMode)==='plan'?'build':'plan').catch(cause=>setError(messageOf(cause)));}}>{(thread?.mode??draftMode)==='plan'?<PenLine size={15}/>:<Bot size={15}/>}<span>{(thread?.mode??draftMode)==='plan'?'Plan':'Build'}</span></button>{preferences.showUsageFooter&&onShowUsage&&<button type="button" className="composer-tool composer-usage-launcher" aria-label={usageOpen?'Hide live usage':'Show live usage'} title={usageOpen?'Hide live usage':'Show live usage'} aria-pressed={usageOpen} onClick={onShowUsage}><Activity size={15}/></button>}</>}
@@ -449,7 +458,7 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
         trailing={working?<>{workbench?.enabled&&workbench.draft?.sendMode==='AFTER_CURRENT'&&<button type="button" className="secondary" disabled={busy||!retry&&preparedMemory.blocked||!ready||skillsBlocked||!draft.trim()} onClick={()=>void send()}>Queue after current</button>}{/^\/(?:btw|side)(?:\s|$)/i.test(draft.trim())&&<button type="button" className="send-button" aria-label="Send side question" disabled={busy||!ready||skillsBlocked} onClick={()=>void send()}><ArrowUp size={17}/></button>}<button type="button" className="send-button stop-button" aria-label="Stop agent" disabled={shared && sharedState.stopping} onClick={()=>{void (sharedComposers && sharedTarget ? sharedComposers.stop(sharedTarget) : command('run.stop',{},thread!.id)).then(()=>refresh()).catch(error=>fail(error));}}><CircleStop size={20}/></button></>:<button className="send-button" aria-label={retry ? "Retry send" : "Send message"} disabled={busy||!retry&&preparedMemory.blocked||!skillsReady||skillsBlocked||unavailable||!draft.trim() && !excerpts.length && !retry||!ready||!shared&&!excerptsReady} title={unavailable?'Connect an available model in Settings to send.':'Send message (Enter)'}>{busy?<LoaderCircle size={17} className="spinning"/>:<ArrowUp size={19}/>}</button>}
       />
     </ComposerView>
-    <div className="composer-caption">{prediction.candidate ? <span className="composer-prediction-controls"><span className="composer-prediction-keyboard" aria-hidden="true">Tab to accept · Esc to dismiss</span><button type="button" className="composer-prediction-use" onPointerDown={event => event.preventDefault()} onClick={acceptPrediction}>Use suggestion</button></span> : unavailable ? <button onClick={setup}>Connect a model to start<ChevronRight size={12} /></button> : null}</div>
+    <div className="composer-caption">{prediction.candidate ? <span className="composer-prediction-controls"><span className="composer-prediction-keyboard" aria-hidden="true">Tab to accept · Esc to dismiss</span><button type="button" className="composer-prediction-use" onPointerDown={event => event.preventDefault()} onClick={acceptPrediction}>Use suggestion</button></span> : unavailable ? <button onClick={setup}>Connect a model to start<ChevronRight size={12} /></button> : promptHistory.chip ? <span className={promptHistory.chipExiting ? 'prompt-history-chip prompt-history-chip-out' : 'prompt-history-chip'}><span className="prompt-history-count">History {promptHistory.chip.position} of {promptHistory.chip.total}</span>{promptHistory.chip.sourceTitle ? <span className="prompt-history-source"> · {promptHistory.chip.sourceTitle.length > 28 ? `${promptHistory.chip.sourceTitle.slice(0, 27)}…` : promptHistory.chip.sourceTitle}</span> : null}<span className="prompt-history-hint" aria-hidden="true">↑ older · ↓ newer · Esc restore</span></span> : null}</div>
   </div>;
 }
 
