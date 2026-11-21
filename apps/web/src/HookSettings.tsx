@@ -114,7 +114,7 @@ export function HookSettings() {
             {ON_ERROR_EVENTS.includes(card.draft.event) && <label className="field">If the hook fails<Select aria-label="If the hook fails" value={card.draft.onError} options={[{ value: 'continue', label: 'Continue' }, { value: 'block', label: 'Block' }]} onValueChange={onError => patch(card.key, { draft: { ...card.draft, onError: onError as Hook['onError'] } })}/></label>}
             {card.error && <p role="alert" className="error-text">{card.error}</p>}
             <div className="hook-card-actions">
-              <button type="button" className="secondary" disabled={card.testing || !card.draft.command.trim() || invalidMatcher} aria-busy={card.testing} onClick={() => runTest(card)}>{card.testing ? 'Testing…' : 'Test'}</button>
+              <button type="button" className="secondary" disabled={card.testing || !card.draft.command.trim() || invalidMatcher || view?.enabled === false} aria-busy={card.testing} onClick={() => runTest(card)}>{card.testing ? 'Testing…' : 'Test'}</button>
               {card.saved && <button type="button" className="secondary hook-remove" disabled={card.saving} onClick={() => remove(card)}>Remove</button>}
               <span className="hook-card-spacer"/>
               <button type="button" className="secondary" disabled={card.saving} onClick={() => patch(card.key, card.saved ? { open: false, draft: draftOf(card.saved) } : { open: false })}>Cancel</button>
