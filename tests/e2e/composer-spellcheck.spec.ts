@@ -35,3 +35,22 @@ test('enabling Check spelling in Settings flips the textarea attribute and persi
   await page.reload();
   await expect(host.draft).toHaveAttribute('spellcheck', 'true');
 });
+
+test('Chat & Composer spellcheck rows render in light and dark, switch off and on', async ({ page }) => {
+  for (const theme of ['light', 'dark'] as const) {
+    const host = await setup(page);
+    await page.evaluate(next => document.documentElement.dataset.theme = next, theme);
+    await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: 'Settings', exact: true });
+    await dialog.getByRole('navigation', { name: 'Settings sections' }).getByRole('button', { name: 'Chat & Composer', exact: true }).click();
+    const row = dialog.locator('[data-setting-id="composer-spellcheck"]');
+    await expect(row).toBeVisible();
+    await page.screenshot({ path: `/tmp/gen-v1-journal/shots/settings-spellcheck-${theme}-off.png` });
+    await dialog.getByRole('switch', { name: 'Check spelling', exact: true }).click();
+    await expect(dialog.locator('.settings-row-reveal')).toHaveAttribute('data-open', 'true');
+    await expect(dialog.getByText('Your browser chooses the spelling language.', { exact: true })).toBeVisible();
+    await page.screenshot({ path: `/tmp/gen-v1-journal/shots/settings-spellcheck-${theme}-on.png` });
+    await dialog.getByRole('button', { name: 'Close dialog', exact: true }).click();
+    void host;
+  }
+});
