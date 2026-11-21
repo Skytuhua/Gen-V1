@@ -1,0 +1,43 @@
+name: CodeQL
+
+# Static security analysis for the TypeScript/JavaScript sources. build-mode: none
+# scans apps/, packages/ and scripts/ without a compile step; vendored trees under
+# third-party/, docs/ and generated test-results/ are excluded from triggering.
+on:
+  pull_request:
+    branches: [main]
+    paths-ignore: ['third-party/**', 'docs/**', 'test-results/**']
+  push:
+    branches: [main]
+    paths-ignore: ['third-party/**', 'docs/**', 'test-results/**']
+  schedule:
+    - cron: '41 7 * * 2'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  analyze:
+    name: Analyze JavaScript/TypeScript
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@1bd86f2fdb4b86187fa4059f16f31a3202acc9ea # v4
+        with:
+          languages: javascript-typescript
+          build-mode: none
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@1bd86f2fdb4b86187fa4059f16f31a3202acc9ea # v4

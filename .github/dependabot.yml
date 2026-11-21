@@ -1,0 +1,24 @@
+# Dependabot: weekly update PRs for pinned GitHub Actions and pnpm dependencies.
+# Action updates keep the `uses: <action>@<sha> # vX` pin format — Dependabot
+# rewrites the SHA and the trailing version comment together.
+# Vendored trees under third-party/ carry no package manifests or workflows, so
+# no Dependabot PR can touch them; keep it that way.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      actions:
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      npm-minor-patch:
+        update-types: ["minor", "patch"]
