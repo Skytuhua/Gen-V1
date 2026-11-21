@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Check, ChevronRight, Copy, FlaskConical, LoaderCircle, RotateCcw, X } from 'lucide-react';
 import type { Operation, TestCaseV1, TestRunV1, TestSuite } from '../../../../packages/contracts/index.ts';
 import { formatDuration, latestRerunByTest, rerunLabel, rerunState, runSummary}from './test-results-model.ts';
@@ -46,7 +46,7 @@ function FailureDetail({ test, reruns, onRerun, announce }: { test: TestCaseV1; 
         <button type="button" className="quiet" aria-label={`Copy failure for ${test.name}`} onClick={() => {
           void navigator.clipboard?.writeText(failureCopy(test)).then(() => announce('Failure copied'), () => announce('Copy failed'));
         }}><Copy size={13} />Copy failure</button>
-        {onRerun && <button type="button" className="quiet" aria-label={`Rerun ${test.name}`} onClick={() => onRerun(test.id)}><RotateCcw size={13} />Rerun this test</button>}
+        {onRerun && <button type="button" className="quiet" aria-label={`Rerun this test: ${test.name}`} onClick={() => onRerun(test.id)}><RotateCcw size={13} />Rerun this test</button>}
         {state && <span className={`tr-chip tr-chip-${state}`} data-testid={`rerun-${test.id}`} aria-label={rerunLabel[state]}>
           {state === 'running' && <LoaderCircle size={12} className="tr-spin" aria-hidden="true" />}{rerunLabel[state]}</span>}
       </div>
@@ -59,6 +59,22 @@ export function TestResults({ run, operation, rerunable, onRerun }: { run: TestR
   const { collapsed, setCollapsed, open, rows, focusId, setFocusId, toggle, expandedTests, onKeyDown } = useTestTree(run);
   const [announcement, setAnnouncement] = useState('');
   const liveRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLElement>(null);
+  const seenChips = useRef<Map<string, string>>(new Map());
+  useEffect(() => {
+    // New or changed rerun chips scroll into view and take focus (§7.4).
+    for (const [testId, op] of reruns) {
+      const state = rerunState(op);
+      if (!state || seenChips.current.get(testId) === `${op.id}:${state}`) continue;
+      seenChips.current.set(testId, `${op.id}:${state}`);
+      const chip = cardRef.current?.querySelector<HTMLElement>(`[data-testid="rerun-${testId}"]`);
+      chip?.scrollIntoView({ block: 'nearest' });
+    }
+  }, [reruns]);
+  useEffect(() => {
+    if (!focusId) return;
+    cardRef.current?.querySelector<HTMLElement>(`[data-row-id="${focusId}"]`)?.focus();
+  }, [focusId]);
   const announce = useCallback((text: string) => { setAnnouncement(''); requestAnimationFrame(() => setAnnouncement(text)); }, []);
   const copyTest = useCallback((testId: string) => {
     const test = run.suites.flatMap(function collect(s: TestSuite): TestCaseV1[] { return [...s.tests, ...s.suites.flatMap(collect)]; }).find(t => t.id === testId);
@@ -66,7 +82,7 @@ export function TestResults({ run, operation, rerunable, onRerun }: { run: TestR
   }, [run, announce]);
 
   return (
-    <section className="tr-card" aria-label="Test results" onKeyDown={event => onKeyDown(event, { rerun: onRerun ? t => onRerun(t) : undefined, copy: copyTest })}>
+    <section ref={cardRef} className="tr-card" aria-label="Test results" onKeyDown={event => onKeyDown(event, { rerun: onRerun ? t => onRerun(t) : undefined, copy: copyTest })}>
       <button type="button" className="tr-summary" aria-expanded={!collapsed} onClick={() => setCollapsed(!collapsed)}>
         <FlaskConical size={14} className="tr-flask" aria-hidden="true" />
         <span className="tr-summary-text">{runSummary(run)}</span>
@@ -82,7 +98,7 @@ export function TestResults({ run, operation, rerunable, onRerun }: { run: TestR
             const state = rerunState(rerun);
             return (
               <li key={row.id} role="treeitem" aria-expanded={row.expandable ? expanded : undefined} aria-selected={false}
-                  aria-level={row.level} className={`tr-row tr-row-${status} ${focusId === row.id ? 'tr-focus' : ''}`}
+                  aria-level={row.level} data-row-id={row.id} className={`tr-row tr-row-${status} ${focusId === row.id ? 'tr-focus' : ''}`}
                   style={{ paddingInlineStart: `${row.level * 16 + 8}px` }} tabIndex={focusId === row.id ? 0 : -1}
                   onClick={() => { setFocusId(row.id); toggle(row); }}
                   onFocus={() => setFocusId(row.id)}
