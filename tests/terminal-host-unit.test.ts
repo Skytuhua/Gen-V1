@@ -4,7 +4,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Store } from '../packages/storage/store.ts';
 import type { ProjectTools } from '../packages/workspace/tools.ts';
+import { spawn } from 'node-pty';
 import { TerminalHost } from '../packages/workspace/terminal.ts';
+import { DEFAULT_PREFERENCES } from '../packages/contracts/preferences.ts';
 
 const cleanups: (() => void)[] = [];
 afterEach(() => { for (const cleanup of cleanups.splice(0)) cleanup(); });
@@ -119,6 +121,50 @@ describe('TerminalHost reads and lookup', () => {
     await expect(host.read('ended-9', 'project-a', 'thread-a')).rejects.toMatchObject({ code: 'TERMINAL_ENDED' });
     await expect(host.read('ended-9', 'project-a', 'thread-b')).rejects.toMatchObject({ code: 'NOT_FOUND' });
     await expect(host.read('never-existed', 'project-a', 'thread-a')).rejects.toMatchObject({ code: 'NOT_FOUND' });
+  });
+});
+
+describe('TerminalHost shell selection', () => {
+  const legacyShell = process.platform === 'win32' ? (process.env.COMSPEC ?? 'C:/Windows/System32/cmd.exe') : (process.env.SHELL ?? '/bin/sh');
+  it('returns shell metadata on an interactive open and persists it with the record', async () => {
+    const { host, store } = fixture();
+    const opened = await host.open({ ...openInput, terminalId: 'term-1' });
+    expect(opened.shell).toMatchObject({ kind: 'default', label: 'System shell' });
+    expect(vi.mocked(spawn).mock.calls.at(-1)![0]).toBe(legacyShell);
+    expect(store.get<{ shell?: { kind: string } }>('terminalSession', 'term-1')?.shell).toMatchObject({ kind: 'default' });
+    spawned[0].emitData('ok');
+    expect((await host.read('term-1', 'project-a', 'thread-a')).shell).toMatchObject({ kind: 'default' });
+  });
+  it('keeps the stored Windows selection on Linux with a notice and the system shell', async () => {
+    const { host, store } = fixture();
+    store.internal('fixture.settings', null, () => store.put('settings', 'global', null, { preferences: { ...DEFAULT_PREFERENCES, terminalShell: { kind: 'pwsh' } } }));
+    const opened = await host.open({ ...openInput, terminalId: 'term-1' });
+    expect(vi.mocked(spawn).mock.calls.at(-1)![0]).toBe(legacyShell);
+    expect(opened.shell).toMatchObject({ kind: 'pwsh', notice: 'Windows shell selection is unavailable on this host; using the system shell.' });
+  });
+  it('does not reroute command or program opens through the resolver', async () => {
+    const { host, store } = fixture();
+    store.internal('fixture.settings', null, () => store.put('settings', 'global', null, { preferences: { ...DEFAULT_PREFERENCES, terminalShell: { kind: 'wsl', distro: 'Ubuntu' } } }));
+    const scripted = await host.open({ projectId: 'project-a', threadId: 'thread-a', terminalId: 'term-run', command: 'echo hi' });
+    expect(scripted.shell).toBeUndefined();
+    expect(vi.mocked(spawn).mock.calls.at(-1)![0]).toBe(legacyShell);
+    const program = await host.open({ projectId: 'project-a', threadId: 'thread-a', terminalId: 'term-prog', program: '/bin/echo', args: ['x'], environment: {} });
+    expect(program.shell).toBeUndefined();
+    expect(vi.mocked(spawn).mock.calls.at(-1)![0]).toBe('/bin/echo');
+  });
+  it('maps a missing executable to TERMINAL_SHELL_UNAVAILABLE and writes no record', async () => {
+    const { host, store } = fixture();
+    vi.mocked(spawn).mockImplementationOnce(() => { throw new Error('spawn /missing ENOENT'); });
+    await expect(host.open({ ...openInput, terminalId: 'term-1' })).rejects.toMatchObject({ code: 'TERMINAL_SHELL_UNAVAILABLE' });
+    expect(store.get('terminalSession', 'term-1')).toBeNull();
+    expect(spawned).toHaveLength(0);
+  });
+  it('maps other start failures to TERMINAL_START_FAILED without a retry', async () => {
+    const { host } = fixture();
+    vi.mocked(spawn).mockClear();
+    vi.mocked(spawn).mockImplementationOnce(() => { throw new Error('spawn EACCES permission denied'); });
+    await expect(host.open({ ...openInput, terminalId: 'term-1' })).rejects.toMatchObject({ code: 'TERMINAL_START_FAILED' });
+    expect(vi.mocked(spawn)).toHaveBeenCalledTimes(1);
   });
 });
 

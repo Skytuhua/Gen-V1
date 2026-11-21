@@ -152,6 +152,11 @@ export function registerWorkspaceRoutes(app:FastifyInstance,service:Service){
   if(input.type==='open-editor'){const{spawn}=await import('node:child_process');if(process.platform!=='win32')throw new HarnessError('UNAVAILABLE','This editor launcher is available on Windows.');await new Promise<void>((accept,reject)=>{const child=spawn((process.env.SystemRoot??'C:/Windows')+'/explorer.exe',[binding.path],{windowsHide:true,stdio:'ignore'});child.once('spawn',()=>{child.unref();accept();});child.once('error',reject);});return{opened:true};}
   throw new HarnessError('INVALID_INPUT','Unknown project action.');
  });
+ app.get('/api/terminal-shells',async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  const p=z.strictObject({refresh:z.literal('1').optional()}).parse(request.query);
+  return terminals.shellCatalog({refresh:p.refresh==='1'});
+ });
  app.post('/api/terminals',{bodyLimit:4096},async request=>terminals.open(z.strictObject({projectId:identifier,threadId:identifier.optional(),terminalId:identifier.optional(),cols:z.number().int().optional(),rows:z.number().int().optional()}).parse(request.body)));
  app.get('/api/terminals/:terminalId',async request=>{const{terminalId}=z.object({terminalId:identifier}).parse(request.params),p=z.strictObject({projectId:identifier,threadId:identifier.optional(),cursor:z.coerce.number().int().nonnegative().optional()}).parse(request.query);return terminals.read(terminalId,p.projectId,p.threadId,p.cursor);});
  app.post('/api/terminals/:terminalId/commands',{bodyLimit:128*1024},async request=>{const{terminalId}=z.object({terminalId:identifier}).parse(request.params),p=z.strictObject({projectId:identifier,threadId:identifier.optional(),type:z.enum(['input','resize','stop']),data:z.string().optional(),cols:z.number().optional(),rows:z.number().optional()}).parse(request.body);return terminals.command(terminalId,p.projectId,p.threadId,p);});

@@ -3508,6 +3508,7 @@
     "tests/terminal-opening-race.test.ts",
     "tests/terminal-reopen-ended.test.ts",
     "tests/terminal-shell-contract.test.ts",
+    "tests/terminal-shell-routes.test.ts",
     "tests/terminal-shell.test.ts",
     "tests/theme-contrast.test.ts",
     "tests/thinking-level.test.ts",
