@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import { expect, it } from 'vitest';
 import { runProcess } from '../packages/capabilities/process.ts';
 
@@ -16,4 +17,14 @@ it('bounds each captured stream by UTF-8 bytes without splitting a character', a
     expect(text).toMatch(/^漢+$/u);
     expect(text.length).toBeGreaterThan(80000);
   }
+});
+
+it('preserves the child result when an optional progress observer fails', () => {
+  // Isolate event callbacks so a regression cannot crash the test runner.
+  const script = "import { runProcess } from './packages/capabilities/process.ts';"
+    + "const result = await runProcess(process.execPath, ['-e','process.stdout.write(\"child result\")'], process.cwd(), new AbortController().signal, () => { throw Error('progress sink unavailable'); });"
+    + "process.stdout.write(JSON.stringify(result));";
+  const child = spawnSync(process.execPath, ['--import', 'tsx', '--input-type=module', '-e', script], { encoding: 'utf8', timeout: 10_000, windowsHide: true });
+  expect(child.status, child.stderr).toBe(0);
+  expect(JSON.parse(child.stdout)).toMatchObject({ status: 'succeeded', exitCode: 0, stdout: 'child result' });
 });

@@ -18,8 +18,8 @@ import {
 // process-window evidence instead of guessing an author. Two agents editing
 // the same path keep independent receipts — the journal never merges them.
 
-export const EDIT_JOURNAL_KIND = "workspaceEditReceipt" as const;
-export const EDIT_JOURNAL_PREPARED_KIND = "workspaceEditPrepared" as const;
+const EDIT_JOURNAL_KIND = "workspaceEditReceipt" as const;
+const EDIT_JOURNAL_PREPARED_KIND = "workspaceEditPrepared" as const;
 
 export const sha256hex = (data: string | Buffer) => createHash("sha256").update(data).digest("hex");
 

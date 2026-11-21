@@ -5,22 +5,22 @@ import { z } from 'zod';
 // every required phase passes; FAIL on an observed required-case failure;
 // PARTIAL when some phases pass while another is blocked; BLOCKED when no
 // required phase can run. Release permission is separate and stays false here.
-export const EVIDENCE_SCHEMA_VERSION = 3;
+const EVIDENCE_SCHEMA_VERSION = 3;
 
 const sha1 = z.string().regex(/^[a-f0-9]{40}$/);
 const sha256 = z.string().regex(/^[a-f0-9]{64}$/);
 const nonEmpty = z.string().min(1);
 
-export const phaseStatusSchema = z.enum(['PASS', 'FAIL', 'BLOCKED', 'NOT_RUN']);
-export type PhaseStatus = z.infer<typeof phaseStatusSchema>;
+const phaseStatusSchema = z.enum(['PASS', 'FAIL', 'BLOCKED', 'NOT_RUN']);
 
-export const commandTerminationSchema = z.enum(['NONE', 'TIMEOUT', 'CANCELLED', 'SPAWN_ERROR']);
+
+const commandTerminationSchema = z.enum(['NONE', 'TIMEOUT', 'CANCELLED', 'SPAWN_ERROR']);
 export type CommandTermination = z.infer<typeof commandTerminationSchema>;
 
-export const commandStatusSchema = z.enum(['PASS', 'FAIL', 'EXPECTED_NEGATIVE', 'BLOCKED', 'NOT_RUN']);
+const commandStatusSchema = z.enum(['PASS', 'FAIL', 'EXPECTED_NEGATIVE', 'BLOCKED', 'NOT_RUN']);
 export type CommandStatus = z.infer<typeof commandStatusSchema>;
 
-export const expectedNegativeSchema = z.strictObject({
+const expectedNegativeSchema = z.strictObject({
   // The reproduction passed only because the asserted failure was observed at
   // the intended assertion with the intended bad value. Setup failures,
   // timeouts and other errors are separate failures, never this status.
@@ -44,15 +44,15 @@ export const commandEvidenceSchema = z.strictObject({
 });
 export type CommandEvidence = z.infer<typeof commandEvidenceSchema>;
 
-export const requiredCaseStatusSchema = z.enum(['PASS', 'FAIL', 'EXPECTED_NEGATIVE', 'NOT_RUN']);
-export const requiredCaseSchema = z.strictObject({
+const requiredCaseStatusSchema = z.enum(['PASS', 'FAIL', 'EXPECTED_NEGATIVE', 'NOT_RUN']);
+const requiredCaseSchema = z.strictObject({
   id: nonEmpty,
   status: requiredCaseStatusSchema,
   evidence: z.string().optional(),
 });
-export type RequiredCase = z.infer<typeof requiredCaseSchema>;
 
-export const phaseEvidenceSchema = z.strictObject({
+
+const phaseEvidenceSchema = z.strictObject({
   id: nonEmpty,
   status: phaseStatusSchema,
   requiredCases: z.array(requiredCaseSchema),
@@ -67,10 +67,10 @@ export const dependencyContractSchema = z.strictObject({
   version: sha1,
   testIds: z.array(nonEmpty).min(1),
 });
-export type DependencyContract = z.infer<typeof dependencyContractSchema>;
 
-export const flagStateSchema = z.strictObject({ key: nonEmpty, enabled: z.boolean() });
-export type FlagState = z.infer<typeof flagStateSchema>;
+
+const flagStateSchema = z.strictObject({ key: nonEmpty, enabled: z.boolean() });
+
 
 export const implementationEvidenceV3Schema = z.strictObject({
   schemaVersion: z.literal(EVIDENCE_SCHEMA_VERSION),
@@ -90,16 +90,16 @@ export const implementationEvidenceV3Schema = z.strictObject({
 });
 export type ImplementationEvidenceV3 = z.infer<typeof implementationEvidenceV3Schema>;
 
-export const inspectedPathSchema = z.strictObject({ path: nonEmpty, blobSha: sha1 });
-export type InspectedPath = z.infer<typeof inspectedPathSchema>;
+const inspectedPathSchema = z.strictObject({ path: nonEmpty, blobSha: sha1 });
 
-export const approvedDriftSchema = z.strictObject({
+
+const approvedDriftSchema = z.strictObject({
   path: nonEmpty,
   fromBlob: sha1,
   toBlob: sha1,
   note: nonEmpty,
 });
-export type ApprovedDrift = z.infer<typeof approvedDriftSchema>;
+
 
 export const sourceLockV3Schema = z.strictObject({
   schemaVersion: z.literal(EVIDENCE_SCHEMA_VERSION),
@@ -127,7 +127,7 @@ export function bundleStatus(phases: PhaseEvidence[]): BundleStatus {
 }
 
 // Paired benchmark records: unknown measurements stay null, never fabricated.
-export const benchmarkMeasurementSchema = z.strictObject({
+const benchmarkMeasurementSchema = z.strictObject({
   elapsedMs: z.number().nullable(),
   coldStartMs: z.number().nullable(),
   firstPublicResponseMs: z.number().nullable(),
@@ -142,8 +142,8 @@ export const benchmarkMeasurementSchema = z.strictObject({
 });
 export type BenchmarkMeasurement = z.infer<typeof benchmarkMeasurementSchema>;
 
-export const benchmarkRunStatusSchema = z.enum(['PASS', 'FAIL', 'SETUP_FAILED', 'EXPECTED_NEGATIVE', 'UNAVAILABLE']);
-export const benchmarkRunSchema = z.strictObject({
+const benchmarkRunStatusSchema = z.enum(['PASS', 'FAIL', 'SETUP_FAILED', 'EXPECTED_NEGATIVE', 'UNAVAILABLE']);
+const benchmarkRunSchema = z.strictObject({
   role: z.enum(['baseline', 'candidate']),
   status: benchmarkRunStatusSchema,
   measurement: benchmarkMeasurementSchema,
