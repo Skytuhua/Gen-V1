@@ -12,7 +12,9 @@ const label = process.env.AGENTSUI_EVIDENCE_LABEL ?? 'after';
 const outDir = process.env.AGENTSUI_EVIDENCE_DIR ?? 'test-results/agents-workspace-evidence';
 
 const agent = (id: string, patch: Partial<AgentSummary> = {}): AgentSummary => ({agentId: id, parentId: null, rootId: id, jobId: null, threadId: id, projectId: 'a', projectName: 'Alpha', title: id, status: 'working', modelId: 'test/model', currentAction: 'Reading project sources', reportedPercent: 35, createdAt: '2026-11-06', updatedAt: '2026-11-06', orderKey: id, revision: 1, archived: false, readOnly: false, metadata: 'thread', ...patch});
-const agents = [agent('parent-00'), agent('child-00', {parentId: 'parent-00', rootId: 'parent-00', jobId: 'job', readOnly: true}), ...Array.from({length: 7}, (_, i) => agent('parent-0' + (i + 1)))];
+const titles = ['Review workspace changes', 'Investigate terminal output', 'Refine project navigation', 'Trace the failing test', 'Document the API changes', 'Audit keyboard navigation', 'Update responsive layouts', 'Verify the release build'];
+const agents = titles.map((title, i) => agent('parent-0' + i, {title, status: i === 2 ? 'completed' : i === 3 ? 'failed' : i === 4 ? 'awaiting_input' : i === 5 ? 'ready' : 'working', currentAction: ['Reading the latest workspace diff', 'Checking the terminal session', 'Navigation changes verified', 'Test setup needs attention', 'Waiting for a decision', 'Ready for your next instruction', 'Reviewing the small-screen layout', 'Running the final build checks'][i]!, reportedPercent: i === 0 ? 35 : i === 1 ? 65 : null, updatedAt: new Date(Date.now() - (i + 1) * 120000).toISOString()}));
+agents.splice(1, 0, agent('child-00', {title: 'Check responsive states', parentId: 'parent-00', rootId: 'parent-00', jobId: 'job', status: 'completed', currentAction: 'Screenshots ready', reportedPercent: null, readOnly: true}));
 
 async function mount(page: Page) {
  await page.route('**/api/**', async route => {
@@ -20,6 +22,8 @@ async function mount(page: Page) {
   if (url.pathname === '/api/plugins') return route.fulfill({json: {plugins: []}});
   if (url.pathname === '/api/shell/navigation') return route.fulfill({json: {items: [], total: 0, nextCursor: null, sequence: 10}});
   if (url.pathname === '/api/attention') return route.fulfill({json: {items: [], unreadCount: 0, sequence: 10}});
+  if (url.pathname === '/api/agent-work') return route.fulfill({json: {enabled: false, roles: {}, budget: {reservedTokens: 0}, works: []}});
+  if (url.pathname === '/api/agent-work/plan' || url.pathname === '/api/agent-work/messages') return route.fulfill({json: {extension: false, messages: []}});
   if (url.pathname === '/api/bootstrap') return route.fulfill({json: {csrfToken: 'synthetic'}});
   if (url.pathname === '/api/shell-settings') return route.fulfill({json: {theme: 'dark', preferences: {}}});
   if (url.pathname === '/api/workspace') return route.fulfill({json: {state: {version: 1, revision: 1, activeCanvasId: 'agents', canvases: [{id: 'agents', name: 'All Agents', preset: 'all-agents', version: 1, panels: [], filter: 'all', projectIds: [], viewport: {x: 0, y: 0, zoom: 1}}], profiles: [], disabledKinds: [], integrations: {}}, projects: []}});
@@ -29,7 +33,10 @@ async function mount(page: Page) {
   }
   if (url.pathname === '/api/agents/history') {
    const id = url.searchParams.get('agentId')!;
-   return route.fulfill({json: {authority: 'personal', agentId: id, threadId: id, sequence: 10, nextCursor: null, messages: Array.from({length: 8}, (_, i) => ({id: `m-${i}`, threadId: id, role: 'assistant', createdAt: '2026-11-06T00:00:0' + i + 'Z', runId: 'r', content: `${id}: transcript line ${i}. ` + 'Synthetic readable output. '.repeat(6), contentOffset: 0, contentLength: 200, nextContentCursor: null}))}});
+   return route.fulfill({json: {authority: 'personal', agentId: id, threadId: id, sequence: 10, nextCursor: null, messages: Array.from({length: 8}, (_, i) => {
+    const content = `${id}: transcript line ${i}. ` + 'Synthetic readable output. '.repeat(6);
+    return {id: `m-${i}`, threadId: id, role: 'assistant', createdAt: '2026-11-06T00:00:0' + i + 'Z', runId: 'r', content, contentOffset: 0, contentLength: content.length, nextContentCursor: null};
+   })}});
   }
   if (url.pathname === '/api/agents/updates') return route.fulfill({json: {authority: 'personal', scopeKey: 'scope', fromSequence: 10, sequence: 10, resync: false, upserts: [], removed: [], ancestors: [], transcripts: []}});
   if (url.pathname === '/api/agents/events') return route.fulfill({contentType: 'text/event-stream', body: ': synthetic connected\n\n'});
@@ -37,7 +44,7 @@ async function mount(page: Page) {
  });
  await page.route('**/agents-workspace-check*', route => route.fulfill({contentType: 'text/html', body: `<html data-theme="dark"><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${encodeURI(fixture)}');</script></body></html>`}));
  await page.goto('/agents-workspace-check?app=1');
- await expect(page.locator('.workspace-host')).toBeVisible();
+ await expect(page.locator('.workspace-host')).toBeVisible({timeout: 15000});
  await expect(page.locator('.agents-grid-slot > .agents-agent').first()).toBeVisible({timeout: 15000});
 }
 
@@ -73,6 +80,29 @@ for (const width of [1440, 768]) test(`populated grid evidence at ${width} (${la
  });
  writeFileSync(join(outDir, `metrics-${label}-${width}.json`), JSON.stringify({head: process.env.GITHUB_SHA ?? 'local', label, viewport: width, slots: metrics, allSlotsFilled: fills, colors, contrastRatios: ratios, keyboard: focused}, null, 2));
  await page.screenshot({path: join(outDir, `grid-${label}-${width}.png`)});
+ const proto = process.env.AGENTSUI_PROTO_DIR;
+ if (proto && width === 1440) {
+  mkdirSync(proto, {recursive: true});
+  await page.setViewportSize({width: 1440, height: 900});
+  await page.emulateMedia({reducedMotion: 'reduce'});
+  await expect(page.locator('.agents-preview').first()).toContainText('Synthetic readable output.');
+  await page.evaluate(() => document.fonts.ready);
+  await page.evaluate(() => {(document.activeElement as HTMLElement)?.blur();});
+  await page.screenshot({path: join(proto, 'after3-agents-dark.png')});
+  await page.evaluate(() => {document.documentElement.dataset.theme = 'light';});
+  await page.screenshot({path: join(proto, 'after3-agents-light.png')});
+  await page.evaluate(() => {document.documentElement.dataset.theme = 'dark';});
+  const parent = page.locator('.agents-grid-slot > .agents-agent').first();
+  await parent.getByRole('button', {name: 'Show transcript', exact: true}).click();
+  await parent.getByRole('button', {name: '1 subagent', exact: true}).click();
+  await parent.getByRole('button', {name: 'Inspect subagent Check responsive states', exact: true}).click();
+  await expect(parent.locator('.agents-child .agents-preview')).toContainText('Synthetic readable output.');
+  await page.screenshot({path: join(proto, 'after3-agents-expanded.png')});
+  await parent.getByRole('button', {name: 'Hide transcript', exact: true}).click();
+  await parent.getByRole('button', {name: '1 subagent', exact: true}).click();
+  await page.setViewportSize({width: 390, height: 844});
+  await page.screenshot({path: join(proto, 'after3-agents-mobile.png')});
+ }
  expect(metrics.length).toBeGreaterThan(0); expect(mounted.length).toBeGreaterThan(0); expect(fills).toBe(true);
  expect(focused.label).toBeTruthy();
  expect(ratios.titleVsCard).toBeGreaterThanOrEqual(4.5);

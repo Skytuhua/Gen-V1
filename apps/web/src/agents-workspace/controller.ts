@@ -26,7 +26,7 @@ export function visibleLease(ids: readonly string[], offset: number): string[] {
  return Array.from({length: 24}, (_, i) => unique[(offset + i) % unique.length]);
 }
 export interface TranscriptState {messages: MessageSlice[]; cursor: string | null; gaps: {beforeId: string; cursor: string}[]; sequence: number; pending: boolean; error: string; loaded: boolean}
-export interface ViewState {top: number; left: number; atEnd: boolean; collapsed: boolean; unread: boolean; focus?: 'composer' | 'transcript'; anchorId?: string; anchorOffset?: number}
+export interface ViewState {top: number; left: number; atEnd: boolean; collapsed: boolean; unread: boolean; transcriptExpanded?: boolean; childrenExpanded?: boolean; expandedChildren?: string[]; focus?: 'composer' | 'transcript'; anchorId?: string; anchorOffset?: number}
 export interface AgentsWorkspaceState {agents: AgentSummary[]; scope: AgentScope; scopeKey: string; sequence: number; pending: boolean; connected: boolean; error: string; version: number}
 const emptyTranscript = (): TranscriptState => ({messages: [], cursor: null, gaps: [], sequence: -1, pending: false, error: '', loaded: false});
 const personal = (value: {authority: string}) => {if (value.authority !== 'personal') throw Error('This workspace requires a Personal inventory.');};

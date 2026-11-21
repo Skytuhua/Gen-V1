@@ -11,7 +11,7 @@ import type {SharedAgentComposers} from './apps/web/src/agents-workspace/compose
 const agent = (id: string, patch: Partial<AgentSummary> = {}): AgentSummary => ({agentId: id, parentId: null, rootId: id, jobId: null, threadId: id, projectId: 'p', projectName: 'Project', title: id, status: 'working', modelId: 'model', currentAction: 'Reading source', reportedPercent: null, createdAt: '2026-11-06', updatedAt: '2026-11-06', orderKey: id, revision: 1, archived: false, readOnly: false, metadata: 'thread', ...patch});
 const agents = [agent('parent-00'), agent('child-00', {parentId: 'parent-00', rootId: 'parent-00', jobId: 'job', readOnly: true}), ...Array.from({length: 7}, (_, i) => agent('parent-0' + (i + 1)))];
 const inventoryPage = (): InventoryPage => ({authority: 'personal', scopeKey: 'scope', sequence: 10, items: agents, ancestors: [], nextCursor: null});
-const message = (agentId: string): MessageSlice => {const content = agentId + ' transcript line'; return {id: 'm-' + agentId, threadId: agentId, role: 'assistant', createdAt: '2026-11-06', runId: 'run', content, contentOffset: 0, contentLength: content.length, nextContentCursor: null};};
+const message = (agentId: string): MessageSlice => {const content = agentId + ' transcript line. ' + 'Readable source output. '.repeat(12); return {id: 'm-' + agentId, threadId: agentId, role: 'assistant', createdAt: '2026-11-06', runId: 'run', content, contentOffset: 0, contentLength: content.length, nextContentCursor: null};};
 const historyPage = (agentId: string): HistoryPage => ({authority: 'personal', agentId, threadId: agentId, sequence: 10, messages: [message(agentId)], nextCursor: null});
 const transport: AgentTransport = {
   inventory: async () => inventoryPage(),
@@ -47,4 +47,3 @@ void (async () => {
 })();
 declare global {interface Window {controller: AgentsWorkspaceController}}
 `;
-
