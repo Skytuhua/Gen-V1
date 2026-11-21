@@ -1,4 +1,5 @@
 import {runProcess} from '../capabilities/process.ts';
+import {HarnessError} from '../contracts/index.ts';
 import type {Hook,HookEvent,HookRunRecord,HooksDocument} from '../contracts/hooks.ts';
 import type {HookSettings} from './hook-settings.ts';
 
@@ -29,13 +30,13 @@ function truncatePayload(payload:Record<string,unknown>):Record<string,unknown>{
  return{...clone,truncated:true};
 }
 
-export interface HookRunnerOptions {progress?:(message:string)=>void;onRecord?:(hook:Hook,record:HookRunRecord)=>void;runProcess?:typeof runProcess;}
+export interface HookRunnerOptions {progress?:(message:string)=>void;onRecord?:(hook:Hook,record:HookRunRecord,threadId:string|null)=>void;runProcess?:typeof runProcess;}
 export class HookRunner {
  readonly lastRuns=new Map<string,HookRunRecord>();
  private readonly settings:HookSettings|{snapshot():HooksDocument};
  private readonly runProcessImpl:typeof runProcess;
  private readonly progress:(message:string)=>void;
- private readonly onRecord:(hook:Hook,record:HookRunRecord)=>void;
+ private readonly onRecord:(hook:Hook,record:HookRunRecord,threadId:string|null)=>void;
  private readonly compiled=new Map<string,RegExp>();
  private readonly stopPending:{hook:Hook;payload:Record<string,unknown>}[]=[];
  private stopRunning=0;
@@ -81,8 +82,19 @@ export class HookRunner {
   }catch(error){
    record={hookId:hook.id,event,matchKey,startedAt,durationMs:Date.now()-started,outcome:signal.aborted?'cancelled':'spawn_failed',exitCode:null,reason:signal.aborted?'Cancelled.':`Hook ${label(hook)} could not start: ${error instanceof Error?error.message:'spawn failed'}.`,systemMessage:null,stdout:'',stderr:'',truncated:false,ignoredFields:[]};
   }
-  this.lastRuns.set(hook.id,record);this.onRecord(hook,record);
+  this.lastRuns.set(hook.id,record);this.onRecord(hook,record,payload.thread_id===undefined?null:String(payload.thread_id));
   return record;
+ }
+ /** R05 tool_response: success results are truncated to 64 KiB and flagged. */
+ private static toolResponse(result:unknown,error?:{code:string;message:string}){if(error)return{status:'failed',error};const text=JSON.stringify(result??null);return Buffer.byteLength(text,'utf8')>64*1024?{status:'succeeded',result:{truncated:true,text:text.slice(0,64*1024)}}:{status:'succeeded',result:result??null};}
+ /** Wraps one host tool call: Pre hooks, then the body, then Post hooks (R08, R11). */
+ async aroundTool(matchKey:string,payload:Record<string,unknown>,signal:AbortSignal,body:()=>Promise<unknown>):Promise<unknown>{
+  if(!this.matching('PreToolUse',matchKey).length&&!this.matching('PostToolUse',matchKey).length)return body();
+  const blocked=await this.pre('PreToolUse',matchKey,payload,signal);
+  if(blocked.blocked)throw new HarnessError('HOOK_BLOCKED',blocked.reason);
+  const postPayload={...payload,hook_event_name:'PostToolUse'};
+  try{const result=await body();await this.post(matchKey,{...postPayload,tool_response:HookRunner.toolResponse(result)},signal);return result;}
+  catch(error){await this.post(matchKey,{...postPayload,tool_response:HookRunner.toolResponse(undefined,{code:error instanceof HarnessError?error.code:'HOST_ERROR',message:error instanceof Error?error.message:'The tool call failed'})},signal).catch(()=>{});throw error;}
  }
  /** Sequential; the first block (or onError:block failure) stops the rest. */
  async pre(event:'PreToolUse'|'UserPromptSubmit',matchKey:string|null,payload:Record<string,unknown>,signal:AbortSignal):Promise<{blocked:false}|{blocked:true;reason:string;record:HookRunRecord}>{
