@@ -514,9 +514,45 @@ describe('aggregate and manifest',()=>{
   });
 
 
+
+  it('releases deferred opposite-pipe lines when a single hyphen is ordinary output',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\n-");setTimeout(()=>process.stderr.write("other-pipe\n"),40);setTimeout(()=>process.stdout.write("safe\n"),80);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('-safe\n');
+    expect(log).toContain('other-pipe\n');
+  });
+
+  it('discards a queued opposite-pipe canary when the entire PEM region closes in one write',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\n-");setTimeout(()=>process.stderr.write("SYNTHETIC_QUEUED_PEM_CANARY_8822\n"),40);setTimeout(()=>process.stdout.write("----BEGIN PRIVATE KEY-----\nSYNTHETIC_KEY_8822\n-----END PRIVATE KEY-----\nafter\n"),80);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('[REDACTED PRIVATE KEY]');
+    expect(log).toContain('after\n');
+    expect(log).not.toContain('SYNTHETIC_QUEUED_PEM_CANARY_8822');
+    expect(log).not.toContain('SYNTHETIC_KEY_8822');
+  });
+
+  it('fails closed when tentative cross-pipe output exceeds its bounded in-memory holdback',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\n-");setTimeout(()=>process.stderr.write("SYNTHETIC_OVERFLOW_8823"+"X".repeat(20*1024)+"\n"),40);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('[REDACTED UNCLASSIFIED CHILD OUTPUT]');
+    expect(log).not.toContain('SYNTHETIC_OVERFLOW_8823');
+  });
+
   it('suppresses opposite-pipe output while the PEM start marker is incomplete',async()=>{
     const opener='-----BEGIN RSA PRIVATE KEY-----';
-    for(const length of [5,7,19,opener.length-1]){
+    for(const length of [1,2,3,4,5,7,19,opener.length-1]){
       const directory=temporaryDirectory();
       // The child is real; the same canary crosses pipes between two opener writes.
       const script=String.raw`const opener="-----BEGIN RSA PRIVATE KEY-----";const cut=Number(process.argv[1]);process.stdout.write("before\n"+opener.slice(0,cut));setTimeout(()=>process.stderr.write("SYNTHETIC_PARTIAL_PEM_OTHER_PIPE_8821\n"),40);setTimeout(()=>process.stdout.write(opener.slice(cut)+"\nSYNTHETIC_PARTIAL_PEM_KEY_8821\n-----END RSA PRIVATE KEY-----\nafter\n"),80);`;

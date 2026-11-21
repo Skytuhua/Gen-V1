@@ -62,10 +62,16 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
   // Hold off logging the other pipe when a PEM opener is still an unfinished
   // child-output line. Its later bytes may identify the other pipe as key data.
   const tentativePrivateKeyBegin:Record<Source,boolean>={stdout:false,stderr:false};
+  // Hold opposite-pipe bytes in memory while even a one-byte PEM opener is ambiguous.
+  // Release ordinary text only after the owner proves the fragment was not a key.
+  // A real key or an exhausted bound discards the bytes instead of persisting them.
+  const MAX_TENTATIVE_PIPE_BYTES=16*1024;
+  let pendingOtherPipe:Array<{source:Source;chunk:string}>=[];
+  let pendingOtherPipeBytes=0;
   const begin=/-----BEGIN ([A-Z0-9 ]*PRIVATE KEY)-----/;
   const incompletePemBegin=(line:string):boolean=>{
     const opener='-----BEGIN ';
-    for(let length=5;length<opener.length;length++){
+    for(let length=1;length<opener.length;length++){
       if(line.endsWith(opener.slice(0,length)))return true;
     }
     const start=line.lastIndexOf(opener);
@@ -111,9 +117,23 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
     }
     return redactSecrets(visible);
   };
-  return {
-    write(source:Source,chunk:string){
+  const writeChunk=(source:Source,chunk:string):void=>{
       const other:Source=source==='stdout'?'stderr':'stdout';
+      if(!unsafeControlOutput&&tentativePrivateKeyBegin[other]){
+        const size=Buffer.byteLength(chunk,'utf8');
+        if(pendingOtherPipeBytes+size>MAX_TENTATIVE_PIPE_BYTES){
+          // A fragment can remain ambiguous indefinitely. Never spill raw bytes
+          // to disk or allow an unbounded in-memory credential queue.
+          pendingOtherPipe=[];pendingOtherPipeBytes=0;
+          unsafeControlOutput=true;
+          stream.write('[REDACTED UNCLASSIFIED CHILD OUTPUT]\n');
+        }else{
+          pendingOtherPipe.push({source,chunk});pendingOtherPipeBytes+=size;
+        }
+        return;
+      }
+      const wasTentative=tentativePrivateKeyBegin[source];
+      const completedPemOpener=wasTentative&&begin.test((carry[source]+chunk).replace(/\x1b\[(?:[0-9]{1,3}(?:;[0-9]{1,3})*)?m/g,''));
       const suppressOther=privateKeyEnd[other]!==null||tentativePrivateKeyBegin[other];
       const lines=(carry[source]+chunk).split('\n');carry[source]=lines.pop()!;
       const carryWasTainted=taintedCarry[source];
@@ -142,8 +162,21 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
         }else tentativePrivateKeyBegin[source]=incompletePemBegin(checked);
       }
       taintedCarry[source]=suppressOther||(lines.length===0&&carryWasTainted);
-    },
+      if(wasTentative&&!tentativePrivateKeyBegin[source]){
+        const queued=pendingOtherPipe;
+        pendingOtherPipe=[];pendingOtherPipeBytes=0;
+        if(!unsafeControlOutput&&!completedPemOpener){
+          // The opener was ordinary text. Re-process every held chunk through
+          // the same sanitizer, preserving per-pipe carry and source ordering.
+          for(const item of queued)writeChunk(item.source,item.chunk);
+        }
+      }
+  };
+  return {
+    write:writeChunk,
     end(){
+      // Never release an unresolved opposite-pipe fragment at process exit.
+      pendingOtherPipe=[];pendingOtherPipeBytes=0;
       for(const source of ['stdout','stderr'] as const){
         if(carry[source]){
           const other:Source=source==='stdout'?'stderr':'stdout';
