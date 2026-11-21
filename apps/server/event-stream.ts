@@ -6,7 +6,11 @@ import type { Store } from '../../packages/storage/store.ts';
 /** Release hijacked SSE responses during Fastify preClose without waiting for
  * a second 'close' event. The client's disconnect can race with shutdown,
  * and an already-destroyed response need not emit 'close' again. */
+const closedRegistries = new WeakSet<Map<ServerResponse, () => void>>();
+
 export function destroyEventStreams(streams: Map<ServerResponse, () => void>): void {
+  // Fastify may still dispatch a hijacked route after preClose begins.
+  closedRegistries.add(streams);
   const shutdowns = [...streams.values()];
   streams.clear();
   for (const shutdown of shutdowns) shutdown();
@@ -21,12 +25,17 @@ export function registerEventStream(
   store: Pick<Store, 'eventsAfter' | 'subscribe'>,
   after: number,
 ): void {
+  if (closedRegistries.has(streams)) { response.destroy(); return; }
   let closed = false;
   const shutdown = streamEvents(response, store, after, () => {
     closed = true;
     streams.delete(response);
   });
-  if (!closed) streams.set(response, shutdown);
+  // A synchronous store callback can initiate shutdown during registration.
+  if (!closed) {
+    if (closedRegistries.has(streams)) shutdown();
+    else streams.set(response, shutdown);
+  }
 }
 
 /** The durable ledger is the queue. Retain only one event while a reader drains. */
