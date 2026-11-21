@@ -31,7 +31,8 @@ export type OperationProjectTrustState = z.infer<typeof operationProjectTrustSta
 const repositoryHostExecutionDisclosureSchema = z.strictObject({
   mode: z.literal('TRUSTED_HOST'), label: z.literal('Unrestricted host'),
   executable: z.strictObject({ path: z.string().min(1).max(32767), sha256: sha256HexSchema }),
-  argv: z.tuple([z.literal('--test'), z.literal('--'), z.string().min(1).max(1024)]),
+  argv: z.union([z.tuple([z.literal('--test'), z.literal('--'), z.string().min(1).max(1024)]),
+    z.array(z.string().min(1).max(4096)).min(3).max(32)]), // v2 test-results bindings carry longer argv incl. the {GEN_REPORT_DIR} token
   cwd: z.string().min(1).max(4096), filesystem: z.literal('unrestricted'),
   network: z.literal('unrestricted'), processes: z.literal('unrestricted'), platformProofRef: z.null(),
 });

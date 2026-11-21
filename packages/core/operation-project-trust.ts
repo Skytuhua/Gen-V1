@@ -7,7 +7,7 @@ import {
   type OperationProjectTrustTarget, type OperationProjectTrustDecision, type OperationProjectTrustRevoke,
   type OperationProjectTrustReview, type OperationProjectTrustReceipt, type OperationProjectTrustState, type OperationProjectTrustStatus,
 } from '../contracts/operation-project-trust.ts';
-import { parseRepositoryTestOperation, requireRepositoryTestBinding, withRepositoryTestBinding, type RepositoryTestBinding } from '../capabilities/repository-test-binding.ts';
+import { parseRepositoryTestOperation, requireRepositoryTestBinding, requireRepositoryTestBindingV2, withRepositoryTestBinding, withRepositoryTestBindingV2 , type AnyRepositoryTestBinding } from '../capabilities/repository-test-binding.ts';
 import { Store, digest } from '../storage/store.ts';
 import { ProjectTrustLedger } from './project-trust.ts';
 import { withResourceGrant } from './file-access.ts';
@@ -21,7 +21,7 @@ const ownerOf = (thread: Thread): ToolOwner => ({ threadId: thread.id, runId: th
 const operationCommitment = (op: Operation) => digest({ id: op.id, threadId: op.threadId, revision: op.revision,
   kind: op.kind, args: op.args, resourceIds: op.resourceIds, preconditions: op.preconditions });
 const trustIdFor = (op: Operation) => 'operation-trust-' + digest([op.threadId, op.id]);
-const approvedFile = (binding: RepositoryTestBinding) => ({ path: relative(binding.cwd.path, binding.test.path).split(sep).join('/'),
+const approvedFile = (binding: AnyRepositoryTestBinding) => ({ path: relative(binding.cwd.path, binding.test.path).split(sep).join('/'),
   kind: 'configuration' as const, sha256: binding.test.sha256 });
 interface Publication {
   version: 1; owner: ToolOwner; operationCommitment: string; trustId: string; trustRevision: number;
@@ -29,7 +29,8 @@ interface Publication {
 }
 interface Basis {
   operation: Operation; grant: ResourceGrant; owner: ToolOwner; key: string;
-  binding: RepositoryTestBinding; testFile: string;
+  binding: AnyRepositoryTestBinding; testFile: string;
+  recipe: 'node-test' | 'vitest'; testName?: string;
 }
 interface Review { target: OperationProjectTrustTarget; basis: Basis; trustRevision: number; expiresAt: number }
 
@@ -72,18 +73,23 @@ export class OperationProjectTrustHost {
     const grant = this.store.get<ResourceGrant>('resource', args.resourceId);
     if (!grant || grant.threadId !== thread.id || !grant.writable || operation.resourceIds.length !== 1 || operation.resourceIds[0] !== grant.id) throw new HarnessError('CAPABILITY_DENIED', 'The operation requires its current writable project grant');
     const owner = ownerOf(thread), key = digest({ owner, status: thread.status, grant, operation: operationCommitment(operation) });
-    return { operation, grant, owner, key, binding: args.executionBinding, testFile: args.testFile };
+    return { operation, grant, owner, key, binding: args.executionBinding, testFile: args.testFile, recipe: args.recipe ?? 'node-test', testName: 'testName' in args ? args.testName : undefined };
   }
   private assertBasis(target: OperationProjectTrustTarget, basis: Basis) {
     if (this.basis(target).key !== basis.key) throw stale();
   }
   private async withBinding<T>(target: OperationProjectTrustTarget, basis: Basis,
-    action: (binding: RepositoryTestBinding) => Promise<T>): Promise<T> {
+    action: (binding: AnyRepositoryTestBinding) => Promise<T>): Promise<T> {
     return withResourceGrant(basis.grant, this.store.dataDir, undefined, false, this.stop.signal, async cwd => {
       const test = await resolveGrant(basis.grant, basis.testFile, false, this.store.dataDir);
+      if (basis.binding.version === 2) return withRepositoryTestBindingV2(cwd, test, basis.testFile, basis.recipe, basis.testName, this.stop.signal, async binding => {
+        this.assertBasis(target, basis);
+        requireRepositoryTestBindingV2(basis.binding.version === 2 ? basis.binding : undefined, binding, basis.operation.preconditions.testSha256);
+        return action(binding);
+      });
       return withRepositoryTestBinding(cwd, test, basis.testFile, this.stop.signal, async binding => {
         this.assertBasis(target, basis);
-        requireRepositoryTestBinding(basis.binding, binding, basis.operation.preconditions.testSha256);
+        requireRepositoryTestBinding(basis.binding.version === 1 ? basis.binding : undefined, binding, basis.operation.preconditions.testSha256);
         return action(binding);
       });
     });
@@ -196,11 +202,12 @@ export class OperationProjectTrustHost {
       || operationCommitment(operation) !== operationCommitment(basis.operation) || this.state(basis).decision !== 'trusted')
       throw new HarnessError('PROJECT_TRUST_REQUIRED', 'Explicitly trust these exact project bytes before approving this operation');
   }
-  assertLaunch(operation: Operation, binding: RepositoryTestBinding): void {
+  assertLaunch(operation: Operation, binding: AnyRepositoryTestBinding): void {
     if (!this.options.enabled && !this.required(operation)) return;
     if (!this.options.enabled) throw new HarnessError('PROJECT_TRUST_DISABLED', 'A reviewed operation cannot bypass disabled project trust');
     const basis = this.basis({ threadId: operation.threadId, operationId: operation.id, operationRevision: operation.revision }, true);
-    requireRepositoryTestBinding(basis.binding, binding, operation.preconditions.testSha256);
+    if (binding.version === 2) requireRepositoryTestBindingV2(basis.binding.version === 2 ? basis.binding : undefined, binding, operation.preconditions.testSha256);
+    else requireRepositoryTestBinding(basis.binding.version === 1 ? basis.binding : undefined, binding, operation.preconditions.testSha256);
     if (this.deciding.has(operation.id) || !basis.operation.approved || operationCommitment(operation) !== operationCommitment(basis.operation) || this.state(basis).decision !== 'trusted')
       throw new HarnessError('PROJECT_TRUST_REQUIRED', 'Project trust or the operation owner changed before launch');
   }

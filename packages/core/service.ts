@@ -991,8 +991,8 @@ export class Service {
   private context(threadId: string, signal?: AbortSignal, operationId?: string, authority?: RunContext, completedWrite?:(evidence:{path:string;sha256:string;bytes:number})=>void, preWrite?:(evidence:{path:string;bytes:Uint8Array;sha256:string})=>Promise<void>) {
     const assertAuthority = () => { if (authority) this.assertRun(authority); };
     return {
-      threadId, signal: signal ?? new AbortController().signal,completedWrite,preWrite,
-      assertRepositoryTestTrust: (operation: Operation, binding: import('../capabilities/repository-test-binding.ts').RepositoryTestBinding) => this.projectTrust.assertLaunch(operation, binding),
+      threadId, signal: signal ?? new AbortController().signal,completedWrite,preWrite, dataDir: this.store.dataDir,
+      assertRepositoryTestTrust: (operation: Operation, binding: import('../capabilities/repository-test-binding.ts').AnyRepositoryTestBinding) => this.projectTrust.assertLaunch(operation, binding),
       managedGitFamily: (cwd: string) => {
         assertAuthority();
         // Git snapshots enumerate descendants, so a broad grant cannot include host storage.
@@ -1110,6 +1110,7 @@ export class Service {
     if(command.type==='learning.cancel')return this.store.command(command,()=>({cancelled:true}));
     if(command.type==='learning.curate')return this.store.command(command,()=>({changes:curateSkills(this.store)}));
     if(command.type.startsWith('account.'))return this.store.command(command,()=>changeAccount(this.store,command));
+    if(command.type==='test.rerun')return this.testRerun(command);
     if(command.type.startsWith('background.')||command.type.startsWith('intake.'))return this.backgroundCommand(command);
     if (command.type === "thread.create") return this.store.command(command, () => {
       const parent=p.sideParentId===undefined?undefined:this.thread(text(p,'sideParentId',200));
@@ -1308,6 +1309,44 @@ export class Service {
       case 'intake.reject': return sync(this.intake.reject(command, { intakeId: text(p, 'intakeId', 200), ...(typeof p.reason === 'string' ? { reason: p.reason } : {}) }));
       default: throw new HarnessError('UNKNOWN_COMMAND', 'Unknown command: ' + command.type);
     }
+  }
+  /** test.rerun {operationId, revision, testId}: prepares a single-test rerun
+   * operation from an approved repository.test run (ui.testResultsV1). The new
+   * operation stays `prepared` for the normal approval flow; a repeat click for
+   * the same source test returns the already-prepared rerun. */
+  private async testRerun(command: HostCommand): Promise<CommandReceipt> {
+    const p = command.payload;
+    const thread = this.thread(command.threadId!);
+    this.assertMutation(thread.id);
+    if (!capabilityEnabled('ui.testResultsV1')) throw new HarnessError('CAPABILITY_DENIED', 'Test results are turned off; ask the agent to run the tests again');
+    const op = this.store.get<Operation>('operation', text(p, 'operationId', 200));
+    if (!op || op.threadId !== thread.id) throw new HarnessError('NOT_FOUND', 'Operation not found');
+    if (op.kind !== 'repository.test') throw new HarnessError('CAPABILITY_DENIED', 'Only repository test operations can rerun a single test');
+    if (op.revision !== p.revision) throw new HarnessError('STALE_REVISION', 'Operation has changed; review it again');
+    if (!['succeeded', 'failed', 'unknown'].includes(op.status)) throw new HarnessError('STALE_REVISION', 'The test run has not finished');
+    const testId = text(p, 'testId', 200);
+    const run = (op.result as { testRun?: import('../contracts/test-results.ts').TestRunV1 } | undefined)?.testRun;
+    if (!run) throw new HarnessError('INVALID_INPUT', 'This operation has no recorded test results');
+    let testFile: string | undefined, fullName: string | undefined;
+    const walk = (suite: import('../contracts/test-results.ts').TestSuite): boolean => {
+      if (suite.tests.some(t => { if (t.id === testId) { fullName = t.fullName; } return t.id === testId; })) return true;
+      return suite.suites.some(walk);
+    };
+    for (const root of run.suites) if (walk(root)) { testFile = root.file; break; }
+    if (!testFile || !fullName) throw new HarnessError('INVALID_INPUT', 'Unknown test id for this run');
+    const rerunOf = { operationId: op.id, testId };
+    const existing = this.store.all<Operation>('operation', thread.id).find(o => {
+      const ro = (o.args as { rerunOf?: { operationId: string; testId: string } } | undefined)?.rerunOf;
+      return ro?.operationId === rerunOf.operationId && ro?.testId === testId && o.status !== 'cancelled';
+    });
+    if (existing) return this.store.command(command, () => existing);
+    const resourceId = (op.args as { resourceId?: string }).resourceId;
+    if (typeof resourceId !== 'string') throw new HarnessError('INVALID_OPERATION', 'The source operation has no project grant');
+    const domain = await import('../capabilities/index.ts');
+    const prepared = await domain.handleDomainTool('repository_test_prepare',
+      { resourceId, testFile, recipe: run.runner, testName: fullName, rerunOf },
+      this.context(thread.id), true) as Operation;
+    return this.store.command(command, () => prepared);
   }
   private applyCommand(command: HostCommand, thread: Thread): unknown {
     const p = command.payload;
