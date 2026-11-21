@@ -424,4 +424,14 @@ describe('aggregate and manifest',()=>{
     expect(log).not.toContain('OPPOSITE_PIPE_CANARY_7344');
   });
 
+  it('blocks other-pipe output when a PEM header is buffered without a newline',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("-----BEGIN PRIVATE KEY-----");setTimeout(()=>process.stderr.write("OPPOSITE_PEM_CANARY_7345\n"),50);setTimeout(()=>process.stdout.write("\n-----END PRIVATE KEY-----\n"),100);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('[REDACTED PRIVATE KEY]');
+    expect(log).not.toContain('OPPOSITE_PEM_CANARY_7345');
+  });
+
 });
