@@ -15,7 +15,7 @@ import {createBrowserProxy,type BrowserProxy} from './browser-proxy.ts';
 import {createStartupOutputCapture,finishBackendStartup,nodeSidecarArguments,requestBackendShutdown,startupErrorDiagnostic,waitForBackendReady,writeStartupDiagnostic,type StartupDiagnostic,type StartupObservation} from './backend-policy.ts';
 import {releaseOwnedBrowsers,detachOwnedBrowser} from './browser-lifecycle.ts';
 import {ensureMainDockedBrowser} from './docked-browser.ts';
-import {nativeBrowserBounds} from './browser-bounds.ts';
+import {nativeBrowserBounds,nativeBrowserPreviewBounds} from './browser-bounds.ts';
 import {launchDesktopSignIn,parseDesktopSignInTarget} from './auth-launcher.ts';
 import {captureDesktopPlacement,createNormalBounds,parseDesktopPlacement,placeOnDesktopDisplay,restoreDesktopPlacement,retainDesktopPlacement,type DesktopDisplay,type DesktopPlacement} from './display-layout.ts';
 import type {ConnectionProviderId} from '../../packages/contracts/connections.ts';
@@ -296,7 +296,7 @@ function registerIpc(){
    remember(record);broadcast();
   });
   const browser=record.browser??record.dockedBrowser;if(!browser)throw Error('No browser is attached to this window');const contents=browser.view.webContents;
-  if(command.type==='bounds'){if(!record.dockedBrowser)throw Error('Only the docked browser can set content bounds');browser.view.setBounds(nativeBrowserBounds(command.bounds,record.window.getContentSize(),record.window.webContents.getZoomFactor()));return;}
+  if(command.type==='bounds'){if(!record.dockedBrowser)throw Error('Only the docked browser can set content bounds');if(command.widthPreset===undefined){browser.view.setBounds(nativeBrowserBounds(command.bounds,record.window.getContentSize(),record.window.webContents.getZoomFactor()));return;}const ownerZoom=record.window.webContents.getZoomFactor(),preview=nativeBrowserPreviewBounds(command.bounds,record.window.getContentSize(),ownerZoom,contents.getZoomFactor(),command.widthPreset);browser.view.setBounds({x:preview.x,y:preview.y,width:preview.width,height:preview.height});return {kind:'bounds' as const,requested:command.widthPreset,effective:preview.effective,bounds:{x:preview.x/ownerZoom,y:preview.y/ownerZoom,width:preview.width/ownerZoom,height:preview.height/ownerZoom},actualWidth:preview.actualWidth,availableWidth:preview.availableWidth,availability:preview.availability,hidden:preview.hidden,...(preview.fallback?{fallback:preview.fallback}:{})};}
   await browser.networkReady;const generation=++browser.generation;
   if(command.type==='navigate'){if(!await allowRemoteBrowserUrl(command.url))throw Error('Only public HTTP and HTTPS pages are allowed. Local and private-network requests are blocked.');if(generation!==browser.generation)return;browser.state.error=undefined;await contents.loadURL(remoteBrowserUrl(command.url).href).catch(error=>{if(generation===browser.generation){browser.state.error=error instanceof Error?error.message:'The page could not be loaded';browserState(browser);}});}
   else if(command.type==='back'&&contents.navigationHistory.canGoBack())contents.navigationHistory.goBack();
