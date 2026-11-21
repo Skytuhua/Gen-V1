@@ -107,7 +107,7 @@ describe('add/remove', () => {
     seed('t1', [item('m1')]);
     const {journalCompareAndSwap} = await import('../apps/web/src/journal');
     let calls = 0;
-    vi.mocked(journalCompareAndSwap).mockImplementationOnce(async (key, generation, value) => {
+    vi.mocked(journalCompareAndSwap).mockImplementationOnce(async (key, generation) => {
       calls++;
       seed('t1', [item('m1'), item('other')]); // a competing write
       expect(store.get(key)?.generation).not.toBe(generation);
