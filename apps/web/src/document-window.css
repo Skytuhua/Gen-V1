@@ -6,13 +6,13 @@
 .document-text-window[data-native-owner=true] {inset:62px 12px 12px;width:auto;height:auto;max-width:none;}
 .document-text-window>header {display:flex;align-items:center;gap:3px;min-height:42px;padding:4px 7px;border-bottom:1px solid var(--border);}
 .document-window-move {display:flex;align-items:center;gap:7px;flex:1;min-width:0;cursor:grab;touch-action:none;text-align:left;padding:6px;color:var(--muted);}
-.document-window-move strong {color:var(--text);font-size:12px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.document-window-move strong {color:var(--text);font-size:0.75rem;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 .document-window-close {color:var(--danger);}
-.document-text-editor {flex:1;min-height:0;width:100%;resize:none;border:0;border-radius:0;outline-offset:-3px;background:transparent;padding:20px;font-family:var(--interface-font,inherit);font-size:13px;line-height:1.7;color:var(--text);overflow:auto;}
-.document-window-prose {flex:1;min-height:0;overflow:auto;padding:20px;font-size:13px;line-height:1.7;}
-.document-text-window>footer {display:flex;flex-direction:column;gap:4px;padding:11px 16px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);}
-.document-source-update {display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 14px;font-size:11px;background:var(--subtle);}
-.document-window-message {padding:20px;font-size:13px;line-height:1.6;}
+.document-text-editor {flex:1;min-height:0;width:100%;resize:none;border:0;border-radius:0;outline-offset:-3px;background:transparent;padding:20px;font-family:var(--interface-font,inherit);font-size:0.8125rem;line-height:1.7;color:var(--text);overflow:auto;}
+.document-window-prose {flex:1;min-height:0;overflow:auto;padding:20px;font-size:0.8125rem;line-height:1.7;}
+.document-text-window>footer {display:flex;flex-direction:column;gap:4px;padding:11px 16px;border-top:1px solid var(--border);font-size:0.625rem;color:var(--muted);}
+.document-source-update {display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 14px;font-size:0.6875rem;background:var(--subtle);}
+.document-window-message {padding:20px;font-size:0.8125rem;line-height:1.6;}
 .document-window-message button {display:block;margin-top:12px;}
 .app-shell[data-document-docked=true] .shell-workarea {padding-right:400px;}
 .app-shell[data-document-docked=true] .floating-rail {right:412px;}

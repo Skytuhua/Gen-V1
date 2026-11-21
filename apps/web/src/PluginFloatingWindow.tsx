@@ -85,5 +85,5 @@ export function PluginFloatingWindow(props:FloatingWindowProps){
  // A loading dock would expose a fallback split that recovery can replace.
  // Mount only once the read settles; failures retain the default-width retry UI.
  if(!hasRecovered&&!error)return null;
- return <ToolDock width={width}>{hasRecovered?<DockedWindow key={props.id} {...props} layout={recovery.layout} onLayout={write} notice={notice}/>:<section hidden={props.open===false} className="floating-window plugin-tool-window" data-collapsed="false" aria-label={props.ariaLabel??`${props.title} window`}><div className="floating-window-header"><strong className="floating-window-title">{props.title}</strong></div>{notice}</section>}</ToolDock>;
+ return <ToolDock width={width}>{hasRecovered?<DockedWindow key={props.id} {...props} layout={recovery.layout} onLayout={write} notice={notice}/>:<section hidden={props.open===false} className="floating-window plugin-tool-window" data-collapsed="false" aria-label={props.ariaLabel??`${props.title} window`}><div className="floating-window-header"><strong className="floating-window-title" title={props.title}>{props.title}</strong></div>{notice}</section>}</ToolDock>;
 }

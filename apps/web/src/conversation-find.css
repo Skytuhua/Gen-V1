@@ -3,9 +3,9 @@
 .conversation-find-row {display:flex;align-items:center;gap:var(--ui-space-1);padding-inline-start:var(--ui-space-1);}
 .conversation-find input {flex:1;min-width:0;width:0;border:0;background:transparent;padding:var(--ui-space-1);font:inherit;}
 .conversation-find .quiet,.conversation-find-trigger {display:inline-flex;align-items:center;justify-content:center;min-width:var(--ui-row-compact);min-height:var(--ui-row-compact);padding:var(--ui-space-1);}
-.conversation-find-count {white-space:nowrap;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;}
-.conversation-find-scope {display:flex;align-items:center;justify-content:space-between;gap:var(--ui-space-2);padding:0 var(--ui-space-1);color:var(--muted);font-size:12px;}
-.conversation-find-scope .quiet {font-size:12px;white-space:normal;}
+.conversation-find-count {white-space:nowrap;font-size:0.75rem;color:var(--muted);font-variant-numeric:tabular-nums;}
+.conversation-find-scope {display:flex;align-items:center;justify-content:space-between;gap:var(--ui-space-2);padding:0 var(--ui-space-1);color:var(--muted);font-size:0.75rem;}
+.conversation-find-scope .quiet {font-size:0.75rem;white-space:normal;}
 .conversation-find p {margin:var(--ui-space-1);overflow-wrap:anywhere;}
 .conversation-find :is(input,button):focus-visible,.conversation-find-trigger:focus-visible {outline:2px solid var(--ui-focus-ring,#808080);outline-offset:-2px;}
 ::highlight(conversation-find-all) {background-color:var(--pending);color:var(--canvas);}

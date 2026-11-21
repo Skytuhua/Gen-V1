@@ -4,9 +4,9 @@
 .workbench-output-actions form{flex:1}
 .workbench-output-actions input{flex:1;min-width:100px;width:140px;max-width:100%;color:var(--text);background:var(--canvas);border:1px solid var(--control-border);border-radius:var(--control-radius,6px);padding:6px}
 .workbench-output-actions button,.workbench-output-search-result button{white-space:normal;min-height:32px}
-.workbench-output-state{margin:0;padding:6px 10px;font-size:12px;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}
-.workbench-output-search-result{font-size:12px}
-.workbench-output-viewport{height:min(360px,50vh);min-height:88px;max-width:100%;overflow:auto;overflow-anchor:none;overscroll-behavior:contain;scroll-behavior:auto;border-top:1px solid var(--border);font-family:var(--font-mono,ui-monospace,SFMono-Regular,Consolas,monospace);font-size:12px;padding-bottom:120px}
+.workbench-output-state{margin:0;padding:6px 10px;font-size:0.75rem;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}
+.workbench-output-search-result{font-size:0.75rem}
+.workbench-output-viewport{height:min(360px,50vh);min-height:88px;max-width:100%;overflow:auto;overflow-anchor:none;overscroll-behavior:contain;scroll-behavior:auto;border-top:1px solid var(--border);font-family:var(--font-mono,ui-monospace,SFMono-Regular,Consolas,monospace);font-size:0.75rem;padding-bottom:120px}
 .workbench-output-row{height:var(--workbench-row-height,22px);line-height:var(--workbench-row-height,22px);min-width:max-content;padding:0 10px;white-space:pre;overflow:hidden}
 .workbench-output :focus-visible{outline:2px solid var(--text);outline-offset:-2px}
 @media(prefers-reduced-motion:reduce){.workbench-output *{scroll-behavior:auto;animation:none;transition:none}}

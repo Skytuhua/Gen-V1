@@ -181,12 +181,12 @@
     },
     {
       "file": "apps/web/src/shell.css",
-      "line": 274,
+      "line": 279,
       "column": 1,
       "rule": "ad-hoc-overlay",
       "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "dee2450e1b1a0ea3f8e969342788755803615791f88167ed116f719431d58d7c",
-      "reason": "ShellNotice toast predates the shared Toaster primitive; migrate the plugin-catalog notice to toast() and retire this rule.",
+      "fingerprint": "103dc792d48cc58302ac4d3d4cc31c9e50eb5bb1644696d61655bd6fc8da4ba7",
+      "reason": "ShellNotice toast predates the shared Toaster primitive; migrate the plugin-catalog notice to toast() and retire this rule. (#589: font-size converted 12px->0.75rem for text-scale resilience; geometry unchanged.)",
       "evidence": ".shell-notice { position:fixed; bottom:64px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:14px; max-width:calc(100vw - 28px); border:1px solid var(--border); background:var(--surface); box-shadow:var(--elevati",
       "disposition": "staged-migration"
     },
