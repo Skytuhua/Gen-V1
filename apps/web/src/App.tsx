@@ -44,6 +44,8 @@ import {workspacePanelBounds} from './panel-geometry';
 import {createPlanVisibility,selectPlanRecord} from './plan-visibility';
 import {ComposerToolbar,ComposerTaskActions} from './ComposerToolbar';
 import {ComposerView} from './ComposerView';
+import {PublishReview} from './PublishReview';
+import {probePublishDraft,type PublishReviewOpen} from './publish-api';
 import {LoadingState} from './LoadingState';
 import {SurfaceBoundary} from './SurfaceBoundary';
 import {ComposerSkeleton, ConversationSkeleton, SettingsSkeleton, WorkspaceSkeleton} from './ViewSkeletons';
@@ -415,7 +417,16 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
     if(!thread){await journalWrite('mode:'+key,mode);setDraftMode(mode);return;}
     await command('thread.mode',{mode},thread.id);await refresh();
   };
-  const preparePR=()=>{const intent='Create a pull request for the current changes.';const current=draftLatest.current;updateDraft(current.startsWith(intent)?current:intent+(current.trim()?'\n\n'+current:''));input.current?.focus();};
+  const [publishReview,setPublishReview]=useState<PublishReviewOpen|null>(null);
+  const preparePR=async()=>{
+    const insertIntent=()=>{const intent='Create a pull request for the current changes.';const current=draftLatest.current;updateDraft(current.startsWith(intent)?current:intent+(current.trim()?'\n\n'+current:''));input.current?.focus();};
+    // R8: with publishV1 on and a writable managed copy the chip opens the
+    // review sheet; every other outcome keeps the legacy prompt insert.
+    if(!thread?.projectId){insertIntent();return;}
+    const outcome=await probePublishDraft(thread.projectId,thread.id);
+    if(outcome.kind==='unavailable'){insertIntent();return;}
+    setPublishReview(outcome);
+  };
   return <div className="composer-dock">
     {thread && !working && ['stopped', 'interrupted', 'failed'].includes(thread.status) && <div className="resume-strip" role="status"><span>{thread.status === 'interrupted' ? 'This session was interrupted.' : thread.status === 'stopped' ? 'Agent stopped. Your work is saved.' : 'The agent could not finish this run.'}</span><button className="secondary" disabled={!modelId} title={!modelId ? 'Choose an available model before resuming.' : undefined} onClick={resume}>Resume<ChevronRight size={13} /></button></div>}
     {localSkills.error&&!shared&&<p role="alert" className="composer-error">{localSkills.error}</p>}
@@ -450,6 +461,7 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
       />
     </ComposerView>
     <div className="composer-caption">{prediction.candidate ? <span className="composer-prediction-controls"><span className="composer-prediction-keyboard" aria-hidden="true">Tab to accept · Esc to dismiss</span><button type="button" className="composer-prediction-use" onPointerDown={event => event.preventDefault()} onClick={acceptPrediction}>Use suggestion</button></span> : unavailable ? <button onClick={setup}>Connect a model to start<ChevronRight size={12} /></button> : null}</div>
+    {publishReview&&thread?.projectId&&<PublishReview open projectId={thread.projectId} threadId={thread.id} initial={publishReview} loadDraft={signal=>probePublishDraft(thread.projectId!,thread.id,signal)} onClose={()=>setPublishReview(null)} timeFormat={getPreferences(snapshot.settings).timeFormat}/>}
   </div>;
 }
 
