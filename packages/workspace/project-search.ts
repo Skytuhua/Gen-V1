@@ -6,6 +6,7 @@ import { HarnessError } from '../contracts/index.ts';
 import { projectSearchIdSchema, projectSearchPathSchema, searchRequestSchema, type ProjectOwner, type SearchIssue, type SearchMatch, type SearchRequest, type SearchResponse } from '../contracts/project-search.ts';
 import { withPathGuard } from '../core/file-access.ts';
 import { assertNotStorage, inside } from '../core/security.ts';
+import { agentFilePolicyMatchers } from '../core/agent-file-policy-store.ts';
 import type { ProjectTools } from './tools.ts';
 
 export const PROJECT_SEARCH_LIMITS = Object.freeze({ files: 10_000, bytes: 32 * 1024 * 1024, matches: 1000, timeoutMs: 2000, fileBytes: 1024 * 1024 });
@@ -137,6 +138,8 @@ export class ProjectSearch {
 
   private async scan(admitted: Awaited<ReturnType<ProjectSearch['admission']>>, query: string, external?: AbortSignal): Promise<SearchResponse> {
     const response: SearchResponse = { owner: admitted.owner, matches: [], nextCursor: null, complete: true, issues: [], issuesTruncated: false, exclusions: [...EXCLUSIONS], limits: { ...PROJECT_SEARCH_LIMITS } };
+    // Denied names never reach issues, matches or the filesystem reads below.
+    const denied = agentFilePolicyMatchers(this.projects.store, admitted.owner.projectId).denies;
     const controller = new AbortController(), signal = controller.signal, started = this.clock.monotonic();
     let stopped = false, files = 0, readBytes = 0, retainedBytes = bytes(response);
     const issue = (path: string | null, reason: SearchIssue['reason']) => {
@@ -240,6 +243,7 @@ export class ProjectSearch {
             try { name = typeof entry.name === 'string' ? entry.name : new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(entry.name); }
             catch { issue(null, 'excluded'); continue; }
             const child = relative ? relative + '/' + name : name, path = join(directory.path, name), key = name.toLowerCase();
+            if (denied(child)) continue;
             if (excludedNames.has(key) || !projectSearchPathSchema.safeParse(child).success || names.has(key)) { issue(child, 'excluded'); continue; }
             names.add(key);
             try {

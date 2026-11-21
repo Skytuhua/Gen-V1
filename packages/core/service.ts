@@ -18,6 +18,8 @@ import { basename, join, relative, resolve, sep } from "node:path";
 import { Store, digest, compactionOwnerKey, type CompactionAttemptRecord } from "../storage/store.ts";
 import {PersonalResearchRepository} from '../research/repository.ts';
 import { assertNotStorage, canonical, inside, resolveGrant, projectMemoryDeletionLedgerPath } from "./security.ts";
+import { agentFilePolicyMatchers } from "./agent-file-policy-store.ts";
+import { FILE_POLICY_DENIED, FILE_POLICY_DENIED_MESSAGE } from "../contracts/agent-file-policy.ts";
 import { withResourceGrant } from "./file-access.ts";
 import { admitSchema, validateJson, widgetDefinition, GENERATED_APPS_ENABLED } from "./widgets.ts";
 import { patchSpec, protectedFingerprint } from "./presentation.ts";
@@ -907,7 +909,24 @@ export class Service {
   async resolveResource(threadId: string, id: string, relativePath?: string, write = false): Promise<string> {
     const grant = this.store.get<ResourceGrant>("resource", id);
     if (!grant || grant.threadId !== threadId) throw new HarnessError("CAPABILITY_DENIED", "Resource is not granted to this thread");
-    return resolveGrant(grant, relativePath, write, this.store.dataDir);
+    const candidate = await resolveGrant(grant, relativePath, write, this.store.dataDir);
+    await this.assertAgentFilePolicy(threadId, grant, candidate);
+    return candidate;
+  }
+  private filePolicyGuards = new Map<string, { denies: (path: string) => boolean }>();
+  private agentFilePolicy(threadId: string) {
+    const projectId = this.store.get<Thread>("thread", threadId)?.projectId ?? null;
+    const guard = agentFilePolicyMatchers(this.store, projectId);
+    const key = `${projectId ?? ""}@${guard.revision}`;
+    let cached = this.filePolicyGuards.get(key);
+    if (!cached) { cached = guard; if (this.filePolicyGuards.size > 64) this.filePolicyGuards.clear(); this.filePolicyGuards.set(key, cached); }
+    return cached;
+  }
+  private async assertAgentFilePolicy(threadId: string, grant: ResourceGrant, candidate: string) {
+    const rootRelative = grant.kind === "project"
+      ? relative(await canonical(grant.path), candidate).split(sep).join("/")
+      : basename(candidate);
+    if (this.agentFilePolicy(threadId).denies(rootRelative)) throw new HarnessError(FILE_POLICY_DENIED, FILE_POLICY_DENIED_MESSAGE);
   }
   data(threadId: string, id: string, revision?: number): DataRecord {
     return threadData(this.store, threadId, id, revision);
@@ -1010,8 +1029,9 @@ export class Service {
         assertAuthority();
         const grant = this.store.get<ResourceGrant>("resource", id);
         if (!grant || grant.threadId !== threadId) throw new HarnessError("CAPABILITY_DENIED", "Resource is not granted to this thread");
-        return withResourceGrant(grant, this.store.dataDir, relativePath, write, signal ?? new AbortController().signal, path => { assertAuthority(); return action(path); });
+        return withResourceGrant(grant, this.store.dataDir, relativePath, write, signal ?? new AbortController().signal, async path => { assertAuthority(); await this.assertAgentFilePolicy(threadId, grant, path); return action(path); });
       },
+      denyFilePath: (relativePath: string) => this.agentFilePolicy(threadId).denies(relativePath),
       publishData: (value: unknown, provenance: string) => { assertAuthority(); return this.publishData(threadId, value, provenance); },
       prepareOperation: (kind: string, args: Record<string, unknown>, resourceIds: string[], preconditions: Record<string, string>, description: string) => {
         assertAuthority();
