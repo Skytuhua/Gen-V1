@@ -16,8 +16,9 @@ export function sectionOf(item: Thread, showWorking: boolean, patch: Patch = {},
   const sectionId = patch.sectionId === undefined ? item.presentation?.sectionId : patch.sectionId;
   if (pinned) return 'pinned';
   if (showWorking && (Boolean(item.runId) || item.status === 'working' || item.status === 'awaiting_input')) return 'working';
-  if (sectionIds && typeof sectionId === 'string' && sectionIds.has(sectionId)) return `section:${sectionId}`;
+  // R04 DECIDED: settling wins over section membership — a settled member lives in Settled.
   if (settled) return 'settled';
+  if (sectionIds && typeof sectionId === 'string' && sectionIds.has(sectionId)) return `section:${sectionId}`;
   return 'flat';
 }
 
@@ -160,6 +161,8 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
     // The indicator follows the clamped insertion, never the gap the pointer found.
     return { target: { list, index }, top: hit.gap(index), valid: true as const, patch, writes };
   };
+
+  const dropTargetList = target?.valid ? target.target.list : null;
 
   const drop = (item: Thread, point: { x: number; y: number }) => {
     const resolved = resolve(item, point);
@@ -327,6 +330,7 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
 
   return {
     dragging,
+    dropTargetList,
     indicatorTop: target?.valid ? target.top - (nav.current?.getBoundingClientRect().top ?? 0) + (nav.current?.scrollTop ?? 0) : null,
     /** Call from the row's onDragStart after the workspace payload has been written. */
     begin(item: Thread) { dragged.current = item; setDragging(item); },

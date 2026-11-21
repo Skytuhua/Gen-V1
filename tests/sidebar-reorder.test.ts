@@ -44,9 +44,10 @@ describe('sectionOf with sidebar sections', () => {
     expect(sectionOf(row('a', { status: 'working' }, { sectionId: 'sec_a' }), true, {}, sections)).toBe('working');
     expect(sectionOf(row('a', {}, { pinned: true, sectionId: 'sec_a' }), false, {}, sections)).toBe('pinned');
   });
-  it('beats settled but keeps it cleared precedence order', () => {
-    expect(sectionOf(row('a', {}, { settled: true, sectionId: 'sec_a' }), false, {}, sections)).toBe('section:sec_a');
-    expect(sectionOf(row('a', {}, { settled: true, sectionId: 'sec_a' }), false, { sectionId: null }, sections)).toBe('settled');
+  it('lets settled win over membership until cleared (R04 DECIDED)', () => {
+    expect(sectionOf(row('a', {}, { settled: true, sectionId: 'sec_a' }), false, {}, sections)).toBe('settled');
+    expect(sectionOf(row('a', {}, { settled: true, sectionId: 'sec_a' }), false, { settled: false }, sections)).toBe('section:sec_a');
+    expect(sectionOf(row('a', {}, { settled: true, sectionId: 'sec_a' }), false, { settled: false, sectionId: null }, sections)).toBe('flat');
   });
   it('treats an unknown section id as no section and ignores ids without the set', () => {
     expect(sectionOf(row('a', {}, { sectionId: 'sec_gone' }), false, {}, sections)).toBe('flat');
