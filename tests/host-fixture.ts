@@ -160,7 +160,7 @@ export class HostFixture {
   widgets!: Awaited<ReturnType<typeof buildWidgetServer>>;
   readonly commands: HostCommand[] = [];
   readonly generations: ContractRuntime[] = [];
-  readonly closeStages: Array<{ phase: string; generation: number; startedAt: string; startedMs: number; finishedAt?: string; elapsedMs?: number; status: 'pending' | 'succeeded' | 'failed'; sockets?: number }> = [];
+  readonly closeStages: Array<{ phase: string; generation: number; startedAt: string; startedMs: number; finishedAt?: string; elapsedMs?: number; status: 'pending' | 'succeeded' | 'failed' | 'timed-out'; sockets?: number }> = [];
   beforeCommand?: (command: HostCommand) => Promise<void>;
   private closing?: Promise<void>;
   private readonly effectOptions: { toolEffectFlags?: ServiceOptions['toolEffectFlags']; toolEffectAuthenticator?: ReturnType<typeof fixtureEffectAuthenticator> };
@@ -197,9 +197,19 @@ export class HostFixture {
         else report();
       }, 10_000);
       pending.unref();
-      try { await action(); stage.status = 'succeeded'; }
-      catch (error) { stage.status = 'failed'; throw error; }
-      finally { clearTimeout(pending); stage.finishedAt = new Date().toISOString(); stage.elapsedMs = performance.now() - stage.startedMs; }
+      // A stalled close stage must not eat the whole test timeout: bound the
+      // stage, force-release open sockets that keep server.close() pending,
+      // then continue so the stage name lands in closeStages evidence.
+      const bound = setTimeout(() => {
+        stage.status = 'timed-out';
+        console.log('HOST_FIXTURE_CLOSE_TIMEOUT', JSON.stringify({ phase, elapsedMs: performance.now() - stage.startedMs, generation, ...(stage.sockets === undefined ? {} : { sockets: stage.sockets }) }));
+        if (phase === 'host.close' && host) { host.server.closeAllConnections?.(); host.server.closeIdleConnections?.(); }
+        if (phase === 'widgets.close' && widgets) { widgets.server.closeAllConnections?.(); widgets.server.closeIdleConnections?.(); }
+      }, 20_000);
+      bound.unref();
+      try { await Promise.race([action(), new Promise<never>((_, reject) => setTimeout(() => reject(new Error(`close stage ${phase} timed out`)), 20_000).unref())]); if (stage.status === 'pending') stage.status = 'succeeded'; }
+      catch (error) { if (stage.status === 'pending') stage.status = 'failed'; else console.log('HOST_FIXTURE_CLOSE_FORCED', JSON.stringify({ phase, generation })); }
+      finally { clearTimeout(pending); clearTimeout(bound); stage.finishedAt = new Date().toISOString(); stage.elapsedMs = performance.now() - stage.startedMs; }
     };
     return this.closing ??= (async () => {
       await observe('host.close', () => host?.close());
