@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { timelineSnapshot } from "./plan-timeline-fixture";
+import { statusSweepSnapshot, timelineSnapshot } from "./plan-timeline-fixture";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/plan-timeline.html");
@@ -237,3 +237,28 @@ for (const theme of ["dark", "light"])
     await expect(page.locator('[data-step-id="build"] [data-agent-id="available"]')).toHaveCount(0);
     await page.screenshot({ path: test.info().outputPath(`${theme}-branches.png`) });
   });
+
+test("every step, agent and check state renders its label", async ({ page }) => {
+  await page.evaluate(
+    (snapshot) => window.planFixture.update(snapshot),
+    statusSweepSnapshot("thread-a", 2),
+  );
+  const stepLabels: Record<string, string> = {
+    "s-proposed": "Proposed", "s-running": "Running", "s-blocked": "Blocked",
+    "s-review_required": "Review required", "s-completed": "Completed", "s-accepted": "Accepted",
+    "s-failed": "Failed", "s-cancelled": "Cancelled", "s-interrupted": "Interrupted",
+  };
+  for (const [id, label] of Object.entries(stepLabels))
+    await expect(page.locator(`[data-step-id="${id}"] .plan-step-badge`)).toHaveText(label);
+  const jobLabels: Record<string, string> = {
+    "j-queued": "Queued", "j-working": "Working", "j-needs_review": "Needs review",
+    "j-completed": "Completed", "j-failed": "Failed", "j-cancelled": "Cancelled",
+    "j-interrupted": "Interrupted",
+  };
+  for (const [id, label] of Object.entries(jobLabels))
+    await expect(page.locator(`[data-agent-id="${id}"] .plan-agent-copy`)).toContainText(label);
+  const failed = page.locator('[data-step-id="s-failed"]');
+  await expect(failed.locator('li[data-check-state="pending"] small')).toHaveText("Pending");
+  await expect(failed.locator('li[data-check-state="reported_failed"] small')).toHaveText("Reported failed");
+  await expect(failed.locator('li[data-check-state="verified_passed"] small')).toHaveText("Verified passed");
+});
