@@ -4,7 +4,7 @@
 
 - Feature: discoverable restore/dock path for minimized Project overview and Live usage tools
 - Repo: `skytuhua-org/Gen-V1`
-- Plan revision: r1, 2026-11-21
+- Plan revision: r2, 2026-11-21 (r1 → r2: acceptance matrix filled per AGENTS.md prepublish audit)
 - Baseline: `main` @ `e883ac0327c834120d89c3697dec7380a342ba4d`
 - Issue: https://github.com/skytuhua-org/Gen-V1/issues/590
 - Related: #579 (canvas detachment — out of scope), README "context and usage tools minimize within the workspace"
@@ -180,7 +180,19 @@ Parallelizable: T04 independent of T01–T03; T01→T02→T03 and T04 can run as
   5. Reload → minimized states persist; closed-usage + reload → stays closed.
   6. Narrow window (< 706 px owner) → tray stacks below chat, same chips.
   7. Reduced-motion emulation → all transitions instant.
-- Acceptance matrix: every REQUIREMENTS row ↔ T-id ↔ a numbered check above.
+- Acceptance matrix (requirement ↔ task ↔ check):
+
+  | Requirement | Task | Check |
+  | --- | --- | --- |
+  | Named tray region owning minimized summaries | T01 | check 1–2, 6 |
+  | Chip: icon + title + live summary + restore affordance at spec'd metrics | T01, T02 | check 1; long-title ellipsis under `break-ui`-style data |
+  | Whole-header toggle + Escape-minimize kept | T02 | check 1–2 |
+  | Two rebindable Workspace-scope bindings | T03 | check 3–4 + rebind check: change `preferences.keybindings.toggleLiveUsage` to `Ctrl+Alt+U`, confirm new chord toggles and old chord is inert |
+  | Persistence: collapsed + new usage-open key | T04 | check 5 + storage check: `localStorage` blocked (e.g. SecurityError shim) → app still works, in-memory state only, no console error |
+  | Accessibility: aria, tooltip, focus handoff, reduced motion | T02, T05 | check 2–3, 7 + axe-style a11y pass on tray |
+  | Update-while-minimized keeps `Update available` caption | T02 | regression check: fire `expandRequest` while tray is in row layout → caption shows badge, no auto-expand |
+  | Narrow (< 706 px) and wide (≥ 706 px) tray geometry | T01, T05 | check 6 |
+
 - Release gate: docs-only PR merged is the deliverable for this planning task; implementation follows the DAG in a later session.
 
 ## STATE
