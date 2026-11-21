@@ -185,6 +185,7 @@ function InferenceBudget({ value }: { value: ContextInferenceBudgetV1 }) {
   </section>;
 }
 
+const kbText = (bytes: number) => `${(bytes / 1024).toFixed(1)} KB`;
 function RequestEvidence({ request, sources, compaction, thread }: { request?: ContextRequestObservationV1; sources?: HostRequestProjectionV1; compaction?: CompactionProjectionV1; thread?: Thread }) {
   const id = useId();
   const [selected, select] = useState(request ? 0 : 3);
@@ -219,6 +220,9 @@ function RequestEvidence({ request, sources, compaction, thread }: { request?: C
           {Boolean(request.nativeSources.omittedSources) && <p className="context-categories-note">{request.nativeSources.omittedSources} source records omitted from this bounded view.</p>}
         </section>}
         {request.nativeSourcesUnavailable && <p className="context-categories-note">Native source capture unavailable: {request.nativeSourcesUnavailable.toLowerCase().replaceAll('_', ' ')}.</p>}
+        {sources?.personalInstructions && <section aria-label="Personal instructions">
+          <p className="context-categories-note">Personal instructions · {kbText(sources.personalInstructions.utf8Bytes)} · sha256 {sources.personalInstructions.digest.slice(0, 4)}…{sources.personalInstructions.digest.slice(-4)}</p>
+        </section>}
         {sources?.projectInstructions && <section aria-label="Approved project instructions">
           <p className="context-categories-note">{sources.projectInstructions.precedence}</p>
           <ul>{sources.projectInstructions.entries.map(entry => <li key={entry.resourceId + ':' + entry.filename}>

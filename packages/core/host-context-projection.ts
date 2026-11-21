@@ -43,5 +43,6 @@ export function projectHostRequest(input: StartRun, workspaceId: string, toolReg
     ],
     omittedSources: omitted.length,
     ...(input.approvedProjectContext ? { projectInstructions: input.approvedProjectContext.instructions } : {}),
+    ...(input.personalInstructions ? { personalInstructions: { utf8Bytes: Buffer.byteLength(input.personalInstructions.text, 'utf8'), digest: input.personalInstructions.digest } } : {}),
   };
 }

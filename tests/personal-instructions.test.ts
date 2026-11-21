@@ -88,3 +88,22 @@ describe('personal instructions storage', () => {
     await expect(resolveGrant(grant, 'personal-instructions/AGENTS.md', false, dataDir)).rejects.toThrow();
   });
 });
+
+describe('prompt framing', () => {
+  it('withPersonalInstructions appends the framed block after the host prompt', async () => {
+    const {withPersonalInstructions} = await import('../packages/runtime-pi/tool-definitions.ts');
+    const personal = {text: 'Answer in French.', digest: 'abc123'};
+    const wrapped = withPersonalInstructions('HOST', personal);
+    expect(wrapped.startsWith('HOST')).toBe(true);
+    expect(wrapped).toContain('personal instructions');
+    expect(wrapped).toContain('"source":"personal-instructions"');
+    expect(wrapped).toContain('"digest":"abc123"');
+    expect(wrapped).toContain('precedence over these personal instructions');
+    expect(withPersonalInstructions('HOST', undefined)).toBe('HOST');
+    expect(withPersonalInstructions('HOST')).toBe('HOST');
+  });
+  it('the project header names personal instructions as lower precedence', async () => {
+    const source = await import('node:fs/promises').then(fs => fs.readFile('packages/core/approved-project-context.ts', 'utf8'));
+    expect(source).toContain("Project instructions take precedence over the user\\'s personal instructions.");
+  });
+});
