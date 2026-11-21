@@ -68,7 +68,7 @@ function parseStack(stack: unknown, cwd: string): { frames: NonNullable<NonNulla
   if (typeof stack !== 'string') return { frames, truncated: false };
   for (const raw of stack.split('\n')) {
     const line = raw.trimEnd();
-    const m = line.match(/\(?((?:[A-Za-z]:)?[\\/][^()]*?):(\d+):(\d+)\)?\s*$/);
+    const m = line.match(/\(?((?:[A-Za-z]:)?[^\s()]+):(\d+):(\d+)\)?\s*$/);
     if (!m) continue;
     const file = projectPath(m[1], cwd);
     if (!file) continue; // outside the granted project
