@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('node-pty', () => ({ spawn: () => { throw new Error('node-pty is unavailable in tests'); } }));
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -9,8 +9,17 @@ import { workspaceHost } from '../apps/server/workspace-host.ts';
 import { handleDomainTool, type DomainContext } from '../packages/capabilities/index.ts';
 import { withApprovedProjectContext } from '../packages/core/approved-project-context.ts';
 import { saveAgentFilePolicy } from '../packages/core/agent-file-policy-store.ts';
+import { ProjectTools } from '../packages/workspace/tools.ts';
+import { ProjectSearch } from '../packages/workspace/project-search.ts';
 import { FILE_POLICY_DENIED, FILE_POLICY_DENIED_MESSAGE } from '../packages/contracts/agent-file-policy.ts';
+import { withPathGuard } from '../packages/core/file-access.ts';
 import type { ResourceGrant, RuntimeAdapter, StartRun, Thread } from '../packages/contracts/index.ts';
+
+vi.mock('../packages/core/file-access.ts', async original => ({
+	...await original<typeof import('../packages/core/file-access.ts')>(),
+	withPathGuard: vi.fn<typeof withPathGuard>(async (_paths, signal, action) => { signal.throwIfAborted(); return action([]); }),
+}));
+beforeEach(() => { vi.mocked(withPathGuard).mockImplementation(async (_paths, signal, action) => { signal.throwIfAborted(); return action([]); }); });
 
 const cleanup: (() => Promise<void>)[] = [];
 afterEach(async () => { for (const close of cleanup.splice(0)) await close(); });
@@ -115,5 +124,26 @@ describe('agent file policy guards', () => {
 			expect(context?.instructionText ?? '').not.toContain('Follow the repo rules.');
 			expect(context?.instructions.exclusions).toContainEqual(expect.objectContaining({ filename: 'AGENTS.md', reason: 'DENIED_SOURCE' }));
 		});
+	});
+});
+
+describe('project search filtering', () => {
+	it('excludes denied names and content from matches and issues', async () => {
+		const { root, store } = await fixture();
+		const repo = join(root, 'search-repo');
+		mkdirSync(join(repo, 'secrets'), { recursive: true });
+		mkdirSync(join(repo, 'src'), { recursive: true });
+		writeFileSync(join(repo, '.env'), 'needle=1');
+		writeFileSync(join(repo, 'secrets', 'token.txt'), 'needle');
+		writeFileSync(join(repo, 'src', 'app.ts'), 'needle');
+		const projects = new ProjectTools(store);
+		const receipt = await projects.connect({ id: 'search-connect', type: 'workspace.project.connect', payload: { name: 'Search', path: repo } });
+		const projectId = (receipt.result as { projects: { id: string }[] }).projects[0]!.id;
+		const search = new ProjectSearch(projects);
+		cleanup.push(async () => { search.dispose(); await projects.dispose(); });
+		const response = await search.search(projectId, { q: 'needle' });
+		expect(response.matches.map(match => match.path)).toEqual(['src/app.ts']); 
+		expect(JSON.stringify({ matches: response.matches, issues: response.issues })).not.toContain('.env');
+		expect(JSON.stringify({ matches: response.matches, issues: response.issues })).not.toContain('secrets');
 	});
 });
