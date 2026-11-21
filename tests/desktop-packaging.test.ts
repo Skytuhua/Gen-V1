@@ -131,6 +131,40 @@ describe('desktop distribution custody',()=>{
   expect(config.directories.app).toBe('C:/build/desktop-app');
   expect(JSON.stringify(config)).not.toMatch(/userdata|auth\.json|\.codex/);
  });
+ it('stays unsigned unless Azure signing is selected, keeping the exact legacy shape',()=>{
+  const config=desktopBuilderConfig('C:/build');
+  expect(config.forceCodeSigning).toBe(false);
+  expect(config.win).toEqual({target:[{target:'nsis',arch:['x64']}],signAndEditExecutable:false});
+ });
+ it.each(['signtool','','Azure'])('rejects signing mode %j',signing=>{
+  expect(()=>desktopBuilderConfig('C:/build',undefined,signing)).toThrow('HARNESS_WINDOWS_SIGNING must be azure or unset.');
+ });
+ it('maps the Azure Artifact Signing environment into the builder config',()=>{
+  try{
+   vi.stubEnv('HARNESS_WINDOWS_SIGNING','azure');
+   vi.stubEnv('HARNESS_WINDOWS_PUBLISHER_NAME','Example Org');
+   vi.stubEnv('HARNESS_AZURE_SIGNING_ENDPOINT','https://eus.codesigning.azure.net/');
+   vi.stubEnv('HARNESS_AZURE_SIGNING_ACCOUNT','gen-signing');
+   vi.stubEnv('HARNESS_AZURE_SIGNING_PROFILE','gen-public-trust');
+   const config=desktopBuilderConfig('C:/build');
+   expect(config.forceCodeSigning).toBe(true);
+   expect(config.win.signAndEditExecutable).toBe(true);
+   expect(config.win.azureSignOptions).toEqual({publisherName:'Example Org',endpoint:'https://eus.codesigning.azure.net/',codeSigningAccountName:'gen-signing',certificateProfileName:'gen-public-trust'});
+   expect(config.win).not.toHaveProperty('signtoolOptions');
+   expect(config.win.target).toEqual([{target:'nsis',arch:['x64']}]);
+  }finally{vi.unstubAllEnvs();}
+ });
+ it.each(['HARNESS_WINDOWS_PUBLISHER_NAME','HARNESS_AZURE_SIGNING_ENDPOINT','HARNESS_AZURE_SIGNING_ACCOUNT','HARNESS_AZURE_SIGNING_PROFILE'])('names missing Azure variable %s and never the other values',missing=>{
+  const values={HARNESS_WINDOWS_PUBLISHER_NAME:'publisher-secret-value',HARNESS_AZURE_SIGNING_ENDPOINT:'https://eus.codesigning.azure.net/',HARNESS_AZURE_SIGNING_ACCOUNT:'account-secret-value',HARNESS_AZURE_SIGNING_PROFILE:'profile-secret-value'};
+  try{
+   vi.stubEnv('HARNESS_WINDOWS_SIGNING','azure');
+   for(const [name,value] of Object.entries(values))vi.stubEnv(name,name===missing?undefined:value);
+   let message='';
+   try{desktopBuilderConfig('C:/build');}catch(error){message=(error as Error).message;}
+   expect(message).toContain(missing);
+   for(const [name,value] of Object.entries(values))if(name!==missing)expect(message).not.toContain(value);
+  }finally{vi.unstubAllEnvs();}
+ });
 });
 
 it.skipIf(process.platform==='win32')('runs JavaScript build tasks with the same Node executable as the parent',()=>{
