@@ -7,8 +7,13 @@
 .source-selection-toolbar button { min-height: 32px; flex: 1 1 auto; }
 .source-selection-toolbar [role=alert] { width: 100%; }
 .workbench-panel { display: flex; flex-direction: column; gap: 12px; width: min(760px, calc(100% - 32px)); max-height: calc(100% - 64px); overflow: auto; min-width: 0; }
-.workbench-panel nav,.workbench-source-actions { display: flex; flex-wrap: wrap; gap: 6px; }
-.workbench-panel nav button[aria-pressed="true"] { color: var(--text); background: var(--selection-bg); }
+.workbench-panel [role="tablist"],.workbench-source-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.workbench-panel [role="tab"] { transition: background-color var(--ui-motion-hover) var(--ui-ease-move); }
+.workbench-panel [role="tab"][aria-selected="true"] { color: var(--text); background: var(--selection-bg); }
+.workbench-panel [role="tab"]:focus-visible { outline-offset: 2px; }
+.workbench-panel [role="tabpanel"] { min-width: 0; }
+.workbench-source-chip button:focus-visible { outline-offset: 2px; }
+@media (prefers-reduced-motion:reduce) { .workbench-panel [role="tab"] { transition: none; } }
 .workbench-panel pre { overflow: auto; max-height: 50dvh; white-space: pre-wrap; overflow-wrap: anywhere; }
 .workbench-source-chips { display: flex; flex-direction: column; gap: 6px; padding: 6px; max-height: 240px; overflow: auto; }
 .workbench-source-chip { border: 1px solid var(--border, #555); border-radius: 6px; padding: 6px; min-width: 0; }

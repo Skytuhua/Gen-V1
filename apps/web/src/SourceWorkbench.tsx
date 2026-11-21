@@ -18,6 +18,7 @@ import {messageSelection, workbenchApi, type WorkbenchApi} from './workbench-api
 import './source-workbench.css';
 
 const ownerKey=(owner?:LogicalOwnerV1)=>owner?JSON.stringify([owner.threadId,owner.projectId,owner.workspaceId]):'';
+const WB_TABS:[PanelTab,string][]=[['request','Last request'],['tools','Tools'],['run','Run'],['sources','Sources'],['evidence','Evidence']];
 const messageOf=(cause:unknown)=>cause instanceof Error?cause.message:'The source could not be read. The draft was retained.';
 const shortRevision=(value:string)=>value.length>16?`${value.slice(0,12)}\u2026`:value;
 const formatCaptured=(iso:string)=>{const time=Date.parse(iso);return Number.isNaN(time)?iso:new Date(time).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'});};
@@ -166,11 +167,11 @@ export function WorkbenchComposer({title,working=false,disabled=false}:{title:st
   {!context.enabled&&<p role="status">New source actions are disabled. Retained sources remain available to inspect or remove.</p>}
   {(context.inputs.length>0||context.pendingRecoveries.length>0)&&<p><button type="button" onClick={()=>context.show('run')}>Inspect queued source inputs</button> {context.inputs.length} accepted input{context.inputs.length===1?'':'s'} with retained sources. {context.pendingRecoveries.length>0&&'A recovery acknowledgment is unconfirmed.'}</p>}
   {(context.error||localError)&&<p role="alert">{localError||context.error}</p>}
-  <div className="workbench-source-chips">{context.draft?.sourceRefs.map(ref=>{const source=context.sources[ref.captureId],state=source?.state;return <article key={ref.captureId} className="workbench-source-chip" aria-label={`Selected source ${source?.label??ref.source.sourceId}`}>
-   <header><span>{source?.label??ref.source.sourceId} · {ref.source.kind}</span><button type="button" disabled={disabled} onClick={()=>run(()=>context.open(ref))}>Open source</button><button type="button" disabled={disabled} onClick={()=>run(()=>context.remove(ref))}>Remove source</button></header>
+  <div className="workbench-source-chips">{context.draft?.sourceRefs.map(ref=>{const source=context.sources[ref.captureId],state=source?.state,label=source?.label??ref.source.sourceId;return <article key={ref.captureId} className="workbench-source-chip" aria-label={`Selected source ${label}`}>
+   <header><span>{label} · {ref.source.kind}</span><button type="button" aria-label={`Open source ${label}`} disabled={disabled} onClick={()=>run(()=>context.open(ref))}>Open source</button><button type="button" aria-label={`Remove source ${label}`} disabled={disabled} onClick={()=>run(()=>context.remove(ref))}>Remove source</button></header>
    <small title={`Revision ${ref.source.sourceRevision} · Captured ${ref.source.capturedAt}`}>Revision {shortRevision(ref.source.sourceRevision)} · {sourceRange(ref)} · Captured {formatCaptured(ref.source.capturedAt)}</small>
    {source&&<pre>{source.preview}{source.previewTruncated?'\nPreview truncated. Open source for the complete capture.':''}</pre>}
-   {state&&state!=='CURRENT'&&<div role="status">{state==='STALE'?'The source has changed.':'The original source is unavailable.'} {ref.keepCaptured?'Using the retained capture.':'Refresh or explicitly keep the retained capture before sending.'}<div className="workbench-source-actions"><button type="button" disabled={disabled||!context.enabled} onClick={()=>run(()=>context.refresh(ref))}>Refresh source</button><button type="button" disabled={disabled||ref.keepCaptured} onClick={()=>run(()=>context.keep(ref))}>Keep captured source</button></div></div>}
+   {state&&state!=='CURRENT'&&<div role="status">{state==='STALE'?'The source has changed.':'The original source is unavailable.'} {ref.keepCaptured?'Using the retained capture.':'Refresh or explicitly keep the retained capture before sending.'}<div className="workbench-source-actions"><button type="button" aria-label={`Refresh source ${label}`} disabled={disabled||!context.enabled} onClick={()=>run(()=>context.refresh(ref))}>Refresh source</button><button type="button" aria-label={`Keep captured source ${label}`} disabled={disabled||ref.keepCaptured} onClick={()=>run(()=>context.keep(ref))}>Keep captured source</button></div></div>}
   </article>;})}</div>
  </section>;
 }
@@ -196,11 +197,14 @@ function WorkbenchDialog({initialTab,snapshot,owner,enabled,candidates,capabilit
  },[memoryRequest]);
  const memoryOpen=Boolean(memoryOwner&&memoryRequest?.key===memoryKey),MemoryReview=memoryReview?.key===memoryKey?memoryReview.Component:undefined;
  const openMemoryReview=memoryOwner?()=>{setMemoryReview(undefined);setMemoryError('');setMemoryRequest({key:memoryKey});}:undefined;
+ const activate=(next:PanelTab)=>{setTab(next);if(next==='sources')persistView('SOURCES');else if(next==='evidence')persistView('EVIDENCE');};
  return <><Modal open title="Sources and evidence" onClose={close} className="workbench-panel">
   <p>Task {owner.threadId} · Workspace {owner.workspaceId??'none'}</p>
-  <nav aria-label="Workbench views"><button type="button" aria-pressed={tab==='request'} onClick={()=>setTab('request')}>Last request</button><button type="button" aria-pressed={tab==='tools'} onClick={()=>setTab('tools')}>Tools</button><button type="button" aria-pressed={tab==='run'} onClick={()=>setTab('run')}>Run</button><button type="button" aria-pressed={tab==='sources'} onClick={()=>{setTab('sources');persistView('SOURCES');}}>Sources</button><button type="button" aria-pressed={tab==='evidence'} onClick={()=>{setTab('evidence');persistView('EVIDENCE');}}>Evidence</button></nav>
-  {error&&<p role="alert">{error}</p>}
-  {memoryOpen&&memoryError?<p role="alert">{memoryError}</p>:memoryOpen&&!MemoryReview&&<p role="status">Loading memory review.</p>}
-  {loadError?<p role="alert">{loadError}</p>:Content?<Content tab={tab} setTab={setTab} snapshot={snapshot} owner={owner} enabled={enabled} candidates={candidates} capabilities={capabilities} selected={selected} evidence={evidence} error={error} api={api} view={view} persistView={persistView} onSelect={onSelect} attach={attach} open={open} openMemoryReview={openMemoryReview} report={report}/>:<p role="status">Loading source views.</p>}
+  <div role="tablist" aria-label="Workbench views">{WB_TABS.map(([id,label],index)=><button key={id} type="button" role="tab" id={`wb-tab-${id}`} aria-selected={tab===id} aria-controls={tab===id?`wb-panel-${id}`:undefined} tabIndex={tab===id?0:-1} autoFocus={tab===id} onClick={()=>activate(id)} onKeyDown={event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const next=event.key==='Home'?0:event.key==='End'?WB_TABS.length-1:(index+(event.key==='ArrowRight'?1:-1)+WB_TABS.length)%WB_TABS.length;activate(WB_TABS[next][0]);(event.currentTarget.parentElement?.children[next] as HTMLButtonElement|undefined)?.focus();}}>{label}</button>)}</div>
+  <div role="tabpanel" id={`wb-panel-${tab}`} aria-labelledby={`wb-tab-${tab}`} tabIndex={0}>
+   {error&&<p role="alert">{error}</p>}
+   {memoryOpen&&memoryError?<p role="alert">{memoryError}</p>:memoryOpen&&!MemoryReview&&<p role="status">Loading memory review.</p>}
+   {loadError?<p role="alert">{loadError}</p>:Content?<Content tab={tab} setTab={setTab} snapshot={snapshot} owner={owner} enabled={enabled} candidates={candidates} capabilities={capabilities} selected={selected} evidence={evidence} error={error} api={api} view={view} persistView={persistView} onSelect={onSelect} attach={attach} open={open} openMemoryReview={openMemoryReview} report={report}/>:<p role="status">Loading source views.</p>}
+  </div>
  </Modal>{memoryOpen&&MemoryReview&&memoryOwner&&<MemoryReview owner={memoryOwner} readOnly close={()=>setMemoryRequest(undefined)}/>}</>;
 }
