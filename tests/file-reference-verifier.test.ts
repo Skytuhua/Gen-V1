@@ -14,7 +14,7 @@ describe('createFileReferenceVerifier', () => {
   afterEach(() => vi.useRealTimers());
 
   it('shares one folder listing across sibling references', async () => {
-    const calls: { folder: string }[] = [];
+    const calls: { folder: string; signal: AbortSignal }[] = [];
     const verifier = verifierWith(calls);
     verifier.request('src/a.ts');
     verifier.request('src/b.ts');
@@ -26,11 +26,11 @@ describe('createFileReferenceVerifier', () => {
   });
 
   it('reports directories as absent and root files with no path param', async () => {
-    const calls: { folder: string }[] = [];
-    const verifier = verifierWith(calls, async folder => { calls.push({ folder }); return listing(['a.ts'], { 'a.ts': 'file' }); });
+    const calls: { folder: string; signal: AbortSignal }[] = [];
+    const verifier = verifierWith(calls);
     verifier.request('package.json');
     await vi.advanceTimersByTimeAsync(0);
-    expect(calls).toEqual([{ folder: '' }]);
+    expect(calls.map(call => call.folder)).toEqual(['']);
     expect(verifier.status('package.json')).toBe('absent');
     const dir = verifierWith(calls, async () => listing(['sub'], { sub: 'directory' }));
     dir.request('sub/file.ts');
