@@ -13,7 +13,7 @@ function hostileTree(levels=18,cycle=false){
  return new TextEncoder().encode(source);
 }
 async function fixture(){const doc=await PDFDocument.create(),page=doc.addPage([300,300]),font=await doc.embedFont(StandardFonts.Helvetica);page.drawText('Source agreement',{x:20,y:270,font,size:12});const name=doc.getForm().createTextField('Name');name.setText('Original');name.addToPage(page,{x:20,y:200,width:200,height:30});return doc.save();}
-async function expensiveText(){const doc=await PDFDocument.create(),page=doc.addPage([200,200]);page.node.set(PDFName.of('Contents'),doc.context.register(doc.context.flateStream('['.repeat(2*1024*1024))));return doc.save();}
+async function expensiveText(){const doc=await PDFDocument.create(),stream=doc.context.register(doc.context.flateStream('['.repeat(15*1024*1024)));for(let index=0;index<200;index++)doc.addPage([200,200]).node.set(PDFName.of('Contents'),stream);return doc.save();}
 const args=toolSchemas.pdf_prepare.parse({resourceId:'source',exportResourceId:'destination',outputPath:'signed.pdf',fields:{Name:'Ada'},signatures:[{kind:'drawn',page:1,x:20,y:20,width:100,height:40,strokes:[[{x:0,y:0},{x:.2,y:.4}],[{x:.7,y:.4},{x:1,y:.1}]]}]});
 
 describe('bounded backend PDF processing',()=>{
