@@ -237,6 +237,7 @@
     "apps/web/src/files/GrantedFiles.tsx",
     "apps/web/src/files/ProjectFiles.tsx",
     "apps/web/src/files/ProjectSearch.tsx",
+    "apps/web/src/files/file-suggestions-api.ts",
     "apps/web/src/files/files.css",
     "apps/web/src/files/project-search-api.ts",
     "apps/web/src/files/useFilesRead.ts",
