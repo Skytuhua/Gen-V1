@@ -1,0 +1,36 @@
+name: Task
+description: File a scoped work item a worker can claim and implement.
+title: "[Task] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: "Each task gets one focused issue with an observable completion. Workers coordinate through [AGENTS.md](https://github.com/skytuhua-org/Gen-V1/blob/main/AGENTS.md): claim the scope in a comment before editing and release the claim when you stop. Keep examples free of credentials, account identifiers and private paths."
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: "The requested result and who it helps, stated so a worker can verify it."
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope (in / out)
+      description: "The exact files, surfaces or behavior in scope, and anything explicitly out of scope."
+      placeholder: "In: ...\nOut: ..."
+    validations:
+      required: true
+  - type: textarea
+    id: completion
+    attributes:
+      label: Completion criteria
+      description: "Checklist of observable conditions that mean the task is done."
+      placeholder: "- [ ] ...\n- [ ] ..."
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies / related issues and PRs
+      description: "Optional. Issues or pull requests this task depends on, duplicates or relates to."
