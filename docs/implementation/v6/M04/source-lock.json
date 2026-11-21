@@ -1,11 +1,11 @@
 {
   "schemaVersion": 3,
   "auditAncestorSha": "4805af4680094d2af48ecf666688e750797e9dda",
-  "executionBaseSha": "161953c713970a3dfa76bb38691c7f803aec2e1c",
+  "executionBaseSha": "26ddf4d16c2fc1196b520d8a46c5441d64d01463",
   "inspectedPaths": [
     {
       "path": "apps/web/src/ContextInspector.tsx",
-      "blobSha": "05cdda14aa98bd5d3cf7ea90ea0e15bed7356270"
+      "blobSha": "ee86b4759bfe8d8ff21fcd9bcfa33705d6fd3d6d"
     },
     {
       "path": "docs/implementation/v3/M04-handoff.md",
@@ -13,39 +13,39 @@
     },
     {
       "path": "docs/implementation/v6/M04/requirements.json",
-      "blobSha": "b44e55554115f2cd08dc9021beccd2a0aee0c198"
+      "blobSha": "3cb9e6128cfde5e608fc9dbd5a7943614f33e42d"
     },
     {
       "path": "package.json",
-      "blobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0"
+      "blobSha": "7b32d8847cba1e1ac53a935f0f1f67f166148a10"
     },
     {
       "path": "packages/contracts/implementation-evidence.ts",
-      "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3"
+      "blobSha": "6851e571feeaf0fdade155011a4604f499383564"
     },
     {
       "path": "packages/contracts/index.ts",
-      "blobSha": "78c6954b62725956a4adbda7b93718966ddb025d"
+      "blobSha": "a9d196f949239a8de432e0faf2e0ecba7d772ce4"
     },
     {
       "path": "packages/contracts/request-context.ts",
-      "blobSha": "90485ab315299e97f96b7b2dc370f0851f7f620f"
+      "blobSha": "0efc0f5312a34743df9fdfd70cc74226b135d204"
     },
     {
       "path": "packages/contracts/tool-effects.ts",
-      "blobSha": "41b6fff1364825122c33761c0bfaac66da03bca0"
+      "blobSha": "1fef4b7309033ba0c637b3f60f587dc2658dfbe0"
     },
     {
       "path": "packages/core/capability-flags.ts",
-      "blobSha": "984030800cd371d70fc20f9c0c7ad076a85a2afa"
+      "blobSha": "7bb6e1e50088bc4d8883c1f9a0b84f7eeee8e895"
     },
     {
       "path": "packages/core/context-compaction.ts",
-      "blobSha": "a3e461f63f8c668e69c766d63b4a150e675e3f2c"
+      "blobSha": "e75ccb44b80f38ece463ce566c65725855c0da0d"
     },
     {
       "path": "packages/core/context-compiler.ts",
-      "blobSha": "7b6f9040160b8440845c256c57bd5aba52f1ca4b"
+      "blobSha": "99b51bcfd066bf78230c9ad525298ef51299831d"
     },
     {
       "path": "packages/core/context-draft-sources.ts",
@@ -53,11 +53,11 @@
     },
     {
       "path": "packages/core/context-relevance.ts",
-      "blobSha": "85ea190bc7c216b76b4364962551e50bba16f4b1"
+      "blobSha": "e0d61c4496c2ed6ad7b09f5b212a0d504a96ec67"
     },
     {
       "path": "packages/core/context-results.ts",
-      "blobSha": "6dd957443ff6ab29f3df61b3f77b8503ebbe2774"
+      "blobSha": "51639268ab6384b40addcb6d454bb9606145010e"
     },
     {
       "path": "packages/core/context-tool-discovery.ts",
@@ -65,35 +65,35 @@
     },
     {
       "path": "packages/core/host-context-projection.ts",
-      "blobSha": "18fffbc82e8de029420d458a21fb30e477c1aa42"
+      "blobSha": "be0bb39b4690467c297d05ede6427766cc656044"
     },
     {
       "path": "packages/core/instruction-manifest.ts",
-      "blobSha": "ca5145c43273a1cb6ebef6d06e4c50c775513de5"
+      "blobSha": "f7e20a57f14205bb42142a071447934f7fd6c416"
     },
     {
       "path": "packages/core/service.ts",
-      "blobSha": "743ad3720f399cb3ee59da61a3f0e62b6d79c558"
+      "blobSha": "0d7ca25334bf98b3ac999c6b5174412250e212be"
     },
     {
       "path": "packages/runtime-hermes/broker.ts",
-      "blobSha": "ccad6e975b0a1e1ccf09f6e8c3bd3d5c9b637327"
+      "blobSha": "1ea53a9e3fbd47169a37fce7619b25f0229461b0"
     },
     {
       "path": "packages/runtime-hermes/index.ts",
-      "blobSha": "a9cfca0adce66ed61120827dbfeab693e333a9a3"
+      "blobSha": "dbd20a1def40530177660f582ab36a67559bfe61"
     },
     {
       "path": "packages/runtime-hermes/worker.py",
-      "blobSha": "1ab855e49b030712b9a0b057739505ccce64c238"
+      "blobSha": "f216c7a1542cbca0980686f844a81b116a1e3457"
     },
     {
       "path": "packages/workspace/repo-map.ts",
-      "blobSha": "0094362e4c128bc19e208618e87c104fec7afd1b"
+      "blobSha": "dfda370100cb5b63a2fe7871de7b360097f6f7dc"
     },
     {
       "path": "scripts/public-source-files.json",
-      "blobSha": "e9acf30533cc04dc028ecebabacb22bf8fd5ab78"
+      "blobSha": "b76321fb783998c030502cb6c5ed96eb4d0dde2d"
     },
     {
       "path": "tests/context-contract-preservation-v6.test.ts",
@@ -101,13 +101,13 @@
     },
     {
       "path": "tests/e2e/usage-context-fixture.tsx",
-      "blobSha": "a50c07385bda90f24f8b1f569309b79590ef3a58"
+      "blobSha": "33dcc53a93fc2075eee0201463ec9c2b2213cd94"
     }
   ],
   "publicContracts": [
     {
       "name": "implementation-evidence",
-      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "version": "6851e571feeaf0fdade155011a4604f499383564",
       "testIds": [
         "tests/research-baseline.test.ts",
         "tests/m01-m02-compatibility.test.ts"
@@ -115,7 +115,7 @@
     },
     {
       "name": "capability-flags",
-      "version": "984030800cd371d70fc20f9c0c7ad076a85a2afa",
+      "version": "7bb6e1e50088bc4d8883c1f9a0b84f7eeee8e895",
       "testIds": [
         "tests/tool-authority-v3.test.ts",
         "tests/m01-m02-compatibility.test.ts",
@@ -124,7 +124,7 @@
     },
     {
       "name": "tool-effects",
-      "version": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "version": "1fef4b7309033ba0c637b3f60f587dc2658dfbe0",
       "testIds": [
         "tests/tool-effects-v3.test.ts",
         "tests/effect-recovery-v3.test.ts"
@@ -132,7 +132,7 @@
     },
     {
       "name": "request-context",
-      "version": "335de718a510f29e32dc6bd227a9bcec9afcd7bb",
+      "version": "0efc0f5312a34743df9fdfd70cc74226b135d204",
       "testIds": [
         "tests/context-compiler-v3.test.ts",
         "tests/context-results-v3.test.ts",
@@ -142,7 +142,5 @@
     }
   ],
   "acceptedDependencyCommits": [],
-  "approvedDrift": [],
-  "integratedMainSha": "6ece2b3a46ee5d4b4bdc0b6389be78fe352c34fa",
-  "sourceLockDigest": "8f0c894ee709091d3e614249f80422f62a6030a2a8f0437dd1914ba8caca1483"
+  "approvedDrift": []
 }

@@ -17,7 +17,7 @@ export interface VerificationExecutorSession {
   readonly browserProfileDir: string | null;
   close(): Promise<void>;
 }
-export interface OpenVerificationExecutor extends VerificationExecutionFence {
+interface OpenVerificationExecutor extends VerificationExecutionFence {
   readonly executionId: string;
   readonly binding: VerificationExecutorBinding;
 }

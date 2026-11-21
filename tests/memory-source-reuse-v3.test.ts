@@ -31,13 +31,13 @@ it('reuses exact captures even at the retained-source limit',async()=>{
 });
 
 it.each([{content:'Use PostgreSQL for project persistence.'},{createdAt:'2020-01-01T00:00:00.000Z'},{role:'assistant'}])('captures a new exact revision when source evidence changes: %j',async patch=>{
- const f=await fixture();f.store.internal('fixture-source-edit','thread',()=>f.store.put('message','source','thread',{...f.store.get<any>('message','source'),...patch}));
+ const f=await fixture();f.store.internal('fixture-source-edit','thread',()=>f.store.put('message','source','thread',{...f.store.get<Record<string, unknown>>('message','source'),...patch}));
  const ref=f.memory.captureMessage(f.access,'source');expect(ref).not.toEqual(f.ref);expect(ref.sourceRevision).not.toBe(f.ref.sourceRevision);
  expect(f.memory.captureMessage(f.access,'source')).toEqual(ref);expect(f.store.all('projectMemorySource')).toHaveLength(2);
 });
 
 it('keeps identical text from different message IDs and approved source owners distinct',async()=>{
- const f=await fixture(),original=f.store.get<any>('message','source');
+ const f=await fixture(),original=f.store.get<Record<string, unknown>>('message','source');
  f.act({action:'configure',enabled:true,sourceThreadIds:['thread','other'],baseRevision:1});
  f.store.internal('fixture-other-evidence',null,()=>{
   f.store.put('message','second','thread',{...original,id:'second'});
@@ -50,7 +50,7 @@ it('keeps identical text from different message IDs and approved source owners d
 });
 
 it('does not reuse a prior account capture after the source thread changes account ownership',async()=>{
- const f=await fixture();f.store.internal('fixture-account-change','thread',()=>f.store.put('thread','thread','thread',{...f.store.get<any>('thread','thread'),accountId:'next-account'}));
+ const f=await fixture();f.store.internal('fixture-account-change','thread',()=>f.store.put('thread','thread','thread',{...f.store.get<Record<string, unknown>>('thread','thread'),accountId:'next-account'}));
  const access=await f.memory.access('project','thread');f.act({action:'configure',enabled:true,sourceThreadIds:['thread'],baseRevision:0},access);
  const ref=f.memory.captureMessage(access,'source');expect(ref).not.toEqual(f.ref);expect(f.store.get<MemorySourceSnapshot>('projectMemorySource',digest(ref))?.accountId).toBe('next-account');
  expect(f.memory.captureMessage(access,'source')).toEqual(ref);expect(f.memory.sourceAvailable(access,f.ref)).toBe(false);
@@ -58,9 +58,9 @@ it('does not reuse a prior account capture after the source thread changes accou
 
 it('does not reuse retained evidence after the owning thread moves to another project',async()=>{
  const f=await fixture();f.store.internal('fixture-project-change','thread',()=>{
-  f.store.put('workspaceProject','next-project',null,{...f.store.get<any>('workspaceProject','project'),id:'next-project'});
-  f.store.put('workspaceProjectRoot','next-project',null,f.store.get<any>('workspaceProjectRoot','project'));
-  f.store.put('thread','thread','thread',{...f.store.get<any>('thread','thread'),projectId:'next-project'});
+  f.store.put('workspaceProject','next-project',null,{...f.store.get<Record<string, unknown>>('workspaceProject','project')!,id:'next-project'});
+  f.store.put('workspaceProjectRoot','next-project',null,f.store.get<Record<string, unknown>>('workspaceProjectRoot','project'));
+  f.store.put('thread','thread','thread',{...f.store.get<Record<string, unknown>>('thread','thread'),projectId:'next-project'});
  });
  const access=f.memory.currentAccess('next-project','thread');f.act({action:'configure',enabled:true,sourceThreadIds:['thread'],baseRevision:0},access);
  const ref=f.memory.captureMessage(access,'source');expect(ref).not.toEqual(f.ref);

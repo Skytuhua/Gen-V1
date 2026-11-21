@@ -118,6 +118,20 @@ describe('documentation link check',()=>{
       expect(result.output).toContain('1 broken');
     }finally{bench.cleanup();}
   });
+  it('matches the exact case of rendered custom anchors and heading fragments',()=>{
+    const bench=fixture({
+      'guide.md':'# Run Book\n\n<a id="Build-API"></a>\n<a name="Legacy-ID"></a>\n',
+      'README.md':'[exact](guide.md#Build-API), [escaped](guide.md#Legacy%2DID), [bad id](guide.md#build-api), [bad name](guide.md#legacy-id), [heading](guide.md#run-book), [bad heading](guide.md#Run-Book).\n',
+    });
+    try{
+      const result=bench.run();
+      expect(result.status).toBe(1);
+      expect(result.output).toContain('no heading or anchor "#build-api"');
+      expect(result.output).toContain('no heading or anchor "#legacy-id"');
+      expect(result.output).toContain('no heading or anchor "#Run-Book"');
+      expect(result.output).toContain('3 broken, 0 warnings');
+    }finally{bench.cleanup();}
+  });
   it('does not collect Markdown after the closing line of a chained raw comment',()=>{
     const bench=fixture({
       'README.md':'[phantom](guide.md#phantom), [real](guide.md#real), [custom](guide.md#custom)\n',
@@ -244,5 +258,18 @@ it('keeps rendered anchors after a comment terminator without indexing indented 
     for(const anchor of ['example-one','example-two'])expect(result.output).toContain('no heading or anchor "#'+anchor+'"');
     for(const anchor of ['single','multiple'])expect(result.output).not.toContain('no heading or anchor "#'+anchor+'"');
     expect(result.output).toContain('2 broken');
+  }finally{bench.cleanup();}
+});
+
+it('does not count an ATX heading again before a thematic break',()=>{
+  const bench=fixture({
+    'guide.md':'# Build\n---\n\n# Build\n',
+    'README.md':'[real duplicate](guide.md#build-1) [phantom anchor](guide.md#-build)\n',
+  });
+  try{
+    const result=bench.run();
+    expect(result.status,result.output).toBe(1);
+    expect(result.output).toContain('no heading or anchor "#-build"');
+    expect(result.output).not.toContain('no heading or anchor "#build-1"');
   }finally{bench.cleanup();}
 });

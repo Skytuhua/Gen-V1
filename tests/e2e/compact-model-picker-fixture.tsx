@@ -1,10 +1,12 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, type SetStateAction } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ModelPicker } from '../../apps/web/src/ModelPicker';
 import { Modal } from '../../packages/ui-shell/Modal';
 import { useModalRegion } from '../../apps/web/src/focus';
 import type { ModelInfo } from '../../packages/contracts';
 import '../../apps/web/src/styles.css';
+
+declare global { interface Window { updateModelCatalog: (models: SetStateAction<ModelInfo[]>) => void } }
 
 const catalog: ModelInfo[] = [
   { id: 'openai/alpha', provider: 'openai', name: 'Alpha', thinkingLevels: ['low', 'high', 'xhigh', 'ultra', 'high'] },
