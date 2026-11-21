@@ -380,4 +380,37 @@ describe('aggregate and manifest',()=>{
     expect(log).not.toContain('SYNTHETIC_UNTERMINATED_OTHER_PIPE');
   });
 
+  it('redacts an ANSI-colored credential label assembled from child chunks',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("pa\x1b[31mss");setTimeout(()=>process.stdout.write("\x1b[0mword: ANSI_PASSWORD_CANARY_7341\n"),50);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('password: [REDACTED]');
+    expect(log).not.toContain('ANSI_PASSWORD_CANARY_7341');
+  });
+
+  it('recognizes a colored PEM start delimiter before suppressing the body',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("-----BE\x1b[36mGIN PRIVATE KEY-----\nANSI_PEM_CANARY_7342\n");setTimeout(()=>process.stdout.write("-----END PRIVATE KEY-----\nafter\n"),50);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('[REDACTED PRIVATE KEY]');
+    expect(log).toContain('after\n');
+    expect(log).not.toContain('ANSI_PEM_CANARY_7342');
+  });
+
+  it('suppresses all later child output when unknown controls could hide a key delimiter',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\npassword\x1b[=UNSAFE_CONTROL_CANARY_7343\n");setTimeout(()=>process.stderr.write("FOLLOW_ON_CANARY_7343\n"),50);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('[REDACTED UNSAFE CONTROL OUTPUT]');
+    expect(log).not.toContain('UNSAFE_CONTROL_CANARY_7343');
+    expect(log).not.toContain('FOLLOW_ON_CANARY_7343');
+  });
+
 });
