@@ -2,6 +2,7 @@ import { createRequire } from 'node:module';
 import { delimiter, dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isOfficialRuntimeProviderId, type OfficialRuntimeProviderId } from '../contracts/connections.ts';
+import { networkProxyChildEnv } from '../core/network-proxy-transport.ts';
 import { HarnessError } from '../contracts/index.ts';
 
 export type OfficialProvider = OfficialRuntimeProviderId;
@@ -44,5 +45,8 @@ export function officialRuntimeEnvironment(dataDir: string, provider: OfficialPr
     if (ceiling.includes(delimiter)) throw new HarnessError('OFFICIAL_WORKSPACE_UNSUPPORTED', `Cursor storage path cannot contain "${delimiter}". Choose another storage folder.`);
     Object.assign(env, { GIT_CEILING_DIRECTORIES: ceiling, GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: nullFile, GIT_CONFIG_SYSTEM: nullFile });
   } else throw new Error('Unsupported official runtime provider.');
+  // #1531 T03: profile proxy policy reaches CLIs via env (never argv); a set
+  // policy overrides inherited ambient vars, an unset policy leaves env clean.
+  Object.assign(env, networkProxyChildEnv());
   return env;
 }

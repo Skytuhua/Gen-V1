@@ -1,4 +1,5 @@
 import {Service,type ServiceOptions} from '../../packages/core/service.ts';
+import { networkProxyFetch } from '../../packages/core/network-proxy-transport.ts';
 import {accountResolver} from '../../packages/core/accounts.ts';
 import type {Store} from '../../packages/storage/store.ts';
 import type {Message,RuntimeAdapter} from '../../packages/contracts/index.ts';
@@ -33,7 +34,7 @@ export function createHermesService(store:Store,native:RuntimeAdapter,effectOpti
  const library=new HermesSourceLibrary({store,source:{request:(method,params)=>runtime.sourceRequest(method,params)}});
  const packagedPython=fileURLToPath(new URL('../../hermes-python/python.exe',import.meta.url));
  integrations=createIntegrationHost({store,workspace:projects.workspace,runtime,nodeExecutable:process.execPath,...(existsSync(packagedPython)?{pythonExecutable:packagedPython}:{}),resolveProjectRoot:async(scope,thread,project)=>(await projects.binding(project.id,thread?.id??scope.threadId)).path});
- const backgroundAuth=new GitHubAuth(store.dataDir);
+ const backgroundAuth=new GitHubAuth(store.dataDir,networkProxyFetch);
  service=new Service(store,runtime,{...effectOptions,approvedWriteHooks:true,background:{gate:hermesModelCapacity,
   // M03: the policy decides; without an operator-approved profile, trust and
   // installed backend the command stays HOLD_EXECUTION_PROFILE. No fallback.

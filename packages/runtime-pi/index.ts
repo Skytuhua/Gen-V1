@@ -1,4 +1,5 @@
 import { spawn, type ChildProcess } from "node:child_process";
+import { networkProxyChildEnv } from '../core/network-proxy-transport.ts';
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
@@ -64,6 +65,7 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
   function workerEnvironment(): NodeJS.ProcessEnv {
     const env: NodeJS.ProcessEnv = { ELECTRON_RUN_AS_NODE: "1", PI_OFFLINE: "1" };
     for (const name of WORKER_ENV) if (process.env[name] !== undefined) env[name] = process.env[name];
+    Object.assign(env, networkProxyChildEnv()); // #1531 T03: profile policy wins over inherited env
     return env;
   }
   async function spawnWorker(authority?: RunAuthority): Promise<Worker> {
