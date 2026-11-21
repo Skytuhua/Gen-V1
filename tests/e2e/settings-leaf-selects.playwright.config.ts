@@ -2,7 +2,7 @@ import {defineConfig} from '@playwright/test';
 import {resolve} from 'node:path';
 
 export default defineConfig({
-  testDir: '.', testMatch: ['settings-leaf-selects.spec.ts', 'settings-controls.spec.ts', 'settings-loading.spec.ts'], workers: 1,
+  testDir: '.', testMatch: ['settings-leaf-selects.spec.ts', 'settings-controls.spec.ts', 'settings-loading.spec.ts', 'network-proxy-settings.spec.ts'], workers: 1,
   // The first host page includes cold Vite source transforms before React mounts.
   expect: {timeout: 15_000},
   outputDir: process.env.GEN_SETTINGS_LEAF_SELECTS_OUTPUT ?? '.harness-settings-leaf-selects',

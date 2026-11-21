@@ -116,3 +116,8 @@
 .settings-shortcuts-keys { display:flex;flex:0 0 auto;gap:4px; }
 .settings-shortcuts-keys kbd { padding:1px 5px;border:1px solid var(--border);border-radius:4px;font-size:11px;color:var(--muted);white-space:nowrap; }
 .settings-shortcuts-label small { display:block;margin-top:1px;font-size:12px;line-height:1.4;color:var(--muted); }
+
+/* #1531 T05 — Network proxy card */
+.network-proxy-card>h2 { display:flex;align-items:center;gap:8px; }
+.network-proxy-status { min-height:18px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--border);padding-bottom:10px;transition:opacity var(--ui-motion-hover) var(--ui-ease-enter); }
+@media (prefers-reduced-motion:reduce) { .network-proxy-status { transition:none; } }
