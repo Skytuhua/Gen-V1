@@ -13,7 +13,7 @@ describe('overlay entry motion', () => {
   });
   afterAll(async () => {await browser?.close();});
 
-  for (const width of [1024, 1440]) it(`keeps cards opaque when focus interrupts an exit at ${width}px`, async () => {
+  for (const width of [1024, 1440]) it(`retargets card entry when focus interrupts an exit at ${width}px`, async () => {
     const page = await browser.newPage({viewport: {width, height: 1000}});
     try {
       await page.setContent('<html data-theme="dark"><body></body></html>');
@@ -47,7 +47,14 @@ describe('overlay entry motion', () => {
       for (const entry of entries) {
         expect(entry.exitingOpacity, entry.className).toBeGreaterThan(0);
         expect(entry.exitingOpacity, entry.className).toBeLessThan(1);
-        expect(entry.samples, entry.className).toEqual(Array(7).fill('1'));
+        if (entry.className === 'thread-hover-card') {
+          // C7 tooltip contract: re-enter fades 0→1 over 160ms.
+          expect(entry.samples[0], entry.className).toBe('0');
+          expect(entry.samples[entry.samples.length - 1], entry.className).toBe('1');
+          expect(entry.samples.every((value, index) => index === 0 || Number(value) >= Number(entry.samples[index - 1])), entry.className).toBe(true);
+        } else {
+          expect(entry.samples, entry.className).toEqual(Array(7).fill('1'));
+        }
       }
       await page.emulateMedia({reducedMotion: 'reduce'});
       const reduced = await page.evaluate(() => ['thread-hover-card', 'task-node-popover'].flatMap(className => ['open', 'closed'].map(state => {
@@ -55,14 +62,15 @@ describe('overlay entry motion', () => {
         card.className = className;
         card.dataset.state = state;
         document.body.append(card);
-        const style = getComputedStyle(card), result = {animation: style.animationName,
+        const style = getComputedStyle(card), result = {className, animation: style.animationName,
           transitionMs: Math.max(...style.transitionDuration.split(',').map(value => parseFloat(value) * 1000))};
         card.remove();
         return result;
       })));
+      const reducedAnimations: Record<string, string> = {'thread-hover-card': 'ui-popover-fade', 'task-node-popover': 'none'};
       for (const style of reduced) {
-        expect(style.animation).toBe('none');
-        expect(style.transitionMs).toBeLessThanOrEqual(80);
+        expect(style.animation, style.className).toBe(reducedAnimations[style.className]);
+        expect(style.transitionMs, style.className).toBeLessThanOrEqual(80);
       }
     } finally {await page.close();}
   });

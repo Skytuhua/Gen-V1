@@ -1,5 +1,5 @@
 import {expect, test, type Page} from '@playwright/test';
-import {expectOpaqueEntry, expectVisibleKeyboardFocus, pauseNextEntry} from './overlay-motion-assertions';
+import {expectTooltipEntry, expectVisibleKeyboardFocus, pauseNextEntry} from './overlay-motion-assertions';
 
 const trigger = (page: Page) => page.getByRole('button', {name: 'Thread trigger', exact: true});
 const card = (page: Page) => page.getByRole('dialog', {name: /^Thread details:/});
@@ -8,21 +8,22 @@ async function fixture(page: Page, query = '') {
 }
 async function open(page: Page) {await trigger(page).focus(); await expect(card(page)).toBeVisible();}
 
-for (const width of [1024, 1440]) test(`thread focus and hover cards stay opaque throughout entry at ${width}px`, async ({page}) => {
+for (const width of [1024, 1440]) test(`thread focus and hover cards enter at tooltip timing at ${width}px`, async ({page}) => {
   await page.setViewportSize({width, height: 1000}); await fixture(page);
   await pauseNextEntry(page, '.thread-hover-card[data-state="open"]');
   await page.keyboard.press('Tab'); await expectVisibleKeyboardFocus(trigger(page));
-  await expectOpaqueEntry(card(page));
+  await expectTooltipEntry(card(page));
   await trigger(page).press('Escape'); await expect(card(page)).toHaveCount(0);
   await page.getByRole('button', {name: 'Next control'}).focus();
   await pauseNextEntry(page, '.thread-hover-card[data-state="open"]'); await trigger(page).hover();
-  await expect(card(page)).toBeVisible(); await expectOpaqueEntry(card(page));
+  await expect(card(page)).toBeVisible(); await expectTooltipEntry(card(page));
 });
 
 test('350ms dwell, 120ms pointer transfer, exact PR action and no pointer autofocus', async ({page}) => {
   await fixture(page); await page.clock.install(); await page.clock.pauseAt(new Date()); await trigger(page).hover();
   await page.clock.runFor(349); await expect(card(page)).toHaveCount(0);
   await page.clock.runFor(1); await expect(card(page)).toBeVisible(); await expect(trigger(page)).not.toBeFocused();
+  await card(page).evaluate(node => Promise.all(node.getAnimations().map(animation => animation.finished)));
   const anchor = (await trigger(page).boundingBox())!, popup = (await card(page).boundingBox())!;
   expect(popup.y - anchor.y - anchor.height).toBeCloseTo(8, 0);
   await page.mouse.move(popup.x + 20, popup.y - 4); await page.clock.runFor(119); await expect(card(page)).toBeVisible();
@@ -136,7 +137,7 @@ for (const [theme, width, height, zoom, edge] of [
     await open(page);
     const geometry = await card(page).evaluate(node => {const r = node.getBoundingClientRect(), style = getComputedStyle(node), title = getComputedStyle(node.querySelector('h2')!), facts = getComputedStyle(node.querySelector('dl')!); return {left:r.left, top:r.top, right:r.right, bottom:r.bottom, width:r.width, height:r.height, padding:style.padding, title:title.fontSize, facts:facts.fontSize, gap:getComputedStyle(node.querySelector('.thread-hover-body')!).gap, animation:style.animationName, overflow:node.scrollWidth > node.clientWidth + 1};});
     expect(geometry.left).toBeGreaterThanOrEqual(7); expect(geometry.top).toBeGreaterThanOrEqual(49); expect(geometry.right).toBeLessThanOrEqual(width - 7); expect(geometry.bottom).toBeLessThanOrEqual(height - 7); expect(geometry.overflow).toBe(false);
-    expect(geometry.padding).toBe('12px'); expect(geometry.title).toBe('16px'); expect(geometry.facts).toBe('12px'); expect(geometry.gap).toBe('8px'); expect(geometry.animation).toBe('none');
+    expect(geometry.padding).toBe('12px'); expect(geometry.title).toBe('16px'); expect(geometry.facts).toBe('12px'); expect(geometry.gap).toBe('8px'); expect(geometry.animation).toBe('ui-popover-fade');
     if (width === 1120) {
       expect(geometry.width).toBe(304);
       expect(await card(page).evaluate(node => node.scrollHeight <= node.clientHeight + 1)).toBe(true);
