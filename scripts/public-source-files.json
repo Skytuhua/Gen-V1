@@ -131,6 +131,7 @@
     "apps/web/src/ProjectContextSurface.tsx",
     "apps/web/src/ProjectMemoryReview.tsx",
     "apps/web/src/ProjectPicker.tsx",
+    "apps/web/src/QuickAsk.tsx",
     "apps/web/src/RelationshipGraph.tsx",
     "apps/web/src/SavedDrafts.tsx",
     "apps/web/src/SavedLayoutChooser.tsx",
