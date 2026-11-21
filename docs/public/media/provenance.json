@@ -10,11 +10,11 @@
   "method": {
     "frontend": "Unmodified public DesktopEntry/App, served by an isolated loopback Vite fixture",
     "reference": [
-      "scripts/capture-repository-screenshots.ts",
+      "scripts/capture-public-media.ts",
       "tests/e2e/compact-tools-cleanup.spec.ts",
       "tests/e2e/task-interface-fixture.ts"
     ],
-    "screenshots": "Unedited application captures; desktop 1440 x 1200, narrow 390 x 844. The narrow view shows project context expanded.",
+    "screenshots": "Unedited application captures; desktop 1440 x 1200, narrow 390 x 844. The narrow view shows the project overview collapsed. See screenshots for their source commit.",
     "videos": "Uninterrupted actual UI recordings at 1440 x 1000. Trimmed loading lead-in; 100-pixel caption band added outside UI; silent MP4/H.264 and WebM/VP9 copies.",
     "posters": "Frames extracted from the encoded UI recordings.",
     "animatedPreview": "Four-second silent excerpt, scaled and palette-optimized.",
@@ -23,41 +23,41 @@
   "files": [
     {
       "file": "models.png",
-      "bytes": 82682,
-      "sha256": "4d1e7a19fca3ba39cd66a39ab21494e48930852021455ea1ce161b4b51cfeafe",
+      "bytes": 125041,
+      "sha256": "5e05158f619a91ff5ee69c4d8acdf6e42b67352bcd83f809f388d325ac83eff4",
       "width": 1440,
       "height": 1200
     },
     {
       "file": "narrow.png",
-      "bytes": 36267,
-      "sha256": "ebd1178597ec66208da929986ab1a505d2c3d2dff677ec0541c949cf90e3af5e",
+      "bytes": 44927,
+      "sha256": "50d12c1f66fc646d2a6551c3043f922bedc1bbe67d903ba6e4e786cd155db71e",
       "width": 390,
       "height": 844
     },
     {
       "file": "plan-context.png",
-      "bytes": 93878,
-      "sha256": "02bdbb6fbf45e0387bff310f891e5f7de61fd5ca86b786dcf0f3aeadadb1b6c6",
+      "bytes": 139705,
+      "sha256": "523811817d194c0a1cac929e619275820ef0c574ebd0cb4fe1f5df6dac39c83f",
       "width": 1440,
       "height": 1200
     },
     {
       "file": "projects.png",
-      "bytes": 90321,
-      "sha256": "6350e296992469abb4afeb8446b610bc1fd170be6aa5a58904a0dc3066a6fcc5",
+      "bytes": 112293,
+      "sha256": "ac19d9251e67ce213c672f72f1ff672f223f46393ea14f867c95d94a7bb4d561",
       "width": 1440,
       "height": 1200
     },
     {
       "file": "README.md",
-      "bytes": 3907,
-      "sha256": "48a56eff9870d590f7e80b649bec3e027c2dcf403dcf28b4a842e05d2702df05"
+      "bytes": 4222,
+      "sha256": "1d1fd8113918a2dc6c50b8fd3bab60a7152588b355068c4d271ca0a748d8b863"
     },
     {
       "file": "skills.png",
-      "bytes": 95614,
-      "sha256": "95d6bc9fe9a12f7c4ca6523fb3c07835ab11262349f72995a9e93dcc80ac2100",
+      "bytes": 135213,
+      "sha256": "4a60a836651b647c69cedf8ae224b571490fff82952e239e3d696d23aa8ecc68",
       "width": 1440,
       "height": 1200
     },
@@ -108,15 +108,15 @@
     },
     {
       "file": "workspace-dark.png",
-      "bytes": 83251,
-      "sha256": "9060b1617761637be3c15f76f43db38b4c630df0bbfa78c1c949286000b4c346",
+      "bytes": 107958,
+      "sha256": "a889d4a29a77c3de60818e3f682f54c5ee5cbd4da83b6383f1ee0b3b9d704843",
       "width": 1440,
       "height": 1200
     },
     {
       "file": "workspace-light.png",
-      "bytes": 78690,
-      "sha256": "2bf9091d982081616ffc6816b3e46297c58ec642bdcfaf6e9538d9f55f4b56c7",
+      "bytes": 107334,
+      "sha256": "d729f25afc1372032eb0cb43b22f4793e8b0dd897bae139bb9e85e69a632c2c4",
       "width": 1440,
       "height": 1200
     },
@@ -156,5 +156,23 @@
       "codec": "vp9",
       "durationSeconds": 60.0
     }
-  ]
+  ],
+  "screenshots": {
+    "source": {
+      "repository": "https://github.com/Skytuhua/Gen-V1",
+      "commit": "26ddf4d16c2fc1196b520d8a46c5441d64d01463",
+      "version": "0.6.5 source"
+    },
+    "capturedAtUtc": "2026-11-20T00:01:59.072Z",
+    "files": [
+      "workspace-dark.png",
+      "workspace-light.png",
+      "models.png",
+      "skills.png",
+      "plan-context.png",
+      "projects.png",
+      "narrow.png"
+    ],
+    "method": "scripts/capture-public-media.ts: unmodified public DesktopEntry/App served by the root Vite config with the tests/e2e task-interface fixture and authored API responses. External requests blocked. Desktop 1440 x 1200, narrow 390 x 844, en-US, America/Los_Angeles, reduced motion."
+  }
 }

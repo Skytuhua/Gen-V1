@@ -2730,6 +2730,7 @@
     "scripts/build-task-design-review.mjs",
     "scripts/build-widgets.mjs",
     "scripts/build-windows-credential-lease.ts",
+    "scripts/capture-public-media.ts",
     "scripts/capture-repository-screenshots.ts",
     "scripts/capture-ui/browser-data.ts",
     "scripts/capture-ui/helpers.ts",

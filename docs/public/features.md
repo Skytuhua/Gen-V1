@@ -42,7 +42,7 @@ Read the [connection reference](../subscription-connections.md) before relying o
 
 The original Hermes engine supplies conversation execution, skill tools, `/learn`, background review and curation. Saved skills have visible instructions, files and revision history. Approval preferences and protected or disabled skills remain part of the host’s authority checks.
 
-![The Skills & learning pane inside Settings → Skills & Integrations, showing an authored sample procedure](media/skills.png)
+![Skills & Integrations settings with an authored sample procedure](media/skills.png)
 
 Learned text does not grant permissions. Review skill changes and consequential actions before accepting them.
 
