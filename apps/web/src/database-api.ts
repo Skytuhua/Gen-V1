@@ -22,3 +22,17 @@ export const testConnection = async (input: ConnectionInput | { id: string }): P
 	}));
 	return read<ConnectionTestResult>(response);
 };
+
+export interface ThreadDatabases { connections: DatabaseConnectionV1[]; attachments: DatabaseAttachmentV1[] }
+export const listThreadDatabases = (threadId: string) =>
+	authenticated(() => fetch(`/api/threads/${threadId}/databases`, { credentials: 'same-origin', cache: 'no-store' })).then(read<ThreadDatabases>);
+export const attachDatabase = (threadId: string, connectionId: string, writable = false) => command('database.attach', { connectionId, writable }, threadId);
+export const detachDatabase = (threadId: string, attachmentId: string) => command('database.detach', { attachmentId }, threadId);
+import type { DatabaseQueryResultV1, DatabaseSchemaV1 } from '../../../packages/contracts/database.ts';
+export const fetchSchema = (threadId: string, attachmentId: string, refresh = false) =>
+	authenticated(() => fetch(`/api/threads/${threadId}/databases/${attachmentId}/schema${refresh ? '?refresh=true' : ''}`, { credentials: 'same-origin', cache: 'no-store' })).then(read<DatabaseSchemaV1>);
+export interface QueryRunResult { requestId: string; dataId: string; result: DatabaseQueryResultV1 }
+export const runQuery = (threadId: string, attachmentId: string, sql: string, limit: number, requestId: string) =>
+	authenticated(() => fetch(`/api/threads/${threadId}/databases/${attachmentId}/query`, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'x-harness-csrf': csrfToken }, body: JSON.stringify({ sql, limit, requestId }) })).then(read<QueryRunResult>);
+export const cancelQuery = (threadId: string, attachmentId: string, requestId: string) =>
+	authenticated(() => fetch(`/api/threads/${threadId}/databases/${attachmentId}/query/${requestId}/cancel`, { method: 'POST', credentials: 'same-origin', headers: { 'x-harness-csrf': csrfToken } })).then(read<{ cancelled: boolean }>);
