@@ -5,7 +5,7 @@
 - Feature: batch 6, item 6; size Medium; repository `skytuhua-org/Gen-V1`.
 - Revision: 1, 2026-11-21. Baseline: `main` at `e883ac0327c834120d89c3697dec7380a342ba4d`, fetched and verified against `origin/main`.
 - Status: researched design and execution plan only. No feature implementation or feature verification is included in this change.
-- Publication: a docs-only branch and source-manifest entry are authorized. No issue or PR is to be opened for this assignment; no existing issue/PR is asserted. Issue-body publication, attachment, review and receiver ACK are not claimed. Before later implementation, coordinate ownership and publish the complete accepted plan under AGENTS.md when authorized.
+- Publication: the canonical GitHub issue labeled `feature` and `medium` carries this complete plan in its body, with a SHA-pinned link to this file; this file lands through a focused docs-only PR left for repository reviewers. No earlier issue or PR for this feature was found. Receiver ACK is not yet requested.
 - Provenance: user requirements; inspected baseline files below; Microsoft Edge responsive viewport and Electron WebContentsView documentation in REFERENCES. All new names below are explicitly proposed, not existing APIs.
 - Conventions: the baseline contains only one file in `docs/agent-plans/`, `worker-1-documents-graph-decisions.md`. It was inspected along with its `source`-only manifest entry; two or three examples do not exist at this baseline. Use executable tasks, explicit evidence boundaries and existing UI motion conventions rather than copying its unrelated assignments.
 
@@ -186,7 +186,7 @@ Docs publication checks: stage the new Markdown so the git-tracked-link checker 
 | A08 | Latest request wins; stale/error state is honest; explicit/geometry retry works; no busy loop | T02–T04 |
 | A09 | Detached browser, security policy, M06 and automation controls unchanged; no emulation or new privilege | T01–T04 |
 | A10 | Unit/e2e results distinguished from Windows native evidence; front end team receives finished artifacts | T04, T05 |
-| A11 | Complete plan and source-only manifest entry; docs/manifest checks; isolated pushed docs branch, no PR/issue opened | Docs publication, outside future implementation DAG |
+| A11 | Complete plan in the canonical issue body and this file; source-only manifest entry; docs/manifest checks pass; docs-only PR left for repo review | Docs publication, outside future implementation DAG |
 
 Release gate: A01–A10 all evidenced and front end review requested; no unsupported claims based on mocks. Every in-scope requirement and exclusion maps above; T01→T02→T03→T04→T05 has no parallel overlapping file scopes. This docs change satisfies only planning/publication, not these future feature gates.
 
@@ -194,9 +194,9 @@ Release gate: A01–A10 all evidenced and front end review requested; no unsuppo
 
 - Researched/decided: baseline code paths, Fit-first session-only ownership, authoritative main sizing within measured slot, zoom-aware actual readout, centered gutters, unavailable/fallback/error rules, visual/motion and accessibility design.
 - Implemented feature: nothing. Feature unit/e2e/native/visual checks: NOT RUN. No feature screenshot exists; visual design is unverified until T04.
-- Current owner/scope: docs planning worker only, branch named `devin/<timestamp>-browser-width-presets-plan`; exact branch and final immutable SHA are reported at publication, not fabricated here. T01–T05 NOT_STARTED; front end receiver ACK not requested yet because there is no finished implementation.
+- Current owner/scope: docs planning worker only; the plan file is published on branch `devin/1795256663-browser-width-presets-plan` through a docs-only PR, and the issue links it at a pinned commit. T01–T05 NOT_STARTED; front end receiver ACK not requested yet because there is no finished implementation.
 - Risks/pending: native DIP quantization vs page viewport metrics, extreme toolbar density/coarse-pointer arrangement, stale IPC ordering, and real Windows compositor behavior. T02/T04 must prove these cases. External public test-page availability and Windows verifier access are prerequisites for native evidence, not reasons to weaken browser network restrictions.
-- Integration unknown: current GitHub issue/PR work was not surveyed; no issue was opened or modified under the explicit docs-only/no-issue request. Do not claim AGENTS issue publication or HANDOFF_COMPLETE; this is a retrievable branch artifact awaiting authorized review, not an acknowledged implementation handoff.
+- Integration: open and closed issues/PRs were searched for overlapping browser width or responsive preview work before publication; none found. This planning session claims no implementation scope and does not implement.
 - Next action after plan acceptance: an authorized implementing worker executes T01 from the pinned baseline or explicitly reconciles a newer main, with complete issue/journal coordination when authorized. Do not begin feature implementation in this planning session.
 
 ## REFERENCES
