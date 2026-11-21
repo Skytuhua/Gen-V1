@@ -341,7 +341,8 @@ describe('aggregate and manifest',()=>{
     expect(log).toContain('before\n');
     expect(log).toContain('[REDACTED PRIVATE KEY]');
     expect(log).toContain('after\n');
-    expect(log).toContain('status -----END RSA PRIVATE KEY-----');
+    // While stdout owns the open key, other-pipe bytes stay suppressed.
+    expect(log).not.toContain('status -----END RSA PRIVATE KEY-----');
     expect(log).not.toContain('SYNTHETIC_PEM_KEY_A');
     expect(log).not.toContain('SYNTHETIC_PEM_KEY_B');
   });
@@ -353,6 +354,18 @@ describe('aggregate and manifest',()=>{
     expect(result.status).toBe('PASS');
     const lines=readFileSync(result.artifact,'utf8').trimEnd().split('\n').sort();
     expect(lines).toEqual(['left-half','right']);
+  });
+
+
+  it('does not disclose a PEM body emitted on the opposite pipe',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("-----BEGIN PRIVATE KEY-----\n");setTimeout(()=>process.stderr.write("SYNTHETIC_PEM_BODY_OTHER_PIPE\n"),60);setTimeout(()=>process.stdout.write("-----END PRIVATE KEY-----\nafter\n"),120);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('[REDACTED PRIVATE KEY]');
+    expect(log).toContain('after\n');
+    expect(log).not.toContain('SYNTHETIC_PEM_BODY_OTHER_PIPE');
   });
 
 });
