@@ -4,6 +4,7 @@ import { once } from 'node:events';
 import { z } from 'zod';
 import { HarnessError } from '../../packages/contracts/index.ts';
 import { agentStatuses, type PersonalAgentInventory, type UpdatesQuery } from '../../packages/contracts/agent-inventory.ts';
+import { sendError } from './errors.ts';
 
 const cursor = z.string().min(1).max(2048);
 const id = z.string().min(1).max(500);
@@ -43,7 +44,7 @@ export function registerAgentInventoryRoutes(app: FastifyInstance, provider: Per
     if (last !== undefined) query.after = z.coerce.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER).parse(last);
     // Validate the scoped checkpoint before hijacking, so all errors use the normal host handler.
     let initial: ReturnType<PersonalAgentInventory['updates']> | undefined = provider.updates(query);
-    if (streams.size >= 32) return reply.code(429).send({ error: { code: 'STREAM_LIMIT', message: 'Too many inventory readers' } });
+    if (streams.size >= 32) return sendError(reply, 'STREAM_LIMIT', 'Too many inventory readers');
     reply.hijack();
     const response = reply.raw, controller = new AbortController();
     response.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-store, no-transform', Connection: 'keep-alive', 'X-Accel-Buffering': 'no' });

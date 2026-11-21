@@ -1,5 +1,5 @@
 import {randomUUID} from 'node:crypto';
-import {HarnessError,type RunContext,type RuntimeAdapter,type RuntimeEvent,type RuntimeUsage,type ToolCall} from '../contracts/index.ts';
+import {HarnessError, toApiErrorCode,type RunContext,type RuntimeAdapter,type RuntimeEvent,type RuntimeUsage,type ToolCall} from '../contracts/index.ts';
 
 const LEARNING_LIMITS={toolCalls:16,inputBytes:64*1024,timeoutMs:60_000} as const;
 export interface LearningJob {source:RunContext;modelId:string;accountId:string|null;prompt:string;thinkingLevel?:string|null;enabled?:boolean}
@@ -66,7 +66,7 @@ export class LearningCoordinator {
   void promise.then(()=>owner.pending.delete(promise),()=>owner.pending.delete(promise));return promise;
  }
  private async dispatch(owner:Owner,call:ToolCall):Promise<unknown>{
-  const stop=(status:LearningOutcome['status'],code:string,message:string):never=>{void this.close(owner,status,true).catch(()=>{});throw new HarnessError(code,message);};
+  const stop=(status:LearningOutcome['status'],code:string,message:string):never=>{void this.close(owner,status,true).catch(()=>{});throw new HarnessError(toApiErrorCode(code),message);};
   const respond=(value:unknown)=>{const bytes=Buffer.byteLength(JSON.stringify(value)??'null');if(owner.outcome.inputBytes+bytes>LEARNING_LIMITS.inputBytes)return stop('limit','LEARNING_LIMIT','The learning review reached its host-input limit.');owner.outcome.inputBytes+=bytes;return value;};
   if(!allowed.has(call.name))return stop('failed','LEARNING_TOOL_DENIED','This tool is unavailable to a learning review.');
   if(owner.finished)return stop('failed','LEARNING_FINISHED','The learning review has already claimed completion.');

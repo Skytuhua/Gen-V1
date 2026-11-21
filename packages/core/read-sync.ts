@@ -1,5 +1,5 @@
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
-import { HarnessError } from '../contracts/index.ts';
+import { HarnessError, toApiErrorCode } from '../contracts/index.ts';
 import {
   CURSOR_KEY_UNAVAILABLE,
   DEVICE_GRANT_REVOKED,
@@ -31,7 +31,7 @@ interface CursorKeyRecord { version: number; current: CursorKey; previous: Curso
 const CURSOR_KEY_ENTITY = 'readSyncCursorKey';
 const EVIDENCE_EVENT = /artifact|verification|checkpoint|evidence/i;
 
-const denied = (code: string, message: string) => new HarnessError(code, message);
+const denied = (code: string, message: string) => new HarnessError(toApiErrorCode(code), message);
 const invalidCursor = () => denied('INVALID_CURSOR', 'The sync cursor is invalid for this device grant.');
 const resync = () => denied('RESYNC_REQUIRED', 'The retained source history or schema changed; fetch a new authorized snapshot.');
 

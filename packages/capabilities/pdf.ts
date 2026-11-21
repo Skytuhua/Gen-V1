@@ -1,7 +1,7 @@
 import {Worker} from 'node:worker_threads';
 import {createRequire} from 'node:module';
 import {fileURLToPath} from 'node:url';
-import {HarnessError} from '../contracts/index.ts';
+import {HarnessError, toApiErrorCode} from '../contracts/index.ts';
 import type {PdfArgs} from './schemas.ts';
 import {PDF_LIMITS,type PdfInspection,type PdfJob} from './pdf-protocol.ts';
 export {PDF_LIMITATIONS} from './pdf-protocol.ts';
@@ -32,7 +32,7 @@ async function run(job:PdfJob,signal?:AbortSignal):Promise<PdfInspection|Uint8Ar
   worker.on('message',(message:unknown)=>{
    if(!message||typeof message!=='object'){finish(new HarnessError('PDF_WORKER_ERROR','Invalid PDF worker response.'));return;}
    const value=message as Record<string,unknown>;
-   if(value.kind==='error'&&typeof value.error==='string'&&value.error.length<=1000){finish(new HarnessError(typeof value.code==='string'&&/^[A-Z_]{1,60}$/.test(value.code)?value.code:'PDF_ERROR',value.error));return;}
+   if(value.kind==='error'&&typeof value.error==='string'&&value.error.length<=1000){finish(new HarnessError(toApiErrorCode(typeof value.code==='string'&&/^[A-Z_]{1,60}$/.test(value.code)?value.code:'PDF_ERROR'),value.error));return;}
    if(job.kind==='render'&&value.kind==='rendered'&&value.result instanceof Uint8Array&&value.result.byteLength>0&&value.result.byteLength<=PDF_LIMITS.outputBytes){finish(undefined,value.result);return;}
    if(job.kind==='inspect'&&value.kind==='inspection'&&value.result&&typeof value.result==='object'){
     const result=value.result as PdfInspection;

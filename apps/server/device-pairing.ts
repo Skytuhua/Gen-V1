@@ -3,6 +3,7 @@ import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypt
 import { readFile } from 'node:fs/promises';
 import { z } from 'zod';
 import { HarnessError } from '../../packages/contracts/index.ts';
+import { sendError } from './errors.ts';
 import {
   DEVICE_GRANT_TTL_MS,
   DEVICE_TOKEN_BYTES,
@@ -348,17 +349,17 @@ export async function buildRemoteReadSyncServer(pairing: DevicePairingHost, sync
     const status = code === 'NOT_FOUND' ? 404
       : code === 'REMOTE_INPUT_DISABLED' || code === 'CAPABILITY_DENIED' || code === 'DEVICE_GRANT_REVOKED' ? 403
       : known || malformed ? 400 : 500;
-    reply.code(status).send({ error: { code, message: known || malformed ? error.message : 'The remote host could not complete this request' } });
+    sendError(reply, code, known || malformed ? error.message : 'The remote host could not complete this request', { status });
   });
   app.addHook('onRequest', async (request, reply) => {
     if (request.url === '/remote/pair/claim') return;
     reply.header('Cache-Control', 'no-store');
     const token = /^Bearer ([a-f0-9]{64})$/.exec(String(request.headers.authorization ?? ''))?.[1];
-    if (!token) return reply.code(401).send({ error: { code: 'AUTH_REQUIRED', message: 'A device credential is required.' } });
+    if (!token) return sendError(reply, 'AUTH_REQUIRED', 'A device credential is required.');
     try { (request as FastifyRequest & { deviceGrant?: DeviceGrantV1 }).deviceGrant = pairing.authenticateDevice(token); }
     catch (error) {
       const code = error instanceof HarnessError ? error.code : 'CAPABILITY_DENIED';
-      return reply.code(code === 'DEVICE_GRANT_REVOKED' ? 403 : 401).send({ error: { code, message: error instanceof Error ? error.message : 'The device credential was rejected.' } });
+      return sendError(reply, code, error instanceof Error ? error.message : 'The device credential was rejected.', { status: code === 'DEVICE_GRANT_REVOKED' ? 403 : 401 });
     }
   });
   const grantOf = (request: FastifyRequest) => (request as FastifyRequest & { deviceGrant?: DeviceGrantV1 }).deviceGrant!;

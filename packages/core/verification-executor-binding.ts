@@ -2,7 +2,7 @@ import { stat } from 'node:fs/promises';
 import { closeSync, constants, fstatSync, lstatSync, openSync, readSync, realpathSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
-import { HarnessError } from '../contracts/index.ts';
+import { HarnessError, toApiErrorCode } from '../contracts/index.ts';
 import { executionProfileV1Schema, isTrustedHostProfile, type ExecutionProfileV1 } from '../contracts/execution-profile.ts';
 import { toolOwnerSchema, type ToolOwner } from '../contracts/tool-effects.ts';
 import { digest } from '../storage/store.ts';
@@ -73,7 +73,7 @@ export interface DescribeVerificationExecutor extends VerificationExecutionFence
   readonly approvedOrigins: readonly string[];
   readonly browserRequired?: boolean;
 }
-export const executorDenied = (code: string, message: string) => new HarnessError(code, message);
+export const executorDenied = (code: string, message: string) => new HarnessError(toApiErrorCode(code), message);
 export function assertExecutionFence(input: VerificationExecutionFence): void {
   if (input.signal.aborted) throw executorDenied('CANCELLED', 'Verification was cancelled.');
   input.assertCurrent();

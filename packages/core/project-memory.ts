@@ -2,7 +2,7 @@ import { constants, closeSync, existsSync, fstatSync, fsyncSync, lstatSync, open
 import { createHash, randomUUID } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
 import { z } from 'zod';
-import { HarnessError, type HostCommand, type Message, type ResourceGrant, type RunContext, type Thread } from '../contracts/index.ts';
+import { HarnessError, toApiErrorCode, type HostCommand, type Message, type ResourceGrant, type RunContext, type Thread } from '../contracts/index.ts';
 import type { ProjectSummary } from '../contracts/workspace.ts';
 import { PROJECT_MEMORY_LIMITS as LIMITS, memoryActionSchema, memoryItemV1Schema, memoryRecallV1Schema, memorySourceRefV1Schema, memoryTombstoneV1Schema, memoryScope, type MemoryAccess, type MemoryAction, type MemoryExport, type MemoryForgetPreview, type MemoryItemV1, type MemoryMutationResult, type MemoryRecallV1, type MemorySourceDetail, type MemorySourceRefV1, type MemorySourceSnapshot, type MemoryTombstoneV1, type ProjectMemoryView, type StoredMemory } from '../contracts/project-memory.ts';
 import { digest, Store } from '../storage/store.ts';
@@ -28,7 +28,7 @@ interface Derived { id: string; projectIdentity: string; accountId: string | nul
 interface LedgerIdentity { path: string; dev: string; ino: string }
 const stamp = () => new Date().toISOString();
 const sha256 = (text: string) => createHash('sha256').update(text, 'utf8').digest('hex');
-function fail(message: string, code = 'INVALID_MEMORY'): never { throw new HarnessError(code, message); }
+function fail(message: string, code = 'INVALID_MEMORY'): never { throw new HarnessError(toApiErrorCode(code), message); }
 
 function checkedText(text: string): string {
   if (!text.trim() || Buffer.byteLength(text) > LIMITS.textBytes || memoryContainsSecret(text) || text.includes('\0')) fail('Keep memory under 2 KiB and omit credentials and private keys.');

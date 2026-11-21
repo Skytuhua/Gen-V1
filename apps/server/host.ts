@@ -6,6 +6,7 @@ import {Service} from '../../packages/core/service.ts';
 import {createRuntime} from '../../packages/runtime/index.ts';
 import {accountResolver} from '../../packages/core/accounts.ts';
 import {buildServer,buildWidgetServer,type MountRegistry} from './server.ts';
+import {sendError} from './errors.ts';
 import {acquireProfileLease,type ProfileLease} from './profile-lease.ts';
 import {createProtectedHermesService,type EffectServiceOptions} from './effect-service.ts';
 import {WorkspaceRepository} from '../../packages/core/workspace-layout.ts';
@@ -105,8 +106,8 @@ export async function launchHost(options:HostOptions,overrides:Partial<HostFacto
   widgets=await make.buildWidgetServer(service,mounts,widgetPort);
   // Own both ports before recovering durable runs. A collision must not alter
   // another live host's task authority, and early clients must wait for recovery.
-  app.addHook('onRequest',async(_request,reply)=>{if(!accepting)return reply.code(503).send({error:'The local harness is starting. Try again shortly.'});});
-  widgets.addHook('onRequest',async(_request,reply)=>{if(!accepting)return reply.code(503).send({error:'The local harness is starting. Try again shortly.'});});
+  app.addHook('onRequest',async(_request,reply)=>{if(!accepting)return sendError(reply,'HOST_STARTING','The local harness is starting. Try again shortly.');});
+  widgets.addHook('onRequest',async(_request,reply)=>{if(!accepting)return sendError(reply,'HOST_STARTING','The local harness is starting. Try again shortly.');});
   await app.listen({host:'127.0.0.1',port:hostPort});
   await widgets.listen({host:'127.0.0.1',port:widgetPort});
   const hostAddress=app.server.address(),widgetAddress=widgets.server.address();

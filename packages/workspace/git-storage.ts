@@ -1,7 +1,7 @@
 import {lstat,mkdir,mkdtemp,open,writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {dirname,isAbsolute,join,relative,sep} from 'node:path';
-import {HarnessError} from '../contracts/index.ts';
+import {HarnessError, toApiErrorCode} from '../contracts/index.ts';
 import type {Store} from '../storage/store.ts';
 import type {ManagedGitFamily} from '../capabilities/git-access.ts';
 import {runProcess} from '../capabilities/process.ts';
@@ -29,7 +29,7 @@ export async function nativeGit(executable:string,metadata:string,worktree:strin
  const prefix=['--no-pager','--no-replace-objects','--git-dir='+metadata,...(worktree?['--work-tree='+worktree]:[]),'-c','core.hooksPath='+nullFile,'-c','core.fsmonitor=false','-c','core.untrackedCache=false','-c','submodule.recurse=false','-c','diff.external=','-c','core.attributesFile=','-c','core.excludesFile=','-c','credential.helper=','-c','gc.auto=0','-c','maintenance.auto=false'];
  const result=await runProcess(executable,[...prefix,...args],worktree??metadata,signal,()=>{},120000,environment,4*1024*1024);
  if(result.truncated)throw new HarnessError('RESOURCE_LIMIT','Git output exceeds the 4 MiB review limit.');
- if(result.exitCode!==0||result.cancelled||result.timedOut)throw new HarnessError(result.cancelled?'CANCELLED':'GIT_ERROR','Git operation did not complete.',result);
+ if(result.exitCode!==0||result.cancelled||result.timedOut)throw new HarnessError(toApiErrorCode(result.cancelled?'CANCELLED':'GIT_ERROR'),'Git operation did not complete.',result);
  return result.stdout;
 }
 async function pointer(path:string){return(await readBoundFile(path,4096)).toString().replace(/\r?\n$/,'');}

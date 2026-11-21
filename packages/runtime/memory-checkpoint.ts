@@ -1,11 +1,11 @@
-import {HarnessError,type RuntimeCallbacks} from '../contracts/index.ts';
+import {HarnessError, toApiErrorCode,type RuntimeCallbacks} from '../contracts/index.ts';
 import type {MemoryCheckpointAckV1,MemoryCheckpointRequestV1,MemoryCheckpointRequirementV1} from '../contracts/memory-checkpoint.ts';
 
 export const MEMORY_CHECKPOINT_TIMEOUT_MS=15_000;
 type Binding=Pick<MemoryCheckpointRequestV1,'adapterId'|'ctx'|'sessionPath'|'modelId'|'accountId'>;
 const record=(value:unknown):value is Record<string,unknown>=>!!value&&typeof value==='object'&&!Array.isArray(value);
 const text=(value:unknown,limit=512):value is string=>typeof value==='string'&&value.length>0&&Buffer.byteLength(value,'utf8')<=limit;
-const failure=(code:string,message:string)=>new HarnessError(code,message);
+const failure=(code:string,message:string)=>new HarnessError(toApiErrorCode(code),message);
 
 export function requiresMemoryCheckpoint(value:unknown):value is MemoryCheckpointRequirementV1 {
  if(value===undefined)return false;

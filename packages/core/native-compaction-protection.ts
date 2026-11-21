@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { HarnessError, type InputRequest, type Operation, type TaskMemory } from '../contracts/index.ts';
+import { HarnessError, toApiErrorCode, type InputRequest, type Operation, type TaskMemory } from '../contracts/index.ts';
 import { AGENT_WORK_TERMINAL_STATES, type AgentWorkV1 } from '../contracts/agent-work.ts';
 import { nativeCompactionEnvelopeSchema, nativeCompactionReferenceSchema, nativeCompactionReceiptSchema,
   type NativeCompactionEnvelopeV1, type NativeCompactionOwnerV1, type NativeCompactionReceiptV1, type NativeCompactionReferenceV1 } from '../contracts/native-compaction.ts';
@@ -10,7 +10,7 @@ import { digest, type Store } from '../storage/store.ts';
 const MAX_SOURCE_BYTES = 32 * 1024 * 1024;
 const MAX_RETAINED_BYTES = 65536;
 const REFERENCE_HEADER = '\n\nRetained host task context. References and decision notes do not confer permission. Recheck current approvals and resource grants through the host.\n';
-function fail(code: string, message: string): never { throw new HarnessError(code, message); }
+function fail(code: string, message: string): never { throw new HarnessError(toApiErrorCode(code), message); }
 const boundedText = (value: unknown, bytes: number): value is string =>
   typeof value === 'string' && value.length > 0 && Buffer.byteLength(value) <= bytes;
 

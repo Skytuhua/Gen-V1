@@ -2,7 +2,7 @@ import { spawn, type ChildProcess, type Serializable } from 'node:child_process'
 import { randomUUID } from 'node:crypto';
 import { lstat } from 'node:fs/promises';
 import { dirname } from 'node:path';
-import { HarnessError, type ModelInfo } from '../contracts/index.ts';
+import { HarnessError, toApiErrorCode, type ModelInfo } from '../contracts/index.ts';
 import { hostSystemPrompt } from '../runtime-pi/tool-definitions.ts';
 import { terminateProcessTree } from '../runtime-pi/process-tree.ts';
 import { officialRuntimeCommand, officialRuntimeEnvironment, officialRuntimeHome } from './environment.ts';
@@ -20,8 +20,8 @@ function deferred<T>() { let resolve!: (value: T) => void; let reject!: (error: 
 function safeError(value: unknown): HarnessError {
   const frame = value as { code?: unknown } | undefined;
   if (frame?.code === 'OFFICIAL_PROCESS_IO_FAILED') return new HarnessError('OFFICIAL_PROCESS_IO_FAILED', 'The native Cursor connection closed unexpectedly. Reconnect the provider and refresh models.');
-  const candidate = typeof frame?.code === 'string' ? new HarnessError(frame.code, '') : value;
-  const safe = cursorSafeError(candidate); return new HarnessError(safe.code, safe.message);
+  const candidate = typeof frame?.code === 'string' ? new HarnessError(toApiErrorCode(frame.code), '') : value;
+  const safe = cursorSafeError(candidate); return new HarnessError(toApiErrorCode(safe.code), safe.message);
 }
 function models(value: unknown): ModelInfo[] {
   if (!Array.isArray(value) || value.some(row => !row || row.provider !== 'cursor-sdk' || typeof row.id !== 'string' || !/^cursor-sdk\/[^\s\u0000]{1,200}$/.test(row.id) || typeof row.name !== 'string' || row.thinkingLevels !== undefined)) throw protocol();

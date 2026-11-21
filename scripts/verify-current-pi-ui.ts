@@ -8,7 +8,7 @@ import {Store} from '../packages/storage/store.ts';
 import {discoverCapabilities} from '../packages/core/discovery.ts';
 import {createPiRuntime} from '../packages/runtime-pi/index.ts';
 import {isSubscriptionProviderId} from '../packages/contracts/connections.ts';
-import {HarnessError,type HostCommand,type CommandReceipt,type RuntimeAdapter,type RunContext,type ToolCall,type Snapshot} from '../packages/contracts/index.ts';
+import {HarnessError, toApiErrorCode,type HostCommand,type CommandReceipt,type RuntimeAdapter,type RunContext,type ToolCall,type Snapshot} from '../packages/contracts/index.ts';
 import {verificationPorts} from './portable-verification.ts';
 
 const SOURCE_NAME='checkout-trace.json';
@@ -104,7 +104,7 @@ async function verifyCurrentPiUi(options:ReturnType<typeof parseCurrentPiArgumen
   const boot=await fetch(host.origin+'/api/bootstrap',{signal:AbortSignal.timeout(10000)});if(!boot.ok)throw Error('Owned host bootstrap failed.');const session=await boot.json() as {csrfToken:string};const cookie=boot.headers.getSetCookie().map(value=>value.split(';')[0]).join('; ');
   const send=async(type:string,payload:Record<string,unknown>,threadId?:string)=>{
    const response=await fetch(host!.origin+'/api/commands',{method:'POST',headers:{cookie,'content-type':'application/json','x-harness-csrf':session.csrfToken},body:JSON.stringify({id:randomUUID(),type,payload,...(threadId?{threadId}:{})}),signal:AbortSignal.timeout(30000)});
-   const result=await response.json() as CommandReceipt&{error?:{code?:string}};if(!response.ok)throw new HarnessError(result.error?.code??'VERIFICATION_HTTP','The owned verification command was rejected.');return result;
+   const result=await response.json() as CommandReceipt&{error?:{code?:string}};if(!response.ok)throw new HarnessError(toApiErrorCode(result.error?.code??'VERIFICATION_HTTP'),'The owned verification command was rejected.');return result;
   };
   lifecycle.phase='validating-selected-model';
   const models=await service!.runtime.models();const model=models.find(model=>model.id===options.modelId);if(!model)throw Error('The explicitly selected authenticated model is unavailable. No task input was sent.');

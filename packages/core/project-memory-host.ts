@@ -1,4 +1,4 @@
-import { HarnessError, type RuntimeAdapter, type RuntimeEvent, type RunContext, type StartRun, type Thread } from '../contracts/index.ts';
+import { HarnessError, toApiErrorCode, type RuntimeAdapter, type RuntimeEvent, type RunContext, type StartRun, type Thread } from '../contracts/index.ts';
 import type { MemoryCheckpointRequestV1, MemoryCheckpointAckV1, MemoryCheckpointRequirementV1 } from '../contracts/memory-checkpoint.ts';
 import type { RequestPreparationV1 } from '../contracts/request-context.ts';
 import { PROJECT_MEMORY_LIMITS, memoryPreparedRequestSchema, memoryScope, type MemoryAccess, type MemoryAction, type MemoryPreparedRequest, type MemoryRecallResult, type MemoryRecallV1, type MemoryScope, type StoredMemory } from '../contracts/project-memory.ts';
@@ -32,7 +32,7 @@ export interface ProjectMemoryHostOptions {
   canExtract?: () => boolean;
   beforeExtract?: () => Promise<void>;
 }
-function denied(message: string, code = 'MEMORY_REQUEST_CHANGED'): never { throw new HarnessError(code, message); }
+function denied(message: string, code = 'MEMORY_REQUEST_CHANGED'): never { throw new HarnessError(toApiErrorCode(code), message); }
 const sameScope = (a: MemoryAccess, b: MemoryAccess) => a.profileId === b.profileId && a.projectId === b.projectId && a.projectIdentity === b.projectIdentity && a.threadId === b.threadId && a.accountId === b.accountId;
 const boundedQuery = (prompt: string) => {
   let result = Buffer.from(prompt, 'utf8').subarray(0, 4096).toString('utf8');

@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { HarnessError, type StartRun } from '../contracts/index.ts';
+import { HarnessError, toApiErrorCode, type StartRun } from '../contracts/index.ts';
 import type { ContextCategory, RequestContextV1, RequestPreparationV1 } from '../contracts/request-context.ts';
 import { Store, digest } from '../storage/store.ts';
 import { createContextCompiler } from './context-compiler.ts';
@@ -65,7 +65,7 @@ function freezeRequestValue<T>(input: T): T {
   };
   freeze(value); return value;
 }
-const fail = (message: string, code = 'STALE_REQUEST_CONTEXT'): never => { throw new HarnessError(code, message, { sendAccepted: false }); };
+const fail = (message: string, code = 'STALE_REQUEST_CONTEXT'): never => { throw new HarnessError(toApiErrorCode(code), message, { sendAccepted: false }); };
 const sameBasis = (left: RequestContextBasis, right: RequestContextBasis): boolean => digest(left) === digest(right);
 
 /** Exact bytes appended to the host prompt, with no footer or role delimiter. */

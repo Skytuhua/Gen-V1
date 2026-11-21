@@ -1,5 +1,5 @@
 import {createHash,createHmac,randomBytes,timingSafeEqual} from 'node:crypto';
-import {HarnessError} from '../contracts/index.ts';
+import {HarnessError, toApiErrorCode} from '../contracts/index.ts';
 import {skillCatalogQuerySchema,skillReferenceSchema,type SkillAvailability,type SkillCatalogEntry,type SkillCatalogPage,type SkillCatalogQuery,type SkillCatalogScope,type SkillCatalogSource,type SkillReference} from '../contracts/skill-catalog.ts';
 
 export const catalogHash=(value:unknown)=>createHash('sha256').update(typeof value==='string'||Buffer.isBuffer(value)?value:JSON.stringify(value)).digest('hex');
@@ -19,7 +19,7 @@ export function catalogItem(sourceId:string,locatorKey:string,metadata:{name:str
 export function deniedItem(sourceId:string,key:string,reason:Extract<SkillAvailability,{status:'unavailable'}>['reason']):CatalogItem{
  return{entry:{id:sourceId+':'+catalogHash(key),sourceId,name:key.split('/').at(-1)??key,description:'',files:0,availability:unavailable(reason),ref:null}};
 }
-const fail=(code:string,message:string):never=>{throw new HarnessError(code,message);};
+const fail=(code:string,message:string):never=>{throw new HarnessError(toApiErrorCode(code),message);};
 export class SkillCatalogRepository {
  private readonly secret=randomBytes(32);
  constructor(private readonly providers:readonly SkillCatalogCapabilityProvider[],readonly scope:SkillCatalogScope=personalScope){}

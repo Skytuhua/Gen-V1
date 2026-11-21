@@ -10,7 +10,7 @@ import {appendFile,lstat,readFile,realpath} from 'node:fs/promises';
 import {dirname,join,resolve} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
-import {EMPTY_USAGE,HarnessError,type CompletedWriteReceipt,type RunContext,type RuntimeAdapter,type RuntimeCallbacks,type RuntimeUsage,type StartRun} from '../contracts/index.ts';
+import {EMPTY_USAGE,HarnessError,toApiErrorCode,type CompletedWriteReceipt,type RunContext,type RuntimeAdapter,type RuntimeCallbacks,type RuntimeUsage,type StartRun} from '../contracts/index.ts';
 import type {AccountUseLease,RuntimeAccountResolver} from '../contracts/accounts.ts';
 import {isConnectionProviderId} from '../contracts/connections.ts';
 import {createRuntime} from '../runtime/index.ts';
@@ -51,7 +51,7 @@ export interface HermesEngineOptions extends HermesRuntimeOptions {readOnly?:boo
 type Owner={automaticRefusalReported?:boolean;contextBinding?:NativeContextBinding;contextRequested?:boolean;contextReads?:number;toolSnapshot?:{sequence:number;count:number;schemaBytes:number;digest:string};progressiveTools?:ReturnType<typeof createProgressiveToolSession>;input:StartRun;source:HermesSourceClient;settings:HermesSettings;tools:Set<string>;path:string;broker:HermesBroker;known:Set<string>;tickets:Map<string,string[]>;entered:Set<string>;lease?:AccountUseLease;done:Promise<void>;finish:()=>void;foreground:boolean;review:boolean;uiSettled:boolean;closing?:Promise<void>;writes:Promise<void>;failure?:unknown;usage:RuntimeUsage[];maintenance?:RunContext;lastMessage?:string;reviewAbort?:AbortController;reviewRelease?:()=>void;libraryRevoked?:boolean;libraryCalls:Set<Promise<unknown>>;memoryCheckpoint?:StartRun['memoryCheckpoint'];checkpointWork?:Promise<unknown>;compactionProtection?:NativeCompactionEnvelopeV1;compactionCommitAttempted?:boolean;compactionCommitAccepted?:boolean};
 type Admission={input:StartRun;maintenance:boolean;revoked:boolean;controller:AbortController;done:Promise<void>;finish():void};
 const same=(ctx:Record<string,unknown>|RunContext|undefined,input:StartRun)=>!!ctx&&ctx.threadId===input.threadId&&ctx.runId===input.runId&&ctx.epoch===input.epoch&&(!Object.hasOwn(ctx,'accountId')||('accountId' in ctx?ctx.accountId:null)===(input.accountId??null));
-const error=(code:string,message:string)=>new HarnessError(code,message);
+const error=(code:string,message:string)=>new HarnessError(toApiErrorCode(code),message);
 const stageActivity:Record<string,RuntimeUsage['activity']>={queued:'queued',acquired:'starting',runtimeReady:'starting',requestSent:'generating',settled:'cleanup'};
 const sourceNames=new Set(['skills_list','skill_view','skill_manage']);
 
