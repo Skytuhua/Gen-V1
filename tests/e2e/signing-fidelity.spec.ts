@@ -189,7 +189,14 @@ test('signature modes share one well; style variation saves a different PNG with
   await expect(signature.getByRole('img', { name: 'Selected visual signature' })).toBeVisible();
   const before = await signature.locator('.signature-well').boundingBox();
   await expect.poll(() => fixture.images.size).toBe(1); const first = [...fixture.images.values()][0];
-  await signature.getByRole('button', { name: 'Another style', exact: true }).click();
+  const styleAction = signature.getByRole('button', { name: 'Another style', exact: true });
+  await expect(signature.locator('.signature-toolbar').getByRole('button', { name: 'Another style' })).toBeVisible();
+  await signature.getByRole('button', { name: 'Upload', exact: true }).focus();
+  await page.keyboard.press('Tab');
+  await expect(styleAction).toBeFocused();
+  const actionRect = await styleAction.boundingBox(), wellRect = await signature.locator('.signature-well').boundingBox();
+  expect(actionRect!.y + actionRect!.height).toBeLessThanOrEqual(wellRect!.y + 1);
+  await styleAction.click();
   await expect.poll(() => fixture.images.size).toBe(2); expect([...fixture.images.values()][1].equals(first)).toBe(false);
   await signature.getByRole('button', { name: 'Draw', exact: true }).click();
   const draw = await signature.locator('.signature-well').boundingBox(); expect(draw!.height).toBeCloseTo(before!.height, 0);
