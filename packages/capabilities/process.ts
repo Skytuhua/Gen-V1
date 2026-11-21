@@ -16,10 +16,11 @@ export function processEnvironment(): NodeJS.ProcessEnv {
   for (const name of ["PATH", "Path", "SystemRoot", "WINDIR", "TEMP", "TMP", "HOME", "USERPROFILE", "APPDATA", "LOCALAPPDATA"]) if (process.env[name]) env[name] = process.env[name];
   return { ...env, GIT_CONFIG_NOSYSTEM: "1", GIT_CONFIG_GLOBAL: process.platform === "win32" ? "NUL" : "/dev/null", GIT_OPTIONAL_LOCKS: "0", GIT_TERMINAL_PROMPT: "0", GIT_NO_LAZY_FETCH: "1" };
 }
-export async function runProcess(command: string, args: string[], cwd: string, signal: AbortSignal, progress: (message: string) => void, timeoutMs = 120_000, environment:NodeJS.ProcessEnv={},outputLimit=256*1024): Promise<ProcessResult> {
+export async function runProcess(command: string, args: string[], cwd: string, signal: AbortSignal, progress: (message: string) => void, timeoutMs = 120_000, environment:NodeJS.ProcessEnv={},outputLimit=256*1024,options?:{input?:string;label?:string}): Promise<ProcessResult> {
   if (signal.aborted) throw new HarnessError("CANCELLED", "Operation cancelled before process start");
   return new Promise((resolve, reject) => {
-    const child = spawn(command, args, { cwd, env: {...processEnvironment(),...environment}, shell: false, windowsHide: true, detached: process.platform !== "win32", stdio: ["ignore", "pipe", "pipe"] });
+    const child = spawn(command, args, { cwd, env: {...processEnvironment(),...environment}, shell: false, windowsHide: true, detached: process.platform !== "win32", stdio: [options?.input==null?"ignore":"pipe", "pipe", "pipe"] });
+    if (options?.input!=null) { const input = child.stdin!; input.on("error",()=>{}).end(options.input,()=>{try{input.destroy();}catch{}}); }
     let truncated = false, cancelled = false, timedOut = false, settled = false;
     // Observability cannot interrupt process cleanup or replace its outcome.
     const report = (message: string) => { try { progress(message); } catch { /* Progress is best-effort. */ } };
@@ -34,7 +35,7 @@ export async function runProcess(command: string, args: string[], cwd: string, s
       });
       return () => text;
     };
-    const stdout = capture(child.stdout), stderr = capture(child.stderr);
+    const stdout = capture(child.stdout!), stderr = capture(child.stderr!);
     let treeKill: Promise<void> | undefined;
     function stop() {
       if (!child.pid || settled || treeKill) return;
@@ -51,7 +52,7 @@ export async function runProcess(command: string, args: string[], cwd: string, s
     signal.addEventListener("abort", onAbort, { once: true });
     const timer = setTimeout(() => { timedOut = true; stop(); }, timeoutMs); timer.unref();
     const cleanup = () => { clearTimeout(timer); signal.removeEventListener("abort", onAbort); };
-    child.once("spawn", () => { report(`Started ${command === process.execPath ? "node --test" : "git"} (PID ${child.pid})`); if (signal.aborted) onAbort(); });
+    child.once("spawn", () => { report(`Started ${options?.label ?? (command === process.execPath ? "node --test" : "git")} (PID ${child.pid})`); if (signal.aborted) onAbort(); });
     child.once("error", error => { settled = true; cleanup(); reject(error); });
     child.once("close", async (exitCode, terminationSignal) => { cleanup(); await treeKill; settled = true; report(`Process exited: ${exitCode ?? terminationSignal ?? "unknown"}`); resolve({ status: cancelled ? "cancelled" : !timedOut && exitCode === 0 ? "succeeded" : "failed", exitCode, signal: terminationSignal, cancelled, timedOut, stdout: stdout(), stderr: stderr(), truncated, pid: child.pid }); });
   });
