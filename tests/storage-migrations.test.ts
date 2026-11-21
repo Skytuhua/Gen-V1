@@ -5,7 +5,6 @@ import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { Store } from "../packages/storage/store.ts";
 import { applyMigrations, backupDatabaseSync, currentVersion, listBackups, restoreBackup, type Migration } from "../packages/storage/migrations.ts";
-import { HarnessError } from "../packages/contracts/index.ts";
 
 const cleanups: (() => void)[] = [];
 afterEach(() => { for (const cleanup of cleanups.splice(0)) cleanup(); });
