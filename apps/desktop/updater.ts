@@ -76,10 +76,12 @@ export function createDesktopUpdater(options:DesktopUpdaterOptions):DesktopUpdat
  const status=():UpdateStatus=>({...state});
  const publish=(next:UpdateStatus)=>{state=next;try{options.notify?.(status());}catch{/* A notification failure cannot change update authority. */}};
  const current=(entry:Candidate)=>!disposed&&candidate===entry&&generation===entry.generation;
- const failure=()=>{generation++;candidate=undefined;if(!disposed)publish({state:'failed',message:'The update could not be verified. Gen will keep the current version.'});};
+ // A signed install that rejects an unsigned or other-publisher update reports the specific
+ // signature failure; every other verification or download failure stays generic.
+ const failure=(error?:unknown)=>{generation++;candidate=undefined;if(!disposed)publish({state:'failed',message:(error as {code?:string}|undefined)?.code==='ERR_UPDATER_INVALID_SIGNATURE'?'The update was not signed by the expected publisher. Gen will keep the current version.':'The update could not be verified. Gen will keep the current version.'});};
  const defer=(version:string,message='An installed plug-in needs attention before Gen can update.')=>publish({state:'deferred',version,message});
  const deferForClose=(version:string)=>defer(version,'The update is waiting for work, saved state and normal shutdown to finish.');
- const onError=()=>failure();
+ const onError=(error:Error)=>failure(error);
  const onProgress=(progress:{percent:number})=>{
   if(candidate?.phase==='downloading'&&current(candidate)&&typeof progress?.percent==='number'&&Number.isFinite(progress.percent)&&progress.percent>=0&&progress.percent<=100)publish({state:'downloading',version:candidate.version,percent:progress.percent,message:'Downloading the next stable version of Gen.'});
  };
@@ -116,7 +118,7 @@ export function createDesktopUpdater(options:DesktopUpdaterOptions):DesktopUpdat
     if(!current(entry))return status();
     if(after?.allowed!==true){defer(entry.version);return status();}
     entry.phase='ready';publish({state:'ready',version:entry.version,message:'An update is ready. Gen will install it after a safe close.'});
-   }catch{if(!disposed&&generation===token)failure();}
+   }catch(error){if(!disposed&&generation===token)failure(error);}
    return status();
   }).finally(()=>{checkPending=undefined;});
   publish({state:'checking',message:'Checking for stable updates…'});
@@ -158,7 +160,7 @@ export function createDesktopUpdater(options:DesktopUpdaterOptions):DesktopUpdat
     // The driver can emit an error synchronously even when it returns normally.
     installationRequested=current(entry);
     return installationRequested;
-   }catch{if(current(entry))failure();return false;}
+   }catch(error){if(current(entry))failure(error);return false;}
    finally{installPending=false;}
   },
  };
