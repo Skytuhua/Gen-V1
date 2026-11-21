@@ -43,6 +43,13 @@ it('applies trusted host capabilities before runtime and Service construction an
   await host.close(); expect(Object.values(registeredCapabilityFlags()).every(value => value === false)).toBe(true);
 });
 
+it('registers workspace.manualEditV1 disabled by default and enables it via trusted overrides', () => {
+  expect(registeredCapabilityFlags()['workspace.manualEditV1']).toBe(false);
+  expect(capabilityEnabled('workspace.manualEditV1')).toBe(false);
+  const flags = readCapabilityFlagOverrides({ HARNESS_FLAG_WORKSPACE_MANUAL_EDIT_V1: 'true' });
+  expect(flags['workspace.manualEditV1']).toBe(true);
+});
+
 it('rejects unknown host capability overrides atomically before creating runtime or Store', async () => {
   cleanup.push(configureHostCapabilityFlags({ 'memory.projectV1': true }));
   const f = fixture();
