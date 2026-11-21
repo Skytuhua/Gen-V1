@@ -1,0 +1,10 @@
+﻿2026-11-21T08:00:00.0000000Z ##[group]Set up job
+2026-11-21T08:00:01.0000000Z Current runner version: '2.321.0'
+2026-11-21T08:00:02.0000000Z ##[endgroup]
+2026-11-21T08:00:03.0000000Z ##[group]Run pnpm test
+2026-11-21T08:00:04.0000000Z [36m> vitest run[0m
+2026-11-21T08:00:05.0000000Z  FAIL  tests/example.test.ts > does the thing
+2026-11-21T08:00:06.0000000Z expected 1 to equal 2
+2026-11-21T08:00:07.0000000Z ##[error]Process completed with exit code 1.
+2026-11-21T08:00:08.0000000Z Post job cleanup.
+2026-11-21T08:00:09.0000000Z ##[endgroup]
