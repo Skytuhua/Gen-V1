@@ -26,6 +26,7 @@ import {createPersistenceQueue,reconcileSavedWindows} from './persistence.ts';
 import {createMemoryExportDownloads} from './memory-export.ts';
 import {parseOpenProjectArgs} from './open-project-args.ts';
 import {createOpenProjectDelivery} from './open-project-delivery.ts';
+import {createExplorerIntegration} from './explorer-integration.ts';
 import {createAttentionPopups,attentionPopupHtml,type AttentionPopupAction,type AttentionPopupWindow} from './attention-popups.ts';
 import {attentionDeliverySchema} from '../../packages/contracts/attention.ts';
 const persistence=createPersistenceQueue();
@@ -271,6 +272,9 @@ function registerIpc(){
   if(typeof requestId!=='string'||requestId.length>100)return;
   if(openProjectDelivery.acknowledge(requestId)==='acked')deliverOpenProject();
  });
+ const explorerIntegration=createExplorerIntegration();
+ handle(channels.explorerIntegrationGet,record=>{if(record.surface.kind!=='main')throw Error('Explorer integration is available only in the main window.');return explorerIntegration.get();});
+ handle(channels.explorerIntegrationSet,(record,value)=>{if(record.surface.kind!=='main'||typeof value!=='boolean')throw Error('Invalid Explorer integration request.');return explorerIntegration.set(value);});
  handle(channels.captureLayout,()=>captureLayout());
  handle(channels.applyLayout,(_record,value)=>handoff(()=>applyLayout(parseDesktopLayout(value))));
  handle(channels.control,(_caller,value)=>{const command=parseDesktopWindowControl(value),record=windows.get(command.windowId);if(!record)throw Error('Window is no longer open');if(_caller.surface.kind==='plugin'&&desktopSurfaceKey(_caller.surface)!==desktopSurfaceKey(record.surface))throw Error('This window belongs to another workspace.');if(command.type==='always-on-top')record.window.setAlwaysOnTop(command.enabled);else{if(!command.visible&&!tray)throw Error('The tray must be available before hiding a window.');record.visible=command.visible;if(command.visible){if(record.window.isMinimized())record.window.restore();record.window.show();}else record.window.hide();}remember(record);broadcast();});
