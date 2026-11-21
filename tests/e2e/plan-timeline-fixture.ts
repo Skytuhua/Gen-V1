@@ -1,5 +1,5 @@
 import type { Snapshot, Thread } from "../../packages/contracts";
-import type { AgentJob, PlanRecord } from "../../packages/contracts/planning";
+import type { AgentJob, PlanRecord, PlanStep } from "../../packages/contracts/planning";
 
 const now = "2026-11-06T00:00:00Z";
 const job = (id: string, extra: Partial<AgentJob> = {}): AgentJob => ({
@@ -103,6 +103,67 @@ export function timelinePlan(): PlanRecord {
       job("available", { status: "queued" }),
     ],
   };
+}
+const wireStatus: Record<string, PlanStep["status"]> = {
+  proposed: "pending", running: "working", completed: "completed", accepted: "completed",
+};
+// One row per renderer state, so label coverage extends past the states the main
+// fixture happens to produce.
+export function statusSweepSnapshot(threadId = "thread-a", revision = 1): Snapshot {
+  const stepStates = ["proposed", "running", "blocked", "review_required", "completed", "accepted", "failed", "cancelled", "interrupted"] as const;
+  const checkStates = ["pending", "reported_passed", "reported_failed", "verified_passed", "verified_failed"] as const;
+  const jobStates = ["queued", "working", "needs_review", "completed", "failed", "cancelled", "interrupted"] as const;
+  return {
+    threads: [
+      {
+        id: threadId,
+        title: "Status label fixture",
+        projectName: null,
+        createdAt: now,
+        updatedAt: now,
+        runId: "run-a",
+        epoch: 1,
+        status: "working",
+        modelId: null,
+        sessionPath: null,
+      } satisfies Thread,
+    ],
+    data: [
+      {
+        id: `plan:${threadId}`,
+        threadId,
+        revision,
+        provenance: "harness:plan",
+        createdAt: now,
+        value: {
+          version: 1,
+          title: "Status labels",
+          authority: "proposal",
+          run: { runId: "run-a", epoch: 1 },
+          runState: "running",
+          steps: stepStates.map((state, index) => ({
+            id: `s-${state}`,
+            title: `Step ${state}`,
+            status: wireStatus[state] ?? "blocked",
+            state,
+            requirements: [],
+            dependsOn: index ? [`s-${stepStates[index - 1]}`] : [],
+            checks: checkStates.map((checkStatus, i) => ({
+              id: `s-${state}-check-${checkStatus}`,
+              label: `Check ${i + 1}`,
+              status: checkStatus,
+            })),
+          })),
+          // Unassigned so no job state overrides a step badge (projectPlanTimeline
+          // derives step status from live agent states).
+          agents: jobStates.map((status) =>
+            job(`j-${status}`, { status, name: `Agent ${status}` }),
+          ),
+        } satisfies PlanRecord,
+      },
+    ],
+    messages: [],
+  } as unknown as Snapshot;
 }
 export function timelineSnapshot(threadId = "thread-a", revision = 1): Snapshot {
   return {
