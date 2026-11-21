@@ -1,7 +1,7 @@
 import {timingSafeEqual} from 'node:crypto';
 import type {AttentionDelivery} from '../../packages/contracts/attention.ts';
 
-interface DesktopHostControls{attentionRead?():Promise<AttentionDelivery>;attentionAction?(type:'open'|'dismiss',eventId:string):Promise<{threadId?:string;dismissed?:boolean}>;stopAll():Promise<{stopped:number;errors?:string[]}>;saveNativeLayout(layout:unknown):Promise<void>;validatePluginSurface?:(surface:unknown)=>Promise<boolean>;updateReadiness?:()=>Promise<{idle:boolean}>;prepareUpdateClose?:()=>Promise<{idle:boolean}>}
+interface DesktopHostControls{attentionRead?():Promise<AttentionDelivery>;attentionAction?(type:'open'|'dismiss',eventId:string):Promise<{threadId?:string;dismissed?:boolean}>;stopAll():Promise<{stopped:number;errors?:string[]}>;saveNativeLayout(layout:unknown):Promise<void>;validatePluginSurface?:(surface:unknown)=>Promise<boolean>;updateReadiness?:()=>Promise<{idle:boolean}>;prepareUpdateClose?:()=>Promise<{idle:boolean}>;powerRead?():Promise<{tasks:number;schedules:number;keepAwakeTasks:boolean;keepAwakeSchedules:boolean}>}
 /** Private parent IPC has the same launch-token custody as shutdown. No HTTP bypass. */
 export async function handleDesktopControl(value:unknown,token:string,host:DesktopHostControls,send:(value:Record<string,unknown>)=>unknown):Promise<boolean>{
  if(!value||typeof value!=='object'||Array.isArray(value)||!/^[a-f0-9]{32,128}$/i.test(token))return false;
@@ -15,6 +15,9 @@ export async function handleDesktopControl(value:unknown,token:string,host:Deskt
  if((input.type==='harness.update.readiness'||input.type==='harness.update.prepare')&&Object.keys(input).length===3){
   try{const method=input.type==='harness.update.prepare'?host.prepareUpdateClose:host.updateReadiness;const result=await method?.call(host);await send({type:input.type+'.result',token,requestId:input.requestId,idle:result?.idle===true});}
   catch{await send({type:input.type+'.result',token,requestId:input.requestId,idle:false});}return true;
+ }
+ if(input.type==='harness.power.read'&&Object.keys(input).length===3){
+  try{if(!host.powerRead)throw Error('Unavailable');await send({type:'harness.power.read.result',token,requestId:input.requestId,...await host.powerRead()});}catch{await send({type:'harness.power.read.result',token,requestId:input.requestId,error:'Power state is unavailable.'});}return true;
  }
  if(input.type==='harness.attention.read'&&Object.keys(input).length===3){
   try{if(!host.attentionRead)throw Error('Unavailable');await send({type:input.type+'.result',token,requestId:input.requestId,delivery:await host.attentionRead()});}catch{await send({type:input.type+'.result',token,requestId:input.requestId,error:'Notification delivery is unavailable.'});}return true;

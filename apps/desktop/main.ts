@@ -1,4 +1,4 @@
-import {app,BrowserWindow,WebContentsView,ipcMain,session,screen,dialog,Menu,Tray,nativeImage,powerMonitor,shell,type IpcMainInvokeEvent,type Session} from 'electron';
+import {app,BrowserWindow,WebContentsView,ipcMain,session,screen,dialog,Menu,Tray,nativeImage,powerMonitor,powerSaveBlocker,shell,type IpcMainInvokeEvent,type Session} from 'electron';
 import {spawn,type ChildProcess} from 'node:child_process';
 import {randomBytes,randomUUID} from 'node:crypto';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
@@ -9,7 +9,7 @@ import {createDesktopUpdater,type DesktopUpdater,type DesktopUpdateDriver,type U
 import {checkInstalledCompatibility} from '../../packages/plugins/installation.ts';
 import {resolve,join,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {DESKTOP_CHANNELS as channels,desktopId,desktopSurfaceKey,parseDesktopSurface,parseDesktopLayout,parseDesktopWindowControl,type DesktopLayout,type DesktopLayoutEntry,type DesktopSurface,type DesktopWindowInfo,type DesktopContext,type DesktopState,type DesktopBrowserState} from '../../packages/desktop-contract/index.ts';
+import {DESKTOP_CHANNELS as channels,desktopId,desktopSurfaceKey,parseDesktopSurface,parseDesktopLayout,parseDesktopWindowControl,type DesktopLayout,type DesktopLayoutEntry,type DesktopSurface,type DesktopWindowInfo,type DesktopContext,type DesktopState,type DesktopBrowserState,type DesktopPowerState} from '../../packages/desktop-contract/index.ts';
 import {allowRemoteBrowserUrl,clampDesktopBounds,pluginDesktopChannelAllowed,pluginDesktopRequiresGrant,nativeTitlebarOptions,nativeTitlebarTheme,needsEditorHandoff,desktopSurfaceAllowed,isTrustedDesktopSender,parseBrowserCommand,remoteBrowserUrl,surfaceSize,trustedDesktopUrl,trustedDesktopSubframe,type DesktopBounds} from './window-policy.ts';
 import {createBrowserProxy,type BrowserProxy} from './browser-proxy.ts';
 import {createStartupOutputCapture,finishBackendStartup,nodeSidecarArguments,requestBackendShutdown,startupErrorDiagnostic,waitForBackendReady,writeStartupDiagnostic,type StartupDiagnostic,type StartupObservation} from './backend-policy.ts';
@@ -21,6 +21,7 @@ import {captureDesktopPlacement,createNormalBounds,parseDesktopPlacement,placeOn
 import type {ConnectionProviderId} from '../../packages/contracts/connections.ts';
 import {createAccountLoginFlows} from './account-login.ts';
 import {workspaceEvents} from './workspace-events.ts';
+import {createPowerKeeper} from './power-keeper.ts';
 import {applyNativeLayout,requestNativeClose,type NativeCloseOwner} from './layout-transaction.ts';
 import {createPersistenceQueue,reconcileSavedWindows} from './persistence.ts';
 import {createMemoryExportDownloads} from './memory-export.ts';
@@ -52,6 +53,8 @@ let handoffQueue:Promise<unknown>=Promise.resolve();
 let workspaceRelay:ReturnType<typeof workspaceEvents>|undefined;
 let attentionPopups:ReturnType<typeof createAttentionPopups>|undefined,attentionNative:BrowserWindow|undefined,attentionUrl='',attentionAction:((action:AttentionPopupAction)=>void|Promise<void>)|undefined;
 let tray:Tray|undefined,hostLayout:DesktopLayout|undefined,layoutError:string|undefined,restoringLayout=true;
+let powerKeeper:ReturnType<typeof createPowerKeeper>|undefined,powerState:DesktopPowerState={state:'off'};
+function trayTooltip(){return 'Gen V1 — '+(powerState.state==='holding'?'keeping the PC awake':'tasks keep running when windows are hidden');}
 function handoff<T>(action:()=>Promise<T>):Promise<T>{const next=handoffQueue.catch(()=>{}).then(action);handoffQueue=next;return next;}
 const root=resolve(process.env.HARNESS_DESKTOP_HOST_ROOT??(app.isPackaged?join(process.resourcesPath,'host'):join(dirname(fileURLToPath(import.meta.url)),'../..')));
 const nodePath=resolve(process.env.HARNESS_DESKTOP_NODE_PATH??join(process.resourcesPath,'node','node.exe'));
@@ -67,7 +70,7 @@ function workAreas(){return screen.getAllDisplays().map(display=>display.workAre
 function displays():DesktopDisplay[]{const primary=screen.getPrimaryDisplay(),all=screen.getAllDisplays();return (all.length?all:[primary]).map(display=>({id:String(display.id),workArea:display.workArea,label:display.label,scaleFactor:display.scaleFactor,primary:display.id===primary.id}));}
 function info(record:WindowRecord):DesktopWindowInfo{return {id:record.id,surface:record.surface,ready:record.ready,minimized:record.window.isMinimized(),visible:record.visible,alwaysOnTop:record.window.isAlwaysOnTop(),bounds:record.window.getNormalBounds(),displayId:record.placement?.displayId};}
 function captureLayout():DesktopLayout{return {version:1,windows:[...windows.values()].filter(record=>!record.window.isDestroyed()).map(record=>({surface:record.surface,bounds:record.normalBounds.read(),visible:record.visible,alwaysOnTop:record.window.isAlwaysOnTop(),...(record.dockedBrowser?{dockedBrowserId:record.dockedBrowser.id}:{}),...(record.placement?{displayId:record.placement.displayId,placement:record.placement}:{})}))};}
-function snapshot(record:WindowRecord):DesktopState{return {windows:[...windows.values()].map(info),...(record.browser?{browser:record.browser.state}:{}),...(record.dockedBrowser?{dockedBrowser:{browserId:record.dockedBrowser.id,state:record.dockedBrowser.state}}:{}),...(backendError?{backendError}:{}),...(layoutError?{layoutError}:{}),update:updateStatus,nativeTitleBar:process.platform==='win32'};}
+function snapshot(record:WindowRecord):DesktopState{return {windows:[...windows.values()].map(info),...(record.browser?{browser:record.browser.state}:{}),...(record.dockedBrowser?{dockedBrowser:{browserId:record.dockedBrowser.id,state:record.dockedBrowser.state}}:{}),...(backendError?{backendError}:{}),...(layoutError?{layoutError}:{}),update:updateStatus,nativeTitleBar:process.platform==='win32',power:powerState};}
 function broadcast(focusSurface?:DesktopSurface){
  for(const record of windows.values()){
   if(record.window.isDestroyed())continue;
@@ -199,14 +202,14 @@ function requestClose(record:WindowRecord):Promise<boolean>{
 }
 function destroyWindow(record:WindowRecord){if(record.window.isDestroyed())return;remember(record,quitting);loseBrowserOwner(record);record.window.destroy();}
 async function mainWindow(){const existing=[...windows.values()].find(record=>record.surface.kind==='main');if(existing){existing.visible=true;if(existing.window.isMinimized())existing.window.restore();existing.window.show();existing.window.focus();remember(existing);broadcast();await existing.readyPromise;return existing;}const result=await openSurface({kind:'main'});return windows.get(result.id)!;}
-function backendRequest(type:'harness.stopAll'|'harness.layout.save'|'harness.plugin.validate'|'harness.update.readiness'|'harness.update.prepare'|'harness.attention.read'|'harness.attention.open'|'harness.attention.dismiss',extra:Record<string,unknown>={}):Promise<Record<string,unknown>>{
+function backendRequest(type:'harness.stopAll'|'harness.layout.save'|'harness.plugin.validate'|'harness.update.readiness'|'harness.update.prepare'|'harness.attention.read'|'harness.attention.open'|'harness.attention.dismiss'|'harness.power.read',extra:Record<string,unknown>={}):Promise<Record<string,unknown>>{
  const child=backend,token=launchToken,requestId=randomUUID(),reply=type==='harness.stopAll'?'harness.stoppedAll':type==='harness.layout.save'?'harness.layout.saved':type==='harness.plugin.validate'?'harness.plugin.validated':type+'.result';
  if(!child?.connected||child.exitCode!==null||child.signalCode)return Promise.reject(Error('The local backend is unavailable. Restore the workspace and retry.'));
  return new Promise((resolve,reject)=>{const finish=(error?:Error,value?:Record<string,unknown>)=>{clearTimeout(timer);child.removeListener('message',receive);child.removeListener('exit',exited);child.removeListener('disconnect',exited);if(error)reject(error);else resolve(value!);};const receive=(raw:unknown)=>{if(!raw||typeof raw!=='object'||Array.isArray(raw))return;const value=raw as Record<string,unknown>;if(value.type===reply&&value.token===token&&value.requestId===requestId){if(value.error)finish(Error(String(value.error).slice(0,500)));else finish(undefined,value);}};const exited=()=>finish(Error('The local backend disconnected before acknowledging the action.'));const timer=setTimeout(()=>finish(Error('The local backend did not acknowledge the action. Restore the workspace and retry.')),15000);child.on('message',receive);child.once('exit',exited);child.once('disconnect',exited);try{child.send({type,token,requestId,...extra},error=>{if(error)finish(error);});}catch(error){finish(error instanceof Error?error:Error(String(error)));}});
 }
 function installTray(){
  const pixels=Buffer.alloc(16*16*4);for(let y=3;y<13;y++)for(let x=2;x<14;x++)if(x===2||x===13||y===3||y===11||y===12&&x===4){const offset=(y*16+x)*4;pixels[offset]=pixels[offset+1]=pixels[offset+2]=210;pixels[offset+3]=255;}
- tray=new Tray(nativeImage.createFromBitmap(pixels,{width:16,height:16,scaleFactor:1}));tray.setToolTip('Gen V1 — tasks keep running when windows are hidden');
+ tray=new Tray(nativeImage.createFromBitmap(pixels,{width:16,height:16,scaleFactor:1}));tray.setToolTip(trayTooltip());
  const report=(cause:unknown)=>{layoutError=String(cause instanceof Error?cause.message:cause).slice(0,500);broadcast();if(!testData)void dialog.showMessageBox({type:'error',title:'Gen V1',message:layoutError,buttons:['Close']});};
  tray.on('double-click',()=>void mainWindow().catch(report));tray.setContextMenu(Menu.buildFromTemplate([{label:'Restore Workspace',click:()=>{void (async()=>{await mainWindow();for(const record of windows.values()){record.visible=true;if(record.window.isMinimized())record.window.restore();record.window.show();remember(record);}broadcast();})().catch(report);}},{label:'Stop running tasks',enabled:true,click:()=>{void backendRequest('harness.stopAll').then(value=>{if(Array.isArray(value.errors)&&value.errors.length)throw Error(value.errors.map(String).join('\n'));}).catch(report);}},{type:'separator'},{label:'Quit Gen V1',click:()=>app.quit()}]));
 }
@@ -321,13 +324,15 @@ async function startBackend():Promise<void>{
  await finishBackendStartup(child,oldRelay?.close(),()=>stderr,()=>{
   backendOrigin=value.origin as string;
   if(value.nativeLayout!==undefined)try{hostLayout=parseDesktopLayout(value.nativeLayout);}catch{layoutError='The saved host workspace layout is invalid. The local backup is retained.';}
-  workspaceRelay=workspaceEvents(backendOrigin,change=>{for(const record of windows.values())if(!record.window.isDestroyed())record.window.webContents.send(channels.workspaceChanged,change);},token);
-  child.once('exit',()=>{if(closing||backend!==child)return;backendError='The local backend stopped. Reconnecting…';broadcast();if(restarting)return;restarting=true;setTimeout(()=>{void startBackend().catch(error=>{backendError='Backend restart failed: '+String(error instanceof Error?error.message:error).slice(0,500);broadcast();}).finally(()=>{restarting=false;});},700);});
+  workspaceRelay=workspaceEvents(backendOrigin,change=>{powerKeeper?.schedule();for(const record of windows.values())if(!record.window.isDestroyed())record.window.webContents.send(channels.workspaceChanged,change);},token);
+  powerKeeper?.schedule();
+  child.once('exit',()=>{if(closing||backend!==child)return;powerKeeper?.release();backendError='The local backend stopped. Reconnecting…';broadcast();if(restarting)return;restarting=true;setTimeout(()=>{void startBackend().catch(error=>{backendError='Backend restart failed: '+String(error instanceof Error?error.message:error).slice(0,500);broadcast();}).finally(()=>{restarting=false;});},700);});
   backendError=undefined;broadcast();
  },observeStartup);
  }finally{try{if(output)startupDiagnostic('backend-output',null,output.read().streams);}catch{}}
 }
 async function stopBackend():Promise<boolean>{
+ powerKeeper?.release();
  let clean=true;
  try{await workspaceRelay?.close();}catch{clean=false;}workspaceRelay=undefined;
  try{await signInFlows.close();}catch{clean=false;}
@@ -364,7 +369,7 @@ async function closeApplication(){
  savedStateFlushed=!layoutError;
  try{await backendRequest('harness.layout.save',{layout:captureLayout()});}catch{savedStateFlushed=false;}
  if(!activeWorkAtClose&&savedStateFlushed&&updater){try{if((await backendRequest('harness.update.prepare')).idle!==true)activeWorkAtClose=true;}catch{activeWorkAtClose=true;}}
- quitting=true;attentionPopups?.stop();attentionPopups=undefined;for(const record of [...windows.values()])destroyWindow(record);clearTimeout(saveTimer);
+ quitting=true;powerKeeper?.dispose();powerKeeper=undefined;powerState={state:'off'};attentionPopups?.stop();attentionPopups=undefined;for(const record of [...windows.values()])destroyWindow(record);clearTimeout(saveTimer);
  try{await persistence.enqueue(async()=>{await mkdir(dirname(stateFile),{recursive:true});await writeFile(stateFile,JSON.stringify({version:1,windows:saved.slice(-24)}),{encoding:'utf8',mode:0o600});});}catch{savedStateFlushed=false;}
  const backendStoppedCleanly=await stopBackend();
  for(const browser of browsers.values())if(!browser.view.webContents.isDestroyed())browser.view.webContents.close({waitForBeforeUnload:false});
@@ -382,9 +387,10 @@ if(!app.requestSingleInstanceLock()){app.exit(0);}else{
   if(!Number.isInteger(backendPort)||backendPort<1024||backendPort>65535||(!Number.isInteger(widgetPort)||widgetPort<1024||widgetPort>65535||backendPort===widgetPort))throw Error('Desktop backend ports are invalid');
   await loadSaved();startupDiagnostic('layout-ready');registerIpc();
   powerMonitor.on('shutdown',()=>{osSessionEnding=true;});
+  powerMonitor.on('resume',()=>powerKeeper?.schedule());
   installApplicationMenu();installTray();startupDiagnostic('shell-ready');
   startupTimer=setTimeout(()=>{if(quitting||quitPending)return;startup=new BrowserWindow({width:420,height:190,...nativeTitlebarOptions(process.platform),resizable:false,maximizable:false,minimizable:false,title:'Opening Gen V1',autoHideMenuBar:true,backgroundColor:'#0f0f0f',webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false}});startup.webContents.setWindowOpenHandler(()=>({action:'deny'}));startup.webContents.on('will-navigate',event=>event.preventDefault());void startup.loadFile(join(dirname(fileURLToPath(import.meta.url)),'startup.html')).catch(()=>{});},1200);
-  await startBackend();if(hostLayout)saved=reconcileSavedWindows(saved,hostLayout.windows.map(entry=>({...entry,open:true})));const initial=structuredClone(saved.filter(entry=>entry.open&&entry.surface.kind!=='main')),savedDocked=saved.find(entry=>entry.surface.kind==='main')?.dockedBrowserId;startupDiagnostic('main-opening');const main=await mainWindow();startupDiagnostic('main-ready');clearTimeout(startupTimer);startup?.destroy();startup=undefined;if(savedDocked)moveBrowser(browserRecord(savedDocked),main,true);
+  await startBackend();powerKeeper=createPowerKeeper({api:powerSaveBlocker,read:async()=>await backendRequest('harness.power.read') as unknown as {tasks:number;schedules:number;keepAwakeTasks:boolean;keepAwakeSchedules:boolean},onChange:state=>{powerState=state;tray?.setToolTip(trayTooltip());broadcast();}});if(hostLayout)saved=reconcileSavedWindows(saved,hostLayout.windows.map(entry=>({...entry,open:true})));const initial=structuredClone(saved.filter(entry=>entry.open&&entry.surface.kind!=='main')),savedDocked=saved.find(entry=>entry.surface.kind==='main')?.dockedBrowserId;startupDiagnostic('main-opening');const main=await mainWindow();startupDiagnostic('main-ready');clearTimeout(startupTimer);startup?.destroy();startup=undefined;if(savedDocked)moveBrowser(browserRecord(savedDocked),main,true);
   const failures:string[]=[];for(const entry of initial)try{await openSurface(entry.surface);}catch(error){failures.push(displayTitle(entry.surface)+': '+String(error instanceof Error?error.message:error));}
   restoringLayout=false;if(failures.length){layoutError='Some saved windows could not restore. Their layout is retained: '+failures.join('; ').slice(0,800);broadcast();}else if(!layoutError)persist();
   startUpdater();startAttention();

@@ -64,4 +64,18 @@ describe('UI preferences and thread presentation', () => {
     expect(store.snapshot().threads[0].id).toBe(thread.id);
     expect(store.snapshot().archivedThreads).toHaveLength(0);
   });
+  it('keeps the keep-awake preferences off by default, stores true values and rejects non-booleans', async () => {
+    const { store, command } = setup();
+    const prefs = () => getPreferences(store.snapshot().settings);
+    expect(prefs()).toMatchObject({ keepAwakeTasks: false, keepAwakeSchedules: false });
+    store.internal('fixture.settings', null, () => store.put('settings', 'global', null, { preferences: { keepAwakeTasks: 'yes', keepAwakeSchedules: true } }));
+    expect(prefs()).toMatchObject({ keepAwakeTasks: false, keepAwakeSchedules: true });
+    await command('settings.update', { preferences: { keepAwakeTasks: true } });
+    expect(prefs()).toMatchObject({ keepAwakeTasks: true, keepAwakeSchedules: true });
+    expect(store.snapshot().settings.preferences).toMatchObject({ keepAwakeTasks: true, keepAwakeSchedules: true });
+    await expect(command('settings.update', { preferences: { keepAwakeTasks: 1 } })).rejects.toThrow();
+    expect(prefs().keepAwakeTasks).toBe(true);
+    expect(DEFAULT_PREFERENCES).toMatchObject({ keepAwakeTasks: false, keepAwakeSchedules: false });
+    expect(mergePreferences(getPreferences({}), { keepAwakeSchedules: false })).toMatchObject({ keepAwakeTasks: false, keepAwakeSchedules: false });
+  });
 });

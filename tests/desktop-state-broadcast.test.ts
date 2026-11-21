@@ -21,3 +21,14 @@ it('still publishes desktop state to the main window when another renderer close
   expect(failed).toHaveBeenCalledWith('state', { id: 'detached' });
   expect(main).toHaveBeenCalledExactlyOnceWith('state', { id: 'main', focusSurface: focus });
 });
+
+it('publishes the power state in every desktop snapshot', () => {
+  const source = ts.createSourceFile('main.ts', readFileSync(new URL('../apps/desktop/main.ts', import.meta.url), 'utf8'), ts.ScriptTarget.Latest);
+  const snapshot = source.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'snapshot');
+  if (!snapshot) throw Error('Desktop snapshot builder is missing');
+  const { outputText } = ts.transpileModule(snapshot.getText(source), { compilerOptions: { target: ts.ScriptTarget.ES2022 } });
+  const build = new Function('windows', 'info', 'backendError', 'layoutError', 'updateStatus', 'powerState', 'process', 'record', outputText + '\nreturn snapshot(record);');
+  const record = { id: 'main', browser: undefined, dockedBrowser: undefined };
+  const state = build(new Map(), () => ({ id: 'main' }), undefined, undefined, { state: 'idle', message: '' }, { state: 'holding', reason: 'tasks' }, { platform: 'linux' }, record) as { power: unknown };
+  expect(state.power).toEqual({ state: 'holding', reason: 'tasks' });
+});

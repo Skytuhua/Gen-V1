@@ -411,6 +411,13 @@ export class Service {
       &&!this.store.all<Lease>('lease').some(lease=>lease.expiresAt>Date.now());
   }
   freezeForUpdate():boolean {this.updateClosing=true;return this.isUpdateIdle();}
+  /** Desktop power-keeper evidence: live task runs and still-active durable
+   * wakeups. Threads awaiting user input and archived threads do not count. */
+  powerActivity():{tasks:number;schedules:number;keepAwakeTasks:boolean;keepAwakeSchedules:boolean} {
+    const tasks=this.closed?0:this.store.all<Thread>('thread').filter(thread=>!this.store.get('archivedThread',thread.id)&&(thread.runId||thread.status==='working'||this.planning.hasActiveChildren(thread.id))).length;
+    const schedules=this.backgroundWork.scheduler.allSchedules().filter(wakeup=>!wakeup.paused&&!['CANCELLED','DELIVERED','BLOCKED','SKIPPED'].includes(wakeup.state)).length;
+    return{tasks,schedules,keepAwakeTasks:this.preferences.keepAwakeTasks,keepAwakeSchedules:this.preferences.keepAwakeSchedules};
+  }
   private get reviewing():boolean{return this.source?.runtime.reviewBusy??this.learning.busy;}
   private get preferences() { return getPreferences(this.store.get<Snapshot['settings']>('settings','global') ?? {}); }
   private cancelReview():Promise<void>{return this.source?.runtime.cancelBackground()??this.learning.cancel();}

@@ -39,3 +39,13 @@ describe('settings registry search (T06)',()=>{
   for(const row of rows){expect(row.targetId).toBeTruthy();expect(row.group).toBeTruthy();expect(['all','desktop','browser']).toContain(row.platform);}
  });
 });
+
+describe('keep-awake rows',()=>{
+ it('are registered in the general section and scoped to the desktop platform',()=>{
+  const tasks=rows.find(row=>row.id==='keep-awake-tasks'),schedules=rows.find(row=>row.id==='keep-awake-schedules');
+  expect(tasks).toMatchObject({section:'general',platform:'desktop',targetId:'keep-awake-tasks'});
+  expect(schedules).toMatchObject({section:'general',platform:'desktop',targetId:'keep-awake-schedules'});
+  expect(ids('keep the PC awake','desktop')).toEqual(expect.arrayContaining(['keep-awake-tasks','keep-awake-schedules']));
+  expect(ids('keep the PC awake','browser')).toEqual([]);
+ });
+});

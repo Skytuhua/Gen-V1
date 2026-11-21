@@ -53,6 +53,7 @@ export const preferencesSchema = z.strictObject({
   diffLayout: z.enum(['stacked', 'split']), hideWhitespace: z.boolean(), diffDefaultExpanded: z.boolean(), diffColors: z.enum(['red-green', 'blue-orange']),
   showThreadDetails: z.boolean(), showComposerContext: z.boolean(), showUsageFooter:z.boolean(), wordWrap: z.boolean(), keybindings,
   learningEnabled:z.boolean(),learningApproval:z.boolean(),learningInterval:z.number().int().min(0).max(100),skillCurator:z.boolean(),
+  keepAwakeTasks:z.boolean(),keepAwakeSchedules:z.boolean(),
 });
 export type UiPreferences = z.infer<typeof preferencesSchema>;
 export type PreferencePatch = Partial<Omit<UiPreferences, 'keybindings'>> & { keybindings?: Partial<UiPreferences['keybindings']> };
@@ -68,6 +69,7 @@ export const DEFAULT_PREFERENCES: UiPreferences = {
   diffLayout: 'split', hideWhitespace: false, diffDefaultExpanded: true, diffColors: 'red-green',
   showThreadDetails: true, showComposerContext: true, showUsageFooter:true, wordWrap: true,
   learningEnabled:true,learningApproval:false,learningInterval:10,skillCurator:true,
+  keepAwakeTasks:false,keepAwakeSchedules:false,
   keybindings: { search: 'Ctrl+K', newThread: 'Ctrl+Shift+O', toggleSidebar: 'Ctrl+B', toggleRightPanel: 'Ctrl+Shift+B', openSettings: 'Ctrl+Comma', stop: 'Escape' },
 };
 const patchSchema = preferencesSchema.partial().extend({ keybindings: keybindings.partial().optional() }).strict();

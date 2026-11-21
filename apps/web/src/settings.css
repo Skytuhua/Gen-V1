@@ -116,3 +116,12 @@
 .settings-shortcuts-keys { display:flex;flex:0 0 auto;gap:4px; }
 .settings-shortcuts-keys kbd { padding:1px 5px;border:1px solid var(--border);border-radius:4px;font-size:11px;color:var(--muted);white-space:nowrap; }
 .settings-shortcuts-label small { display:block;margin-top:1px;font-size:12px;line-height:1.4;color:var(--muted); }
+
+.settings-power-status { display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;line-height:1.4;color:var(--muted); }
+.settings-power-dot { flex:none;width:7px;height:7px;border-radius:50%;background:var(--muted); }
+.settings-power-idle .settings-power-dot { background:var(--accent); }
+.settings-power-holding .settings-power-dot { background:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent);animation:settings-power-pulse 2.4s ease-in-out infinite; }
+.settings-power-unavailable { color:var(--danger,#c0392b); }
+.settings-power-unavailable .settings-power-dot { background:var(--danger,#c0392b); }
+@keyframes settings-power-pulse { 0%,100% { opacity:1; } 50% { opacity:.45; } }
+@media(prefers-reduced-motion:reduce) { .settings-power-holding .settings-power-dot { animation:none; } }
