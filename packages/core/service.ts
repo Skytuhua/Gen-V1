@@ -17,11 +17,11 @@ import { existsSync, lstatSync, realpathSync } from 'node:fs';
 import { basename, join, relative, resolve, sep } from "node:path";
 import { Store, digest, compactionOwnerKey, type CompactionAttemptRecord } from "../storage/store.ts";
 import {PersonalResearchRepository} from '../research/repository.ts';
-import { assertNotStorage, canonical, inside, resolveGrant, projectMemoryDeletionLedgerPath } from "./security.ts";
+import { assertNotStorage, canonical, inside, projectMemoryDeletionLedgerPath } from "./security.ts";
 import { withResourceGrant } from "./file-access.ts";
 import { admitSchema, validateJson, widgetDefinition, GENERATED_APPS_ENABLED } from "./widgets.ts";
 import { patchSpec, protectedFingerprint } from "./presentation.ts";
-import { admitArtifactContents, threadData } from "./ui-admission.ts";
+import { admitArtifactContents } from "./ui-admission.ts";
 import { changeTaskMemory, taskMemories, taskMemoryContext } from './task-memory.ts';
 import { discoverCapabilities } from './discovery.ts';
 import { inspectTask } from './task-inspection.ts';
@@ -36,6 +36,7 @@ import {PlanningQuestionSchema} from '../contracts/planning-question.ts';
 import { getPreferences, mergePreferences } from "../contracts/preferences.ts";
 import {accountResolver,assertAccountAvailable,changeAccount,modelProvider,sweepStaleAccountLeases} from './accounts.ts';
 import {isConnectionProviderId} from '../contracts/connections.ts';
+import {ServiceResources} from './service-resources.ts';
 import {applySkillOperations,curateSkills,decideSkillProposal,listSkills,setSkillFlags,skillIndex,viewSkill,viewSkillProposal} from './skills.ts';
 import {LearningCoordinator,type LearningJob,type LearningOutcome,type LearningToolResult} from './learning.ts';
 import {LEARN_REQUEST,learningReviewPrompt,searchSessions} from './learning-context.ts';
@@ -170,6 +171,7 @@ export class Service {
   private readonly authority:ToolAuthority;
   private readonly hostToolRegistryDigest:string;
   private readonly effects:ToolEffectLedger;
+  private readonly resources:ServiceResources;
   private readonly effectFlags:ReturnType<typeof createToolEffectFlags>;
   private contextStorage?: Promise<ContextResultStorage>;
   private contextResults?: ReturnType<typeof createContextResults>;
@@ -280,6 +282,11 @@ export class Service {
     this.effectFlags=createToolEffectFlags(options.toolEffectFlags);
     const registry=buildToolRegistry();this.hostToolRegistryDigest=digest(registry.map(tool=>[tool.id,tool.schemaDigest]));
     this.authority=new ToolAuthority(registry);this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags,options.toolEffectAuthenticator);
+    this.resources=new ServiceResources({
+      store,effects:this.effects,thread:id=>this.thread(id),hasGate:id=>this.hasGate(id),
+      approvedWriteHooks:()=>Boolean(this.options.approvedWriteHooks),
+      context:(threadId,signal)=>this.context(threadId,signal),
+    });
     this.source=options.source;
     this.research=new PersonalResearchRepository(store,{assertHostActive:()=>{if(this.closed||this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');}});
     this.predictions=new ComposerPredictions({factory:()=>{if(!options.predictionRuntimeFactory)throw new HarnessError('PREDICTION_UNAVAILABLE','Composer predictions are unavailable in this host.');return options.predictionRuntimeFactory();},current:id=>this.predictionBasis(id)});
@@ -883,77 +890,27 @@ export class Service {
     if(!models.length){const failure=results.find(result=>result.status==='rejected');if(failure?.status==='rejected')throw failure.reason;}
     return models;
   }
-  private assertMutation(threadId: string): void {
-    this.effects.assertAdmissionsEnabled();
-    const thread = this.thread(threadId);
-    if(thread.mode==='plan')throw new HarnessError('PLAN_MODE','Plan mode is read-only. Switch to Build before preparing or approving a change.');
-    if (["stopped", "interrupted"].includes(thread.status)) throw new HarnessError("CANCELLED_RUN", "Resume this thread before starting operations");
-    if (this.hasGate(threadId)) throw new HarnessError("REQUEST_GATED", "A pending decision must be resolved before a new operation");
-  }
-  private artifact(threadId: string, id: unknown): ArtifactRecord {
-    const artifact = typeof id === "string" ? this.store.get<ArtifactRecord>("artifact", id) : null;
-    if (!artifact || artifact.threadId !== threadId) throw new HarnessError("NOT_FOUND", "Artifact is not available to this thread");
-    return artifact;
-  }
-  private state(threadId: string, id: unknown): UserStateRecord {
-    const state = typeof id === "string" ? this.store.get<UserStateRecord>("userState", id) : null;
-    if (!state || state.threadId !== threadId) throw new HarnessError("NOT_FOUND", "State is not available to this thread");
-    return state;
-  }
-  private lease(stateId: string): Lease | null {
-    const lease = this.store.get<Lease>("lease", stateId);
-    return lease && lease.expiresAt > Date.now() ? lease : null;
-  }
-  async resolveResource(threadId: string, id: string, relativePath?: string, write = false): Promise<string> {
-    const grant = this.store.get<ResourceGrant>("resource", id);
-    if (!grant || grant.threadId !== threadId) throw new HarnessError("CAPABILITY_DENIED", "Resource is not granted to this thread");
-    return resolveGrant(grant, relativePath, write, this.store.dataDir);
-  }
-  data(threadId: string, id: string, revision?: number): DataRecord {
-    return threadData(this.store, threadId, id, revision);
-  }
-  publishData(threadId: string, value: unknown, provenance: string): DataRecord {
-    if (Buffer.byteLength(JSON.stringify(value)) > 8 * 1024 * 1024) throw new HarnessError("INVALID_INPUT", "Dataset exceeds the 8 MiB import limit");
-    const record: DataRecord = { id: randomUUID(), threadId, revision: 1, value, provenance, createdAt: now() };
-    this.store.internal("data.published", threadId, () => { this.store.put("data", record.id, threadId, record); this.store.put("dataVersion", record.id + "@1", threadId, record); return { id: record.id, revision: 1 }; });
-    return record;
-  }
+  private assertMutation(threadId: string): void { this.resources.assertMutation(threadId); }
+  private artifact(threadId: string, id: unknown): ArtifactRecord { return this.resources.artifact(threadId,id); }
+  private state(threadId: string, id: unknown): UserStateRecord { return this.resources.state(threadId,id); }
+  private lease(stateId: string): Lease | null { return this.resources.lease(stateId); }
+  async resolveResource(threadId: string, id: string, relativePath?: string, write = false): Promise<string> { return this.resources.resolveResource(threadId,id,relativePath,write); }
+  data(threadId: string, id: string, revision?: number): DataRecord { return this.resources.data(threadId,id,revision); }
+  publishData(threadId: string, value: unknown, provenance: string): DataRecord { return this.resources.publishData(threadId,value,provenance); }
   private operationData(operation: Operation, progress?: { message: string; counts?: unknown }): void {
     const old = this.store.get<DataRecord>("data", operation.id);
     const hook=this.store.get<Outbox>('outbox','operation-result:'+operation.id)?.hookDiagnostic;
     const record: DataRecord = { id: operation.id, threadId: operation.threadId, revision: (old?.revision ?? 0) + 1, value: { operationId: operation.id, status: operation.status, description: operation.description,...(hook?{postEditHook:hook}:{}), ...(progress ? { message: progress.message, ...(progress.counts && typeof progress.counts === "object" ? progress.counts : {}) } : {}), ...(operation.result !== undefined ? { result: operation.result } : {}) }, provenance: "executor:operation:" + operation.id, createdAt: now() };
     this.store.put("data", record.id, operation.threadId, record); this.store.put("dataVersion", record.id + "@" + record.revision, operation.threadId, record);
   }
-  private writeOrigin(thread:Thread,authority?:RunContext):ApprovedWriteOrigin|undefined {
-    if(!this.options.approvedWriteHooks||!authority||thread.sideParentId||thread.kind==='delegate'||!thread.sessionPath||!thread.modelId||!thread.projectId||!thread.workspaceId)return;
-    const binding=this.store.get<{id:string;threadId:string;projectId:string;path:string}>('workspaceBinding',thread.workspaceId),project=this.store.get<{authority:{kind:string}}>('workspaceProject',thread.projectId);
-    if(binding?.id!==thread.workspaceId||binding.threadId!==thread.id||binding.projectId!==thread.projectId||project?.authority.kind!=='local')return;
-    return {...authority,sessionPath:thread.sessionPath,modelId:thread.modelId,accountId:thread.accountId??null,projectId:thread.projectId,workspaceId:thread.workspaceId,projectRoot:binding.path};
-  }
+  private writeOrigin(thread:Thread,authority?:RunContext):ApprovedWriteOrigin|undefined { return this.resources.writeOrigin(thread,authority); }
   private m08Journal?: EditJournal;
   private m08Checkpoints?: CheckpointService;
   private m08PreimageDigests = new Map<string, string>();
   private m08PendingReceipts: { operation: Operation; evidence: { path: string; sha256: string; bytes: number } }[] = [];
   /** M09 read-role domain context: resources resolve read-only, operation
    * preparation is denied before effects, evidence publishing stays open. */
-  private agentReadDomain(threadId: string) {
-    this.effects.assertAdmissionsEnabled();
-    const signal = new AbortController().signal, domain = this.context(threadId, signal);
-    return {
-      threadId, signal,
-      resolveResource: async (id: string, path?: string, write?: boolean) => {
-        if (write) throw new HarnessError('AGENT_TOOL_DENIED', 'Read-only resource access');
-        return domain.resolveResource(id, path, false);
-      },
-      ...(domain.withResource ? { withResource: <T>(id: string, path: string | undefined, write: boolean, action: (filename: string) => Promise<T>) => {
-        if (write) throw new HarnessError('AGENT_TOOL_DENIED', 'Read-only resource access');
-        return domain.withResource!(id, path, false, action);
-      } } : {}),
-      publishData: (value: unknown, provenance: string) => domain.publishData(value, provenance),
-      prepareOperation: (): never => { throw new HarnessError('AGENT_TOOL_DENIED', 'Agent children cannot prepare operations'); },
-      progress: (message: string, counts?: Record<string, number>) => domain.progress(message, counts),
-    };
-  }
+  private agentReadDomain(threadId: string) { return this.resources.agentReadDomain(threadId); }
   private async agentWorkCommand(ctx: RunContext, command: HostCommand): Promise<CommandReceipt> {
     const p = command.payload;
     // Execute first, then record the receipt: a crash before the receipt
