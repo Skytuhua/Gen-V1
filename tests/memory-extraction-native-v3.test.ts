@@ -36,7 +36,7 @@ it('constructs the actual pinned SDK extraction session with no native tools, am
 });
 
 it.each(OFFICIAL_RUNTIME_PROVIDER_IDS)('rejects direct %s extraction before opening a native artifact or provider',async provider=>{
- const root=await directory(),query=vi.fn(),spawn=vi.fn(),runtime=createOfficialRuntime({dataDir:root,purpose:'memory-extraction'},{claudeSdk:{query} as any,spawn:spawn as any});
+ const root=await directory(),query=vi.fn(),spawn=vi.fn(),runtime=createOfficialRuntime({dataDir:root,purpose:'memory-extraction'},{claudeSdk:{query} as never,spawn:spawn as unknown as typeof spawn});
  runtime.configure({onEvent:()=>{},onTool:async()=>{}});
  try{
   await expect(runtime.start({...input,modelId:provider+'/model'})).rejects.toMatchObject({code:'MEMORY_EXTRACTION_UNSUPPORTED'});
@@ -58,7 +58,7 @@ it('adopts only the explicit ephemeral Pi purpose and rejects external source di
 });
 
 it('offers admission before the auxiliary factory can claim a model call',()=>{
- const check=(purpose as any).assertMemoryExtractionModel as (modelId:string)=>void;
+ const check=(purpose as {assertMemoryExtractionModel:(modelId:string)=>void}).assertMemoryExtractionModel;
  expect(typeof check).toBe('function');expect(()=>check('openai/model')).not.toThrow();
  for(const modelId of ['claude-code/model','gemini-cli/model','cursor-sdk/model','unregistered/model'])expect(()=>check(modelId)).toThrow(expect.objectContaining({code:'MEMORY_EXTRACTION_UNSUPPORTED'}));
 });
