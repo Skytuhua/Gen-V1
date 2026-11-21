@@ -41,6 +41,7 @@
 .agents-message { padding-bottom: 16px; overflow-wrap: anywhere; line-height: 1.65; }
 .agents-message:last-child { padding-bottom: 0; }
 .agents-message-role { display: block; color: var(--muted); font-size: 12px; margin-bottom: 4px; text-transform: capitalize; }
+.agents-message .agents-message-empty { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
 .agents-message p { font-size: 14px; line-height: 1.65; }
 .agents-message pre { overflow: auto; white-space: pre; max-width: 100%; padding: 8px; }
 .agents-message table { display: block; max-width: 100%; overflow: auto; }
