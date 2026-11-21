@@ -408,3 +408,79 @@
 		grid-template-columns: minmax(0, 1fr);
 	}
 }
+/* Manual edit v1 (T06 host structure; full visual design lands in T08). */
+.files-edit-host {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	flex: 1;
+}
+.files-edit-host .gen-code-editor {
+	flex: 1;
+	min-height: 0;
+	overflow: auto;
+	font: var(--code-font-size, 12px) / 1.65 var(--font-mono, monospace);
+}
+.files-edit-host .cm-editor {
+	height: 100%;
+}
+.files-edit-toolbar {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--ui-space-2, 8px);
+}
+.files-edit-dirty {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--muted);
+	font-size: 12px;
+}
+.files-dirty-dot {
+	display: inline-block;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--project-accent, var(--accent));
+}
+.files-edit-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--ui-space-2, 8px);
+	padding: var(--ui-space-2, 8px) var(--ui-space-3, 12px);
+	font-size: 12px;
+	background: var(--task-surface, #1f1f1f);
+}
+.files-edit-bar-actions {
+	display: inline-flex;
+	gap: var(--ui-space-2, 8px);
+}
+.files-edit-announce {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+}
+.files-compare {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+}
+.files-compare-labels {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	font-size: 12px;
+	color: var(--muted);
+	padding: 4px var(--ui-space-3, 12px);
+}
+.files-compare-panes {
+	flex: 1;
+	min-height: 0;
+	overflow: auto;
+}
+.files-compare-panes .cm-mergeView {
+	height: 100%;
+}
