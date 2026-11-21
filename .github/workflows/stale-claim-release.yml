@@ -29,11 +29,35 @@ jobs:
         with:
           script: |
             // Manual runs default to a dry run; scheduled runs always release.
-            const dryRun = github.event_name === 'workflow_dispatch'
+            const dryRun = context.eventName === 'workflow_dispatch'
               ? (context.payload.inputs?.dry_run === 'true' || context.payload.inputs?.dry_run === true)
               : false;
             const STALE_MINUTES = 60;
             const RELEASE_LABELS = /in.?progress|claimed|wip|assigned|active/i;
+            // Only markers from bots and repo members/collaborators count: a forged
+            // CLAIM from anyone else must never clear assignments or labels.
+            const trustedAuthor = (c) =>
+              c.user.type === 'Bot' ||
+              ['OWNER', 'MEMBER', 'COLLABORATOR'].includes(c.author_association);
+
+            // Latest CLAIM/CHECKPOINT/RELEASE marker comment from a trusted author.
+            const latestMarker = async (issueNumber) => {
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                ...context.repo,
+                issue_number: issueNumber,
+                per_page: 100,
+              });
+              let latest = null;
+              for (const c of comments) {
+                if (!trustedAuthor(c)) continue;
+                const marker = (c.body || '').slice(0, 300).match(/\b(CLAIM|CHECKPOINT|RELEASE)\b/);
+                if (!marker) continue;
+                if (!latest || new Date(c.created_at) > new Date(latest.comment.created_at)) {
+                  latest = { comment: c, kind: marker[1] };
+                }
+              }
+              return latest;
+            };
 
             const issues = await github.paginate(github.rest.issues.listForRepo, {
               ...context.repo,
@@ -45,19 +69,7 @@ jobs:
             const stale = [];
             for (const issue of issues) {
               if (issue.pull_request) continue;
-              const comments = await github.paginate(github.rest.issues.listComments, {
-                ...context.repo,
-                issue_number: issue.number,
-                per_page: 100,
-              });
-              let latest = null;
-              for (const c of comments) {
-                const marker = c.body.slice(0, 300).match(/\b(CLAIM|CHECKPOINT|RELEASE)\b/);
-                if (!marker) continue;
-                if (!latest || new Date(c.created_at) > new Date(latest.comment.created_at)) {
-                  latest = { comment: c, kind: marker[1] };
-                }
-              }
+              const latest = await latestMarker(issue.number);
               if (!latest) continue;
               const released =
                 latest.kind === 'RELEASE' || /OWNER\s*=\s*NONE/i.test(latest.comment.body);
@@ -76,18 +88,21 @@ jobs:
               );
               if (dryRun) continue;
 
-              const utc = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
-              await github.rest.issues.createComment({
-                ...context.repo,
-                issue_number: issue.number,
-                body: [
-                  `[stale-claim-sweeper] RELEASE | UTC=${utc} | STATUS=RELEASED`,
-                  `ISSUE=${issue.html_url}; OWNER=NONE; RECIPIENT=NONE`,
-                  `DELTA=auto-released stale claim: latest ${latest.kind} was ${ageMinutes} minutes old with no RELEASE (threshold ${STALE_MINUTES} min)`,
-                  `HISTORY=${latest.comment.html_url}`,
-                  `NEXT=unclaimed; any worker may claim per AGENTS.md`,
-                ].join('\n'),
-              });
+              // Re-check right before writing: a claim posted during the scan must
+              // not be released, and a RELEASE posted during the scan must win.
+              const recheck = await latestMarker(issue.number);
+              if (
+                !recheck ||
+                recheck.comment.id !== latest.comment.id ||
+                recheck.kind === 'RELEASE' ||
+                /OWNER\s*=\s*NONE/i.test(recheck.comment.body)
+              ) {
+                core.info(`#${issue.number} claim state changed during scan; skipping.`);
+                continue;
+              }
+
+              // Clean up first, then post RELEASE last: if cleanup fails, the issue
+              // still reads claimed and the next sweep retries the whole release.
               if (issue.assignees.length > 0) {
                 await github.rest.issues.removeAssignees({
                   ...context.repo,
@@ -108,4 +123,16 @@ jobs:
                   if (err.status !== 404) throw err;
                 }
               }
+              const utc = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number: issue.number,
+                body: [
+                  `[stale-claim-sweeper] RELEASE | UTC=${utc} | STATUS=RELEASED`,
+                  `ISSUE=${issue.html_url}; OWNER=NONE; RECIPIENT=NONE`,
+                  `DELTA=auto-released stale claim: latest ${latest.kind} was ${ageMinutes} minutes old with no RELEASE (threshold ${STALE_MINUTES} min)`,
+                  `HISTORY=${latest.comment.html_url}`,
+                  `NEXT=unclaimed; any worker may claim per AGENTS.md`,
+                ].join('\n'),
+              });
             }
