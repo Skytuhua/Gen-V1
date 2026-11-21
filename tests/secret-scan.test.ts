@@ -29,7 +29,7 @@ const RULE_FIXTURES: { id: string; positive: () => string; negative: () => strin
   { id: "openai-key", positive: () => `k = "sk-proj-${gen(44)}"`, negative: () => `k = "sk-ant-api03-${gen(84)}"` },
   { id: "anthropic-key", positive: () => `k = "sk-ant-api03-${gen(84)}"`, negative: () => `k = "sk-ant-api03-${gen(20)}"` },
   { id: "google-api-key", positive: () => `k = "AIza${gen(35)}"`, negative: () => `k = "AIza${gen(10)}"` },
-  { id: "private-key", positive: () => `-----BEGIN RSA PRIVATE KEY-----`, negative: () => `-----BEGIN PUBLIC KEY-----` },
+  { id: "private-key", positive: () => "-----BEGIN " + "RSA PRIVATE KEY-----", negative: () => `-----BEGIN PUBLIC KEY-----` },
   { id: "npm-token", positive: () => `t = "npm_${gen(36)}"`, negative: () => `t = "npm_${gen(10)}"` },
   { id: "huggingface-token", positive: () => `t = "hf_${gen(36)}"`, negative: () => `t = "hf_${gen(10)}"` },
   { id: "sendgrid-key", positive: () => `k = "SG.${gen(22)}.${gen(43)}"`, negative: () => `k = "SG.${gen(5)}.${gen(5)}"` },
@@ -112,7 +112,7 @@ describe("preview and fingerprint", () => {
     }
     expect(p.startsWith(value.slice(0, 4))).toBe(true);
     expect(p.endsWith(value.slice(-2))).toBe(true);
-    expect(maskedPreview("private-key", "x")).toBe("-----BEGIN … PRIVATE KEY-----");
+    expect(maskedPreview("private-key", "x")).toBe("-----BEGIN " + "…" + " PRIVATE KEY-----");
     expect(maskedPreview("github-token", "short")).toBe("••••••••");
   });
 
