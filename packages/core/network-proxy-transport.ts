@@ -30,7 +30,11 @@ export async function initNetworkProxyTransport(settings: NetworkProxySettings) 
 export async function refreshNetworkProxyTransport() {
   if (!settingsRef) return;
   try { snapshot = await settingsRef.policy(); } catch { /* keep last good snapshot */ }
+  revisionSink?.(snapshot?.revision ?? 0);
 }
+/** Server main registers the trusted sidecar notifier; routes never see it. */
+let revisionSink: ((revision: number) => void) | null = null;
+export function setNetworkProxyRevisionSink(sink: ((revision: number) => void) | null) { revisionSink = sink; }
 
 const ensureAgents = () => {
   if (!snapshot || !snapshot.url || upstreamRevision === snapshot.revision) return;

@@ -1,3 +1,4 @@
+import {networkProxySettingsFor} from '../../packages/core/network-proxy-settings.ts';
 import {resolve,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {homedir} from 'node:os';
@@ -24,7 +25,7 @@ import {createPersonalSkillCatalog} from '../../packages/skill-catalog/adapters.
 import {configureHostCapabilityFlags,readCapabilityFlagOverrides,capabilityEnabled,type CapabilityFlagKey} from '../../packages/core/capability-flags.ts';
 
 export interface HostOptions {dataDir:string;port:number;widgetPort:number;dev:boolean;pluginDir?:string;launchToken?:string;capabilityFlags?:Readonly<Partial<Record<CapabilityFlagKey,boolean>>>;toolEffectFlags?:EffectServiceOptions['toolEffectFlags'];approvedBackendId?:string;isolationBackends?:readonly ExecutionBackend[]}
-export interface RunningHost {attentionRead?():Promise<AttentionDelivery>;attentionAction?(type:'open'|'dismiss',eventId:string):Promise<{threadId?:string;dismissed?:boolean}>;origin:string;widgetOrigin:string;pid:number;close():Promise<void>;nativeLayout?:DesktopLayout;stopAll():Promise<{stopped:number;errors?:string[]}>;saveNativeLayout(layout:unknown):Promise<void>;validatePluginSurface?(surface:unknown):Promise<boolean>;pluginCompatibility?(version:string):Promise<{allowed:boolean}>;updateReadiness?():Promise<{idle:boolean}>;prepareUpdateClose?():Promise<{idle:boolean}>}
+export interface RunningHost {attentionRead?():Promise<AttentionDelivery>;networkProxySnapshot?():Promise<{revision:number;url:string|null;credentials:string|null;bypass:string[]}>;attentionAction?(type:'open'|'dismiss',eventId:string):Promise<{threadId?:string;dismissed?:boolean}>;origin:string;widgetOrigin:string;pid:number;close():Promise<void>;nativeLayout?:DesktopLayout;stopAll():Promise<{stopped:number;errors?:string[]}>;saveNativeLayout(layout:unknown):Promise<void>;validatePluginSurface?(surface:unknown):Promise<boolean>;pluginCompatibility?(version:string):Promise<{allowed:boolean}>;updateReadiness?():Promise<{idle:boolean}>;prepareUpdateClose?():Promise<{idle:boolean}>}
 export interface HostFactories {
  acquireProfile:typeof acquireProfileLease;
  createStore(dataDir:string):Store;
@@ -114,7 +115,7 @@ export async function launchHost(options:HostOptions,overrides:Partial<HostFacto
   await service.recover();
   accepting=true;
   const workspace=()=>new WorkspaceRepository(store!),attention=new AttentionRepository(store!);
-  return {origin:`http://127.0.0.1:${hostAddress.port}`,widgetOrigin:`http://localhost:${widgetAddress.port}`,pid:process.pid,close,
+  return {origin:`http://127.0.0.1:${hostAddress.port}`,networkProxySnapshot:()=>networkProxySettingsFor(store!.dataDir).policy(),widgetOrigin:`http://localhost:${widgetAddress.port}`,pid:process.pid,close,
    get nativeLayout(){return store&&typeof store.get==='function'?workspace().read().state.nativeLayout:undefined;},
    async saveNativeLayout(layout){if(!accepting)throw Error('Host is not accepting layout saves.');workspace().command({id:randomUUID(),type:'workspace.native.update',payload:{layout:parseDesktopLayout(layout)}});},
    stopAll:()=>service!.stopAll(),
