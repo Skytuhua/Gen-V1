@@ -4,7 +4,7 @@
 /** Validated href for an openable terminal link, or null when unsafe. */
 export function terminalLinkUrl(raw: string): string | null {
   if (typeof raw !== 'string' || raw.length === 0 || raw.length > 2048) return null;
-  if (/[-\s]/.test(raw)) return null;
+  if (/[\u0000-\u0020\s]/.test(raw)) return null;
   let url: URL;
   try { url = new URL(raw); } catch { return null; }
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
