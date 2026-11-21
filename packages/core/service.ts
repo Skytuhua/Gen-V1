@@ -12,9 +12,9 @@ import { withApprovedProjectContext } from './approved-project-context.ts';
 import { createRepositoryMapReader } from './repository-map-host.ts';
 import type {AccountAuthTarget} from '../contracts/authentication.ts';
 import {privateFamilyForBinding} from '../workspace/git-storage.ts';
-import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
+import { stat, open } from "node:fs/promises";
 import { existsSync, lstatSync, realpathSync } from 'node:fs';
-import { basename, join, relative, resolve, sep } from "node:path";
+import { relative, resolve, sep } from "node:path";
 import { Store, digest, compactionOwnerKey, type CompactionAttemptRecord } from "../storage/store.ts";
 import {PersonalResearchRepository} from '../research/repository.ts';
 import { assertNotStorage, canonical, inside, resolveGrant, projectMemoryDeletionLedgerPath } from "./security.ts";
@@ -30,13 +30,14 @@ import {AgentWorkCoordinator} from './agent-work.ts';
 import {PlanExtensionStore} from './plan-extension.ts';
 import {PLAN_RUNTIME_GUIDANCE} from './planning-tools.ts';
 import type {CanonicalPlanJobProvider} from './plan-timeline.ts';
+import {ServiceCommands} from './service-commands.ts';
 import {SideRuntime} from './side-runtime.ts';
 import {ComposerPredictions,predictionContext,type PredictionBasis,type PredictionRequest} from './composer-prediction.ts';
 import {PlanningQuestionSchema} from '../contracts/planning-question.ts';
-import { getPreferences, mergePreferences } from "../contracts/preferences.ts";
-import {accountResolver,assertAccountAvailable,changeAccount,modelProvider,sweepStaleAccountLeases} from './accounts.ts';
+import { getPreferences } from "../contracts/preferences.ts";
+import {accountResolver,assertAccountAvailable,modelProvider,sweepStaleAccountLeases} from './accounts.ts';
 import {isConnectionProviderId} from '../contracts/connections.ts';
-import {applySkillOperations,curateSkills,decideSkillProposal,listSkills,setSkillFlags,skillIndex,viewSkill,viewSkillProposal} from './skills.ts';
+import {applySkillOperations,curateSkills,listSkills,skillIndex,viewSkill,viewSkillProposal} from './skills.ts';
 import {LearningCoordinator,type LearningJob,type LearningOutcome,type LearningToolResult} from './learning.ts';
 import {LEARN_REQUEST,learningReviewPrompt,searchSessions} from './learning-context.ts';
 import type {SkillActor,SkillChangeResult} from '../contracts/skills.ts';
@@ -70,14 +71,11 @@ import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} 
 import {BrowserConsentHost, hostControlDriverRegistry} from './browser-consent.ts';
 import {sourceRefsV1Schema, sendModeV1Schema, WORKBENCH_LIMITS, type SendModeV1} from '../contracts/source-selection.ts';
 import {ProjectMemoryHost} from './project-memory-host.ts';
-import {applySessionBranch} from './session-branches.ts';
-import {cancelImport,commitImport,prepareImport,stageImport} from './history-import.ts';
 import type {MemoryExtractionAdmission,MemoryExtractionJob} from './memory-extraction.ts';
 import type {MemoryAccess,MemoryAction,MemoryScope} from '../contracts/project-memory.ts';
 import {BackgroundWorkCoordinator,type BackgroundWorkOptions} from './background-work.ts';
 import {ExternalIntakeCoordinator,type IntakeAuth} from './external-intake.ts';
 import type {ModelRequestGate} from '../runtime/model-capacity.ts';
-import type {BackgroundWorkKind} from '../contracts/background-work.ts';
 
 type Outbox = WorkbenchQueuedInput & {messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic;sendMode?:SendModeV1};
 type Lease = { id: string; threadId: string; clientId: string; fields: string[]; expiresAt: number };
@@ -91,7 +89,7 @@ const object = (value: unknown): Record<string, unknown> => {
   return value as Record<string, unknown>;
 };
 const now = () => new Date().toISOString();
-interface SourceIntegration {runtime:Pick<HermesRuntime,'sourceBusy'|'reviewBusy'|'cancelBackground'|'sourceRequest'>;library:Pick<HermesSourceLibrary,'initialize'|'command'|'view'|'proposal'|'refresh'>}
+export interface SourceIntegration {runtime:Pick<HermesRuntime,'sourceBusy'|'reviewBusy'|'cancelBackground'|'sourceRequest'>;library:Pick<HermesSourceLibrary,'initialize'|'command'|'view'|'proposal'|'refresh'>}
 export interface HostToolContext {
   readonly authenticatedApprovals:boolean;
   prepareOperation(kind:string,args:Record<string,unknown>,resourceIds:string[],preconditions:Record<string,string>,description:string):Operation;
@@ -164,7 +162,6 @@ export class Service {
   private readonly predictions:ComposerPredictions;
   private predictionMutations=0;
   private readonly deliveries=new Map<string,Promise<void>>();
-  private readonly messageAdmissions=new Map<string,{commitment:string;work:Promise<CommandReceipt>}>();
   private readonly mainAdmissions=new Set<string>();
   private readonly teardowns=new Map<string,{ctx:RunContext;side:boolean;promise:Promise<void>}>();
   private readonly authority:ToolAuthority;
@@ -177,6 +174,7 @@ export class Service {
   private readonly contextResultAuthorities = new Map<string, { expiresAtMs: number; authorized: () => Promise<boolean> }>();
   private readonly relevanceObserver = createHostRelevanceObserver();
   private readonly repositoryMaps = createRepositoryMapReader();
+  private readonly commands:ServiceCommands;
   private relevanceOwner(thread: Thread) {
     if (!capabilityEnabled('context.compilerV1') || this.closed || !thread.runId || !thread.modelId || thread.sideParentId || thread.kind === 'delegate') return null;
     const resources = this.store.db.prepare("SELECT body FROM entities WHERE kind='resource' AND thread_id=? ORDER BY id LIMIT 257").all(thread.id);
@@ -310,6 +308,32 @@ export class Service {
         await this.command({id:randomUUID(),type:'message.send',threadId:thread.id,payload:{content:request.content,modelId:request.modelId}});
         return {threadId:thread.id};
       }});
+    this.commands=new ServiceCommands({
+      store,effects:this.effects,effectFlags:this.effectFlags,aborts:this.aborts,teardowns:this.teardowns,
+      planning:this.planning,agentWork:this.agentWork,backgroundWork:this.backgroundWork,intake:this.intake,
+      controlConsent:this.controlConsent,projectTrust:this.projectTrust,runtime:this.runtime,
+      closed:()=>this.closed,updateClosing:()=>this.updateClosing,reviewing:()=>this.reviewing,touch:()=>{this.lastActivity=Date.now();},
+      predictionsBusy:()=>this.predictions.busy,cancelComposerPredictions:()=>this.cancelComposerPredictions(),
+      mutatePredictions:delta=>{this.predictionMutations+=delta;},memoryBusy:()=>Boolean(this.memoryHostInstance?.busy),
+      memoryHost:()=>this.memoryHost(),source:()=>this.source,thread:id=>this.thread(id),
+      skillActor:(kind,ctx)=>this.skillActor(kind,ctx),isAccountBound:thread=>this.isAccountBound(thread),
+      binding:(thread,providerId)=>this.binding(thread,providerId),assertBinding:(thread,providerId,captured)=>this.assertBinding(thread,providerId,captured),
+      cancelRun:(ctx,side)=>this.cancelRun(ctx,side),cancelReview:()=>this.cancelReview(),
+      failUnansweredDetails:(ctx,error)=>this.failUnansweredDetails(ctx,error),
+      applyLossAwareCompaction:(command,thread)=>this.applyLossAwareCompaction(command,thread),
+      runtimeFailure:(ctx,error)=>this.runtimeFailure(ctx,error),assertMutation:id=>this.assertMutation(id),
+      flushDeltas:threadId=>this.flushDeltas(threadId),sendMessage:(command,thread)=>this.sendMessage(command,thread),
+      resume:(command,thread)=>this.resume(command,thread),agentWorkCommand:(ctx,command)=>this.agentWorkCommand(ctx,command),
+      acceptRequest:(thread,request,response)=>this.acceptRequest(thread,request,response),
+      acceptAction:(thread,p,commandId)=>this.acceptAction(thread,p,commandId),
+      request:(threadId,id,revision)=>this.request(threadId,id,revision),updateGateStatus:id=>this.updateGateStatus(id),
+      assertNoOtherRun:id=>this.assertNoOtherRun(id),enqueueInput:input=>this.enqueueInput(input),
+      deliverOutbox:threadId=>this.deliverOutbox(threadId),dispatchOperation:id=>this.dispatchOperation(id),
+      operationData:(operation,progress)=>this.operationData(operation,progress),
+      state:(threadId,id)=>this.state(threadId,id),lease:id=>this.lease(id),artifact:(threadId,id)=>this.artifact(threadId,id),
+      context:(threadId,signal,operationId,authority)=>this.context(threadId,signal,operationId,authority),
+      background:promise=>this.background(promise),
+    });
     this.curatorTimer=setInterval(()=>{if(!this.closed&&!this.updateClosing)this.curateIdle();},60_000);this.curatorTimer.unref();
   }
   /** Retire eligible local copies even if memory injection was disabled after Forget. */
@@ -1040,374 +1064,7 @@ export class Service {
       }
     };
   }
-  async command(command: HostCommand): Promise<CommandReceipt> {
-    if (command.type !== 'message.send') return this.commandAdmitted(command);
-    const accepted = this.store.receipt(command); if (accepted) return accepted;
-    const commitment = digest(command), pending = this.messageAdmissions.get(command.id);
-    if (pending) {if (pending.commitment !== commitment) throw new HarnessError('DUPLICATE_COMMAND', 'A pending send command already belongs to different content.'); return pending.work;}
-    if (this.messageAdmissions.size >= 128) throw new HarnessError('SEND_BUSY', 'Too many messages are being admitted.', {sendAccepted: false});
-    const captured = structuredClone(command);
-    const work = Promise.resolve().then(async () => {
-      try {return await this.commandAdmitted(captured);} catch (error) {
-        const receipt = this.store.receipt(captured); if (receipt) return receipt;
-        // There is exactly one matching admission while this entry is held.
-        // Typed precommit denial can therefore unlock an edited new command.
-        if (error instanceof HarnessError && !this.store.get('outbox', captured.id)) throw new HarnessError(error.code, error.message, {...(error.details && typeof error.details === 'object' ? error.details : {}), sendAccepted: false});
-        throw error;
-      }
-    });
-    this.messageAdmissions.set(command.id, {commitment, work});
-    try {return await work;} finally {if (this.messageAdmissions.get(command.id)?.work === work) this.messageAdmissions.delete(command.id);}
-  }
-  private async commandAdmitted(command: HostCommand): Promise<CommandReceipt> {
-    if(this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');
-    if(command.type==='agent.followUp'){if(this.closed)throw new HarnessError('CANCELLED_RUN','The workspace has closed.');this.lastActivity=Date.now();return this.planning.followUp(command);}
-    // Retired commands must not replay old write receipts.
-    if(command.type.startsWith('research.'))throw new HarnessError('UNKNOWN_COMMAND', 'Unknown command: '+command.type);
-    const duplicate = this.store.receipt(command); if (duplicate) {
-      if(command.type==='run.stop'){
-        const owner=(duplicate.result as {nativeOwner?:RunContext})?.nativeOwner;
-        if(owner)await this.teardowns.get(JSON.stringify([owner.threadId,owner.runId,owner.epoch]))?.promise;
-      }
-      return duplicate;
-    }
-    const target=command.threadId?this.store.get<Thread>('thread',command.threadId):null;
-    if(target?.kind==='delegate'&&!['thread.rename','thread.presentation','thread.archive','thread.restore'].includes(command.type))throw new HarnessError('DELEGATE_READ_ONLY','Delegated transcripts are read-only. Control their work from the parent task.');
-    const preempts=['message.send','run.resume','run.compact','run.stop','thread.archive','settings.update','action.submit','request.respond','request.detail','operation.approve','operation.reject','learning.curate'].includes(command.type)||command.type.startsWith('account.');
-    if(!preempts)return this.executeCommand(command);
-    // Hold admission through asynchronous model discovery/history/teardown. A
-    // previous reply settling in that interval must not start optional work.
-    this.predictionMutations++;
-    try{const busy=this.predictions.busy||this.memoryHostInstance?.busy,cancelled=this.cancelComposerPredictions();if(busy)await cancelled;return await this.executeCommand(command);}
-    finally{this.predictionMutations--;}
-  }
-  private async executeCommand(command:HostCommand){
-    const p = command.payload;
-    if(this.closed)throw new HarnessError('CANCELLED_RUN','The workspace has closed.');
-    if(this.source?.runtime.sourceBusy&&command.type==='settings.update'&&p.preferences&&typeof p.preferences==='object'&&['learningEnabled','learningApproval','learningInterval','skillCurator'].some(key=>Object.hasOwn(p.preferences as object,key)))throw new HarnessError('HERMES_POLICY_BUSY','Stop the current response before changing learning controls.');
-    this.lastActivity=Date.now();
-    if(this.reviewing&&(['run.stop','run.compact','thread.archive','learning.cancel'].includes(command.type)||command.type.startsWith('account.')||command.type==='settings.update'||command.type.startsWith('skill.')))await this.cancelReview();
-    if(this.source&&(command.type.startsWith('skill.')||command.type==='learning.curate'))return this.source.library.command(command);
-    if(command.type.startsWith('skill.'))return this.store.command(command,()=>{
-      if(command.type==='skill.manage')return applySkillOperations(this.store,p.operations,this.skillActor('user'));
-      if(command.type==='skill.flags')return setSkillFlags(this.store,text(p,'name',64),{...(p.enabled===undefined?{}:{enabled:p.enabled as boolean}),...(p.protected===undefined?{}:{protected:p.protected as boolean})},p.baseRevision as number);
-      if(command.type==='skill.decide')return decideSkillProposal(this.store,text(p,'proposalId',200),p.approve as boolean);
-      throw new HarnessError('UNKNOWN_CAPABILITY','Unknown skill command.');
-    });
-    if(command.type==='control.request')return this.store.command(command,()=>{
-      const thread=this.thread(command.threadId!),mode=p.mode;
-      if(mode!=='FRESH_VERIFICATION_BROWSER'&&mode!=='CONSENTED_EXISTING_TAB'&&mode!=='SELECTED_DESKTOP_APPLICATION')throw new HarnessError('INVALID_INPUT','Choose a control mode.');
-      const owner={threadId:thread.id,runId:null,epoch:thread.epoch,projectId:thread.projectId??null,workspaceId:thread.workspaceId??null,accountBinding:thread.accountId??null};
-      const OPS=['CLICK','TYPE','KEYPRESS','UPLOAD','DOWNLOAD','NAVIGATE'] as const;
-      const operations=Array.isArray(p.operations)?p.operations.filter((o):o is (typeof OPS)[number]=>typeof o==='string'&&(OPS as readonly string[]).includes(o)):[];
-      const request=this.controlConsent.requestConsent(owner,{mode,observe:p.observe===true,operations,allowedOrigins:Array.isArray(p.allowedOrigins)?p.allowedOrigins.filter((o):o is string=>typeof o==='string'):[]});
-      return {consent:request,control:this.controlConsent.surfaceModel(thread.id)};
-    });
-    if(command.type==='control.stop')return this.store.command(command,()=>{
-      const thread=this.thread(command.threadId!);
-      return {control:this.controlConsent.stop(thread.id)};
-    });
-    if(command.type==='learning.cancel')return this.store.command(command,()=>({cancelled:true}));
-    if(command.type==='learning.curate')return this.store.command(command,()=>({changes:curateSkills(this.store)}));
-    if(command.type.startsWith('account.'))return this.store.command(command,()=>changeAccount(this.store,command));
-    if(command.type.startsWith('background.')||command.type.startsWith('intake.'))return this.backgroundCommand(command);
-    if (command.type === "thread.create") return this.store.command(command, () => {
-      const parent=p.sideParentId===undefined?undefined:this.thread(text(p,'sideParentId',200));
-      if(parent?.sideParentId||parent?.kind==='delegate')throw new HarnessError('INVALID_INPUT','Open side questions from the main conversation.');
-      if(parent&&this.store.all<Thread>('thread').filter(item=>item.sideParentId===parent.id&&!this.store.get('archivedThread',item.id)).length>=24)throw new HarnessError('SIDE_CHAT_LIMIT','Archive an older side conversation before creating another.');
-      const projectId=p.projectId===undefined?parent?.projectId:text(p,'projectId',160);
-      if(projectId&&!/^[\w:.-]+$/.test(projectId))throw new HarnessError('INVALID_INPUT','Choose a valid connected project.');
-      const project=projectId?this.store.get<{name:string;authority:{kind:string}}>('workspaceProject',projectId):null;
-      if(projectId&&(!project||project.authority?.kind!=='local'))throw new HarnessError('CAPABILITY_DENIED','Choose a connected personal project.');
-      const thread: Thread = { id: randomUUID(),kind:parent?'side':'main',...(projectId?{projectId}:{}),...(parent?.workspaceId?{workspaceId:parent.workspaceId}:{}), title: typeof p.title === "string" ? p.title.slice(0, 140) || "New thread" : parent?'Side question':"New thread", projectName:project?.name??(typeof p.projectName === "string" ? p.projectName : parent?.projectName??null), createdAt: now(), updatedAt: now(), status: "ready", epoch: 0, runId: null, modelId: null, sessionPath: null,...(parent?{sideParentId:parent.id,parentThreadId:parent.id,mode:'plan' as const,...(this.isAccountBound(parent)?{accountId:parent.accountId??null,modelId:parent.modelId}:{})}:{}) };
-      this.store.put("thread", thread.id, thread.id, thread);
-      if(parent)this.store.put('sideContext',thread.id,thread.id,{parentId:parent.id,title:parent.title,capturedAt:now(),messages:this.store.all<Message>('message',parent.id).filter(message=>message.role!=='activity').slice(-8).map(message=>({id:message.id,role:message.role,content:message.content.slice(0,1500)}))});
-      return thread;
-    });
-    if (command.type === "settings.update") return this.store.command(command, () => {
-      const settings = this.store.get<Snapshot['settings']>('settings', 'global') ?? { theme: 'dark', modelId: null };
-      if (Object.keys(p).some(key => !['theme', 'modelId', 'preferences'].includes(key))) throw new HarnessError('INVALID_INPUT', 'Unsupported setting');
-      if (p.theme !== undefined && !["light", "dark", "system"].includes(String(p.theme))) throw new HarnessError("INVALID_INPUT", "Unknown theme");
-      if (p.modelId !== undefined && p.modelId !== null && (typeof p.modelId !== 'string' || p.modelId.length > 200)) throw new HarnessError('INVALID_INPUT', 'Invalid model selection');
-      let preferences = settings.preferences;
-      if (p.preferences !== undefined) { try { preferences = mergePreferences(getPreferences(settings), p.preferences); } catch { throw new HarnessError('INVALID_INPUT', 'Invalid or unsupported preference'); } }
-      const next = { ...settings, ...(p.theme !== undefined ? { theme: p.theme } : {}), ...(p.modelId !== undefined ? { modelId: p.modelId } : {}), ...(preferences ? { preferences } : {}) }; this.store.put("settings", "global", null, next); return next;
-    });
-    if (command.type === 'thread.restore') return this.store.command(command, () => {
-      const archived = command.threadId && this.store.get<Thread>('thread', command.threadId);
-      if (!archived || !this.store.get('archivedThread', archived.id)) throw new HarnessError('NOT_FOUND', 'Archived thread unavailable');
-      this.store.remove('archivedThread', archived.id); return archived;
-    });
-    const thread = this.thread(command.threadId);
-    // A command can end or supersede the run; flush its buffered deltas before
-    // any handler mutates epoch/runId, or the trailing text would be dropped.
-    this.flushDeltas(thread.id);
-    if(thread.sideParentId&&!['message.send','run.stop','run.resume','thread.rename','thread.presentation','thread.archive'].includes(command.type))throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer questions without changing the main task or accessing files.');
-    if (command.type === 'session.branch') {
-      if (!capabilityEnabled('sessions.branchV1')) throw new HarnessError('CAPABILITY_DENIED', 'Session branching is disabled on this host.');
-      return this.store.command(command, () => applySessionBranch(this.store, this.thread(thread.id), p, { accountExists: id => this.store.get('account', id) !== null }));
-    }
-    if (command.type.startsWith('historyImport.')) {
-      if (!capabilityEnabled('sessions.inertImportV1')) throw new HarnessError('CAPABILITY_DENIED', 'History import is disabled on this host.');
-      const owner = { threadId: thread.id, projectId: thread.projectId ?? null };
-      if (command.type === 'historyImport.stage') {
-        // Format admission is pure CPU work — it completes before the staging
-        // transaction so a 20 MiB document never holds the write lock.
-        const bytes = typeof p.archive === 'string' ? Buffer.from(text(p, 'archive', 22 * 1024 * 1024), 'utf8')
-          : typeof p.archiveBase64 === 'string' ? Buffer.from(text(p, 'archiveBase64', 30 * 1024 * 1024), 'base64')
-          : (() => { throw new HarnessError('INVALID_INPUT', 'An ArchiveV1 JSON archive is required'); })();
-        const prepared = prepareImport(bytes);
-        return this.store.command(command, () => stageImport(this.store, owner, prepared));
-      }
-      if (command.type === 'historyImport.commit')
-        return this.store.command(command, () => commitImport(this.store, owner, text(p, 'importId', 200)));
-      if (command.type === 'historyImport.cancel')
-        return this.store.command(command, () => cancelImport(this.store, owner, text(p, 'importId', 200)));
-      throw new HarnessError('UNKNOWN_COMMAND', 'Unknown command: ' + command.type);
-    }
-    if (command.type.startsWith('agentWork.')) {
-      const ctx: RunContext = { threadId: thread.id, runId: thread.runId ?? '', epoch: thread.epoch };
-      return this.agentWorkCommand(ctx, command);
-    }
-    if (command.type === 'memory.save' || command.type === 'memory.delete') return this.store.command(command, () => changeTaskMemory(this.store, thread.id, command.type === 'memory.save' ? 'save' : 'delete', p, 'user'));
-    if (command.type === "message.send") return this.sendMessage(command, thread);
-    if (command.type === "run.stop") {
-      const pending=[...this.teardowns.values()].find(owner=>owner.ctx.threadId===thread.id);
-      const ctx = !thread.runId&&pending?pending.ctx:{ threadId: thread.id, runId: thread.runId ?? "", epoch: thread.epoch };
-      const receipt = this.store.command(command, () => { this.planning.endRun(ctx,'cancelled'); this.failUnansweredDetails(ctx,"The explanation was stopped. Resume the task to retry."); this.store.put("thread", thread.id, thread.id, { ...thread, epoch: thread.epoch + 1, runId: null, status: "stopped", updatedAt: now() }); return { stopped: true,nativeOwner:ctx }; });
-      this.aborts.get(thread.id)?.abort();
-      // Register the native teardown first — a racing resume must still see
-      // RUN_BUSY — then revoke child work whether teardown succeeded or
-      // failed, so no stopped parent leaves live dispatch behind.
-      await this.cancelRun(ctx,!!thread.sideParentId)
-        .finally(() => this.agentWork.revokeForParent(thread.id).catch(() => {}));
-      return receipt;
-    }
-    if (command.type === "run.resume") return this.resume(command, thread);
-    if (command.type === "operation.reconcile") {
-      const operation = this.store.get<Operation>("operation", text(p, "operationId", 200));
-      if (!operation || operation.threadId !== thread.id || operation.status !== "unknown") throw new HarnessError("INVALID_OPERATION", "Select an uncertain operation to inspect");
-      const domain = await import("../capabilities/index.ts");
-      const observed = await domain.reconcileDomainOperation(operation, this.context(thread.id));
-      return this.store.command(command, () => {
-        const current = this.store.get<Operation>("operation", operation.id), currentThread = this.store.get<Thread>("thread", thread.id);
-        if (this.closed || !currentThread || this.store.get("archivedThread", thread.id)
-          || digest(ownerFor(currentThread)) !== digest(ownerFor(thread)) || !current || digest(current) !== digest(operation))
-          throw new HarnessError("STALE_OPERATION", "The action or its owner changed while inspecting its outcome. Reload the action before inspecting again.");
-        const next = { ...current, status: observed.status, ...(observed.result !== undefined ? { result: observed.result } : {}), error: observed.status === "unknown" ? observed.message : undefined };
-        this.store.put("operation", operation.id, thread.id, next); this.operationData(next); return observed;
-      });
-    }
-    if (command.type === "run.compact") {
-      if (capabilityEnabled('context.lossAwareCompactionV1')) {
-        if (!thread.sessionPath || !thread.modelId) throw new HarnessError("RUNTIME_UNAVAILABLE", "This thread does not have a Pi session yet");
-        if (thread.runId) throw new HarnessError("RUN_BUSY", "Wait for the current run before compacting");
-        this.assertNoOtherRun(thread.id);
-        return this.applyLossAwareCompaction(command,thread);
-      }
-      if (!thread.sessionPath || !thread.modelId) throw new HarnessError("RUNTIME_UNAVAILABLE", "This thread does not have a Pi session yet");
-      if (thread.runId) throw new HarnessError("RUN_BUSY", "Wait for the current run before compacting");
-      this.assertNoOtherRun(thread.id);
-      const binding=this.binding(thread,modelProvider(thread.modelId));
-      const memoryCheckpoint=capabilityEnabled('memory.projectV1')?await this.memoryHost().requirement(thread.id):undefined;
-      const current=this.thread(thread.id);if(current.epoch!==thread.epoch||current.runId!==thread.runId||current.modelId!==thread.modelId||current.sessionPath!==thread.sessionPath)throw new HarnessError('CANCELLED_RUN','The compaction owner changed while preparing memory.');
-      const ctx = { threadId: thread.id, runId: randomUUID(), epoch: thread.epoch + 1 };
-      const receipt = this.store.command(command, () => { this.assertBinding(this.thread(thread.id),modelProvider(thread.modelId!),binding);this.store.put("runtimeIntent", ctx.runId, thread.id, { kind: "compaction", previousStatus: thread.status }); this.store.put("thread", thread.id, thread.id, { ...thread, ...ctx, accountId:binding.accountId,id: thread.id, status: "working", updatedAt: now() }); return ctx; });
-      this.background((memoryCheckpoint?this.runtime.compact(ctx,thread.sessionPath,thread.modelId,binding.accountId,memoryCheckpoint):this.runtime.compact(ctx,thread.sessionPath,thread.modelId,binding.accountId)).catch(e => this.runtimeFailure(ctx, e))); return receipt;
-    }
-    if (command.type === "resource.grant") {
-      const path = await canonical(text(p, "path", 4096)); assertNotStorage(path, this.store.dataDir);
-      if (!["project", "file", "database", "export", "attachment"].includes(String(p.kind))) throw new HarnessError("INVALID_INPUT", "Unsupported resource kind");
-      const identity = await stat(path, { bigint: true });
-      const grant: ResourceGrant = { id: randomUUID(), threadId: thread.id, path, kind: p.kind as ResourceGrant["kind"], label: typeof p.label === "string" ? p.label : basename(path), writable: p.writable === true, createdAt: now(), identity: { dev: String(identity.dev), ino: String(identity.ino) } };
-      return this.store.command(command, () => { this.store.put("resource", grant.id, thread.id, grant); return grant; });
-    }
-    if (command.type === "resource.upload") {
-      const name = basename(text(p, "name", 200)).replace(/[^a-zA-Z0-9._ -]/g, "_");
-      const base64 = text(p, "base64", 28 * 1024 * 1024);
-      if (!/^[a-zA-Z0-9+/]*={0,2}$/.test(base64)) throw new HarnessError("INVALID_INPUT", "Invalid attachment encoding");
-      const bytes = Buffer.from(base64, "base64"); if (bytes.length > 20 * 1024 * 1024) throw new HarnessError("INVALID_INPUT", "Attachments are limited to 20 MiB");
-      const folder = join(this.store.dataDir, "attachments", thread.id); await mkdir(folder, { recursive: true });
-      const path = join(folder, command.id + "-" + name); try { await writeFile(path, bytes, { flag: "wx" }); } catch (e) { if ((e as NodeJS.ErrnoException).code !== "EEXIST") throw e; if (!(await readFile(path)).equals(bytes)) throw new HarnessError("DUPLICATE_COMMAND", "Upload ID already has different content"); }
-      const grant: ResourceGrant = { id: command.id, threadId: thread.id, path, label: name, kind: "attachment", writable: false, createdAt: now() };
-      return this.store.command(command, () => { this.store.put("resource", grant.id, thread.id, grant); return grant; });
-    }
-    const receipt = this.store.command(command, () => this.applyCommand(command, this.thread(thread.id)));
-    if (["request.respond","request.detail","action.submit","operation.reject"].includes(command.type)) this.background(this.deliverOutbox(thread.id));
-    if (command.type === "operation.approve" || command.type === "action.submit") {
-      for (const op of this.store.all<Operation>("operation", thread.id).filter(o => o.approved && o.status === "prepared")) this.background(this.dispatchOperation(op.id));
-    }
-    return receipt;
-  }
-  private async backgroundCommand(command: HostCommand): Promise<CommandReceipt> {
-    const p = command.payload;
-    const ownerFor = (thread: Thread) => ({ threadId: thread.id, runId: thread.runId, epoch: thread.epoch, projectId: thread.projectId ?? null, workspaceId: thread.workspaceId ?? null, accountBinding: thread.accountId ?? null });
-    const sync = (result: unknown): CommandReceipt => this.store.receipt(command) ?? this.store.command(command, () => result);
-    switch (command.type) {
-      case 'background.work.admit': {
-        const thread = this.thread(command.threadId);
-        const kind = String(p.kind) as BackgroundWorkKind;
-        if (!['COMMAND', 'REVIEW', 'MAINTENANCE', 'EXTERNAL_TASK'].includes(kind)) throw new HarnessError('INVALID_INPUT', 'Unknown background work kind.');
-        const record = this.backgroundWork.admit(command, {
-          owner: ownerFor(thread), kind, title: text(p, 'title', 200),
-          ...(p.lifetime === 'APPROVED_SERVICE' ? { lifetime: 'APPROVED_SERVICE' as const } : {}),
-          ...(typeof p.deadlineMs === 'number' ? { deadlineMs: p.deadlineMs } : {}),
-          ...(typeof p.effectId === 'string' ? { effectId: p.effectId } : {}),
-          ...(p.command && typeof p.command === 'object' ? { command: p.command as { executable: string; argv: string[]; cwd: string; profileId: string } } : {}),
-          ...(p.idle && typeof p.idle === 'object' ? { idle: p.idle as { projectId: string; profileId: string; intervalMs: number } } : {}),
-          ...(typeof p.parentThreadId === 'string' ? { parentThreadId: p.parentThreadId } : {}),
-          ...(p.advisory === true ? { advisory: true } : {}),
-          ...(typeof p.intakeId === 'string' ? { intakeId: p.intakeId } : {}),
-        });
-        return sync(record);
-      }
-      case 'background.work.cancel': return sync(this.backgroundWork.cancel(command, text(p, 'workId', 200)));
-      case 'background.work.stop': {
-        const result = await this.backgroundWork.stopCommand(text(p, 'workId', 200));
-        return this.store.command(command, () => result);
-      }
-      case 'background.work.reconcile': {
-        const receipt = p.receipt as { pid: number; creationToken: string | null; exitCode: number | null; signal: string | null; observedAt: string };
-        return sync(this.backgroundWork.resolveProcessExit(text(p, 'workId', 200), receipt));
-      }
-      case 'background.command.start': {
-        const result = await this.backgroundWork.startCommand(text(p, 'workId', 200));
-        return this.store.command(command, () => result);
-      }
-      case 'background.wakeup.register': {
-        const thread = this.thread(command.threadId);
-        const taskId = text(p, 'taskId', 200);
-        const work = this.backgroundWork.work(taskId);
-        if (work.owner.threadId !== thread.id) throw new HarnessError('CAPABILITY_DENIED', 'The wakeup belongs to another task.');
-        return sync(this.backgroundWork.scheduler.register(command, { taskId, trigger: p.trigger, ...(typeof p.scheduleTimezone === 'string' ? { scheduleTimezone: p.scheduleTimezone } : {}), ...(typeof p.deadlineMs === 'number' ? { deadlineMs: p.deadlineMs } : {}) }));
-      }
-      case 'background.wakeup.pause': return sync(this.backgroundWork.scheduler.pause(command, text(p, 'wakeupId', 200)));
-      case 'background.wakeup.resume': return sync(this.backgroundWork.scheduler.resume(command, text(p, 'wakeupId', 200)));
-      case 'background.wakeup.cancel': return sync(this.backgroundWork.scheduler.cancel(command, text(p, 'wakeupId', 200)));
-      case 'background.occurrence.reconcile': return sync(this.backgroundWork.scheduler.reconcile(command, text(p, 'occurrenceKey', 600), p.receipt as { observed: 'DELIVERED' | 'NOT_DISPATCHED'; receiptRef?: string }));
-      case 'background.human.request': {
-        const thread = this.thread(command.threadId);
-        return sync(this.backgroundWork.requestHumanStep(command, {
-          requestId: text(p, 'requestId', 200), owner: ownerFor(thread), questionRevision: Number(p.questionRevision),
-          responseSchema: object(p.responseSchema), requiredAction: p.requiredAction as 'answer' | 'approval' | 'credential', workId: text(p, 'workId', 200),
-        }));
-      }
-      case 'background.human.respond': return sync(this.backgroundWork.respondHumanStep(command, { requestId: text(p, 'requestId', 200), revision: Number(p.revision), response: p.response }));
-      case 'background.human.decline': return sync(this.backgroundWork.declineHumanStep(command, { requestId: text(p, 'requestId', 200), revision: Number(p.revision) }));
-      case 'background.idle.configure': return sync(this.backgroundWork.configureIdle(command, { projectId: text(p, 'projectId', 160), profileId: text(p, 'profileId', 160), enabled: p.enabled === true, intervalMs: Number(p.intervalMs) }));
-      case 'background.pauseAll': return sync(this.backgroundWork.pauseAll(command));
-      case 'intake.configure': return sync(this.intake.configure(command, { repositoryId: Number(p.repositoryId), enabled: p.enabled === true, ...(typeof p.projectId === 'string' || p.projectId === null ? { projectId: p.projectId } : {}) }));
-      case 'intake.poll': {
-        const result = await this.intake.pollOnce();
-        return this.store.command(command, () => result);
-      }
-      case 'intake.approve': {
-        const result = await this.intake.approve(command, { intakeId: text(p, 'intakeId', 200), modelId: text(p, 'modelId', 300), ...(typeof p.projectId === 'string' ? { projectId: p.projectId } : {}) });
-        return this.store.command(command, () => result);
-      }
-      case 'intake.reject': return sync(this.intake.reject(command, { intakeId: text(p, 'intakeId', 200), ...(typeof p.reason === 'string' ? { reason: p.reason } : {}) }));
-      default: throw new HarnessError('UNKNOWN_COMMAND', 'Unknown command: ' + command.type);
-    }
-  }
-  private applyCommand(command: HostCommand, thread: Thread): unknown {
-    const p = command.payload;
-    switch (command.type) {
-      case 'thread.mode': {
-        if(thread.runId)throw new HarnessError('RUN_BUSY','Stop the current run before changing its mode');
-        if(!['plan','build'].includes(String(p.mode)))throw new HarnessError('INVALID_INPUT','Unknown task mode');
-        const next={...thread,mode:p.mode as 'plan'|'build'};this.store.put('thread',thread.id,thread.id,next);return next;
-      }
-      case "thread.rename": { const next = { ...thread, title: text(p, "title", 140), updatedAt: now() }; this.store.put("thread", thread.id, thread.id, next); return next; }
-      case 'thread.presentation': {
-        if (Object.keys(p).some(key => !['pinned', 'unread', 'settled', 'order'].includes(key)) || Object.entries(p).some(([key, value]) => key === 'order' ? typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > 1_000_000 : typeof value !== 'boolean')) throw new HarnessError('INVALID_INPUT', 'Invalid thread presentation');
-        const next = { ...thread, presentation: { ...thread.presentation, ...p } }; this.store.put('thread', thread.id, thread.id, next); return next;
-      }
-      case "thread.archive": {
-        if(thread.runId)throw new HarnessError("RUN_BUSY","Stop the thread before archiving");
-        if(this.planning.hasActiveChildren(thread.id)||this.store.all<Thread>('thread').some(side=>(side.sideParentId===thread.id||side.parentThreadId===thread.id)&&side.runId&&!this.store.get('archivedThread',side.id)))throw new HarnessError('RUN_BUSY','Finish or stop the child conversation before archiving this thread');
-        this.store.put("archivedThread",thread.id,thread.id,true);return {archived:true};
-      }
-      case "edit.begin": {
-        const state = this.state(thread.id, p.stateId), lease = this.lease(state.id), clientId = text(p, "clientId", 200);
-        if (lease && lease.clientId !== clientId) throw new HarnessError("USER_EDIT_CONFLICT", "Another client is editing this state");
-        const next: Lease = { id: state.id, threadId: thread.id, clientId, fields: Array.isArray(p.fields) ? p.fields.map(String) : [], expiresAt: Date.now() + 30000 };
-        this.store.put("lease", state.id, thread.id, next); return next;
-      }
-      case "edit.end": { const state = this.state(thread.id, p.stateId), lease = this.lease(state.id); if (lease && lease.clientId !== p.clientId) throw new HarnessError("USER_EDIT_CONFLICT", "Only the editing client may release this lease"); this.store.remove("lease", state.id); return { released: true }; }
-      case "state.save": {
-        const state = this.state(thread.id, p.stateId), clientId = text(p, "clientId", 200), lease = this.lease(state.id);
-        if (lease && lease.clientId !== clientId) throw new HarnessError("USER_EDIT_CONFLICT", "Another client owns this edit");
-        const key = state.id + ":" + clientId, last = this.store.get<{ sequence: number; hash: string; result: UserStateRecord }>("clientSequence", key);
-        const sequence = Number(p.clientSequence), values = object(p.values);
-        if (!Number.isSafeInteger(sequence) || sequence < 0 || JSON.stringify(values).length > 128 * 1024) throw new HarnessError("INVALID_INPUT", "Invalid draft sequence or size");
-        if (last && sequence <= last.sequence) { if (sequence === last.sequence && digest(values) === last.hash) return last.result; throw new HarnessError("STALE_USER_STATE", "Draft sequence has already advanced"); }
-        if (p.baseRevision !== state.revision) throw new HarnessError("STALE_USER_STATE", "The saved draft changed; keep both versions", { currentRevision: state.revision });
-        const next = { ...state, revision: state.revision + 1, values };
-        this.store.put("userState", state.id, thread.id, next); this.store.put("clientSequence", key, thread.id, { sequence, hash: digest(values), result: next });
-        if (lease) this.store.put("lease", state.id, thread.id, { ...lease, expiresAt: Date.now() + 30000 }); return next;
-      }
-      case "widget.checkpoint": {
-        const artifact = this.artifact(thread.id, p.artifactId);
-        if (!artifact.widget || artifact.revision !== p.revision) throw new HarnessError("STALE_REVISION", "Widget code changed");
-        if (artifact.widget.stateSchemaVersion !== p.stateSchemaVersion) throw new HarnessError("STALE_USER_STATE", "Widget state schema changed");
-        const state = this.state(thread.id, artifact.stateId), lease = this.lease(state.id), clientId = text(p, "clientId", 200);
-        if (lease && lease.clientId !== clientId) throw new HarnessError("USER_EDIT_CONFLICT", "Another client owns this edit");
-        if (p.baseStateRevision !== state.revision) throw new HarnessError("STALE_USER_STATE", "Checkpoint is stale", { currentRevision: state.revision });
-        validateJson(artifact.widget.stateSchema, p.values); const next = { ...state, revision: state.revision + 1, values: object(p.values) };
-        if (JSON.stringify(next.values).length > 128 * 1024) throw new HarnessError("INVALID_INPUT", "Checkpoint exceeds size limit");
-        this.store.put("userState", state.id, thread.id, next);
-        if (lease) this.store.put("lease", state.id, thread.id, { ...lease, expiresAt: Date.now() + 30000 });
-        return next;
-      }
-      case "artifact.expand": case "artifact.pin": case "artifact.archive": {
-        const artifact = this.artifact(thread.id, p.artifactId);
-        if (command.type === "artifact.archive" && (artifact.pinned || this.lease(artifact.stateId))) throw new HarnessError("USER_EDIT_CONFLICT", "Unpin and finish editing before archiving");
-        const next = { ...artifact, ...(command.type === "artifact.expand" ? { placement: p.expanded ? "expanded" : "inline" } : command.type === "artifact.pin" ? { pinned: p.pinned === true } : { lifecycle: "archived" }), updatedAt: now() } as ArtifactRecord;
-        this.store.put("artifact", artifact.id, thread.id, next); return next;
-      }
-      case "request.withdraw": {
-        const request = this.request(thread.id, p.requestId, p.revision);
-        this.store.put("request", request.id, thread.id, { ...request, revision: request.revision + 1, status: "withdrawn" });
-        for (const op of this.store.all<Operation>("operation", thread.id).filter(o => o.status === "prepared")) {
-          const next: Operation = { ...op, status: "cancelled", revision: op.revision + 1 };
-          this.store.put("operation", op.id, thread.id, next); this.operationData(next);
-        }
-        this.updateGateStatus(thread.id); return { withdrawn: true };
-      }
-      case "request.respond": return this.acceptRequest(thread, this.request(thread.id, p.requestId, p.revision), p.response);
-      case 'request.detail': {
-        if(['stopped','interrupted','failed'].includes(thread.status))throw new HarnessError('RESUME_REQUIRED','Resume this task before asking for another explanation');
-        const request=this.request(thread.id,p.requestId,p.revision);
-        if(!request.presentation||!['explain','examples','more-options'].includes(String(p.kind)))throw new HarnessError('INVALID_INPUT','This question has no requested detail');
-        if(p.kind!=='more-options'&&!request.presentation.options.some(option=>option.id===p.optionId))throw new HarnessError('INVALID_INPUT','Unknown option');
-        const prior=request.detailRequests?.find(detail=>detail.kind===p.kind&&detail.optionId===p.optionId&&this.store.get<Outbox>('outbox',detail.id)?.status!=='handled');if(prior){if(prior.status!=='pending')this.store.put('request',request.id,thread.id,{...request,revision:request.revision+1,detailRequests:request.detailRequests?.map(item=>item.id===prior.id?{...item,status:'pending',error:undefined}:item)});return {inputId:prior.id,pending:true};}
-        if((request.detailRequests?.filter(detail=>detail.status==='pending').length??0)>=4)throw new HarnessError('REQUEST_BUSY','Wait for the pending explanation before adding more');
-        const detail={id:command.id,kind:p.kind as 'explain'|'examples'|'more-options',...(p.kind!=='more-options'?{optionId:String(p.optionId)}:{}),status:'pending' as const};
-        this.store.put('request',request.id,thread.id,{...request,detailRequests:[...(request.detailRequests??[]).filter(item=>item.status==='pending'),detail]});
-        this.enqueueInput({id:command.id,threadId:thread.id,content:JSON.stringify({type:'question-detail',requestId:request.id,baseRevision:request.revision,kind:detail.kind,optionId:detail.optionId,instruction:'Explain this option, give relevant examples, or add alternatives as requested. Update this SAME pending question with ui_request_input requestId/baseRevision. Preserve responseSchema, existing option IDs and the user selection. This request does not consume the decision or authorize any operation.'}),status:'persisted',runId:null});
-        return {inputId:command.id,pending:true};
-      }
-      case "action.submit": return this.acceptAction(thread, p, command.id);
-      case "operation.approve": {
-        this.assertMutation(thread.id); const op = this.store.get<Operation>("operation", text(p, "operationId", 200));
-        if (!op || op.threadId !== thread.id) throw new HarnessError("NOT_FOUND", "Operation not found");
-        if (op.revision !== p.revision || op.status !== "prepared") throw new HarnessError("STALE_REVISION", "Operation has changed; review it again");
-        this.projectTrust.assertApproval(op, thread);
-        const next = { ...op, approved: true }; this.store.put("operation", op.id, thread.id, next);
-        if (this.effectFlags.enabled("security.authorityV1")) { const approval = this.effects.issueApproval(next, thread); this.store.put("approval", approval.approvalId, thread.id, approval); }
-        return next;
-      }
-      case "operation.reject": {
-        const op = this.store.get<Operation>("operation", text(p, "operationId", 200));
-        if (!op || op.threadId !== thread.id || op.status !== "prepared" || op.revision !== p.revision) throw new HarnessError("STALE_REVISION", "This prepared operation is no longer available");
-        const next: Operation = { ...op, status: "cancelled", approved: false };
-        this.store.put("operation", op.id, thread.id, next); this.operationData(next);
-        const input: Outbox = { id: command.id, threadId: thread.id, content: "The user declined prepared operation " + op.id + ": " + op.description, status: "persisted", runId: null };
-        this.enqueueInput(input); return next;
-      }
-      default: throw new HarnessError("UNKNOWN_COMMAND", "Unknown command: " + command.type);
-    }
-  }
+  async command(command: HostCommand): Promise<CommandReceipt> { return this.commands.command(command); }
   private request(threadId: string, id: unknown, revision: unknown): InputRequest {
     const request = typeof id === "string" ? this.store.get<InputRequest>("request", id) : null;
     if (!request || request.threadId !== threadId) throw new HarnessError("NOT_FOUND", "Decision not available");
