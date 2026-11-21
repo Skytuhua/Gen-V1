@@ -11,7 +11,6 @@ import {
   GitBranch,
   GitPullRequest,
   ListFilter,
-  LoaderCircle,
   MessageSquare,
   MoreHorizontal,
   PanelLeftClose,
@@ -275,6 +274,7 @@ export function ShellSidebar({
                 {item.title}
               </span>
               <span className="thread-item-meta" data-thread-state={item.runId ? 'working' : item.status}>
+                {isWorking && <span className="thread-run-badge" aria-hidden="true" />}
                 <time dateTime={item.updatedAt}>{threadAge(item.updatedAt)}</time>
               </span>
             </span>
@@ -292,7 +292,7 @@ export function ShellSidebar({
                   {showStatus && (
                     <span className="thread-item-status">
                       {isWorking ? (
-                        <LoaderCircle size={11} className="spinning" />
+                        <span className="thread-run-badge" aria-hidden="true" />
                       ) : item.status === 'awaiting_input' ? (
                         <span className="pending-dot" />
                       ) : null}
