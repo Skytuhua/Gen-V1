@@ -12,6 +12,7 @@
     ".github/workflows/ci-merged-pr-cleanup.yml",
     ".github/workflows/ci-queue-guard.yml",
     ".github/workflows/ci.yml",
+    ".github/workflows/codeql.yml",
     ".github/workflows/docs-links.yml",
     ".github/workflows/m01-m03-audit-merged-pr-cleanup.yml",
     ".github/workflows/m01-m03-audit.yml",
