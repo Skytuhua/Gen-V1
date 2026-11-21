@@ -76,7 +76,7 @@ export function UsageDialog({ open, onClose, reports = [], requests = [], loadin
       <div className="usage-dialog-filters">
         {!isRequests && <Select aria-label="Usage scope" value={selectedScope} onValueChange={setScope} options={[{ value: '', label: 'All scopes' }, ...scopes.map(([value, label]) => ({ value, label }))]} />}
         <Select aria-label="Usage provider" value={selectedProvider} onValueChange={setProvider} options={[{ value: '', label: 'All providers' }, ...providers.map(([value, label]) => ({ value, label }))]} />
-        {onRefresh && <button type="button" className="usage-refresh" disabled={loading || refreshing} onClick={() => void refresh()} aria-label="Refresh usage"><RefreshCw size={15} aria-hidden="true" /><span>{refreshing ? 'Refreshing…' : 'Refresh'}</span></button>}
+        {onRefresh && (isRequests || reports.length > 0) && <button type="button" className="usage-refresh" disabled={loading || refreshing} onClick={() => void refresh()} aria-label="Refresh usage"><RefreshCw size={15} aria-hidden="true" /><span>{refreshing ? 'Refreshing…' : 'Refresh'}</span></button>}
       </div>
       {(error || refreshError) && <ErrorState className="usage-dialog-error" message={error || refreshError}/>}
       {(loading || refreshing) && <p className="usage-dialog-status" role="status">{reports.length ? 'Refreshing usage…' : 'Loading usage…'}</p>}
