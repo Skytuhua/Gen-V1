@@ -3,6 +3,7 @@
 	flex-direction: column;
 	height: 100%;
 	min-height: 0;
+	container-type: inline-size;
 }
 
 .a11y-browser-body {
@@ -230,11 +231,15 @@
 .a11y-rule-elements-wrap {
 	display: grid;
 	grid-template-rows: 0fr;
-	transition: grid-template-rows var(--ui-motion-panel-enter) var(--ui-ease-enter);
+	visibility: hidden;
+	transition:
+		grid-template-rows var(--ui-motion-panel-enter) var(--ui-ease-enter),
+		visibility var(--ui-motion-panel-enter);
 }
 
 .a11y-rule-elements-wrap.open {
 	grid-template-rows: 1fr;
+	visibility: visible;
 }
 
 .a11y-rule-elements {

@@ -186,19 +186,28 @@ test('panel shrinks the slot and never overlaps it; bottom layout under 720px',a
  await settle(page,result());
  const panel=page.locator('.a11y-panel');
  await expect(panel).toBeVisible();
+ // The dock (~520px) is under the 720px container breakpoint, so the panel
+ // stacks below the slot and the slot shrinks vertically without overlap.
  const after=(await slot.boundingBox())!;
  const panelBox=(await panel.boundingBox())!;
- expect(after.width).toBeLessThan(before.width);
- expect(before.width-after.width).toBeCloseTo(panelBox.width,0);
- expect(after.x+after.width).toBeLessThanOrEqual(panelBox.x+0.5); // no overlap
- // Narrow container: the dock is wide enough only when the window is small.
- await page.setViewportSize({width:760,height:900});
- await page.evaluate(()=>window.dispatchEvent(new Event('resize')));
- await page.waitForTimeout(50);
- const stacked=(await slot.boundingBox())!;
- const panelBox2=(await panel.boundingBox())!;
- expect(panelBox2.y).toBeGreaterThan(stacked.y+stacked.height-1); // panel sits below the slot
+ expect(after.height).toBeLessThan(before.height);
+ expect(panelBox.y).toBeGreaterThan(after.y+after.height-1);
  await shot(page,'narrow-bottom');
+ // A wide detached surface gets the side-by-side layout instead.
+ await page.setViewportSize({width:1100,height:800});
+ await bridge(page,{kind:'browser',browserId:'browser-2'});
+ await page.goto('/');
+ await expect(page.locator('.a11y-browser-slot')).toBeVisible();
+ const wideSlot=page.locator('.a11y-browser-slot');
+ const wideBefore=(await wideSlot.boundingBox())!;
+ await page.getByRole('button',{name:'Accessibility check',exact:true}).click();
+ await page.getByRole('menuitem',{name:'Check this page',exact:true}).click();
+ await settle(page,result());
+ const wideAfter=(await wideSlot.boundingBox())!;
+ const widePanelBox=(await page.locator('.a11y-panel').boundingBox())!;
+ expect(wideAfter.width).toBeLessThan(wideBefore.width);
+ expect(wideBefore.width-wideAfter.width).toBeCloseTo(widePanelBox.width,0);
+ expect(wideAfter.x+wideAfter.width).toBeLessThanOrEqual(widePanelBox.x+0.5); // no overlap
 });
 
 test('reduced motion removes transitions and transforms',async({page})=>{
