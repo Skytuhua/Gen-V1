@@ -48,6 +48,9 @@ export function FilesView({
 	preview,
 	selector,
 	download,
+	headerActions,
+	dirtyPath,
+	onPreviewKeyDown,
 	limitNote,
 	projectSearch,
 	onDirectory,
@@ -64,6 +67,12 @@ export function FilesView({
 	preview: FilesRead<unknown> & { body: ReactNode };
 	selector?: ReactNode;
 	download?: string;
+	/** Manual-edit toolbar rendered in the preview header (T06); absent in view mode. */
+	headerActions?: ReactNode;
+	/** Selected row marked as having unsaved edits. */
+	dirtyPath?: string;
+	/** Scoped key handling for the preview region (files.edit on E). */
+	onPreviewKeyDown?: React.KeyboardEventHandler<HTMLElement>;
 	limitNote?: string;
 	projectSearch?: {
 		available: boolean;
@@ -267,6 +276,13 @@ export function FilesView({
 													<File size={15} />
 												)}
 												<span>{displayFilePath(entry.name)}</span>{entry.kind === "file" && /\.(ts|tsx|md|mdx)$/i.test(entry.name) && <span aria-hidden="true" className={`file-type file-type-${/\.mdx?$/i.test(entry.name) ? "md" : "ts"}`}>{/\.mdx?$/i.test(entry.name) ? "MD" : "TS"}</span>}
+												{entry.path === dirtyPath && (
+													<span
+														className="files-dirty-dot"
+														title="Unsaved changes"
+														aria-label="Unsaved changes"
+													/>
+												)}
 												{entry.kind === "directory" ? (
 													<ChevronRight size={12} />
 												) : entry.bytes !== undefined ? (
@@ -301,6 +317,7 @@ export function FilesView({
 					tabIndex={-1}
 					aria-label="File content"
 					aria-busy={preview.pending}
+					onKeyDown={onPreviewKeyDown}
 				>
 					{selected ? (
 						<>
@@ -313,6 +330,7 @@ export function FilesView({
 										Download
 									</a>
 								)}
+								{headerActions}
 							</header>
 							<div
 								className="files-preview-content"

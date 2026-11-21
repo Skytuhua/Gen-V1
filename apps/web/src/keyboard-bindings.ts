@@ -46,6 +46,9 @@ export const KEYBOARD_BINDINGS: readonly KeyboardBinding[] = [
   {id: 'window-move', label: 'Move the focused window', scope: 'Workspace', chords: ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'], hint: 'Hold Shift to resize it, or Alt for 2 px steps', handlers: [module('FloatingWindow.tsx')]},
   {id: 'window-restore', label: 'Return the focused window to its edge position', scope: 'Workspace', chords: ['Home'], handlers: [module('FloatingWindow.tsx')]},
   {id: 'window-close', label: 'Close or collapse the focused window', scope: 'Workspace', chords: ['Escape'], handlers: [module('FloatingWindow.tsx')]},
+  {id: 'files.edit', label: 'Edit the selected file', scope: 'Workspace', chords: ['E'], handlers: [module('files/ProjectFiles.tsx')]},
+  {id: 'files.save', label: 'Save file edits', scope: 'Workspace', chords: ['Ctrl+S'], handlers: [module('files/ProjectFileEditor.tsx')]},
+  {id: 'files.doneEditing', label: 'Finish editing the file', scope: 'Workspace', chords: ['Escape'], handlers: [module('files/ProjectFileEditor.tsx')]},
 ];
 
 /** The rebindable subset, in registry order; Settings turns these into shortcut rows. */
