@@ -1,5 +1,7 @@
-import {useLayoutEffect,useRef,useState,type ReactNode,type Ref} from 'react';
+import {useLayoutEffect,useRef,useState,type ReactNode,type Ref,type RefObject} from 'react';
+import {MoreHorizontal} from 'lucide-react';
 import type {ModelInfo} from '../../../packages/contracts';
+import {ActionMenu,type ActionMenuItem} from '../../../packages/ui-shell/ActionMenu';
 import {ModelPicker,type ModelPickerHandle} from './ModelPicker';
 import {useComposerPointerPress} from './composer-pointer-press';
 import './composer-toolbar.css';
@@ -12,6 +14,7 @@ export interface ComposerToolbarProps {
  onTranscript:(text:string)=>void;disabled?:boolean;working?:boolean;
  modelScopeHint?:string;onModelNewTask?:(modelId:string)=>void;
  separateActions?:boolean;leading?:ReactNode;runtime?:ReactNode;context?:ReactNode;trailing?:ReactNode;
+ overflowItems?:readonly ActionMenuItem[];overflowAnchor?:RefObject<HTMLElement|null>;
 }
 interface VoiceResult {isFinal:boolean;length:number;[index:number]:{transcript:string}}
 interface VoiceEvent {resultIndex:number;results:ArrayLike<VoiceResult>}
@@ -45,9 +48,9 @@ export function ComposerTaskActions({changeSummary,onChanges,onCreatePR,disabled
  </div>;
 }
 
-export function ComposerToolbar({modelPickerRef,models,modelId,onModelChange,thinkingLevel,onThinkingChange,projectLabel,changeSummary,onProject,onChanges,onCreatePR,onTranscript,disabled=false,working=false,modelScopeHint,onModelNewTask,separateActions=false,leading,runtime,context,trailing}:ComposerToolbarProps){
+export function ComposerToolbar({modelPickerRef,models,modelId,onModelChange,thinkingLevel,onThinkingChange,projectLabel,changeSummary,onProject,onChanges,onCreatePR,onTranscript,disabled=false,working=false,modelScopeHint,onModelNewTask,separateActions=false,leading,runtime,context,trailing,overflowItems,overflowAnchor}:ComposerToolbarProps){
  const pointerPress=useComposerPointerPress();
- const [listening,setListening]=useState(false),[error,setError]=useState('');
+ const [listening,setListening]=useState(false),[error,setError]=useState(''),[overflowOpen,setOverflowOpen]=useState(false);
  const session=useRef<{recognition:VoiceRecognition;epoch:number;seen:Set<number>}|null>(null),epoch=useRef(0),transcript=useRef(onTranscript);
  transcript.current=onTranscript;
  const Voice=voiceConstructor(),locked=disabled||working;
@@ -81,7 +84,7 @@ export function ComposerToolbar({modelPickerRef,models,modelId,onModelChange,thi
    </div>
    <div className="composer-runtime-controls" role="group" aria-label="Model and voice">
     <ModelPicker ref={modelPickerRef} models={models} modelId={modelId} thinkingLevel={thinkingLevel} onThinkingChange={onThinkingChange} disabled={locked} onChange={onModelChange} scopeHint={modelScopeHint} onNewTask={onModelNewTask}/>
-    {context}<button type="button" className={`composer-tool composer-voice ${listening?'is-listening':''}`} aria-label={!Voice?'Voice input unavailable':listening?'Stop voice input':'Start voice input'} aria-pressed={listening} title={!Voice?'Voice input is unavailable in this browser':listening?'Stop listening':'Dictate into your draft'} disabled={locked||!Voice} onClick={startVoice}>{microphone}<span className="sr-only">{listening?'Listening':''}</span></button>{trailing}
+    {context}<button type="button" className={`composer-tool composer-voice ${listening?'is-listening':''}`} aria-label={!Voice?'Voice input unavailable':listening?'Stop voice input':'Start voice input'} aria-pressed={listening} title={!Voice?'Voice input is unavailable in this browser':listening?'Stop listening':'Dictate into your draft'} disabled={locked||!Voice} onClick={startVoice}>{microphone}<span className="sr-only">{listening?'Listening':''}</span></button>{overflowItems&&<span ref={node=>{if(overflowAnchor)overflowAnchor.current=node;}} className="composer-overflow"><ActionMenu label="More composer actions" icon={<MoreHorizontal size={15} aria-hidden="true"/>} iconOnly open={overflowOpen} onOpenChange={setOverflowOpen} items={[...overflowItems,{id:'voice',label:listening?'Stop voice input':'Start voice input',accessibleLabel:!Voice?'Voice input unavailable':listening?'Stop voice input':'Start voice input',title:!Voice?'Voice input is unavailable in this browser':listening?'Stop listening':'Dictate into your draft',disabled:locked||!Voice,checked:listening,icon:microphone,onSelect:startVoice}]}/></span>}{trailing}
    </div>
   </div>
   {error&&<div className="composer-toolbar-error" role="status">{error}<button type="button" className="composer-dismiss" aria-label="Dismiss composer error" onClick={()=>setError('')}>{close}</button></div>}
