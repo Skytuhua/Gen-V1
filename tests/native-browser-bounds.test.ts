@@ -31,3 +31,24 @@ it('preserves a fully hidden native view and rejects malformed or out-of-owner b
  for(const patch of [{x:-1},{y:-1},{width:-1},{height:-1},{x:NaN},{width:Infinity},{x:750,width:100}])expect(()=>nativeBrowserBounds({x:0,y:0,width:100,height:100,...patch},[800,600],1.25)).toThrow();
  expect(()=>nativeBrowserBounds({x:0,y:0,width:800,height:600},[800,600],1.5)).toThrow();
 });
+// T01 locks these expectations ahead of T02's `nativeBrowserPreviewBounds`;
+// it.fails keeps them intentionally red until the helper lands, at which point
+// an unexpected pass flips them and they should be promoted to plain `it`.
+type PreviewResult={x:number;y:number;width:number;height:number;effective?:unknown;fallback?:string;bounds?:{x:number;y:number;width:number;height:number}};
+const preview=(module_:unknown)=>{const helper=(module_ as {nativeBrowserPreviewBounds?:(slot:{x:number;y:number;width:number;height:number},ownerSize:readonly number[],ownerZoom:number,contentZoom:number,preset:'fit'|390|768)=>PreviewResult}).nativeBrowserPreviewBounds;if(!helper)throw Error('nativeBrowserPreviewBounds not implemented yet');return helper;};
+const rectOf=(result:PreviewResult)=>result.bounds??result;
+it.fails('centers fitting preview widths inside the rounded slot',async()=>{
+ const apply=preview(await import('../apps/desktop/browser-bounds'));
+ const slot=nativeBrowserBounds({x:251.5,y:436.825,width:532.5,height:123.175},[980,700],1.25);
+ const rect=rectOf(apply(slot,[980,700],1.25,1,768));
+ expect(rect.width).toBe(768);expect(rect.y).toBe(slot.y);expect(rect.height).toBe(slot.height);
+ expect(rect.x).toBeGreaterThanOrEqual(slot.x);expect(rect.x+rect.width).toBeLessThanOrEqual(slot.x+slot.width);
+ expect(Math.abs((rect.x-slot.x)-(slot.x+slot.width-rect.x-rect.width))).toBeLessThanOrEqual(1);
+});
+it.fails('falls back to Fit when a preset exceeds available width',async()=>{
+ const apply=preview(await import('../apps/desktop/browser-bounds'));
+ const slot=nativeBrowserBounds({x:10,y:10,width:300,height:200},[400,300],1);
+ const result=apply(slot,[400,300],1,1,768);
+ expect(rectOf(result)).toEqual(slot);
+ expect(result.effective??'fit').toBe('fit');
+});
