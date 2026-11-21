@@ -112,6 +112,9 @@ importers:
       tsx:
         specifier: 4.20.6
         version: 4.20.6
+      undici:
+        specifier: 8.12.2
+        version: 8.12.2
       zod:
         specifier: 4.6.6
         version: 4.6.6
@@ -1148,6 +1151,7 @@ packages:
 
   '@github/keytar@7.10.6':
     resolution: {integrity: sha512-mRW6cUsSG+nj4jp5gp8e91zPySaT73r+2JM6VyMZfrEgksjPmjSMr+tPGNOK3HUHV+GUU9B1LAiiYy/wmAnIxA==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   '@google/gemini-cli@0.66.0':
     resolution: {integrity: sha512-EAtsJ9/JxiphHlduzvhoCkb7I0LdOxyugB5NpUtVqKVGZIWjV3JmurvK89ZrvMbV3kwk5SdWINz1M5ZN/2K/Lw==}

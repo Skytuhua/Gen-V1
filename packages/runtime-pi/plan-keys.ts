@@ -1,3 +1,4 @@
+import { networkProxyFetch } from '../core/network-proxy-transport.ts';
 import { HarnessError } from '../contracts/index.ts';
 import { SUBSCRIPTION_PLAN_PROVIDER_IDS, type SubscriptionPlanProviderId } from '../contracts/connections.ts';
 import type { PiSdk } from './sdk.ts';
@@ -41,7 +42,7 @@ function cancelBody(response: Response) { void response.body?.cancel().catch(() 
 async function kimiModels(key: string, signal?: AbortSignal): Promise<Set<string>> {
   const timeout = AbortSignal.timeout(10_000), bounded = signal ? AbortSignal.any([signal, timeout]) : timeout;
   try {
-    const response = await beforeDeadline(fetch(`${KIMI_BASE}/models`, { headers: { Authorization: `Bearer ${key}`, 'User-Agent': USER_AGENT, Accept: 'application/json' }, redirect: 'error', signal: bounded }), bounded);
+    const response = await beforeDeadline(networkProxyFetch(`${KIMI_BASE}/models`, { headers: { Authorization: `Bearer ${key}`, 'User-Agent': USER_AGENT, Accept: 'application/json' }, redirect: 'error', signal: bounded }), bounded);
     if (!response.ok || response.redirected) { cancelBody(response); throw new Error(); }
     if (!response.headers.get('content-type')?.toLowerCase().includes('application/json')) { cancelBody(response); throw new Error(); }
     const length = response.headers.get('content-length');
@@ -90,7 +91,7 @@ function planFetch(provider: SubscriptionPlanProviderId, model: Model, key: stri
     headers.set(model.api === 'anthropic-messages' ? 'x-api-key' : 'authorization', model.api === 'anthropic-messages' ? key : `Bearer ${key}`);
     headers.set('User-Agent', USER_AGENT);
     if (provider === 'opencode-go') headers.set('x-opencode-session', sessionId!);
-    const response = await fetch(request, { headers, redirect: 'error' });
+    const response = await networkProxyFetch(request, { headers, redirect: 'error' });
     if (response.redirected || (response.status >= 300 && response.status < 400)) { cancelBody(response); throw planError('The plan endpoint returned a redirect. Sign in again or check provider status.'); }
     if (!response.ok) {
       cancelBody(response);

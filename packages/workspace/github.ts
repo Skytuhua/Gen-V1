@@ -1,4 +1,5 @@
 import {execFile} from 'node:child_process';
+import { networkProxyFetch } from '../core/network-proxy-transport.ts';
 import {lstat,mkdir,mkdtemp,open} from 'node:fs/promises';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -24,7 +25,7 @@ interface PullRequest{number:number;title:string;url:string;state:string;headRef
 export class GitHubTools{
  readonly auth:GitHubAuth;
  private readonly reviewComparisons=new ComparisonSnapshots();
- constructor(private readonly projects:ProjectTools,_terminals:TerminalHost,private readonly executable=bundledGh){this.auth=new GitHubAuth(projects.store.dataDir);}
+ constructor(private readonly projects:ProjectTools,_terminals:TerminalHost,private readonly executable=bundledGh){this.auth=new GitHubAuth(projects.store.dataDir,networkProxyFetch);}
  private environment(){const root=join(this.projects.store.dataDir,'github');return{...processEnvironment(),HOME:root,USERPROFILE:root,GH_CONFIG_DIR:join(root,'config'),GH_HOST:'github.com',GH_PROMPT_DISABLED:'1',GH_NO_UPDATE_NOTIFIER:'1',GIT_TERMINAL_PROMPT:'0'};}
  private parseOutput(output:string){try{return JSON.parse(output) as unknown;}catch{throw new HarnessError('GITHUB_CLI_OUTPUT_INVALID','The GitHub CLI returned unreadable output. Check the bundled gh tool and the repository state.');}}
  private async run(path:string,args:string[]){

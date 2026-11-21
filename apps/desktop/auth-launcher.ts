@@ -1,4 +1,6 @@
 import {spawn,type ChildProcess} from 'node:child_process';
+import { networkProxySettingsFor } from '../../packages/core/network-proxy-settings.ts';
+import { networkProxyChildEnvFor } from '../../packages/core/network-proxy-env.ts';
 import {isAbsolute,basename,join,resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {isConnectionProviderId,type ConnectionProviderId} from '../../packages/contracts/connections.ts';
@@ -68,6 +70,10 @@ function paths(options:DesktopSignInOptions){
 export async function launchDesktopSignIn(options:DesktopSignInOptions):Promise<DesktopSignInHandle>{
  if(options.signal?.aborted)throw Error('Subscription sign-in cancelled.');
  const launch=paths(options),env:NodeJS.ProcessEnv={...process.env};delete env.ELECTRON_RUN_AS_NODE;delete env.NODE_OPTIONS;
+ // #1531 T03: the desktop process reads the profile policy itself (the backend's
+ // transport snapshot lives in the sidecar); env only, argv untouched.
+ const proxyPolicy=await networkProxySettingsFor(options.dataDir).policy().catch(()=>null);
+ Object.assign(env,networkProxyChildEnvFor(proxyPolicy));
  const child:ChildProcess=spawn(launch.executable,['-NoLogo','-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-Command',helper],{env,windowsHide:true,stdio:['pipe','pipe','ignore']});
  let started=false,startSettled=false,finished=false,cancelled=false,exitCode:number|undefined,buffer='',startTimer:ReturnType<typeof setTimeout>|undefined,stopping:Promise<void>|undefined,failure:string|undefined;
  let acceptStart!:(handle:DesktopSignInHandle)=>void,rejectStart!:(error:Error)=>void,acceptCompletion!:()=>void,rejectCompletion!:(error:Error)=>void;
