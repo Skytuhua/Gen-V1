@@ -1,7 +1,7 @@
 import {randomUUID,createHash} from 'node:crypto';
 import {hostname} from 'node:os';
 import {lstat,mkdir,readFile,realpath,open,rm} from 'node:fs/promises';
-import {dirname,join,relative,resolve} from 'node:path';
+import {basename,dirname,join,relative,resolve} from 'node:path';
 import {z} from 'zod';
 import {Store} from '../storage/store.ts';
 import {HarnessError,type HostCommand,type ResourceGrant,type Thread} from '../contracts/index.ts';
@@ -10,7 +10,7 @@ import {threadNavigationRevision} from '../contracts/shell-read-models.ts';
 import {WorkspaceRepository} from '../core/workspace-layout.ts';
 import {assertNotStorage,canonical,inside} from '../core/security.ts';
 import {gitExecutable} from '../capabilities/process.ts';
-import {readBoundFile,withPathGuard} from '../core/file-access.ts';
+import {readBoundFile,removeOwnedFile,replaceOwnedFile,withPathGuard} from '../core/file-access.ts';
 import {capabilityEnabled} from '../core/capability-flags.ts';
 import {secretPathName} from './checkpoints.ts';
 import type {ManualEditFileStateV1} from '../contracts/manual-edit.ts';
@@ -216,5 +216,28 @@ export class ProjectTools{
   return withPathGuard([{path:target,leaf:false}],new AbortController().signal,async()=>{const{readdir}=await import('node:fs/promises'),entries=[];for(const item of(await readdir(target,{withFileTypes:true})).slice(0,500)){if(item.name.toLowerCase()==='.git'||item.name==='.harness-directory-guard'||item.isSymbolicLink())continue;entries.push({name:item.name,path:relativePath?relativePath+'/'+item.name:item.name,kind:item.isDirectory()?'directory':'file'});}return{path:relativePath,entries};});
  }
  async file(projectId:string,threadId:string|undefined,relativePath:string){const{path}=await this.binding(projectId,threadId),target=join(path,pathName.parse(relativePath)),resolved=await realpath(target);if(!inside(path,resolved)||gitSegment(relative(path,resolved))||gitSegment(relativePath))throw new HarnessError('CAPABILITY_DENIED','Choose a source file inside this worktree.');return withPathGuard([{path:target,leaf:true,readOnly:true}],new AbortController().signal,async()=>{const data=await readBoundFile(target,1024*1024),binary=data.includes(0),result:{text:string|null;binary:boolean;sha256:string;edit?:ManualEditFileStateV1}={text:binary?null:data.toString('utf8'),binary,sha256:hash(data)};if(capabilityEnabled('workspace.manualEditV1'))result.edit=manualEditState(relativePath,data,binary);return result;});}
+ // Manual edit save (issue #1344): SHA-256 precondition + guarded atomic replace.
+ // Mirrors the file.replace write sequence in packages/capabilities/index.ts.
+ async saveFile(projectId:string,threadId:string|undefined,relativePath:string,text:string,expectedSha256:string,preWrite?:(preimage:Buffer)=>Promise<void>){
+  const{path}=await this.binding(projectId,threadId),target=join(path,pathName.parse(relativePath)),resolved=await realpath(target);
+  if(!inside(path,resolved)||gitSegment(relative(path,resolved))||gitSegment(relativePath)||protectedPath(relativePath))throw new HarnessError('CAPABILITY_DENIED','Choose a source file inside this worktree.');
+  const data=Buffer.from(text,'utf8');
+  if(data.length>1024*1024)throw new HarnessError('RESOURCE_LIMIT','Manual edits are capped at 1 MiB.');
+  if(data.includes(0))throw new HarnessError('CAPABILITY_DENIED','Text cannot contain NUL characters.');
+  const signal=new AbortController().signal;
+  return withPathGuard([{path:target,leaf:true}],signal,async()=>{
+   const current=await readBoundFile(target,1024*1024),diskSha=hash(current);
+   if(diskSha!==expectedSha256)throw new HarnessError('PRECONDITION_FAILED','File changed on disk.',{sha256:diskSha});
+   const info=await lstat(target);if(!info.isFile()||info.isSymbolicLink()||info.nlink!==1)throw new HarnessError('CAPABILITY_DENIED','Manual edits require an ordinary file.');
+   const temp=join(dirname(target),'.'+basename(target)+'.gen-'+randomUUID().replaceAll('-','').slice(0,8)+'.tmp'),handle=await open(temp,'wx',info.mode&0o777),tempId=await handle.stat({bigint:true});
+   let moved=false;
+   try{
+    await handle.writeFile(data);await handle.sync();await handle.close();
+    await preWrite?.(current);
+    await replaceOwnedFile(temp,target,tempId,hash(data),signal,expectedSha256);moved=true;
+   }finally{await handle.close().catch(()=>{});if(!moved)await removeOwnedFile(temp,tempId,new AbortController().signal).catch(()=>{});}
+   return{sha256:hash(data),bytes:data.length};
+  });
+ }
  async dispose(){await Promise.allSettled([...this.queues.values()]);}
 }

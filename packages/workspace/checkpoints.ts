@@ -45,7 +45,7 @@ const now = () => new Date().toISOString();
 
 export interface StoredCheckpoint extends CheckpointV1 {
   label: string;
-  provenance: { kind: "guarded_write" | "restore_backup"; operationId: string };
+  provenance: { kind: "guarded_write" | "restore_backup" | "manual_edit"; operationId: string };
   expiresAt: string | null;
 }
 
