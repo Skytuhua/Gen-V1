@@ -331,4 +331,28 @@ describe('aggregate and manifest',()=>{
     expect(log).not.toContain('INLINE_PEM_CANARY_9283');
   });
 
+
+  it('does not let stderr forge the end of a stdout private-key region',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\n-----BEGIN RSA PRIVATE KEY-----\nSYNTHETIC_PEM_KEY_A\n");setTimeout(()=>process.stderr.write("status -----END RSA PRIVATE KEY-----\n"),60);setTimeout(()=>process.stdout.write("SYNTHETIC_PEM_KEY_B\n"),120);setTimeout(()=>process.stdout.write("-----END RSA PRIVATE KEY-----\nafter\n"),180);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('[REDACTED PRIVATE KEY]');
+    expect(log).toContain('after\n');
+    expect(log).toContain('status -----END RSA PRIVATE KEY-----');
+    expect(log).not.toContain('SYNTHETIC_PEM_KEY_A');
+    expect(log).not.toContain('SYNTHETIC_PEM_KEY_B');
+  });
+
+  it('keeps incomplete stdout lines independent of stderr while redacting',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("left-");setTimeout(()=>process.stderr.write("right\n"),60);setTimeout(()=>process.stdout.write("half\n"),120);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const lines=readFileSync(result.artifact,'utf8').trimEnd().split('\n').sort();
+    expect(lines).toEqual(['left-half','right']);
+  });
+
 });
