@@ -38,6 +38,39 @@ describe('shared anchored popup geometry', () => {
     expect(result.height).toBe(134);
   });
 
+  it('shifts a wide popup right so it stays inside the layout column instead of covering the sidebar', () => {
+    const trigger = { left: 300, right: 360, top: 500, bottom: 532 };
+    const column = { left: 240, right: 1280, top: 0, bottom: 600 };
+    const result = placePopover({ anchor: trigger, viewport: { left: 0, top: 0, width: 1280, height: 600 }, width: 560, height: 440, boundary: column });
+    expect(result.left).toBe(248);
+    expect(result.left + result.width).toBeLessThanOrEqual(1272);
+  });
+
+  it('clamps the popup back inside the column when it would cross the column right edge', () => {
+    const trigger = { left: 1100, right: 1180, top: 500, bottom: 532 };
+    const column = { left: 240, right: 1280, top: 0, bottom: 600 };
+    const result = placePopover({ anchor: trigger, viewport: { left: 0, top: 0, width: 1280, height: 600 }, width: 560, height: 440, align: 'start', boundary: column });
+    expect(result.left).toBe(712);
+    expect(result.left + result.width).toBeLessThanOrEqual(1272);
+  });
+
+  it('shrinks the popup to fit a column narrower than the popup instead of covering the sidebar', () => {
+    const trigger = { left: 300, right: 360, top: 500, bottom: 532 };
+    const narrow = { left: 240, right: 700, top: 0, bottom: 600 };
+    const result = placePopover({ anchor: trigger, viewport: { left: 0, top: 0, width: 1280, height: 600 }, width: 560, height: 440, boundary: narrow });
+    expect(result.left).toBe(248);
+    expect(result.width).toBe(444);
+    expect(result.left + result.width).toBeLessThanOrEqual(692);
+  });
+
+  it('ignores a boundary too thin to host the popup and falls back to viewport bounds', () => {
+    const trigger = { left: 300, right: 360, top: 500, bottom: 532 };
+    const sliver = { left: 240, right: 400, top: 0, bottom: 600 };
+    const result = placePopover({ anchor: trigger, viewport: { left: 0, top: 0, width: 1280, height: 600 }, width: 560, height: 440, boundary: sliver });
+    expect(result.left).toBe(8);
+    expect(result.width).toBe(560);
+  });
+
   it('never emits negative or nonfinite dimensions for temporarily hidden owners', () => {
     for (const width of [0, 8, Number.NaN, Number.POSITIVE_INFINITY]) {
       const result = placePopover({ anchor, viewport: { left: 0, top: 0, width, height: 0 }, width: 400, height: 390 });

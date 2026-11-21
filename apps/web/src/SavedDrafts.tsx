@@ -2,6 +2,7 @@ import {useEffect,useLayoutEffect,useRef,useState,type RefObject} from 'react';
 import {File,Trash2} from 'lucide-react';
 import {Popover} from '../../../packages/ui-shell/Popover';
 import {Modal} from '../../../packages/ui-shell/Modal';
+import {workareaBoundary} from './popover-boundary';
 import {deleteSavedDraft,disabledReferenceValidation,loadSavedDrafts,planDraftRestore,restoreSavedDraftText,saveNamedDraft,savedDraftOwnerKey,subscribeSavedDrafts,type DraftRestorePlan,type SavedDraft,type SavedDraftLibrary,type SavedDraftOwner,type SavedResourceRef} from './saved-drafts';
 import {SAVED_DRAFT_IDLE_DAYS} from './draft-limits';
 import './saved-drafts.css';
@@ -31,7 +32,7 @@ function SavedDraftsOwner({owner,input,disabled=false,resourceRefs=[]}:SavedDraf
  async function review(draft:SavedDraft){await run(async()=>{const plan=await planDraftRestore(owner,draft.id);if(!current())return;if(!draft.text||plan.active?.value||draft.resourceRefs.length||draft.skills.length||draft.excerpts.length||draft.sourceContext){setOpen(false);setDialog({kind:'restore',plan});}else{const position=await restoreSavedDraftText(owner,plan,'replace',caret.current);if(current()){setOpen(false);close(position);}}});}
  const rich=dialog?.kind==='restore'?dialog.plan.draft:null;
  return <><button ref={anchor} type="button" className="quiet saved-drafts-trigger" aria-haspopup="dialog" aria-expanded={open} disabled={disabled||ime} title={disabled?'Saved drafts are unavailable right now':library.records.length?'Open your saved drafts':'No saved drafts yet — save one from here'} onFocus={rememberCaret} onPointerDown={rememberCaret} onClick={()=>{rememberCaret();setOpen(value=>!value);}}>Saved drafts</button>
-  <Popover anchor={composerAnchor} contentRef={popup} onReady={measure} initialFocus={busy||loading?undefined:error?retry:first} open={open} width={360} height={popupHeight} preferredSide="above" align="start" className="saved-drafts-popover" role="dialog" aria-label="Saved drafts" onKeyDown={event=>{if(event.key==='Escape'&&!event.nativeEvent.isComposing&&event.keyCode!==229){event.preventDefault();event.stopPropagation();setOpen(false);anchor.current?.focus();}}} onDismiss={()=>setOpen(false)}>
+  <Popover anchor={composerAnchor} contentRef={popup} getBoundary={()=>workareaBoundary(composerAnchor.current)} onReady={measure} initialFocus={busy||loading?undefined:error?retry:first} open={open} width={360} height={popupHeight} preferredSide="above" align="start" className="saved-drafts-popover" role="dialog" aria-label="Saved drafts" onKeyDown={event=>{if(event.key==='Escape'&&!event.nativeEvent.isComposing&&event.keyCode!==229){event.preventDefault();event.stopPropagation();setOpen(false);anchor.current?.focus();}}} onDismiss={()=>setOpen(false)}>
    <header><h2>Saved drafts</h2><button ref={first} type="button" className="secondary" disabled={busy||loading||disabled} onClick={()=>{setOpen(false);setName('');setError('');setDialog({kind:'save'});}}>Save current prompt</button></header>
    {loading&&<p role="status">Loading saved drafts…</p>}
    {error&&<ErrorState message={error} retryRef={retry} onRetry={()=>void run(async()=>{const next=await loadSavedDrafts(owner);if(current()){setLibrary(next.library);setGeneration(next.generation);}})}/>}

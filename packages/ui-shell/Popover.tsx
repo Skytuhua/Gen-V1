@@ -8,6 +8,8 @@ export interface PopoverProps extends Omit<HTMLAttributes<HTMLDivElement>, 'chil
   anchor: RefObject<HTMLElement | null>;
   /** Optional viewport geometry within the real anchor, such as a visible text range. */
   getAnchorRect?: () => OverlayAnchor;
+  /** Optional inner layout region the popup should stay inside horizontally, such as the chat column. */
+  getBoundary?: () => OverlayAnchor | null;
   contentRef?: RefObject<HTMLDivElement | null>;
   initialFocus?: RefObject<HTMLElement | null>;
   open: boolean;
@@ -22,7 +24,7 @@ export interface PopoverProps extends Omit<HTMLAttributes<HTMLDivElement>, 'chil
   children: ReactNode;
 }
 
-export function Popover({ anchor, getAnchorRect, contentRef, initialFocus, open, present, width, height, preferredSide, align, layoutRevision,
+export function Popover({ anchor, getAnchorRect, getBoundary, contentRef, initialFocus, open, present, width, height, preferredSide, align, layoutRevision,
   onDismiss, onReady, children, className = '', style, onKeyDown, ...attributes }: PopoverProps) {
   const ownRef = useRef<HTMLDivElement>(null), content = contentRef ?? ownRef;
   const dismiss = useRef(onDismiss); dismiss.current = onDismiss;
@@ -63,7 +65,7 @@ export function Popover({ anchor, getAnchorRect, contentRef, initialFocus, open,
         const value = Number.parseFloat(window.getComputedStyle(owner).zoom);
         if (Number.isFinite(value) && value > 0) zoom *= value;
       }
-      const physical = placePopover({ anchor: getAnchorRect?.() ?? element.getBoundingClientRect(), width: width * zoom, height: height * zoom, preferredSide, align,
+      const physical = placePopover({ anchor: getAnchorRect?.() ?? element.getBoundingClientRect(), width: width * zoom, height: height * zoom, preferredSide, align, boundary: getBoundary?.() ?? undefined,
         viewport: { left, top, width: viewport?.width ?? window.innerWidth, height: Math.max(0, visibleTop + visibleHeight - top) } });
       const next = {...physical, left: physical.left / zoom, top: physical.top / zoom, width: physical.width / zoom, height: physical.height / zoom};
       setPlacement(previous => previous && Object.keys(next).every(key => previous[key as keyof PopoverPlacement] === next[key as keyof PopoverPlacement]) ? previous : next);
@@ -90,7 +92,7 @@ export function Popover({ anchor, getAnchorRect, contentRef, initialFocus, open,
       portalRoot.removeEventListener('animationend', place);
       portalRoot.removeEventListener('transitionend', place);
     };
-  }, [open, anchor, getAnchorRect, content, width, height, preferredSide, align, layoutRevision]);
+  }, [open, anchor, getAnchorRect, getBoundary, content, width, height, preferredSide, align, layoutRevision]);
 
   useLayoutEffect(() => {
     if (open && root) { initialFocus?.current?.focus(); ready.current?.(); }

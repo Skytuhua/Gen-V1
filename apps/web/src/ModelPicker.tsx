@@ -1,6 +1,7 @@
 import {useEffect,useId,useMemo,useRef,useState,useImperativeHandle,type Ref,type KeyboardEvent} from 'react';
 import {Popover} from '../../../packages/ui-shell/Popover';
 import {isComposing} from '../../../packages/ui-shell/list-navigation';
+import {workareaBoundary} from './popover-boundary';
 import {Bot,Check,ChevronDown,LayoutGrid,Search,Star} from 'lucide-react';
 import type {ModelInfo} from '../../../packages/contracts';
 import {SUBSCRIPTION_CONNECTIONS} from '../../../packages/contracts/connections';
@@ -88,6 +89,7 @@ export function ModelPicker({ref,models,modelId,onChange,disabled=false,thinking
    <Bot className="model-picker-trigger-icon" size={16} aria-hidden="true"/><span className="model-picker-trigger-name">{name}</span>{caption&&<span className="model-picker-trigger-effort">{caption}</span>}<ChevronDown size={12} data-open={open}/>
   </button>
   <Popover anchor={trigger} contentRef={popover} initialFocus={search} open={open&&!locked} present={present}
+   getBoundary={()=>workareaBoundary(trigger.current)}
    onReady={()=>{popover.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({block:'nearest'});}}
    width={combined?720:560} height={440}
    onDismiss={()=>close()}
