@@ -29,6 +29,23 @@ afterAll(async()=>{await browser?.close();});
 async function page(){const page=await browser.newPage({viewport:{width:1440,height:900}});await page.setContent('<html><head></head><body style="margin:0"><div id="root" style="display:flex;height:100vh"></div></body></html>');await page.addStyleTag({content:css});await page.addScriptTag({content:script});await page.getByRole('textbox',{name:'Draft one'}).waitFor({state:'visible'});return page;}
 async function issue(page:Page,type:string,payload:Record<string,unknown>){await page.evaluate(({type,payload})=>(window as unknown as {issue:(type:string,payload:Record<string,unknown>)=>void}).issue(type,payload),{type,payload});}
 
+it('keeps split surfaces flush around one-pixel dividers with wider resize hit areas',async()=>{
+ const tab=await page();try{
+  const assertDivider=async(axis:'horizontal'|'vertical')=>{
+   const dimensions=await tab.locator('.split-'+axis+'>.split-divider').evaluate(node=>{
+    const bounds=node.getBoundingClientRect(),parent=node.parentElement!,panes=[...parent.children].filter(child=>child.classList.contains('split-pane')).map(child=>child.getBoundingClientRect()),style=getComputedStyle(node,'::before');
+    return {width:bounds.width,height:bounds.height,xGap:panes[1]!.left-panes[0]!.right,yGap:panes[1]!.top-panes[0]!.bottom,hitInset:style.top,borders:panes.map((_,index)=>getComputedStyle([...parent.children].filter(child=>child.classList.contains('split-pane'))[index]!).borderTopWidth)};
+   });
+   expect(axis==='horizontal'?dimensions.width:dimensions.height).toBeCloseTo(1,2);
+   expect(axis==='horizontal'?dimensions.xGap:dimensions.yGap).toBeCloseTo(1,2);
+   expect(dimensions.hitInset).toBe('-4px');expect(dimensions.borders).toEqual(['0px','0px']);
+  };
+  await assertDivider('horizontal');
+  await issue(tab,'pane.split',{paneId:'right',newPaneId:'bottom',splitId:'rows',axis:'vertical',view:{id:'three',kind:'thread',binding:{authority:{kind:'local'},threadId:'three'}}});
+  await assertDivider('vertical');
+ }finally{await tab.close();}
+});
+
 it('uses the shared area menu for keyboard editor selection, Escape and outside dismissal',async()=>{
  const tab=await page();try{
   await tab.evaluate(()=>(window as any).deferEditorChoice=true);
