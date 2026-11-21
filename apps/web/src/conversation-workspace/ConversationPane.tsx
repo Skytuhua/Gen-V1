@@ -36,7 +36,6 @@ export function ConversationPane({conversation: {state, reader}, hidden = false,
   const bookmarkOwner = hidden || state.phase !== 'ready' ? undefined : state.context?.owner.threadId;
   const {list: bookmarkList, loading: bookmarkLoading, refresh: refreshBookmarks} = useBookmarks(bookmarkOwner);
   const bookmarkIds = new Set(bookmarkList.kind === 'ready' ? bookmarkList.items.map(item => item.messageId) : []);
-  const pendingSeek = useRef<string | null>(null);
   function pulseMessage(id: string) {
     const element = viewport.current;
     const row = element && Array.from(element.querySelectorAll<HTMLElement>('[data-message-id]')).find(item => item.dataset.messageId === id);
@@ -57,9 +56,8 @@ export function ConversationPane({conversation: {state, reader}, hidden = false,
     if (!state.context) return false;
     const element = viewport.current;
     if (element && Array.from(element.querySelectorAll<HTMLElement>('[data-message-id]')).some(item => item.dataset.messageId === messageId)) { pulseMessage(messageId); return true; }
-    pendingSeek.current = messageId;
     const landed = await reader.seekAnchor(messageId);
-    if (!landed) { pendingSeek.current = null; setNotice('Message no longer available.'); }
+    if (!landed) setNotice('Message no longer available.');
     return landed;
   }
   const latest = state.messages.at(-1)?.head.id ?? null;
@@ -93,11 +91,6 @@ export function ConversationPane({conversation: {state, reader}, hidden = false,
       }
     }
     restore();
-    if (pendingSeek.current && state.anchorId === pendingSeek.current && !state.historyPending) {
-      const id = pendingSeek.current;
-      pendingSeek.current = null;
-      pulseMessage(id);
-    }
     const restoreFocus = focusAfterRead.current ?? focusedMessage.current;
     if (restoreFocus && !state.historyPending && !state.messages.some(item => item.pending)) {
       if (element.ownerDocument.activeElement === element.ownerDocument.body) Array.from(element.querySelectorAll<HTMLElement>('[data-message-id]')).find(item => item.dataset.messageId === restoreFocus)?.focus({preventScroll: true});
@@ -113,7 +106,7 @@ export function ConversationPane({conversation: {state, reader}, hidden = false,
   const pending = state.pending || state.historyPending;
   return <section ref={scope} className="scoped-conversation" hidden={hidden} aria-label="Optional conversation">
     <p className="sr-only" role="status">{notice}</p>
-    {bookmarkOwner && <div className="scoped-conversation-bookmarks"><BookmarksControl list={bookmarkList} loading={bookmarkLoading} onJump={jumpToBookmark} onRemove={id => { void removeBookmark(bookmarkOwner, id).then(result => setNotice(result === 'removed' ? 'Bookmark removed.' : 'Bookmark could not be removed.')); }} onRetry={refreshBookmarks} /></div>}
+    {bookmarkOwner && <div className="scoped-conversation-bookmarks"><BookmarksControl list={bookmarkList} loading={bookmarkLoading} onJump={jumpToBookmark} onReveal={pulseMessage} onRemove={id => { void removeBookmark(bookmarkOwner, id).then(result => setNotice(result === 'removed' ? 'Bookmark removed.' : 'Bookmark could not be removed.')); }} onRetry={refreshBookmarks} /></div>}
     {renderContext && <div className="scoped-conversation-context">{renderContext(state)}</div>}
     <ConversationFind ownerKey={state.selectionKey ?? 'closed'} transcript={viewport} scope={scope} active={!hidden} onNavigate={() => {reading.current.follow = false; remember();}} onLoadEarlier={state.nextCursor ? () => {void reader.loadOlder();} : undefined} historyPending={pending} historyLimited={state.historyLimited} historyError={state.error}/>
     <div ref={viewport} className="scoped-conversation-transcript" role="region" aria-label="Conversation transcript" aria-busy={pending} tabIndex={0} onScroll={remember}>

@@ -15,6 +15,13 @@ async function fixture(page: Page, count = 15, long = false, strict = false) {
       await route.fulfill({json: {...envelope, fromSequence, sequence, owner: working ? {...context, owner: {...context.owner, status: 'working', runId: 'synthetic-run'}, revision: 'd'.repeat(64), sequence, checkpoint: 'cp' + sequence} : null, transcriptChanged: changed, checkpoint: 'cp' + sequence}}); changed = false; return;
     }
     if (url.pathname.endsWith('/transcript')) {
+      const anchor = url.searchParams.get('anchorId');
+      if (anchor !== null) {
+        const anchors = Array.from({length: 40}, (_, index) => message(`a-${index}`, `Anchored older message ${index}`));
+        const index = anchors.findIndex(item => item.id === anchor);
+        const page = index < 0 ? [] : anchors.slice(Math.max(0, index - 29), index + 1);
+        await route.fulfill({json: {...envelope, sequence, messages: page, nextCursor: index - page.length + 1 > 0 ? 'older' : null}}); return;
+      }
       const older = url.searchParams.has('cursor');
       const messages = Array.from({length: older ? 8 : count}, (_, index) => long ? {...message('long', 'A😀'), contentLength: 5, nextContentCursor: 'part-2'} : message((older ? 'old-' : 'm-') + index, `Synthetic ${older ? 'older' : 'current'} message ${index}\n` + 'Reading content. '.repeat(15)));
       await route.fulfill({json: {...envelope, sequence, messages, nextCursor: older ? null : 'older'}}); return;
@@ -157,4 +164,35 @@ test('automatic refresh does not take focus back from the supplied composer',asy
  f.change();await page.evaluate(()=>{void window.scopedFixture.poll();});await expect(article).toHaveCount(0);
  const composer=page.getByRole('textbox',{name:'Supplied composer'});await composer.focus();release();
  await expect(article).toBeVisible();await expect(composer).toBeFocused();
+});
+test('bookmarks save, jump to anchored older history and return to latest', async ({page}) => {
+  await fixture(page);
+  const row = page.locator('[data-message-id="m-3"]');
+  await row.getByRole('button', {name: 'Bookmark message', exact: true}).click();
+  await expect(row.getByRole('button', {name: 'Remove bookmark', exact: true})).toHaveAttribute('aria-pressed', 'true');
+  // Seed an older-than-window bookmark directly in the journal, then reload (same profile persists it).
+  await page.evaluate(() => new Promise<void>((resolve, reject) => {
+    const request = indexedDB.open('generative-harness-journal', 1);
+    request.onupgradeneeded = () => request.result.createObjectStore('entries');
+    request.onsuccess = () => {
+      const transaction = request.result.transaction('entries', 'readwrite');
+      transaction.objectStore('entries').put({value: {version: 1, items: [{messageId: 'a-35', role: 'assistant', savedAt: 1}, {messageId: 'm-3', role: 'assistant', savedAt: 2}]}, updatedAt: Date.now(), generation: 'seed-1'}, 'message-bookmarks:v1:"exact-owner"');
+      transaction.oncomplete = () => resolve(); transaction.onerror = () => reject(transaction.error);
+    };
+    request.onerror = () => reject(request.error);
+  }));
+  await page.reload();
+  await expect(page.locator('[data-message-id]')).toHaveCount(15);
+  await page.getByRole('button', {name: 'Bookmarks', exact: true}).click();
+  const panel = page.getByRole('dialog', {name: 'Bookmarks'});
+  await expect(panel.locator('.bookmarks-row')).toHaveCount(2);
+  // Mounted row jumps without a history fetch; anchored row seeks into older history.
+  await panel.locator('.bookmarks-row').nth(1).locator('.bookmarks-jump').click();
+  const target = page.locator('[data-message-id="a-35"]');
+  await expect(target).toBeFocused();
+  await expect(page.getByText('Viewing older messages')).toBeVisible();
+  await expect(page.locator('[data-message-id="m-3"]')).toHaveCount(0);
+  await page.getByRole('button', {name: 'Return to latest'}).click();
+  await expect(page.locator('[data-message-id="m-3"]')).toBeVisible();
+  await expect(page.locator('[data-message-id="a-35"]')).toHaveCount(0);
 });

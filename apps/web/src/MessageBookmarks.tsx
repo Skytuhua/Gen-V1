@@ -34,29 +34,37 @@ interface BookmarksControlProps {
   list: BookmarkList;
   loading: boolean;
   onJump: (messageId: string) => Promise<boolean>;
+  /** Focus/scroll the landed row after the panel has closed (focus-outside dismissal would otherwise steal it back to the trigger). */
+  onReveal: (messageId: string) => void;
   onRemove: (messageId: string) => void;
   onRetry: () => void;
 }
 /** Non-modal disclosure listing the visible thread's bookmarks, newest first. */
-export function BookmarksControl({list, loading, onJump, onRemove, onRetry}: BookmarksControlProps) {
+export function BookmarksControl({list, loading, onJump, onReveal, onRemove, onRetry}: BookmarksControlProps) {
   const [open, setOpen] = useState(false);
   const [jumping, setJumping] = useState<string | null>(null);
   const [missing, setMissing] = useState<ReadonlySet<string>>(new Set());
   const trigger = useRef<HTMLButtonElement>(null), panel = useRef<HTMLDivElement>(null);
   const panelId = useId();
   const items = list.kind === 'ready' ? list.items : [];
-  const close = () => { setOpen(false); trigger.current?.focus(); };
+  const navigating = useRef<string | null>(null);
+  const close = () => { setOpen(false); if (!navigating.current) trigger.current?.focus(); };
   const jump = async (messageId: string) => {
     if (jumping) return;
     setJumping(messageId);
+    // While a jump is in flight the transcript owns focus: dismissals (outside
+    // focus/click) must not return focus to the trigger.
+    navigating.current = messageId;
     try {
-      const landed = await onJump(messageId);
+      let landed = false;
+      try { landed = await onJump(messageId); } catch { /* Treated as unavailable, never as removed. */ }
       setMissing(previous => {
         const next = new Set(previous);
         if (landed) next.delete(messageId); else next.add(messageId);
         return next;
       });
-      if (landed) setOpen(false);
+      if (landed) { setOpen(false); requestAnimationFrame(() => { onReveal(messageId); navigating.current = null; }); }
+      else navigating.current = null;
     } finally { setJumping(null); }
   };
   return <div className="bookmarks-disclosure">
@@ -74,6 +82,7 @@ export function BookmarksControl({list, loading, onJump, onRemove, onRetry}: Boo
             <button type="button" className="bookmarks-jump" disabled={jumping === item.messageId || missing.has(item.messageId)} onClick={() => void jump(item.messageId)}>
               <span className="bookmarks-role">{item.role === 'user' ? 'You' : 'Assistant'}</span>
               <span className="bookmarks-time">{formatSavedAt(item.savedAt)}</span>
+              {jumping === item.messageId && <span className="bookmarks-time" role="status">Opening message…</span>}
               {missing.has(item.messageId) && <span className="bookmarks-missing">Message no longer available</span>}
             </button>
             <button type="button" className="icon-button" aria-label={`Remove bookmark on ${item.role === 'user' ? 'your' : 'assistant'} message`} onClick={() => { setMissing(previous => { const next = new Set(previous); next.delete(item.messageId); return next; }); onRemove(item.messageId); }}><X size={14} /></button>
