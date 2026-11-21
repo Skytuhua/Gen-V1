@@ -25,7 +25,7 @@ export function CommandMenu(props: {
   const [query, setQuery] = useState('');
   const [activeId, setActiveId] = useState('');
   const [announcement, setAnnouncement] = useState('');
-  const list = useRef<HTMLDivElement>(null);
+  const list = useRef<HTMLDivElement>(null), search = useRef<HTMLInputElement>(null);
   const announce = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const storage = (): Pick<Storage, 'getItem' | 'setItem'> => {
@@ -62,6 +62,10 @@ export function CommandMenu(props: {
     setQuery('');
     setActiveId('');
     setAnnouncement('');
+    // The modal's showModal() focuses its first control (the in-flow close
+    // button); reclaim the search box on the next frame per the plan.
+    const frame = requestAnimationFrame(() => search.current?.focus());
+    return () => cancelAnimationFrame(frame);
   }, [open]);
 
   useEffect(() => {
@@ -162,7 +166,7 @@ export function CommandMenu(props: {
         <div className="command-menu-search">
           <Search size={16} aria-hidden="true"/>
           <input
-            autoFocus
+            ref={search}
             type="text"
             value={query}
             placeholder="Search commands and threads…"

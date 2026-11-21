@@ -81,6 +81,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('runtime-presentation'),
   suite('shared-panels'),
   suite('shell', ['frontend.spec.ts']),
+  suite('command-menu'),
   suite('short-tool-overflow'),
   suite('side-chat'),
   suite('chat-view-modes', ['chat-view-modes.spec.ts','chat-view-escape.spec.ts']),

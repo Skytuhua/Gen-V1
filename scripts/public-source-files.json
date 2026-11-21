@@ -2955,6 +2955,8 @@
     "tests/e2e/clarity-software.playwright.config.ts",
     "tests/e2e/clarity-software.spec.ts",
     "tests/e2e/code-intelligence-scenarios.ts",
+    "tests/e2e/command-menu.playwright.config.ts",
+    "tests/e2e/command-menu.spec.ts",
     "tests/e2e/compact-model-picker-fixture.tsx",
     "tests/e2e/compact-model-picker.playwright.config.ts",
     "tests/e2e/compact-model-picker.spec.ts",
