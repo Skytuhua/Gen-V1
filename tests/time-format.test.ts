@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatLocalClock, formatLocalDateTime, localTimeOptions } from '../apps/web/src/time-format';
+import { formatLocalClock, formatLocalDateTime, formatTurnDuration, isoDuration, localTimeOptions } from '../apps/web/src/time-format';
 
 // T07/R10: one absolute-time rule for the named consumers; 13:05 fixture, fixed locale.
 // Schedules, explicitly labelled UTC logs, source timestamps and relative "ago" values
@@ -26,5 +26,30 @@ describe('shared absolute local clock format', () => {
   it('accepts epoch milliseconds (device expiry) as well as ISO strings', () => {
     const epoch = new Date(at).getTime();
     expect(formatLocalClock(epoch, '24h', 'en-US')).toBe('13:05');
+  });
+});
+
+// R04: turn-duration label + ISO dateTime for the transcript duration lines.
+describe('formatTurnDuration', () => {
+  it.each([
+    [0, '<1s'], [999, '<1s'], [1000, '1s'], [59_999, '59s'],
+    [60_000, '1m 0s'], [72_000, '1m 12s'], [3_599_000, '59m 59s'],
+    [3_600_000, '1h 0m 0s'], [4_309_000, '1h 11m 49s'], [93_784_000, '26h 3m 4s'],
+  ])('renders %d ms as %s', (ms, expected) => {
+    expect(formatTurnDuration(ms)).toBe(expected);
+  });
+  it('reads negative and non-finite input as zero', () => {
+    expect(formatTurnDuration(-5000)).toBe('<1s');
+    expect(formatTurnDuration(Number.NaN)).toBe('<1s');
+    expect(formatTurnDuration(Number.POSITIVE_INFINITY)).toBe('<1s');
+  });
+});
+
+describe('isoDuration', () => {
+  it.each([
+    [0, 'PT0S'], [72_000, 'PT1M12S'], [4_309_000, 'PT1H11M49S'],
+    [-5000, 'PT0S'], [Number.NaN, 'PT0S'],
+  ])('renders %d ms as %s', (ms, expected) => {
+    expect(isoDuration(ms)).toBe(expected);
   });
 });
