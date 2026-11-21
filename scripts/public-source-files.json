@@ -349,6 +349,7 @@
     "apps/web/src/use-table-overflow.ts",
     "apps/web/src/useAppearance.ts",
     "apps/web/src/useAttention.ts",
+    "apps/web/src/useComposerEnhance.ts",
     "apps/web/src/useComposerPrediction.ts",
     "apps/web/src/useProjectMemoryPreparation.ts",
     "apps/web/src/work-objects.css",
