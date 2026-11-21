@@ -1,8 +1,13 @@
 .conversation-frame{position:relative;display:flex;flex:1;min-width:0;min-height:0}
 .conversation-frame>.conversation-scroll{width:100%;scrollbar-width:none}
 .conversation-frame>.conversation-scroll::-webkit-scrollbar{display:none;width:0;height:0}
-.chat-scroll-indicator{position:absolute;inset:8px auto 8px 0;width:20px;z-index:2;touch-action:none;cursor:pointer;outline-offset:-2px}
-.chat-scroll-indicator[data-scrollable=false]{visibility:hidden;pointer-events:none}
+.chat-scroll-indicator{position:absolute;inset:8px auto 8px 0;width:20px;z-index:2;touch-action:none;cursor:pointer;outline-offset:-2px;opacity:1;transform:translateY(0);transition:opacity var(--ui-motion-status) var(--ui-ease-enter),transform var(--ui-motion-status) var(--ui-ease-enter),visibility 0s}
+.chat-scroll-indicator[data-scrollable=false]{opacity:0;transform:translateY(4px);visibility:hidden;pointer-events:none;transition:opacity var(--ui-motion-hover) var(--ui-ease-move),transform var(--ui-motion-hover) var(--ui-ease-move),visibility 0s var(--ui-motion-hover)}
+/* Reduced motion: opacity-only fallback at press speed, no translate; visibility still defers past the fade. */
+:root:is([data-motion=reduced]) .chat-scroll-indicator{transform:none;transition:opacity var(--ui-motion-press) var(--ui-ease-enter),visibility 0s}
+:root:is([data-motion=reduced]) .chat-scroll-indicator[data-scrollable=false]{transform:none;transition:opacity var(--ui-motion-press) var(--ui-ease-move),visibility 0s var(--ui-motion-press)}
+@media (prefers-reduced-motion:reduce){.chat-scroll-indicator{transform:none;transition:opacity var(--ui-motion-press) var(--ui-ease-enter),visibility 0s}.chat-scroll-indicator[data-scrollable=false]{transform:none;transition:opacity var(--ui-motion-press) var(--ui-ease-move),visibility 0s var(--ui-motion-press)}}
+:root:is([data-motion=off]) .chat-scroll-indicator,.app-shell[data-panel-animations=false] .chat-scroll-indicator{transition:none!important}
 .chat-scroll-track{position:absolute;top:0;bottom:0;left:9px;width:1px;background:var(--border);pointer-events:none}
 .chat-scroll-track::before{content:'';position:absolute;top:0;bottom:0;left:-4px;width:9px;background-image:repeating-linear-gradient(to bottom,var(--border) 0 1px,transparent 1px 6px);opacity:.55}
 .chat-scroll-thumb{position:absolute;bottom:auto;left:8px;width:3px;border-radius:2px;background:var(--muted);will-change:transform;pointer-events:auto;transition:background var(--ui-motion-hover) var(--ui-ease-enter)}

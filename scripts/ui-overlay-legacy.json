@@ -20,9 +20,9 @@
       "column": 1,
       "rule": "ad-hoc-overlay",
       "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "3cc1ccf530aaa143d9182d9a5bc64b46e0876f247cbe7a4bfba3be7027455555",
+      "fingerprint": "6491959bee469ce407a513ff408c69fd1586a5d128b86a54c1a84730f0ae21c9",
       "reason": "Retained geometry: bounded conversation scrollbar, not a popup.",
-      "evidence": ".chat-scroll-indicator{position:absolute;inset:8px auto 8px 0;width:20px;z-index:2;touch-action:none;cursor:pointer;outline-offset:-2px}",
+      "evidence": ".chat-scroll-indicator{position:absolute;inset:8px auto 8px 0;width:20px;z-index:2;touch-action:none;cursor:pointer;outline-offset:-2px;opacity:1;transform:translateY(0);transition:opacity var(--ui-motion-status) var(--ui-ease-enter),transform var(--ui-motion-status) var(--ui-ease-enter),visibility 0s}",
       "disposition": "retained-geometry"
     },
     {

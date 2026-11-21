@@ -1,7 +1,12 @@
 .composer-entry-row { display:flex; align-items:flex-start; gap:12px; min-width:0; }
 .composer-entry-row>.composer-input { flex:1; min-width:0; }
 .composer-entry-row>.composer-secondary-actions { flex:0 0 auto; flex-wrap:nowrap; align-items:center; margin:0; }
-.composer-attachment-band { display:block; }
-.composer-attachment-clip { min-height:0; }
+.composer-attachment-band { display:grid; grid-template-rows:1fr; opacity:1; transition:grid-template-rows var(--ui-motion-panel-enter) var(--ui-ease-enter), opacity var(--ui-motion-panel-enter) var(--ui-ease-enter); }
+.composer-attachment-band[data-state="closed"] { grid-template-rows:0fr; opacity:0; pointer-events:none; transition-duration:var(--ui-motion-panel-exit); transition-timing-function:var(--ui-ease-move); }
+@starting-style { .composer-attachment-band[data-state="open"] { grid-template-rows:0fr; opacity:0; } }
+.composer-attachment-clip { min-height:0; overflow:hidden; }
 .composer-attachment-clip>.resource-strip { margin:0; padding:0 0 var(--ui-space-2); max-height:128px; overflow:auto; scrollbar-width:thin; flex-wrap:wrap; }
 .resource-chip-readonly { opacity:.6; flex:0 0 auto; }
+/* Reduced motion: the row snaps open/closed; the chips inside keep their own fade. */
+:root:is([data-motion=reduced],[data-motion=off]) .composer-attachment-band, .app-shell[data-panel-animations=false] .composer-attachment-band { transition:none!important; }
+@media (prefers-reduced-motion:reduce) { .composer-attachment-band { transition:none!important; } }
