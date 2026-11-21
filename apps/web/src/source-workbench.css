@@ -1,5 +1,23 @@
-.source-selection { min-width: 0; }
+.source-selection { min-width: 0; position: relative; }
 .source-selection-text { outline-offset: 3px; }
+.source-selection-text:focus-visible { outline: 2px solid var(--ui-focus-ring); outline-offset: 3px; }
+.source-selection-text[data-selection="active"] { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media not (forced-colors: active) {
+  .source-selection-text::selection,.source-selection-text ::selection { background: color-mix(in srgb, var(--accent) 26%, transparent); color: var(--text); }
+}
+@media (forced-colors: active) {
+  .source-selection-text[data-selection="active"] { outline-color: Highlight; }
+}
+.source-selection-hint { position: absolute; top: 0; inset-inline-end: 0; transform: translateY(-100%); margin-bottom: 2px; padding: 3px 8px; border-radius: 6px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.01em; white-space: nowrap; box-shadow: none; pointer-events: none; visibility: hidden; }
+.source-selection-text:focus-visible ~ .source-selection-hint { visibility: visible; animation: source-selection-hint-in var(--ui-motion-tooltip-enter) var(--ui-ease-enter); }
+@keyframes source-selection-hint-in { from { opacity: 0; transform: translateY(calc(-100% + 2px)); } }
+@keyframes source-selection-hint-fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .source-selection-text:focus-visible ~ .source-selection-hint { animation-name: source-selection-hint-fade; animation-duration: var(--ui-motion-press); }
+}
+.source-selection-fallback { font-size: 12px; color: var(--muted); margin: 4px 0 0; line-height: 1.5; }
+.source-selection-fallback button { min-height: 28px; padding: 4px 10px; font-size: 12px; border: 1px solid var(--control-border); border-radius: 6px; background: var(--selection-bg); color: var(--text); }
+.source-selection-fallback [role=alert] { color: var(--danger); }
 .workbench-panel>header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
 .workbench-panel input { max-width:100%; }
 .workbench-panel input[type=number] { width:90px; }

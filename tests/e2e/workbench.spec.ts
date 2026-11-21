@@ -34,6 +34,28 @@ test('keyboard source selection supports backward and line boundaries without es
  await page.keyboard.press('Shift+End');await page.keyboard.press('Shift+ArrowDown');
  await expect.poll(()=>source.evaluate(el=>{const selection=getSelection()!;return el.contains(selection.anchorNode)&&el.contains(selection.focusNode);})).toBe(true);
 });
+test('keyboard source selection shows the focus hint, announces state, and marks the active range',async({page})=>{
+ await page.goto('/fixture');const source=page.locator('.source-selection-text').first(),toolbar=page.getByRole('toolbar',{name:'Selected source'}),hint=page.locator('.source-selection-hint'),status=page.locator('.source-selection').first().getByRole('status');
+ await expect(source).toHaveAttribute('aria-keyshortcuts','shift+ArrowRight control+a shift+f10');
+ const describedBy=await source.getAttribute('aria-describedby');expect(describedBy).toBeTruthy();
+ await expect(page.locator(`[id="${describedBy}"]`)).toHaveText('Selectable source. Use Shift plus arrow keys to select text, Control A to select all, Shift F10 for actions.');
+ await expect(hint).toHaveCount(1);await expect(hint).toBeHidden();
+ await source.focus();await expect(hint).toBeVisible();
+ await page.keyboard.press('Shift+ArrowRight');await expect(toolbar).toBeVisible();await expect(hint).toHaveCount(0);
+ await expect(source).toHaveAttribute('data-selection','active');
+ await expect(status).toHaveText(/^Selected “.+\. Press Shift F10 or Tab for actions\.$/);
+ await page.keyboard.press('Escape');await expect(toolbar).toHaveCount(0);await expect(status).toHaveText('Selection cleared.');
+ await page.keyboard.press('Shift+ArrowRight');await expect(toolbar).toBeVisible();await expect(source).toHaveAttribute('data-selection','active');
+ await toolbar.getByRole('button',{name:'Attach to prompt',exact:true}).click();await expect(status).toHaveText('Done.');
+});
+test('keyboard source selection extends by word with Control+Shift+Arrow',async({page})=>{
+ await page.goto('/fixture');const source=page.locator('.source-selection-text').first(),toolbar=page.getByRole('toolbar',{name:'Selected source'});
+ await source.focus();await page.keyboard.press('Control+Shift+ArrowRight');
+ await expect.poll(()=>page.evaluate(()=>getSelection()?.toString())).toMatch(/^Visible ?$/);
+ await expect(toolbar).toBeVisible();
+ await page.keyboard.press('Control+Shift+ArrowRight');
+ await expect.poll(()=>page.evaluate(()=>getSelection()?.toString())).toMatch(/^Visible selected ?$/);
+});
 test.describe('M15 selection action completion',()=>{
  for(const newerForeignSelection of [false,true])test(`M15 completed selection action ${newerForeignSelection?'preserves a newer foreign range':'clears its unchanged own range'}`,async({page})=>{
   await page.goto('/fixture?fixture=selection-held');await select(page);
