@@ -1,12 +1,13 @@
 import {test, expect, type Page} from '@playwright/test';
+import {AxeBuilder} from '@axe-core/playwright';
 import {resolve} from 'node:path';
 import type {CommandReceipt} from '../../packages/contracts';
 import type {AgentSummary} from '../../packages/contracts/agent-inventory';
 const fixture = '/@fs/' + resolve('tests/e2e/agents-workspace-fixture.tsx').replaceAll('\\', '/');
 const agent = (id: string, patch: Partial<AgentSummary> = {}): AgentSummary => ({agentId: id, parentId: null, rootId: id, jobId: null, threadId: id, projectId: 'a', projectName: 'Alpha', title: id, status: 'working', modelId: 'test/model', currentAction: 'Reading project sources', reportedPercent: 35, createdAt: '2026-11-06', updatedAt: '2026-11-06', orderKey: id, revision: 1, archived: false, readOnly: false, metadata: 'thread', ...patch});
-async function setup(page: Page, candidate = false, burstHistory = false, delayed = false) {
+async function setup(page: Page, candidate = false, burstHistory = false, delayed = false, empty = false, motion = '', theme = 'dark') {
  const requests: string[] = [], commands: {id: string; type: string; threadId: string; payload: {content?: string}}[] = [];
- const agents = [agent('parent-00'), agent('child-active', {parentId: 'parent-00', rootId: 'parent-00', jobId: 'job', readOnly: true}), agent('child-done', {parentId: 'parent-00', rootId: 'parent-00', status: 'completed', readOnly: true}), ...Array.from({length: 32}, (_, i) => agent('parent-' + String(i + 1).padStart(2, '0'))), agent('beta-parent', {projectId: 'b', projectName: 'Beta'})];
+ const agents = empty ? [] : [agent('parent-00'), agent('child-active', {parentId: 'parent-00', rootId: 'parent-00', jobId: 'job', readOnly: true}), agent('child-done', {parentId: 'parent-00', rootId: 'parent-00', status: 'completed', readOnly: true}), ...Array.from({length: 32}, (_, i) => agent('parent-' + String(i + 1).padStart(2, '0'))), agent('beta-parent', {projectId: 'b', projectName: 'Beta'})];
  let failSend = false, output = 'Current transcript output', sequence = 10, ticketStatus = 'processing', messageTotal = 40;
  let release!: () => void;
  let gate = delayed ? new Promise<void>(resolve => {release = resolve;}) : Promise.resolve();
@@ -52,8 +53,8 @@ async function setup(page: Page, candidate = false, burstHistory = false, delaye
   if (url.pathname === '/api/agents/events') return route.fulfill({contentType: 'text/event-stream', body: ': synthetic connected\n\n'});
   return route.fulfill({status: 500, json: {error: {code: 'UNEXPECTED', message: url.pathname}}});
  });
- await page.route('**/agents-workspace-check*', route => route.fulfill({contentType: 'text/html', body: `<html data-theme="dark"><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${encodeURI(fixture)}');</script></body></html>`}));
- await page.goto('/agents-workspace-check' + (candidate ? '?candidate=1' : ''));
+ await page.route('**/agents-workspace-check*', route => route.fulfill({contentType: 'text/html', body: `<html data-theme="${theme}"${motion ? ` data-motion="${motion}"` : ''}><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${encodeURI(fixture)}');</script></body></html>`}));
+ await page.goto('/agents-workspace-check?' + [['candidate', candidate ? '1' : ''], ['motion', motion], ['theme', theme !== 'dark' ? theme : '']].filter(([, v]) => v).map(([k, v]) => `${k}=${v}`).join('&'));
  // The App candidate is intentionally imported only by its integration case.
  // Start its API assertions after that cold module graph mounts the fixture;
  // requests made during startup remain in the same history for the assertions.
@@ -368,4 +369,38 @@ test('keyboard entry into a virtual agent keeps focus on that card', async ({pag
  await expect(destination).toHaveCount(0);
  await page.keyboard.press('ArrowLeft');
  await expect(destination).toBeFocused();
+});
+
+test('zero agents renders the hero empty state with the new-conversation action', async ({page}) => {
+ await setup(page, false, false, false, true);
+ const hero = page.getByRole('region', {name: 'No active agents', exact: true});
+ await expect(hero.getByRole('heading', {name: 'No active agents', exact: true})).toBeVisible();
+ await expect(hero.getByText('Agents appear here once a conversation starts working. Start one from the sidebar or press Ctrl+Shift+O.', {exact: true})).toBeVisible();
+ await expect(hero.getByRole('button', {name: 'New conversation', exact: true})).toBeVisible();
+ await expect(page.locator('.agents-grid, .agents-agent')).toHaveCount(0);
+ expect((await new AxeBuilder({page}).include('.agents-empty-state').analyze()).violations).toEqual([]);
+ await hero.getByRole('button', {name: 'New conversation', exact: true}).click();
+ await expect.poll(() => page.evaluate(() => document.documentElement.dataset.newConversation)).toBe('1');
+});
+
+test('a filter with zero matches shows the compact state and Clear filters restores the list', async ({page}) => {
+ await setup(page);
+ const search = page.getByRole('button', {name: 'Search agents', exact: true});
+ await search.click();
+ await page.getByRole('searchbox', {name: 'Filter agents', exact: true}).fill('zz-no-match');
+ const empty = page.getByRole('region', {name: 'No matching agents', exact: true});
+ await expect(empty).toBeVisible();
+ await expect(empty.getByText('No agents match these filters.', {exact: true})).toBeVisible();
+ await expect(page.locator('.agents-agent')).toHaveCount(0);
+ expect((await new AxeBuilder({page}).include('.agents-empty-filtered').analyze()).violations).toEqual([]);
+ await empty.getByRole('button', {name: 'Clear filters', exact: true}).click();
+ await expect(page.locator('.agents-agent').first()).toBeVisible();
+ await expect(page.getByRole('region', {name: 'No matching agents', exact: true})).toHaveCount(0);
+});
+
+test('empty-state entrance honors the motion gates', async ({page}) => {
+ for (const motion of ['reduced', 'off'] as const) {
+  await setup(page, false, false, false, true, motion);
+  await expect.poll(() => page.locator('.agents-empty-tile').evaluate(node => getComputedStyle(node).animationName)).toBe(motion === 'off' ? 'none' : 'agents-empty-fade');
+ }
 });

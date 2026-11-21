@@ -291,7 +291,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
       {error && <div className="workspace-error" role="status">{error}<button className="icon-button" aria-label="Dismiss error" onClick={dismissError}><X size={15}/></button></div>}
       <div className="workspace-host-content" inert={settingsOpen}><AgentsWorkspace controller={controller} composers={composers} hasConversations={Boolean(navigation.page?.items.length)} projects={workspace.envelope?.projects.filter(project => project.authority.kind === 'local')}
         preferences={{density: preferences.density === 'compact' ? 'compact' : 'comfortable', projectColors: preferences.projectColors}}
-        onOpenConversation={(id,kind) => fail(() => openConversation(id,kind))}/></div>
+        onOpenConversation={(id,kind) => fail(() => openConversation(id,kind))} onNewConversation={() => action('new-thread')} newThreadShortcut={preferences.keybindings.newThread}/></div>
     </div>
     <Modal open={settingsOpen} title="Settings" className="settings-dialog" onClose={closeSettings}>
       {settingsOpen && <CompactSettingsContent scopeKey="personal-main" close={closeSettings} addResource={() => action('resources')} openBrowser={openBrowser}/>}
