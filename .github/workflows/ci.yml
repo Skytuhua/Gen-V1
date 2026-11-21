@@ -100,7 +100,19 @@ jobs:
         run: pnpm build
 
       - name: Run application regression tests
-        run: pnpm test --maxWorkers=1 --shard=${{ matrix.shard }}/4
+        run: pnpm test:coverage --maxWorkers=1 --shard=${{ matrix.shard }}/4
+
+      # Each shard's report covers only the files its tests exercised; aggregate
+      # coverage needs a dedicated unsharded run (left to a follow-up).
+      - name: Upload shard coverage report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: coverage-shard-${{ matrix.shard }}-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 7
+          if-no-files-found: warn
+          path: |
+            coverage/
 
   browser:
     name: Browser tests
