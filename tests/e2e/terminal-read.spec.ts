@@ -177,3 +177,151 @@ test('an unbound start fails closed when its pending caller ID cannot be retaine
  const api=await mount(page,{unbound:true});await expect(phase(page)).toHaveText('Start unconfirmed');await expect(errorText(page)).toContainText('retain');await expect(page.getByRole('button',{name:'Stop',exact:true})).toBeDisabled();
  expect(api.creates()).toEqual([]);await page.evaluate(()=>window.terminalFixture.show(false));await expect(page.locator('.xterm')).toHaveCount(0);await page.evaluate(()=>window.terminalFixture.show(true));await expect(phase(page)).toHaveText('Start unconfirmed');expect(api.creates()).toEqual([]);
 });
+
+// --- #1536 clickable terminal links (Ctrl/⌘+click http(s) URLs) ---
+async function linkCell(page:Page,needle:string,{col=0,rowSkip=0}:{col?:number;rowSkip?:number}={}){
+ const handle=await page.waitForFunction(({needle,col,rowSkip})=>{
+  const rows=[...document.querySelectorAll<HTMLElement>('.xterm-rows > div')];
+  let matched=-1;
+  for(let index=0;index<rows.length;index++)if((rows[index]!.textContent??'').includes(needle)){matched=index;break;}
+  if(matched<0)return null;
+  const row=rows[matched+rowSkip];if(!row)return null;
+  const screen=document.querySelector<HTMLElement>('.xterm-screen')!.getBoundingClientRect();
+  const cw=screen.width/window.terminalFixture.instances[0]!.cols;
+  const text=row.textContent??'';
+  const at=col>0?col:Math.max(0,(matched+rowSkip===matched?text.indexOf(needle):Math.floor(window.terminalFixture.instances[0]!.cols/2)));
+  const box=row.getBoundingClientRect();
+  return {x:screen.x+(at+0.5)*cw,y:box.y+box.height/2};
+ },{needle,col,rowSkip});
+ const point=await handle.jsonValue();
+ return point as {x:number;y:number};
+}
+const stubDesktop=async(page:Page,fail=false)=>page.addInitScript(bad=>{
+ const opened:string[]=[];Object.assign(window,{opened,harnessDesktop:{openExternal:async(url:string)=>{if(bad)throw new Error('Synthetic open failure');opened.push(url);}}});
+},fail);
+const stubWindowOpen=async(page:Page)=>page.addInitScript(()=>{
+ const opened:unknown[][]=[];Object.assign(window,{opened,open:(url:string,target:string,features:string)=>{opened.push([url,target,features]);return null;}});
+});
+const noInput=(api:{requests:RequestRecord[]})=>api.requests.filter(item=>item.body?.type==='input');
+
+test('Ctrl+click a printed http(s) URL opens it once via the desktop bridge and shows the hover hint',async({page})=>{
+ await stubDesktop(page);
+ const api=await mount(page,{create:async(route,body)=>json(route,result(String(body.terminalId),'see https://example.com/docs?a=1 for details\r\n',{cursor:44}))});
+ await expect.poll(()=>text(page)).toContain('https://example.com/docs?a=1');
+ const hint=page.locator('.terminal-link-hint');
+ const point=await linkCell(page,'https://example.com/docs?a=1');
+ await page.mouse.move(point.x,point.y);await expect(hint).toHaveText('Ctrl+click to open');
+ await page.keyboard.down('Control');await page.mouse.click(point.x,point.y);await page.keyboard.up('Control');
+ await expect.poll(()=>page.evaluate(()=>(window as unknown as {opened:string[]}).opened)).toEqual(['https://example.com/docs?a=1']);
+ await page.evaluate(()=>window.terminalFixture.revoke());
+ await page.keyboard.down('Control');await page.mouse.click(point.x,point.y);await page.keyboard.up('Control');
+ expect(await page.evaluate(()=>(window as unknown as {opened:string[]}).opened)).toHaveLength(1);
+ expect(noInput(api)).toEqual([]);expect(api.blocked).toEqual([]);expect(api.errors).toEqual([]);
+});
+
+test('plain click and drag over a URL keep selection and open nothing',async({page})=>{
+ await stubDesktop(page);
+ const api=await mount(page,{create:async(route,body)=>json(route,result(String(body.terminalId),'see https://example.com/docs?a=1 for details\r\n',{cursor:44}))});
+ await expect.poll(()=>text(page)).toContain('https://example.com/docs?a=1');
+ const point=await linkCell(page,'https://example.com/docs?a=1');
+ await page.mouse.click(point.x,point.y);
+ const start=await linkCell(page,'https://example.com',{col:0});
+ const end=await linkCell(page,'https://example.com',{col:30});
+ await page.mouse.move(start.x,start.y);await page.mouse.down();await page.mouse.move(end.x,end.y,{steps:5});await page.mouse.up();
+ expect(await page.evaluate(()=>(window as unknown as {opened:string[]}).opened)).toEqual([]);
+ expect(await page.evaluate(()=>window.terminalFixture.instances[0]!.getSelection())).toContain('example.com');
+ expect(noInput(api)).toEqual([]);expect(api.errors).toEqual([]);
+});
+
+test('unsafe schemes in output never hint or open',async({page})=>{
+ await stubDesktop(page);
+ const api=await mount(page,{create:async(route,body)=>json(route,result(String(body.terminalId),'javascript:alert(1) file:///etc/passwd ftp://x.example\r\n',{cursor:60}))});
+ await expect.poll(()=>text(page)).toContain('file:///etc/passwd');
+ for(const needle of ['alert','passwd','x.example']){
+  const point=await linkCell(page,needle);
+  await page.mouse.move(point.x,point.y);await page.waitForTimeout(60);
+  await page.keyboard.down('Control');await page.mouse.click(point.x,point.y);await page.keyboard.up('Control');
+ }
+ expect(await page.locator('.terminal-link-hint').count()).toBe(0);
+ expect(await page.evaluate(()=>(window as unknown as {opened:string[]}).opened)).toEqual([]);
+ expect(noInput(api)).toEqual([]);expect(api.errors).toEqual([]);
+});
+
+test('a URL wrapped across rows opens whole from the second row',async({page})=>{
+ await stubDesktop(page);
+ const url='https://example.com/'+'segment-'.repeat(20)+'end';
+ const api=await mount(page,{create:async(route,body)=>json(route,result(String(body.terminalId),url+'\r\n',{cursor:url.length}))});
+ await expect.poll(()=>text(page)).toContain('end');
+ const point=await linkCell(page,url.slice(0,16),{rowSkip:1,col:10});
+ await page.keyboard.down('Control');await page.mouse.click(point.x,point.y);await page.keyboard.up('Control');
+ await expect.poll(()=>page.evaluate(()=>(window as unknown as {opened:string[]}).opened)).toEqual([url]);
+ expect(noInput(api)).toEqual([]);expect(api.errors).toEqual([]);
+});
+
+test('OSC 8 links use the same modifier rule and never show a dialog',async({page})=>{
+ await stubDesktop(page);
+ let dialogs=0;page.on('dialog',dialog=>{dialogs++;void dialog.dismiss();});
+ const api=await mount(page,{create:async(route,body)=>json(route,result(String(body.terminalId),'\x1b]8;;https://example.com/osc\x1b\\label\x1b]8;;\x1b\\\r\n',{cursor:60}))});
+ await expect.poll(()=>text(page)).toContain('label');
+ const point=await linkCell(page,'label');
+ await page.mouse.move(point.x,point.y);await expect(page.locator('.terminal-link-hint')).toHaveText('Ctrl+click to open');
+ await page.mouse.click(point.x,point.y);await page.waitForTimeout(120);
+ expect(dialogs).toBe(0);
+ await page.keyboard.down('Control');await page.mouse.click(point.x,point.y);await page.keyboard.up('Control');
+ await expect.poll(()=>page.evaluate(()=>(window as unknown as {opened:string[]}).opened)).toEqual(['https://example.com/osc']);
+ expect(noInput(api)).toEqual([]);expect(api.errors).toEqual([]);
+});
+
+test('browser host opens links with target _blank and noopener,noreferrer',async({page})=>{
+ await stubWindowOpen(page);
+ const api=await mount(page,{create:async(route,body)=>json(route,result(String(body.terminalId),'see https://example.com/docs?a=1 for details\r\n',{cursor:44}))});
+ await expect.poll(()=>text(page)).toContain('https://example.com/docs?a=1');
+ const point=await linkCell(page,'https://example.com/docs?a=1');
+ await page.keyboard.down('Control');await page.mouse.click(point.x,point.y);await page.keyboard.up('Control');
+ await expect.poll(()=>page.evaluate(()=>(window as unknown as {opened:unknown[][]}).opened)).toEqual([['https://example.com/docs?a=1','_blank','noopener,noreferrer']]);
+ expect(noInput(api)).toEqual([]);expect(api.errors).toEqual([]);
+});
+
+test('a rejected open shows a transient failure hint without the New terminal button',async({page})=>{
+ await stubDesktop(page,true);
+ const api=await mount(page,{create:async(route,body)=>json(route,result(String(body.terminalId),'see https://example.com/docs?a=1 for details\r\n',{cursor:44}))});
+ await expect.poll(()=>text(page)).toContain('https://example.com/docs?a=1');
+ const hint=page.locator('.terminal-link-hint');
+ const point=await linkCell(page,'https://example.com/docs?a=1');
+ await page.mouse.move(point.x,point.y);await expect(hint).toHaveText('Ctrl+click to open');
+ await page.keyboard.down('Control');await page.mouse.click(point.x,point.y);await page.keyboard.up('Control');
+ await expect(hint).toHaveText('Could not open link');await expect(hint).toHaveAttribute('data-state','failed');
+ expect(await page.getByRole('button',{name:'New terminal',exact:true}).count()).toBe(0);
+ await expect(hint).toHaveCount(0,{timeout:6000});
+ expect(api.errors).toEqual([]);
+});
+
+test('links keep working after the terminal ends',async({page})=>{
+ await stubDesktop(page);
+ const api=await mount(page,{create:async(route,body)=>json(route,result(String(body.terminalId),'see https://example.com/docs?a=1 for details\r\n',{cursor:44,exited:true,exitCode:0}))});
+ await expect(phase(page)).toHaveText('Ended');await expect.poll(()=>text(page)).toContain('https://example.com/docs?a=1');
+ const point=await linkCell(page,'https://example.com/docs?a=1');
+ await page.mouse.move(point.x,point.y);await expect(page.locator('.terminal-link-hint')).toHaveText('Ctrl+click to open');
+ await page.keyboard.down('Control');await page.mouse.click(point.x,point.y);await page.keyboard.up('Control');
+ await expect.poll(()=>page.evaluate(()=>(window as unknown as {opened:string[]}).opened)).toEqual(['https://example.com/docs?a=1']);
+ expect(noInput(api)).toEqual([]);expect(api.errors).toEqual([]);
+});
+
+for(const theme of ['dark','light'])test(`${theme} link hint fits narrow and wide layouts without motion`,async({page},info)=>{
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await stubDesktop(page);
+ const api=await mount(page,{create:async(route,body)=>json(route,result(String(body.terminalId),'see https://example.com/docs?a=1 for details\r\n',{cursor:44}))});
+ await page.evaluate(theme=>{document.documentElement.dataset.theme=theme;},theme);
+ await expect.poll(()=>text(page)).toContain('https://example.com/docs?a=1');
+ const point=await linkCell(page,'https://example.com/docs?a=1');
+ await page.mouse.move(point.x,point.y);await expect(page.locator('.terminal-link-hint')).toHaveText('Ctrl+click to open');
+ await page.screenshot({path:info.outputPath(`06-${theme}-link-hint.png`)});
+ await page.setViewportSize({width:320,height:600});await page.waitForTimeout(250);
+ const point2=await linkCell(page,'example.com');
+ await page.mouse.move(point2.x,point2.y);await expect(page.locator('.terminal-link-hint')).toHaveText('Ctrl+click to open');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ for(const button of await page.locator('.live-terminal button').all()){const box=(await button.boundingBox())!;expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(320);}
+ expect(await page.locator('.live-terminal').evaluate(element=>element.getAnimations({subtree:true}).filter(animation=>animation.playState==='running').length)).toBe(0);
+ await page.screenshot({path:info.outputPath(`05-${theme}-narrow-link-hint.png`)});
+ expect(api.blocked).toEqual([]);expect(api.errors).toEqual([]);
+});

@@ -1,7 +1,7 @@
 import {describe,it,expect,beforeEach,afterEach,vi} from 'vitest';
 import {EventEmitter} from 'node:events';
 import {desktopSurfaceKey,parseDesktopSurface} from '../packages/desktop-contract/index.ts';
-import {allowRemoteBrowserUrl,clampDesktopBounds,pluginDesktopChannelAllowed,desktopSurfaceAllowed,isTrustedDesktopSender,needsEditorHandoff,parseBrowserCommand,publicAddress,remoteBrowserUrl,trustedDesktopUrl} from '../apps/desktop/window-policy.ts';
+import {allowRemoteBrowserUrl,clampDesktopBounds,externalLinkUrl,pluginDesktopChannelAllowed,desktopSurfaceAllowed,isTrustedDesktopSender,needsEditorHandoff,parseBrowserCommand,publicAddress,remoteBrowserUrl,trustedDesktopUrl} from '../apps/desktop/window-policy.ts';
 import {DESKTOP_CHANNELS} from '../packages/desktop-contract/index.ts';
 import {createBrowserProxy,pinnedBrowserTarget} from '../apps/desktop/browser-proxy.ts';
 import {createServer,request as httpRequest} from 'node:http';
@@ -155,6 +155,13 @@ describe('isolated built-in browser',()=>{
  it('rejects local/private/credentialled/non-web pages before native navigation',()=>{
   for(const url of ['file:///C:/secret','javascript:alert(1)','https://user:pass@example.org','http://localhost:4317','http://127.0.0.1:4317','http://2130706433/','http://0x7f000001/','http://10.0.0.1/','http://169.254.169.254/','http://[::1]/','http://[::ffff:127.0.0.1]/','https://intranet/','https://server.local/','https://example.org./'])expect(()=>remoteBrowserUrl(url),url).toThrow();
   expect(remoteBrowserUrl('https://example.org/path?q=ok').href).toBe('https://example.org/path?q=ok');
+ });
+ it('externalLinkUrl admits http(s) incl. loopback, rejects other inputs (#1536)',()=>{
+  expect(externalLinkUrl('https://example.com/a?b=1').href).toBe('https://example.com/a?b=1');
+  expect(externalLinkUrl('http://localhost:5173/').href).toBe('http://localhost:5173/');
+  expect(externalLinkUrl('http://192.168.1.10:8080/x').href).toBe('http://192.168.1.10:8080/x');
+  for(const raw of ['javascript:alert(1)','file:///etc/passwd','ftp://x.example','mailto:a@b.c','https://user:pw@example.com','https://example.com/a b','https://example.com/a\nb','https://'+'a'.repeat(2050),'','not a url',42,null,{},['https://x']])expect(()=>externalLinkUrl(raw),String(raw)).toThrow();
+  expect(pluginDesktopChannelAllowed(DESKTOP_CHANNELS.openExternal)).toBe(false);
  });
  it('fails closed for DNS failures and mixed public/private DNS responses',async()=>{
   expect(await allowRemoteBrowserUrl('https://example.org/',async()=>[{address:'93.184.216.34'}])).toBe(true);

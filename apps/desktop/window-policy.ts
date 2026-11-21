@@ -64,6 +64,12 @@ export function remoteBrowserUrl(raw:string):URL {
  if(url.port&&Number(url.port)!==(url.protocol==='https:'?443:80))throw Error('The browser supports public HTTP port80 and HTTPS port443');
  const host=url.hostname.replace(/^\[|\]$/g,'');if(isIP(host)&&!publicAddress(host))throw Error('Local and private-network browser requests are blocked');return url;
 }
+export function externalLinkUrl(raw:unknown):URL {
+ if(typeof raw!=='string'||raw.length===0||raw.length>2048||/[\u0000-\u0020\s]/.test(raw))throw Error('Invalid external link');
+ let url:URL;try{url=new URL(raw);}catch{throw Error('Invalid external link');}
+ if(!['http:','https:'].includes(url.protocol)||url.username||url.password||!url.hostname)throw Error('Only HTTP or HTTPS links can be opened');
+ return url;
+}
 export async function allowRemoteBrowserUrl(raw:string,resolver:(hostname:string)=>Promise<{address:string}[]>=hostname=>lookup(hostname,{all:true,verbatim:true})):Promise<boolean>{
  try{const url=remoteBrowserUrl(raw),host=url.hostname.replace(/^\[|\]$/g,'');if(isIP(host))return publicAddress(host);let timer:ReturnType<typeof setTimeout>|undefined;try{const addresses=await Promise.race([resolver(host),new Promise<never>((_,reject)=>{timer=setTimeout(()=>reject(Error('Lookup timed out')),2500);})]);return addresses.length>0&&addresses.length<=32&&addresses.every(item=>publicAddress(item.address));}finally{clearTimeout(timer);}}catch{return false;}
 }

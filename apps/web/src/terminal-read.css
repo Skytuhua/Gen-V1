@@ -4,3 +4,22 @@
 .terminal-read>.error-text{flex-shrink:0;overflow-wrap:anywhere}
 .terminal-read>.panel-toolbar>button:focus-visible{outline:2px solid var(--text);outline-offset:2px}
 .terminal-read>.panel-toolbar>button:disabled{opacity:.5;cursor:default}
+
+.terminal-link-hint {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 0 1 auto;
+  animation: terminal-link-hint-in var(--ui-motion-hover) var(--ui-ease-enter);
+}
+.terminal-link-hint[data-state=failed] { color: var(--danger); }
+@keyframes terminal-link-hint-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .terminal-link-hint { animation: none; }
+}
+:root[data-motion=reduced] .terminal-link-hint,
+:root[data-motion=off] .terminal-link-hint,
+.app-shell[data-panel-animations=false] .terminal-link-hint { animation: none; }

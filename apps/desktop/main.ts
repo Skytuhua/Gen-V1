@@ -10,7 +10,7 @@ import {checkInstalledCompatibility} from '../../packages/plugins/installation.t
 import {resolve,join,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {DESKTOP_CHANNELS as channels,desktopId,desktopSurfaceKey,parseDesktopSurface,parseDesktopLayout,parseDesktopWindowControl,type DesktopLayout,type DesktopLayoutEntry,type DesktopSurface,type DesktopWindowInfo,type DesktopContext,type DesktopState,type DesktopBrowserState} from '../../packages/desktop-contract/index.ts';
-import {allowRemoteBrowserUrl,clampDesktopBounds,pluginDesktopChannelAllowed,pluginDesktopRequiresGrant,nativeTitlebarOptions,nativeTitlebarTheme,needsEditorHandoff,desktopSurfaceAllowed,isTrustedDesktopSender,parseBrowserCommand,remoteBrowserUrl,surfaceSize,trustedDesktopUrl,trustedDesktopSubframe,type DesktopBounds} from './window-policy.ts';
+import {allowRemoteBrowserUrl,clampDesktopBounds,pluginDesktopChannelAllowed,externalLinkUrl,pluginDesktopRequiresGrant,nativeTitlebarOptions,nativeTitlebarTheme,needsEditorHandoff,desktopSurfaceAllowed,isTrustedDesktopSender,parseBrowserCommand,remoteBrowserUrl,surfaceSize,trustedDesktopUrl,trustedDesktopSubframe,type DesktopBounds} from './window-policy.ts';
 import {createBrowserProxy,type BrowserProxy} from './browser-proxy.ts';
 import {createStartupOutputCapture,finishBackendStartup,nodeSidecarArguments,requestBackendShutdown,startupErrorDiagnostic,waitForBackendReady,writeStartupDiagnostic,type StartupDiagnostic,type StartupObservation} from './backend-policy.ts';
 import {releaseOwnedBrowsers,detachOwnedBrowser} from './browser-lifecycle.ts';
@@ -262,6 +262,7 @@ function registerIpc(){
   if(record.browser&&main.dockedBrowser&&main.dockedBrowser!==record.browser)throw Error('The main workspace already owns another browser. Both views remain open; return after that browser is no longer docked.');
   try{if(!await requestClose(record))throw Error('Save the window edits before attaching it');if(main.window.isDestroyed())throw Error('The main window closed before attachment. Your detached view is still available.');if(record.browser)moveBrowser(record.browser,main,true);const surface=record.surface;destroyWindow(record);broadcast(surface);}catch(error){cancelClose(record);throw error;}
  }));
+ handle(channels.openExternal,(_record,value)=>shell.openExternal(externalLinkUrl(value).href,{activate:true}));
  handle(channels.minimize,record=>record.window.minimize());
  handle(channels.signIn,(_record,value)=>{const target=parseDesktopSignInTarget(value);return beginSignIn(target.provider,target.accountId);});
  handle(channels.signInStatus,(_record,value)=>{if(!desktopId(value))throw Error('Invalid sign-in flow.');return signInFlows.status(value);});
