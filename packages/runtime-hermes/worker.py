@@ -581,7 +581,12 @@ class Worker:
                 thread = (params.get("ctx") or {}).get("threadId")
                 if not isinstance(thread, str) or not thread:
                     raise ValueError("A sessionPath requires a sealed thread identity")
-                expected = self.home / "sessions" / (hashlib.sha256(thread.encode("utf-8")).hexdigest() + ".json")
+                generation = params.get("sessionGeneration")
+                if generation is not None:
+                    if not isinstance(generation, str) or not re.fullmatch(r"g[0-9a-f]{16}", generation):
+                        raise ValueError("A native session generation is invalid")
+                seed = thread + ":" + generation if generation else thread
+                expected = self.home / "sessions" / (hashlib.sha256(seed.encode("utf-8")).hexdigest() + ".json")
                 if Path(os.path.abspath(params["sessionPath"])) != expected:
                     raise PermissionError("sessionPath must match the app-owned thread session")
                 expected.parent.mkdir(exist_ok=True)
@@ -593,6 +598,8 @@ class Worker:
                 if ownership is None and saved.get("identity"):
                     legacy = json.loads(saved["identity"])
                     ownership = self.history_ownership(legacy)
+                if isinstance(ownership, dict):
+                    ownership.setdefault("sessionGeneration", None)
                 if ownership != self.history_ownership(params):
                     raise PermissionError("Saved source session belongs to another thread or account")
                 history = saved["messages"]
@@ -763,7 +770,8 @@ class Worker:
     @staticmethod
     def history_ownership(params):
         return {"threadId": (params.get("ctx") or {}).get("threadId") or params.get("threadId"),
-                "accountId": params.get("accountId"), "sessionPath": params.get("sessionPath"), "sourceCommit": COMMIT}
+                "accountId": params.get("accountId"), "sessionPath": params.get("sessionPath"), "sourceCommit": COMMIT,
+                "sessionGeneration": params.get("sessionGeneration")}
 
     def cancel(self):
         self.cancelled.set()
@@ -799,7 +807,12 @@ class Worker:
                 thread = (params.get("ctx") or {}).get("threadId")
                 if not isinstance(thread, str) or not thread:
                     raise PermissionError("Maintenance requires an owned thread")
-                expected = self.home / "sessions" / (hashlib.sha256(thread.encode("utf-8")).hexdigest() + ".json")
+                generation = params.get("sessionGeneration")
+                if generation is not None:
+                    if not isinstance(generation, str) or not re.fullmatch(r"g[0-9a-f]{16}", generation):
+                        raise ValueError("A native session generation is invalid")
+                seed = thread + ":" + generation if generation else thread
+                expected = self.home / "sessions" / (hashlib.sha256(seed.encode("utf-8")).hexdigest() + ".json")
                 if not params.get("sessionPath") or Path(os.path.abspath(params["sessionPath"])) != expected:
                     raise PermissionError("Maintenance source path does not match its thread")
                 self.guard_home()
@@ -807,6 +820,8 @@ class Worker:
                 ownership = saved.get("ownership")
                 if ownership is None and saved.get("identity"):
                     ownership = self.history_ownership(json.loads(saved["identity"]))
+                if isinstance(ownership, dict):
+                    ownership.setdefault("sessionGeneration", None)
                 if saved.get("sourceCommit") != COMMIT or ownership != self.history_ownership(params):
                     raise PermissionError("Maintenance history belongs to another source owner")
                 self.params = dict(params)
