@@ -122,6 +122,7 @@ describe('repository.test binding v2 (ui.testResultsV1)', () => {
     expect(binding.argv).toContain('--test-name-pattern=^outer a\\.b\\$c\\* \\[x\\] inner\\?$');
     await expect(f.prepare({ testName: 'has\nnewline' })).rejects.toMatchObject({ code: 'INVALID_TOOL_ARGUMENTS' });
     await expect(f.prepare({ testName: 'has\0nul' })).rejects.toMatchObject({ code: 'INVALID_TOOL_ARGUMENTS' });
+    await expect(f.prepare({ rerunOf: { operationId: 'op1', testId: 't' + 'a'.repeat(16) } })).rejects.toMatchObject({ code: 'INVALID_TOOL_ARGUMENTS' });
     expect(testNamePattern('a/b\\c(d)')).toBe('^a\\/b\\\\c\\(d\\)$');
   });
 

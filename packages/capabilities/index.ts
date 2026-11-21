@@ -89,7 +89,10 @@ async function git(ctx: DomainContext, resourceId: string, args: string[]) {
   }, await ctx.managedGitFamily?.(cwd));
   });
 }
-export async function handleDomainTool(name: string, rawArgs: unknown, ctx: DomainContext): Promise<unknown> {
+const repositoryTestResultsInternalArgs = repositoryTestResultsArgs.extend({
+  rerunOf: z.strictObject({ operationId: z.string().min(1).max(200), testId: z.string().min(1).max(200) }).optional(),
+});
+export async function handleDomainTool(name: string, rawArgs: unknown, ctx: DomainContext, internal = false): Promise<unknown> {
   active(ctx);
   if (!Object.hasOwn(toolSchemas, name)) throw new HarnessError("UNKNOWN_TOOL", `Unknown domain tool ${name}`);
   // Dispatch parses each schema explicitly, preserving type narrowing and rejecting unknown props.
@@ -132,7 +135,7 @@ export async function handleDomainTool(name: string, rawArgs: unknown, ctx: Doma
     }
     case "repository_test_prepare": {
       const testResultsOn = capabilityEnabled("ui.testResultsV1");
-      const checked = (testResultsOn ? repositoryTestResultsArgs : toolSchemas.repository_test_prepare).safeParse(rawArgs);
+      const checked = (testResultsOn ? (internal ? repositoryTestResultsInternalArgs : repositoryTestResultsArgs) : toolSchemas.repository_test_prepare).safeParse(rawArgs);
       if (!checked.success) throw new HarnessError("INVALID_TOOL_ARGUMENTS", "Invalid repository_test_prepare arguments", checked.error.issues.map(i => ({ path: i.path, message: i.message })));
       const a = checked.data;
       return access(ctx, a.resourceId, undefined, false, async cwd => {
