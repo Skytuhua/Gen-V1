@@ -2,6 +2,7 @@ import {timingSafeEqual} from 'node:crypto';
 import {writeSync} from 'node:fs';
 import {launchHost,readHostOptions,type RunningHost} from './host.ts';
 import {handleDesktopControl} from './desktop-controls.ts';
+import {setNetworkProxyRevisionSink} from '../../packages/core/network-proxy-transport.ts';
 
 const STARTUP_CODES=['ENOENT','EACCES','EPERM','EADDRINUSE','EADDRNOTAVAIL','EPIPE','ECONNRESET','ECONNREFUSED','ETIMEDOUT','ENOSPC','EMFILE','ENFILE','EIO','EINVAL','EBUSY','ERR_MODULE_NOT_FOUND','MODULE_NOT_FOUND','ERR_DLOPEN_FAILED','ERR_INVALID_ARG_TYPE','ERR_INVALID_ARG_VALUE','ERR_SQLITE_ERROR','SQLITE_BUSY','SQLITE_LOCKED','SQLITE_CANTOPEN','SQLITE_CORRUPT','ERR_CONNECTION_REFUSED','ERR_ABORTED','ERR_FAILED','ERR_FILE_NOT_FOUND','ERR_TIMED_OUT'] as const;
 // Keep the packaged server self-contained; only finite metadata crosses this boundary.
@@ -42,6 +43,7 @@ process.on('message',(value:unknown)=>{
 try{
  if(token!==undefined&&!validToken)throw new Error('HARNESS_DESKTOP_LAUNCH_TOKEN must be 32 to 128 hexadecimal characters.');
  host=await launchHost(readHostOptions());
+ if(validToken)setNetworkProxyRevisionSink((revision:number)=>void message({type:'networkProxy.revision',token,revision}));
  if(requestedClose)await close();
  else{
   process.stdout.write(`Harness host: ${host.origin}\n`);

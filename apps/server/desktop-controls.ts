@@ -1,7 +1,7 @@
 import {timingSafeEqual} from 'node:crypto';
 import type {AttentionDelivery} from '../../packages/contracts/attention.ts';
 
-interface DesktopHostControls{attentionRead?():Promise<AttentionDelivery>;attentionAction?(type:'open'|'dismiss',eventId:string):Promise<{threadId?:string;dismissed?:boolean}>;stopAll():Promise<{stopped:number;errors?:string[]}>;saveNativeLayout(layout:unknown):Promise<void>;validatePluginSurface?:(surface:unknown)=>Promise<boolean>;updateReadiness?:()=>Promise<{idle:boolean}>;prepareUpdateClose?:()=>Promise<{idle:boolean}>}
+interface DesktopHostControls{attentionRead?():Promise<AttentionDelivery>;networkProxySnapshot?():Promise<{revision:number;url:string|null;credentials:string|null;bypass:string[]}>;attentionAction?(type:'open'|'dismiss',eventId:string):Promise<{threadId?:string;dismissed?:boolean}>;stopAll():Promise<{stopped:number;errors?:string[]}>;saveNativeLayout(layout:unknown):Promise<void>;validatePluginSurface?:(surface:unknown)=>Promise<boolean>;updateReadiness?:()=>Promise<{idle:boolean}>;prepareUpdateClose?:()=>Promise<{idle:boolean}>}
 /** Private parent IPC has the same launch-token custody as shutdown. No HTTP bypass. */
 export async function handleDesktopControl(value:unknown,token:string,host:DesktopHostControls,send:(value:Record<string,unknown>)=>unknown):Promise<boolean>{
  if(!value||typeof value!=='object'||Array.isArray(value)||!/^[a-f0-9]{32,128}$/i.test(token))return false;
@@ -25,6 +25,10 @@ export async function handleDesktopControl(value:unknown,token:string,host:Deskt
  if(input.type==='harness.plugin.validate'&&Object.keys(input).length===4&&Object.hasOwn(input,'surface')){
   try{await send({type:'harness.plugin.validated',token,requestId:input.requestId,allowed:await host.validatePluginSurface?.(input.surface)===true});}
   catch{await send({type:'harness.plugin.validated',token,requestId:input.requestId,allowed:false});}return true;
+ }
+ if(input.type==='networkProxy.snapshot'&&Object.keys(input).length===3){
+  try{if(!host.networkProxySnapshot)throw Error('Unavailable');await send({type:'networkProxy.snapshot.result',token,requestId:input.requestId,snapshot:await host.networkProxySnapshot()});}
+  catch{await send({type:'networkProxy.snapshot.result',token,requestId:input.requestId,error:'The proxy policy is unavailable.'});}return true;
  }
  if(input.type==='harness.layout.save'&&Object.keys(input).length===4&&Object.hasOwn(input,'layout')){
   try{await host.saveNativeLayout(input.layout);await send({type:'harness.layout.saved',token,requestId:input.requestId});}

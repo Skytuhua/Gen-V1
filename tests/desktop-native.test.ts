@@ -132,6 +132,46 @@ describe('pinned outbound browser transport',()=>{
   try{expect(await tunnel('example.org:443')).toContain('200 Connection Established');expect(await tunnel('private.example:443')).toContain('403 Forbidden');expect(await tunnel('127.0.0.1:443')).toContain('403 Forbidden');expect(connections).toBe(1);}finally{await proxy.close();await new Promise<void>(resolve=>echo.close(()=>resolve()));}
  });
 });
+
+describe('corporate upstream browser hop (#1531 T04)',()=>{
+ const snapshot=(bypass:string[]=[],credentials:string|null='u:p@ss')=>({revision:1,url:'http://corp.proxy:3128',credentials,bypass});
+ const tunnel=(port:number,authority:string)=>new Promise<string>((resolve,reject)=>{const client=connect(port,'127.0.0.1',()=>client.write('CONNECT '+authority+' HTTP/1.1\r\nHost: '+authority+'\r\n\r\n'));let received='';client.on('data',bytes=>{received+=bytes.toString();if(received.includes('\r\n\r\n')){client.destroy();resolve(received);}});client.on('error',reject);});
+ it('tunnels CONNECT through the upstream with credentials confined to the hop',async()=>{
+  let hopBytes='';
+  const echo=tcpServer(socket=>socket.on('data',bytes=>{hopBytes+=bytes.toString();if(hopBytes.includes('\r\n\r\n')&&!hopBytes.includes('ESTABLISHED'))socket.write('HTTP/1.1 200 Connection Established\r\n\r\n');}));await new Promise<void>(resolve=>echo.listen(0,'127.0.0.1',resolve));const address=echo.address();if(!address||typeof address==='string')throw Error('Fixture did not bind');
+  let hopConnects=0;const proxy=await createBrowserProxy({
+   resolve:async host=>[{address:host==='corp.proxy'?'140.82.121.4':'93.184.216.34',family:4}],
+   connect:options=>{hopConnects++;expect(options).toEqual({host:'140.82.121.4',port:3128,family:4});return connect({host:'127.0.0.1',port:address.port});},
+   upstream:async()=>snapshot()});
+  try{
+   const head=await tunnel(proxy.port,'example.org:443');
+   expect(head).toContain('200 Connection Established');
+   expect(hopConnects).toBe(1);
+   expect(hopBytes).toContain('CONNECT example.org:443 HTTP/1.1');
+   expect(hopBytes).toContain('Proxy-Authorization: Basic '+Buffer.from('u:p@ss').toString('base64'));
+  }finally{await proxy.close();await new Promise<void>(resolve=>echo.close(()=>resolve()));}
+ });
+ it('bypassed targets still go direct to the vetted address',async()=>{
+  const echo=tcpServer(socket=>socket.on('data',bytes=>socket.write(bytes)));await new Promise<void>(resolve=>echo.listen(0,'127.0.0.1',resolve));const address=echo.address();if(!address||typeof address==='string')throw Error('Fixture did not bind');
+  const seen:string[]=[];const proxy=await createBrowserProxy({
+   resolve:async host=>[{address:host==='corp.proxy'?'140.82.121.4':'93.184.216.34',family:4}],
+   connect:options=>{seen.push(options.host);return connect({host:'127.0.0.1',port:address.port});},
+   upstream:async()=>snapshot(['example.org'])});
+  echo.on('connection',socket=>socket.on('data',bytes=>{if(bytes.toString().includes('\r\n\r\n'))socket.write('HTTP/1.1 200 Connection Established\r\n\r\n');}));
+  try{expect(await tunnel(proxy.port,'example.org:443')).toContain('200 Connection Established');expect(seen).toEqual(['93.184.216.34']);}finally{await proxy.close();await new Promise<void>(resolve=>echo.close(()=>resolve()));}
+ });
+ it('upstream refusal or private upstream address fails closed',async()=>{
+  const refusing=tcpServer(socket=>socket.on('data',bytes=>{if(bytes.toString().includes('\r\n\r\n'))socket.end('HTTP/1.1 407 Proxy Authentication Required\r\n\r\n');}));
+  await new Promise<void>(resolve=>refusing.listen(0,'127.0.0.1',resolve));const address=refusing.address();if(!address||typeof address==='string')throw Error('Fixture did not bind');
+  const proxy=await createBrowserProxy({resolve:async host=>[{address:host==='corp.proxy'?'140.82.121.4':'93.184.216.34',family:4}],connect:options=>connect({host:'127.0.0.1',port:address.port}),upstream:async()=>snapshot()});
+  const blocked=await createBrowserProxy({resolve:async host=>[{address:host==='corp.proxy'?'127.0.0.1':'93.184.216.34',family:4}],connect:options=>connect({host:'127.0.0.1',port:address.port}),upstream:async()=>snapshot()});
+  try{
+   expect(await tunnel(proxy.port,'example.org:443')).toContain('403 Forbidden'); // 407 upstream -> fail closed
+   expect(await tunnel(blocked.port,'example.org:443')).toContain('403 Forbidden'); // private upstream IP -> refused
+  }finally{await proxy.close();await blocked.close();await new Promise<void>(resolve=>refusing.close(()=>resolve()));}
+ });
+});
+
 describe('native detached geometry',()=>{
  const areas=[{x:0,y:0,width:1920,height:1040},{x:-1280,y:-100,width:1280,height:960}];
  it('allows independent X/Y placement on a connected negative-coordinate display',()=>{

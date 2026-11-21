@@ -12,6 +12,7 @@ import {fileURLToPath} from 'node:url';
 import {DESKTOP_CHANNELS as channels,desktopId,desktopSurfaceKey,parseDesktopSurface,parseDesktopLayout,parseDesktopWindowControl,type DesktopLayout,type DesktopLayoutEntry,type DesktopSurface,type DesktopWindowInfo,type DesktopContext,type DesktopState,type DesktopBrowserState} from '../../packages/desktop-contract/index.ts';
 import {allowRemoteBrowserUrl,clampDesktopBounds,pluginDesktopChannelAllowed,pluginDesktopRequiresGrant,nativeTitlebarOptions,nativeTitlebarTheme,needsEditorHandoff,desktopSurfaceAllowed,isTrustedDesktopSender,parseBrowserCommand,remoteBrowserUrl,surfaceSize,trustedDesktopUrl,trustedDesktopSubframe,type DesktopBounds} from './window-policy.ts';
 import {createBrowserProxy,type BrowserProxy} from './browser-proxy.ts';
+import type {NetworkProxySnapshot} from '../../packages/core/network-proxy-env.ts';
 import {createStartupOutputCapture,finishBackendStartup,nodeSidecarArguments,requestBackendShutdown,startupErrorDiagnostic,waitForBackendReady,writeStartupDiagnostic,type StartupDiagnostic,type StartupObservation} from './backend-policy.ts';
 import {releaseOwnedBrowsers,detachOwnedBrowser} from './browser-lifecycle.ts';
 import {ensureMainDockedBrowser} from './docked-browser.ts';
@@ -109,6 +110,19 @@ function installApplicationMenu(){const all=displays();Menu.setApplicationMenu(M
 function displayTitle(surface:DesktopSurface){return surface.kind==='plugin'?'Plug-in view':({main:'Gen V1',plan:'Task plan',usage:'Live usage',thread:'Chat',artifact:'Task artifact',agent:'Subagent',navigation:'Projects and threads',workspace:'Workspace',browser:'Browser'})[surface.kind];}
 function browserState(record:BrowserRecord){const contents=record.view.webContents;if(contents.isDestroyed())return;record.state={...record.state,url:(contents.getURL()||'about:blank').slice(0,4096),title:(contents.getTitle()||'Browser').slice(0,500),canGoBack:contents.navigationHistory.canGoBack(),canGoForward:contents.navigationHistory.canGoForward(),loading:contents.isLoading()};broadcast();}
 const configuredBrowserSessions=new WeakMap<Session,Promise<void>>();
+// #1531 T04: revision-snapshotted corporate upstream for the docked Browser's
+// local proxy; refreshed over the trusted sidecar IPC on each policy notice.
+let browserUpstream:NetworkProxySnapshot|null=null,browserUpstreamRevision=-1,proxyApplyQueue:Promise<unknown>=Promise.resolve();
+function applyProxyRevision(){
+ const task=proxyApplyQueue.then(async()=>{
+  const value=await backendRequest('networkProxy.snapshot'),snapshot=(value.snapshot??null) as NetworkProxySnapshot|null;
+  const revision=snapshot?.revision??0;if(revision===browserUpstreamRevision)return;
+  browserUpstreamRevision=revision;browserUpstream=snapshot;
+  // Retire stale connections before new navigation adopts the new revision.
+  for(const record of browsers.values()){const session=record.view.webContents.session;await session.closeAllConnections().catch(()=>{});}
+ });
+ proxyApplyQueue=task.catch(()=>{});return task;
+}
 function secureBrowserSession(value:Session){
  const existing=configuredBrowserSessions.get(value);if(existing)return existing;
  value.setPermissionRequestHandler((_contents,_permission,callback)=>callback(false));value.setPermissionCheckHandler(()=>false);value.on('will-download',event=>event.preventDefault());
@@ -116,7 +130,7 @@ function secureBrowserSession(value:Session){
   if(details.url==='about:blank'||details.url.startsWith('data:')||details.url.startsWith('blob:')){callback({cancel:false});return;}
   void allowRemoteBrowserUrl(details.url).then(allow=>callback({cancel:!allow}),()=>callback({cancel:true}));
  });
- const ready=(async()=>{const proxy=await (proxyPromise??=createBrowserProxy());await value.setProxy({mode:'fixed_servers',proxyRules:'http=127.0.0.1:'+proxy.port+';https=127.0.0.1:'+proxy.port,proxyBypassRules:'<-loopback>'});await value.closeAllConnections();})();configuredBrowserSessions.set(value,ready);return ready;
+ const ready=(async()=>{const proxy=await (proxyPromise??=createBrowserProxy({upstream:async()=>browserUpstream}));await applyProxyRevision().catch(()=>{});await value.setProxy({mode:'fixed_servers',proxyRules:'http=127.0.0.1:'+proxy.port+';https=127.0.0.1:'+proxy.port,proxyBypassRules:'<-loopback>'});await value.closeAllConnections();})();configuredBrowserSessions.set(value,ready);return ready;
 }
 const memoryExports=createMemoryExportDownloads();
 function secureSessionDownloads(value:Session){memoryExports.guard(value);}
@@ -199,7 +213,7 @@ function requestClose(record:WindowRecord):Promise<boolean>{
 }
 function destroyWindow(record:WindowRecord){if(record.window.isDestroyed())return;remember(record,quitting);loseBrowserOwner(record);record.window.destroy();}
 async function mainWindow(){const existing=[...windows.values()].find(record=>record.surface.kind==='main');if(existing){existing.visible=true;if(existing.window.isMinimized())existing.window.restore();existing.window.show();existing.window.focus();remember(existing);broadcast();await existing.readyPromise;return existing;}const result=await openSurface({kind:'main'});return windows.get(result.id)!;}
-function backendRequest(type:'harness.stopAll'|'harness.layout.save'|'harness.plugin.validate'|'harness.update.readiness'|'harness.update.prepare'|'harness.attention.read'|'harness.attention.open'|'harness.attention.dismiss',extra:Record<string,unknown>={}):Promise<Record<string,unknown>>{
+function backendRequest(type:'harness.stopAll'|'harness.layout.save'|'networkProxy.snapshot'|'harness.plugin.validate'|'harness.update.readiness'|'harness.update.prepare'|'harness.attention.read'|'harness.attention.open'|'harness.attention.dismiss',extra:Record<string,unknown>={}):Promise<Record<string,unknown>>{
  const child=backend,token=launchToken,requestId=randomUUID(),reply=type==='harness.stopAll'?'harness.stoppedAll':type==='harness.layout.save'?'harness.layout.saved':type==='harness.plugin.validate'?'harness.plugin.validated':type+'.result';
  if(!child?.connected||child.exitCode!==null||child.signalCode)return Promise.reject(Error('The local backend is unavailable. Restore the workspace and retry.'));
  return new Promise((resolve,reject)=>{const finish=(error?:Error,value?:Record<string,unknown>)=>{clearTimeout(timer);child.removeListener('message',receive);child.removeListener('exit',exited);child.removeListener('disconnect',exited);if(error)reject(error);else resolve(value!);};const receive=(raw:unknown)=>{if(!raw||typeof raw!=='object'||Array.isArray(raw))return;const value=raw as Record<string,unknown>;if(value.type===reply&&value.token===token&&value.requestId===requestId){if(value.error)finish(Error(String(value.error).slice(0,500)));else finish(undefined,value);}};const exited=()=>finish(Error('The local backend disconnected before acknowledging the action.'));const timer=setTimeout(()=>finish(Error('The local backend did not acknowledge the action. Restore the workspace and retry.')),15000);child.on('message',receive);child.once('exit',exited);child.once('disconnect',exited);try{child.send({type,token,requestId,...extra},error=>{if(error)finish(error);});}catch(error){finish(error instanceof Error?error:Error(String(error)));}});
@@ -321,6 +335,7 @@ async function startBackend():Promise<void>{
  await finishBackendStartup(child,oldRelay?.close(),()=>stderr,()=>{
   backendOrigin=value.origin as string;
   if(value.nativeLayout!==undefined)try{hostLayout=parseDesktopLayout(value.nativeLayout);}catch{layoutError='The saved host workspace layout is invalid. The local backup is retained.';}
+  child.on('message',(value:unknown)=>{if(value&&typeof value==='object'&&(value as Record<string,unknown>).type==='networkProxy.revision')void applyProxyRevision().catch(()=>{});});
   workspaceRelay=workspaceEvents(backendOrigin,change=>{for(const record of windows.values())if(!record.window.isDestroyed())record.window.webContents.send(channels.workspaceChanged,change);},token);
   child.once('exit',()=>{if(closing||backend!==child)return;backendError='The local backend stopped. Reconnecting…';broadcast();if(restarting)return;restarting=true;setTimeout(()=>{void startBackend().catch(error=>{backendError='Backend restart failed: '+String(error instanceof Error?error.message:error).slice(0,500);broadcast();}).finally(()=>{restarting=false;});},700);});
   backendError=undefined;broadcast();
