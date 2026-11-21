@@ -84,6 +84,10 @@ Expect Windows SmartScreen to show a
 
 ### Git, worktrees and developer tools
 
+- Add a global terminal-shell setting on Windows (System default, Command
+  Prompt, PowerShell 7, Windows PowerShell, Git Bash, WSL default or named
+  distribution) applying to newly opened interactive project terminals only;
+  missing selections keep an actionable error instead of switching shells.
 - Add managed working copies, selective commits, paged checkpoint history,
   read-only diff review and gated restores with preimage/integrity checks.
 - Add gated revision-aware code intelligence, precise edit/rename previews with

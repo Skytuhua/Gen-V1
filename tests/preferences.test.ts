@@ -44,8 +44,20 @@ describe('UI preferences and thread presentation', () => {
     const b = mergePreferences(DEFAULT_PREFERENCES, { keybindings: { search: 'Alt+K' } });
     expect(b.keybindings.newThread).toBe('Ctrl+Shift+O'); expect(b.keybindings.search).toBe('Alt+K');
   });
-  it.each([{ remoteAccess: true }, { fontSize: 90 }, { panelAnimations: 'yes' }, { motionDuration: -1 }, { keybindings: { executeShell: 'Ctrl+X' } }])('rejects unsupported or invalid preference values %j', value => {
+  it.each([{ remoteAccess: true }, { fontSize: 90 }, { panelAnimations: 'yes' }, { motionDuration: -1 }, { keybindings: { executeShell: 'Ctrl+X' } }, { terminalShell: { kind: 'fish' } }, { terminalShell: { kind: 'cmd', distro: 'Ubuntu' } }, { terminalShell: { kind: 'wsl', distro: '-Ubuntu' } }])('rejects unsupported or invalid preference values %j', value => {
     expect(() => mergePreferences(DEFAULT_PREFERENCES, value)).toThrow();
+  });
+  it('replaces the terminal shell atomically and falls back per-field on corrupt stored values', async () => {
+    const { store, command } = setup();
+    expect(getPreferences(store.snapshot().settings).terminalShell).toEqual({ kind: 'default' });
+    await command('settings.update', { preferences: { terminalShell: { kind: 'wsl', distro: 'Ubuntu' } } });
+    expect(store.snapshot().settings.preferences?.terminalShell).toEqual({ kind: 'wsl', distro: 'Ubuntu' });
+    await command('settings.update', { preferences: { terminalShell: { kind: 'pwsh' } } });
+    expect(store.snapshot().settings.preferences?.terminalShell).toEqual({ kind: 'pwsh' });
+    store.internal('fixture.settings', null, () => store.put('settings', 'global', null, { preferences: { terminalShell: { kind: 'wsl', distro: { bad: true } }, density: 'touch' } }));
+    const healed = getPreferences(store.snapshot().settings);
+    expect(healed.terminalShell).toEqual({ kind: 'default' });
+    expect(healed.density).toBe('touch');
   });
   it('rejects unsupported host settings without committing a receipt or event', async () => {
     const { store, command } = setup(); const seq = store.sequence;

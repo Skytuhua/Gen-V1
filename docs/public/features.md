@@ -14,6 +14,12 @@ The trusted catalog has 48 components for task-specific compositions: trace wate
 
 Generated-code applications use a separate opaque worker, validated messages and a termination watchdog. Those controls do not establish a hard OS memory quota or guarantee the quality of generated code. The broader generation-quality pilot remains open.
 
+### Choosing the project terminal shell (Windows)
+
+Settings → General → "Terminal shell" picks the shell for newly opened interactive project terminals: System default (Command Prompt), Command Prompt, PowerShell 7, Windows PowerShell, Git Bash, or WSL (the default distribution or a named installed one). The choice is global and persists across restarts; terminals that are already running keep their original process and shell. A selection that later disappears — an uninstalled shell or removed WSL distribution — stays saved but reports an actionable error when a new terminal opens; it never silently falls back to another shell.
+
+WSL terminals start in the project directory after conversion to the Linux mount path; a local drive path is required, and WSL receives configured project environment values through a bounded variable-name allowlist (`WSLENV`) rather than the full host environment. Non-Windows hosts keep the system shell (`SHELL` or `/bin/sh`).
+
 ## Conversation and working state
 
 Conversations, artifacts, accepted actions and saved state persist. Draft journals protect newer local edits, and revision checks retain conflicts for review. Interrupted work stays visible rather than being automatically repeated. The host keeps receipts so accepted input and completed execution remain distinct.
