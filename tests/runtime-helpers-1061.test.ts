@@ -58,7 +58,7 @@ describe('createHostTools',()=>{
   const call=vi.fn(async()=>({count:2}));
   const tool=createHostTools(domain,call).find(t=>t.name==='demo_tool')!;
   expect(tool.description).toBe('a demo');
-  const result=await tool.execute('id1',{x:1},new AbortController().signal) as {content:{text:string}[];details:unknown};
+  const result=await tool.execute('id1',{x:1},new AbortController().signal,undefined,undefined as never) as {content:{text:string}[];details:unknown};
   expect(call).toHaveBeenCalledWith('id1','demo_tool',{x:1},expect.anything());
   expect(JSON.parse(result.content[0].text)).toEqual({count:2});
   expect(result.details).toEqual({count:2});
