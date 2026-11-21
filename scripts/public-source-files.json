@@ -2876,6 +2876,7 @@
     "tests/conversation-find.test.ts",
     "tests/conversation-placement.test.ts",
     "tests/conversation-scroll.test.ts",
+    "tests/core-units-1014.test.ts",
     "tests/credential-slots.test.ts",
     "tests/credential-store.test.ts",
     "tests/current-pi-verification.test.ts",
