@@ -1,0 +1,5 @@
+import {resolve} from 'node:path';
+import {realpathSync} from 'node:fs';
+import {defineConfig} from 'vite';
+import react from '@vitejs/plugin-react';
+export default defineConfig({root:'.',cacheDir:resolve(process.env.GEN_BROWSER_OUTPUT_DIR??'.harness-ui-shell/prompt-edit','node_modules/.vite'),plugins:[react(),{name:'prompt-edit-fixture',configureServer(server){server.middlewares.use((req,res,next)=>{if(!req.url?.startsWith('/fixture'))return next();void server.transformIndexHtml(req.url,'<!doctype html><html lang="en" data-theme="dark"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Prompt edit fixture</title><body><div id="root" style="height:100dvh"></div><script type="module" src="/tests/e2e/prompt-edit-fixture.tsx"></script></body></html>').then(html=>{res.setHeader('Content-Type','text/html');res.end(html);}).catch(next);});}}],optimizeDeps:{entries:['tests/e2e/prompt-edit-fixture.tsx']},server:{host:'127.0.0.1',port:5530,strictPort:true,watch:{ignored:['**/.harness*/**']},fs:{allow:[resolve('.'),realpathSync('node_modules')]}}});

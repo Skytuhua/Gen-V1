@@ -67,6 +67,7 @@ export function PromptEdit({thread, message, editable, onEdited}: {thread: Threa
   return <div className="prompt-edit">
     {error && <p className="error-text" role="alert">{error}</p>}
     {open ? <div className="prompt-edit-editor">
+      <p className="muted">Files are not reverted.</p>
       <textarea ref={area} value={text} rows={Math.min(12, Math.max(3, text.split('\n').length))} disabled={busy}
         onChange={event => setText(event.target.value)}
         onKeyDown={event => {
