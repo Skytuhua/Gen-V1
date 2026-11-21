@@ -7,6 +7,7 @@ import {
   ChevronRight,
   Circle,
   ExternalLink,
+  FileDown,
   FolderPlus,
   GitBranch,
   GitPullRequest,
@@ -36,6 +37,7 @@ import { projectColor, threadDragPayload } from './project-colors';
 import { ActionMenu } from '../../../packages/ui-shell/ActionMenu';
 import { toast } from '../../../packages/ui-shell/Toast';
 import { useThreadMove } from './sidebar-thread-move';
+import { downloadThreadMarkdown } from './thread-export-api';
 import { useThreadReorder, type SidebarSection } from './sidebar-reorder';
 import './sidebar-thread-move.css';
 
@@ -202,6 +204,20 @@ export function ShellSidebar({
     toast,
   });
 
+  const matchingRef = useRef(matching); matchingRef.current = matching;
+  const exportBusy = useRef(false);
+  const exportThread = (item: Thread) => {
+    if (exportBusy.current) return;
+    exportBusy.current = true;
+    const current = () => matchingRef.current.some(row => row.id === item.id);
+    void downloadThreadMarkdown({id: item.id, title: item.title}, current).then(result => {
+      if (!current()) return;
+      if (result.status === 'cancelled') toast('Export cancelled.');
+      else toast(result.status === 'saved' ? `Exported "${item.title}" to ${result.filename}` : `Downloaded "${item.title}" as Markdown`);
+    }).catch(cause => { if (current()) toast(cause instanceof Error ? cause.message : 'The thread could not be exported.', {tone: 'error'}); })
+      .finally(() => { exportBusy.current = false; });
+  };
+
   const renderMenu = (item: Thread) => (
     <span className="sidebar-thread-menu-button" {...threadMove.menuEvents}>
       <ActionMenu label={`Options for ${item.title}`} icon={<MoreHorizontal size={14} aria-hidden="true" />} iconOnly
@@ -214,6 +230,7 @@ export function ShellSidebar({
             onSelect: () => presentation(item, {pinned: !item.presentation?.pinned})},
           {id: 'unread', label: item.presentation?.unread ? 'Mark as read' : 'Mark as unread', icon: <Circle size={12} />,
             onSelect: () => presentation(item, {unread: !item.presentation?.unread})},
+          {id: 'export', label: 'Export as Markdown…', icon: <FileDown size={13} />, onSelect: () => exportThread(item)},
           {id: 'settle', label: item.presentation?.settled ? 'Return to inbox' : 'Settle thread', icon: <Check size={13} />,
             onSelect: async () => { const next = !item.presentation?.settled; try { if (await presentation(item, {settled: next})) toast(next ? `"${item.title}" settled — find it under Settled` : `"${item.title}" returned to your threads`); } catch (cause) { toast(cause instanceof Error ? cause.message : 'Thread presentation could not save.', {tone: 'error'}); } }},
           {id: 'archive', label: 'Archive thread', icon: <Archive size={13} />, disabled: Boolean(item.runId),

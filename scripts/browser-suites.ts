@@ -7,7 +7,7 @@ export const rootBrowserSpecs = [
   'document-window.spec.ts', 'host-loop.spec.ts', 'journal-reload.spec.ts', 'latency.spec.ts',
   'map-theme.spec.ts', 'migration-redesign.spec.ts', 'operational-motion.spec.ts', 'overnight-shell.spec.ts',
   'plan-timeline.spec.ts', 'review-capture-theme.spec.ts', 'shell-micro-motion.spec.ts',
-  'signing-motion.spec.ts', 'skills.spec.ts', 'tool-effect-details.spec.ts', 'tool-effects-host.spec.ts', 'project-trust-review.spec.ts',
+  'signing-motion.spec.ts', 'skills.spec.ts', 'thread-export.spec.ts', 'tool-effect-details.spec.ts', 'tool-effects-host.spec.ts', 'project-trust-review.spec.ts',
 ];
 
 const suite = (name:string, specs=[`${name}.spec.ts`], options:Partial<BrowserSuite>={}):BrowserSuite =>

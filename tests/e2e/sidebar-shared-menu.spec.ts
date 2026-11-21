@@ -28,7 +28,7 @@ test('options open a shared menu without selecting or detaching its thread', asy
   await options(page).click();
   await expect(menu(page)).toBeVisible();
   await expect(options(page)).toHaveAttribute('aria-haspopup', 'menu');
-  await expect(menu(page).getByRole('menuitem')).toHaveText(['Place in workspaceAlt Enter', 'Detach thread', 'Rename thread', 'Pin thread', 'Mark as unread', 'Settle thread', 'Archive thread']);
+  await expect(menu(page).getByRole('menuitem')).toHaveText(['Place in workspaceAlt Enter', 'Detach thread', 'Rename thread', 'Pin thread', 'Mark as unread', 'Export as Markdown…', 'Settle thread', 'Archive thread']);
   await expect(menu(page).getByRole('menuitem', {name: 'Place in workspace'}).locator('kbd')).toHaveText('Alt Enter');
   expect(await calls(page)).toEqual([]);
   await expect(page.locator('.thread-item[aria-current="page"]')).toHaveAttribute('aria-label', 'Selected conversation Ready');

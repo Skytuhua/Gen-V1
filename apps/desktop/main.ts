@@ -24,6 +24,7 @@ import {workspaceEvents} from './workspace-events.ts';
 import {applyNativeLayout,requestNativeClose,type NativeCloseOwner} from './layout-transaction.ts';
 import {createPersistenceQueue,reconcileSavedWindows} from './persistence.ts';
 import {createMemoryExportDownloads} from './memory-export.ts';
+import {createThreadExportDownloads} from './thread-export.ts';
 import {createAttentionPopups,attentionPopupHtml,type AttentionPopupAction,type AttentionPopupWindow} from './attention-popups.ts';
 import {attentionDeliverySchema} from '../../packages/contracts/attention.ts';
 const persistence=createPersistenceQueue();
@@ -119,7 +120,8 @@ function secureBrowserSession(value:Session){
  const ready=(async()=>{const proxy=await (proxyPromise??=createBrowserProxy());await value.setProxy({mode:'fixed_servers',proxyRules:'http=127.0.0.1:'+proxy.port+';https=127.0.0.1:'+proxy.port,proxyBypassRules:'<-loopback>'});await value.closeAllConnections();})();configuredBrowserSessions.set(value,ready);return ready;
 }
 const memoryExports=createMemoryExportDownloads();
-function secureSessionDownloads(value:Session){memoryExports.guard(value);}
+const threadExports=createThreadExportDownloads();
+function secureSessionDownloads(value:Session){memoryExports.guard(value);threadExports.guard(value);}
 function browserRecord(id:string):BrowserRecord {
  const existing=browsers.get(id);if(existing)return existing;
  if(browsers.size>=12)throw Error('Close a browser before opening another');
@@ -239,6 +241,7 @@ function registerIpc(){
  handle(channels.attentionOpen,async(record,value)=>{if(record.surface.kind!=='main'||typeof value!=='string')throw Error('Notification action denied.');await openAttention(value);});
  handle(channels.context,record=>context(record));
  handle(channels.memoryExport,(record,value)=>memoryExports.export({contents:record.window.webContents,surface:record.surface,documentUrl:record.url,isCurrent:()=>!quitting&&!quitPending&&windows.get(record.id)===record&&!record.window.isDestroyed()&&record.ready},value));
+ handle(channels.threadExport,(record,value)=>threadExports.export({contents:record.window.webContents,surface:record.surface,documentUrl:record.url,isCurrent:()=>!quitting&&!quitPending&&windows.get(record.id)===record&&!record.window.isDestroyed()&&record.ready},value));
  handle(channels.theme,(record,value)=>{const theme=nativeTitlebarTheme(value);if(process.platform==='win32')record.window.setTitleBarOverlay(theme);});
  handle(channels.update,async(_record,value)=>{if(value!=='check'&&value!=='restart')throw Error('Invalid update action.');if(value==='check')return updater?await updater.check():updateStatus;if(updateStatus.state!=='ready'&&updateStatus.state!=='deferred')return updateStatus;if(osSessionEnding||signInFlows.isBusy()||(await backendRequest('harness.update.readiness')).idle!==true){updateStatus={state:'deferred',message:'Finish the current work before restarting to update.'};broadcast();return updateStatus;}restartForUpdate=true;app.quit();return updateStatus;});
  handle(channels.ready,record=>{if(!record.ready){try{if(record.surface.kind==='browser')moveBrowser(browserRecord(record.surface.browserId),record,false);record.ready=true;record.settled=true;clearTimeout(record.readyTimer);if(record.visible)record.window.show();record.resolveReady(info(record));remember(record);broadcast();}catch(error){record.settled=true;clearTimeout(record.readyTimer);record.rejectReady(error instanceof Error?error:Error(String(error)));loseBrowserOwner(record);record.window.destroy();throw error;}}return context(record);});

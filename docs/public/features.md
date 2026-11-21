@@ -20,6 +20,8 @@ Conversations, artifacts, accepted actions and saved state persist. Draft journa
 
 Optional composer predictions use the selected account/model in a separate tool-free session and are off by default. **Tab** accepts a suggestion; **Escape** dismisses it. Sending remains a separate action.
 
+Any thread can be exported to a single Markdown document from the header actions or the sidebar **Options** menu (**Export as Markdown…**). The export is built from the host's complete stored thread — prompts, replies, plans, tool activity, operations and task memory — not just what is on screen. Secrets and home-directory paths are redacted, and the file saves through a native save dialog in the desktop app or a browser download on the web.
+
 ## A focused shell
 
 Projects and threads live in the left navigation. The compact composer holds project selection, Build/Plan mode, model/reasoning selection and Send/Stop. A validated plan opens automatically; context and usage minimize when you want the space back. Closed tools leave no empty rail.
