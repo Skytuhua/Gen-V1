@@ -61,7 +61,7 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
     if(!open){
       entrance.current?.cancel();stopInteraction.current();if(wasOpen&&shell.current?.contains(document.activeElement)&&opener.current?.isConnected)opener.current.focus({preventScroll:true});
       const origin=invokerOrigin();
-      const animation=wasOpen&&shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')!=='false'?animateTask(shell.current,[{opacity:1,transform:'scale(1)',transformOrigin:origin},{opacity:0,transform:'scale(.97)',transformOrigin:origin}],140,{duration:'--ui-motion-popup-exit',easing:'--ui-ease-move'}):undefined;
+      const animation=wasOpen&&!reducedMotion()&&shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')!=='false'?animateTask(shell.current,[{opacity:1,transform:'scale(1)',transformOrigin:origin},{opacity:0,transform:'scale(.97)',transformOrigin:origin}],140,{duration:'--ui-motion-popup-exit',easing:'--ui-ease-move'}):undefined;
       if(!animation){setRendered(false);return;}
       let active=true;void animation.finished.then(()=>{if(active)setRendered(false);}).catch(()=>{});
       return()=>{active=false;animation.cancel();};

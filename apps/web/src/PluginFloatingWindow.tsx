@@ -3,7 +3,7 @@ import {ToolDock} from '../../../packages/ui-shell/ToolDock';
 import {ChevronDown,ChevronUp,X} from 'lucide-react';
 import type {FloatingWindowProps} from './FloatingWindow';
 import {floatingLayoutKey,type FloatingLayout} from './floating-layout';
-import {animateTask} from './task-motion';
+import {animateTask,reducedMotion} from './task-motion';
 import {journalLocalIntent,journalReadRetainingIntent,journalWrite,registerEditorHandoff,retryJournalWrites} from './plugin-frame-client';
 import './floating-window.css';
 import './plugin-tools-dock.css';
@@ -21,7 +21,7 @@ function DockedWindow({layout,onLayout,notice,...props}:FloatingWindowProps&{lay
   if(!open){
    if(wasOpen&&shell.current?.contains(document.activeElement)&&opener.current?.isConnected)opener.current.focus({preventScroll:true});
    const origin=invokerOrigin();
-   const animation=wasOpen&&shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')!=='false'?animateTask(shell.current,[{opacity:1,transform:'scale(1)',transformOrigin:origin},{opacity:0,transform:'scale(.97)',transformOrigin:origin}],140,{duration:'--ui-motion-popup-exit',easing:'--ui-ease-move'}):undefined;
+   const animation=wasOpen&&!reducedMotion()&&shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')!=='false'?animateTask(shell.current,[{opacity:1,transform:'scale(1)',transformOrigin:origin},{opacity:0,transform:'scale(.97)',transformOrigin:origin}],140,{duration:'--ui-motion-popup-exit',easing:'--ui-ease-move'}):undefined;
    if(!animation){setRendered(false);return;}
    let active=true;void animation.finished.then(()=>{if(active)setRendered(false);}).catch(()=>{});
    return()=>{active=false;animation.cancel();};
