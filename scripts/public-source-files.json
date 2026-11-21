@@ -3511,6 +3511,7 @@
     "tests/time-format.test.ts",
     "tests/tool-authority-v3.test.ts",
     "tests/tool-effects-v3.test.ts",
+    "tests/turn-duration.test.tsx",
     "tests/turn-timing-service.test.ts",
     "tests/ui-catalog-documents.test.ts",
     "tests/update-readiness.test.ts",
