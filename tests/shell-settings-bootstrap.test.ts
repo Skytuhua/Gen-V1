@@ -16,7 +16,7 @@ async function fixture(){
 }
 it('loads safe shell presentation without reading a global snapshot or transcript',async()=>{
  const f=await fixture(),snapshot=vi.spyOn(f.store,'snapshot');const response=await f.app.inject({url:'/api/shell-settings',headers:f.headers});
- expect(response.statusCode).toBe(200);expect(response.json()).toMatchObject({theme:'light',preferences:{density:'compact',chatWidth:'wide'}});expect(Object.keys(response.json()).sort()).toEqual(['preferences','theme']);
+ expect(response.statusCode).toBe(200);expect(response.json()).toMatchObject({theme:'light',preferences:{density:'compact',chatWidth:'wide'}});expect(Object.keys(response.json()).sort()).toEqual(['flags','preferences','theme']);
  expect(response.body).not.toMatch(/Do not bootstrap|private-model-id|never-publish|synthetic-private-message/);expect(snapshot).not.toHaveBeenCalled();expect(response.headers['cache-control']).toBe('no-store');
  expect(f.store.get<{unrecognizedPrivateValue:string}>('settings','global')!.unrecognizedPrivateValue).toBe('never-publish');
 });
