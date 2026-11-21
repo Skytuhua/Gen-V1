@@ -21,10 +21,11 @@ export function PersonalInstructionsCard({enabled, update, desktop}: {enabled: b
 
   const reload = useCallback(async (keepDraft = false) => {
     const next = await getView(Boolean(desktop));
+    const previous = loaded.current.digest;
     setView(next);
     loaded.current = {digest: next.digest};
     if (!keepDraft) { setDraft(next.text); setConflict(false); }
-    else if (next.digest !== loaded.current.digest) setConflict(true);
+    else if (previous !== null && next.digest !== previous) setConflict(true);
   }, [desktop]);
   useEffect(() => { void reload().catch(cause => setError(cause instanceof Error ? cause.message : 'Personal instructions unavailable')); }, [reload]);
   useEffect(() => {
