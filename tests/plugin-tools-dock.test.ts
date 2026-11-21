@@ -37,7 +37,7 @@ async function fixture(width:number,saved:unknown=null,failReads=false,delayRead
   // Observe every frame, starting before the runtime mounts, so a fallback
   // split painted while journalRead is pending cannot escape the assertion.
   const frames:Record<string,{x:number;y:number;width:number;height:number}>[]=[];
-  (window as any).dockFrames=frames;
+  window.dockFrames=frames;
   const sample=()=>{
    const dock=document.querySelector('.ui-tool-dock');
    if(dock?.getBoundingClientRect().width){
@@ -57,7 +57,7 @@ async function fixture(width:number,saved:unknown=null,failReads=false,delayRead
  const frame=page.frames().find(value=>value.parentFrame())!;
  try{
   // Document recovery emits ready independently of the dock's journal read.
-  await page.waitForFunction(()=>(window as any).visualReady===true);
+  await page.waitForFunction(()=>window.visualReady===true);
   await frame.getByRole('button',{name:'Edit',exact:true}).waitFor({state:'visible'});
  }catch(cause){
   await page.close();
@@ -102,16 +102,16 @@ it.each([
 ])('uses the settled split on its first visible frame after a delayed read at $width px (preferred $preferredWidth)',async({width,saved,preferredWidth})=>{
  const {page,frame,errors}=await fixture(width,saved,false,true);
  try{
-  await browserExpect.poll(()=>page.evaluate(()=>(window as any).pendingReads.length)).toBe(1);
+  await browserExpect.poll(()=>page.evaluate(()=>window.pendingReads.length)).toBe(1);
   await frame.evaluate(async()=>{for(let count=0;count<4;count++)await new Promise(requestAnimationFrame);});
-  expect(await frame.evaluate(()=>(window as any).dockFrames.length)).toBe(0);
+  expect(await frame.evaluate(()=>window.dockFrames.length)).toBe(0);
   await browserExpect(frame.getByRole('complementary',{name:'Tools',exact:true})).toBeHidden();
-  await expect(frame.evaluate(()=>(window as any).GenPluginUI.pluginFlush())).rejects.toThrow();
-  expect(await page.evaluate(()=>(window as any).calls.filter((call:any)=>call.operation==='state.write'))).toEqual([]);
-  await page.evaluate(()=>{(window as any).delayReads=false;for(const reply of (window as any).pendingReads.splice(0))reply();});
+  await expect(frame.evaluate(()=>window.GenPluginUI.pluginFlush())).rejects.toThrow();
+  expect(await page.evaluate(()=>window.calls.filter((call)=>call.operation==='state.write'))).toEqual([]);
+  await page.evaluate(()=>{window.delayReads=false;for(const reply of window.pendingReads.splice(0))reply();});
   await frame.getByRole('button',{name:'Minimize Plugin tools',exact:true}).waitFor();
   await frame.evaluate(async()=>{for(let count=0;count<12;count++)await new Promise(requestAnimationFrame);});
-  const frames=await frame.evaluate(()=>(window as any).dockFrames) as Record<string,{x:number;y:number;width:number;height:number}>[];
+  const frames=await frame.evaluate(()=>window.dockFrames) as Record<string,{x:number;y:number;width:number;height:number}>[];
   expect(frames.length).toBeGreaterThanOrEqual(12);
   expect(frames[0].dock.width).toBe(Math.min(preferredWidth,width-426));
   expect(frames[0].workarea.width).toBe(width-6-frames[0].dock.width);
@@ -126,11 +126,11 @@ it('expands on reopening when an expansion request arrived while collapsed and c
   const tool=frame.getByRole('region',{name:'Plugin tools window',exact:true,includeHidden:true}),draft=tool.getByRole('textbox',{name:'Tool draft'});
   await tool.getByRole('button',{name:'Expand Plugin tools',exact:true}).waitFor();
   await tool.getByRole('button',{name:'Close Plugin tools',exact:true}).click();await browserExpect(tool).toBeHidden();
-  await frame.evaluate(async()=>{(window as any).setToolsExpandRequest(1);await new Promise(requestAnimationFrame);});
+  await frame.evaluate(async()=>{window.setToolsExpandRequest(1);await new Promise(requestAnimationFrame);});
   await browserExpect(tool).toHaveAttribute('data-collapsed','true');
-  await frame.evaluate(()=>(window as any).setToolsOpen(true));
+  await frame.evaluate(()=>window.setToolsOpen(true));
   await browserExpect(draft).toBeVisible();await browserExpect(tool.getByRole('button',{name:'Minimize Plugin tools',exact:true})).toHaveAttribute('aria-expanded','true');
-  await browserExpect.poll(()=>page.evaluate(()=>(window as any).saved)).toEqual(legacy);expect(errors).toEqual([]);
+  await browserExpect.poll(()=>page.evaluate(()=>window.saved)).toEqual(legacy);expect(errors).toEqual([]);
  }finally{await page.close();}
 });
 
@@ -138,12 +138,12 @@ it('suppresses Close for minimize-only windows and keeps Escape minimizing',asyn
  const {page,frame,errors}=await fixture(1024,legacy);
  try{
   const tool=frame.getByRole('region',{name:'Plugin tools window',exact:true}),draft=tool.getByRole('textbox',{name:'Tool draft'});
-  await draft.waitFor();await frame.evaluate(()=>(window as any).setToolsMinimizeOnly(true));
+  await draft.waitFor();await frame.evaluate(()=>window.setToolsMinimizeOnly(true));
   await browserExpect(tool.getByRole('button',{name:'Close Plugin tools',exact:true})).toHaveCount(0);
   await draft.press('Escape');await browserExpect(draft).toBeHidden();await browserExpect(tool).toBeVisible();
   const disclosure=tool.getByRole('button',{name:'Expand Plugin tools',exact:true});await browserExpect(disclosure).toHaveAttribute('aria-expanded','false');
   await disclosure.press('Escape');await browserExpect(tool).toBeVisible();await browserExpect(draft).toBeHidden();
-  await browserExpect.poll(()=>page.evaluate(()=>(window as any).saved)).toEqual({...legacy,collapsed:true});expect(errors).toEqual([]);
+  await browserExpect.poll(()=>page.evaluate(()=>window.saved)).toEqual({...legacy,collapsed:true});expect(errors).toEqual([]);
  }finally{await page.close();}
 });
 
@@ -152,16 +152,16 @@ it('keeps drafts mounted through collapse, resize and close; journals collapse w
  try{
   const tool=frame.getByRole('region',{name:'Plugin tools window',exact:true}),draft=tool.getByRole('textbox',{name:'Tool draft'});
   await draft.fill('Retain my edit');const original=await draft.elementHandle();
-  expect(await page.evaluate(()=>(window as any).calls.filter((call:any)=>call.operation==='state.write'))).toEqual([]);
+  expect(await page.evaluate(()=>window.calls.filter((call)=>call.operation==='state.write'))).toEqual([]);
   await tool.getByRole('button',{name:'Minimize Plugin tools',exact:true}).focus();await page.keyboard.press('Enter');
-  await browserExpect.poll(()=>page.evaluate(()=>(window as any).saved)).toEqual({...legacy,collapsed:true});
+  await browserExpect.poll(()=>page.evaluate(()=>window.saved)).toEqual({...legacy,collapsed:true});
   await tool.getByRole('button',{name:'Expand Plugin tools',exact:true}).press('Enter');
   for(const width of [1024,768,1440]){await page.setViewportSize({width,height:1000});await geometry(frame,width);}
   await browserExpect(draft).toHaveValue('Retain my edit');expect(await draft.evaluate((node,old)=>node===old,original)).toBe(true);
   await tool.getByRole('button',{name:'Close Plugin tools',exact:true}).click();await browserExpect(tool).toBeHidden();
   await browserExpect.poll(()=>frame.locator('#root').evaluate(node=>Math.round(node.getBoundingClientRect().width))).toBe(1440);
-  await frame.evaluate(()=>(window as any).setToolsOpen(true));await browserExpect(draft).toHaveValue('Retain my edit');expect(await draft.evaluate((node,old)=>node===old,original)).toBe(true);
-  await browserExpect.poll(()=>page.evaluate(()=>(window as any).saved)).toEqual(legacy);expect(errors).toEqual([]);
+  await frame.evaluate(()=>window.setToolsOpen(true));await browserExpect(draft).toHaveValue('Retain my edit');expect(await draft.evaluate((node,old)=>node===old,original)).toBe(true);
+  await browserExpect.poll(()=>page.evaluate(()=>window.saved)).toEqual(legacy);expect(errors).toEqual([]);
  }finally{await page.close();}
 });
 
@@ -170,15 +170,15 @@ it('retains recovery and journal retry barriers for the dock',async()=>{
  try{
   await frame.getByRole('button',{name:'Retry recovery',exact:true}).waitFor();
   expect((await box(frame.getByRole('complementary',{name:'Tools',exact:true}))).width).toBe(400);
-  await expect(frame.evaluate(()=>(window as any).GenPluginUI.pluginFlush())).rejects.toThrow();
-  expect(await page.evaluate(()=>(window as any).calls.filter((call:any)=>call.operation==='state.write'))).toEqual([]);
-  await page.evaluate(()=>{(window as any).failReads=false;(window as any).failWrites=true;});
+  await expect(frame.evaluate(()=>window.GenPluginUI.pluginFlush())).rejects.toThrow();
+  expect(await page.evaluate(()=>window.calls.filter((call)=>call.operation==='state.write'))).toEqual([]);
+  await page.evaluate(()=>{window.failReads=false;window.failWrites=true;});
   await frame.getByRole('button',{name:'Retry recovery',exact:true}).click();
   await frame.getByRole('button',{name:'Minimize Plugin tools',exact:true}).click();
   await frame.getByRole('button',{name:'Retry saving',exact:true}).waitFor();
-  await expect(frame.evaluate(()=>(window as any).GenPluginUI.pluginFlush())).rejects.toThrow();
-  await page.evaluate(()=>{(window as any).failWrites=false;});await frame.getByRole('button',{name:'Retry saving',exact:true}).click();
-  await browserExpect.poll(()=>page.evaluate(()=>(window as any).saved)).toEqual({...legacy,collapsed:true});
-  await frame.evaluate(()=>(window as any).GenPluginUI.pluginFlush());
+  await expect(frame.evaluate(()=>window.GenPluginUI.pluginFlush())).rejects.toThrow();
+  await page.evaluate(()=>{window.failWrites=false;});await frame.getByRole('button',{name:'Retry saving',exact:true}).click();
+  await browserExpect.poll(()=>page.evaluate(()=>window.saved)).toEqual({...legacy,collapsed:true});
+  await frame.evaluate(()=>window.GenPluginUI.pluginFlush());
  }finally{await page.close();}
 });

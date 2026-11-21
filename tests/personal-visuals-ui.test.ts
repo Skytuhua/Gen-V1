@@ -85,7 +85,7 @@ async function visualFixture(record?: VisualDocumentRecord, presentation?: { int
 	await page.goto("http://127.0.0.1/personal-visuals-test");
 	const frame = page.frames().find((value) => value.parentFrame())!;
 	await frame.waitForSelector(".pv-header h1");
-	await frame.waitForFunction(() => Boolean((window as any).__PV_READY));
+	await frame.waitForFunction(() => Boolean(window.__PV_READY));
 	return {
 		page,
 		frame,
@@ -93,7 +93,7 @@ async function visualFixture(record?: VisualDocumentRecord, presentation?: { int
 		unexpected,
 		reload: async () => {
 			const saved = await frame.evaluate(() => {
-				const state = (window as any).__PV_STATE;
+				const state = window.__PV_STATE;
 				return {
 					documentId: "main",
 					revision: state.revision,
@@ -108,7 +108,7 @@ async function visualFixture(record?: VisualDocumentRecord, presentation?: { int
 			await page.reload();
 			const recovered = page.frames().find((value) => value.parentFrame())!;
 			await recovered.waitForFunction(() =>
-				Boolean((window as any).__PV_READY),
+				Boolean(window.__PV_READY),
 			);
 			return recovered;
 		},
@@ -139,7 +139,7 @@ it("keeps JSON typing focused through autosave and renders source labels as text
 		const value = JSON.stringify(diagram, null, 2);
 		await input.fill(value);
 		await frame.waitForFunction(() =>
-			Boolean((window as any).__PV_STATE.draft),
+			Boolean(window.__PV_STATE.draft),
 		);
 		expect(
 			await input.evaluate((element) => document.activeElement === element),
@@ -154,7 +154,7 @@ it("keeps JSON typing focused through autosave and renders source labels as text
 		diagram.title = "Saved after exact retry";
 		await input.fill(JSON.stringify(diagram, null, 2));
 		await frame.evaluate(() => {
-			(window as any).__PV_FAIL_COMMIT = true;
+			window.__PV_FAIL_COMMIT = true;
 		});
 		await frame.getByRole("button", { name: "Save", exact: true }).click();
 		await frame
@@ -168,23 +168,23 @@ it("keeps JSON typing focused through autosave and renders source labels as text
 			{ timeout: 3000 },
 		);
 		await frame.waitForFunction(() =>
-			Boolean((window as any).__PV_STATE.document),
+			Boolean(window.__PV_STATE.document),
 		);
 		expect(
 			await frame.evaluate(
-				() => (window as any).__PV_REGISTRATION.manifest.workspaces,
+				() => window.__PV_REGISTRATION.manifest.workspaces,
 			),
 		).toMatchObject([{ id: "visuals", title: "Visuals" }]);
 		const currentDraft =
 			'{"version":1,"title":"Export draft still being edited"';
 		await input.fill(currentDraft);
 		await frame.waitForFunction(
-			(value) => (window as any).__PV_STATE.draft === value,
+			(value) => window.__PV_STATE.draft === value,
 			currentDraft,
 		);
-		await frame.evaluate(() => (window as any).__PV_FLUSH());
+		await frame.evaluate(() => window.__PV_FLUSH());
 		const writesBeforeExport = await frame.evaluate(
-			() => (window as any).__PV_STATE.calls.length,
+			() => window.__PV_STATE.calls.length,
 		);
 		await frame
 			.getByRole("button", { name: "Export JSON", exact: true })
@@ -221,10 +221,10 @@ it("keeps JSON typing focused through autosave and renders source labels as text
 			.click();
 		expect(await input.inputValue()).toBe(currentDraft);
 		expect(
-			await frame.evaluate(() => (window as any).__PV_STATE.calls.length),
+			await frame.evaluate(() => window.__PV_STATE.calls.length),
 		).toBe(writesBeforeExport);
 		expect(
-			await frame.evaluate(() => (window as any).__PV_STATE.document.title),
+			await frame.evaluate(() => window.__PV_STATE.document.title),
 		).toBe("Saved after exact retry");
 		expect(unexpected).toEqual([]);
 		expect(errors).toEqual([]);
@@ -277,7 +277,7 @@ async function snapshot(frame: Frame) {
 		selected: [
 			...document.querySelectorAll('.pv-node[aria-pressed="true"]'),
 		].map((node) => node.getAttribute("title")),
-		state: structuredClone((window as any).__PV_STATE),
+		state: structuredClone(window.__PV_STATE),
 	}));
 }
 
@@ -300,7 +300,7 @@ it("oversized formatted import retains every previous state owner", async () => 
 		await frame.locator(".pv-node").nth(1).click();
 		await frame.getByRole("button", { name: "Save", exact: true }).click();
 		await frame.waitForFunction(() =>
-			Boolean((window as any).__PV_STATE.document),
+			Boolean(window.__PV_STATE.document),
 		);
 		const before = await snapshot(frame);
 		await importDocument(frame, nearLimitDocument());
@@ -312,7 +312,7 @@ it("oversized formatted import retains every previous state owner", async () => 
 		expect(await frame.getByRole("dialog").count()).toBe(0);
 		expect(await exportDraft(frame)).toBe(before.text);
 		await frame.waitForTimeout(350);
-		await frame.evaluate(() => (window as any).__PV_FLUSH());
+		await frame.evaluate(() => window.__PV_FLUSH());
 		expect(await snapshot(frame)).toEqual(before);
 		expect(fixture.errors).toEqual([]);
 		expect(fixture.unexpected).toEqual([]);
@@ -333,7 +333,7 @@ it("accepted import survives replacement confirmation autosave handoff reload sa
 		await importDocument(frame, direct);
 		const original = JSON.stringify(direct, null, 2);
 		await frame.waitForFunction(
-			(value) => (window as any).__PV_STATE.draft === value,
+			(value) => window.__PV_STATE.draft === value,
 			original,
 		);
 		expect(await input.inputValue()).toBe(original);
@@ -345,7 +345,7 @@ it("accepted import survives replacement confirmation autosave handoff reload sa
 		accepted.title = "Accepted imported document";
 		accepted.provenance = "provided";
 		await input.fill(original + "\n");
-		await frame.evaluate(() => (window as any).__PV_FLUSH());
+		await frame.evaluate(() => window.__PV_FLUSH());
 		const before = await snapshot(frame);
 		await importDocument(frame, accepted);
 		await frame
@@ -379,21 +379,21 @@ it("accepted import survives replacement confirmation autosave handoff reload sa
 		expect(await input.inputValue()).toBe(expected);
 		expect(await frame.getByRole("alert").count()).toBe(0);
 		await frame.waitForFunction(
-			(value) => (window as any).__PV_STATE.draft === value,
+			(value) => window.__PV_STATE.draft === value,
 			expected,
 		);
-		await frame.evaluate(() => (window as any).__PV_FLUSH());
+		await frame.evaluate(() => window.__PV_FLUSH());
 		expect(await exportDraft(frame)).toBe(expected);
 		frame = await fixture.reload();
 		await frame.getByRole("button", { name: "Edit", exact: true }).click();
 		expect(await frame.locator("#pv-json").inputValue()).toBe(expected);
 		await frame.getByRole("button", { name: "Save", exact: true }).click();
 		await frame.waitForFunction(
-			(value) => (window as any).__PV_STATE.document?.title === value,
+			(value) => window.__PV_STATE.document?.title === value,
 			accepted.title,
 		);
 		expect(
-			await frame.evaluate(() => (window as any).__PV_STATE.document),
+			await frame.evaluate(() => window.__PV_STATE.document),
 		).toEqual(accepted);
 		expect(JSON.parse(await exportDraft(frame))).toEqual(accepted);
 		expect(fixture.errors).toEqual([]);
@@ -421,16 +421,16 @@ it("rejected import preserves pending autosave and unconfirmed save identity", a
 		expect(await frame.getByRole("dialog").count()).toBe(0);
 		expect(await input.inputValue()).toBe(original + "\n");
 		expect(
-			await frame.evaluate(() => (window as any).__PV_STATE.calls),
+			await frame.evaluate(() => window.__PV_STATE.calls),
 		).toEqual([]);
 		await fixture.page.clock.runFor(350);
 		await fixture.page.clock.resume();
 		await frame.waitForFunction(
-			(value) => (window as any).__PV_STATE.draft === value,
+			(value) => window.__PV_STATE.draft === value,
 			original + "\n",
 		);
 		const state = await frame.evaluate(() =>
-			structuredClone((window as any).__PV_STATE),
+			structuredClone(window.__PV_STATE),
 		);
 		expect(state.calls).toHaveLength(1);
 		expect(state.calls[0]).toMatchObject({
@@ -440,7 +440,7 @@ it("rejected import preserves pending autosave and unconfirmed save identity", a
 		});
 		expect(await exportDraft(frame)).toBe(original + "\n");
 		await frame.evaluate(() => {
-			(window as any).__PV_FAIL_COMMIT = true;
+			window.__PV_FAIL_COMMIT = true;
 		});
 		await frame.getByRole("button", { name: "Save", exact: true }).click();
 		await frame
@@ -473,10 +473,10 @@ it("rejected import preserves pending autosave and unconfirmed save identity", a
 			.getByRole("button", { name: "Retry exact save", exact: true })
 			.click();
 		await frame.waitForFunction(
-			() => (window as any).__PV_STATE.attempts.length === 3,
+			() => window.__PV_STATE.attempts.length === 3,
 		);
 		const retried = await frame.evaluate(() =>
-			structuredClone((window as any).__PV_STATE),
+			structuredClone(window.__PV_STATE),
 		);
 		expect(retried.attempts[2]).toEqual(failed.state.attempts[1]);
 		expect(retried.attempts[2]).toEqual(retried.attempts[1]);
@@ -520,7 +520,7 @@ it("persists intro dismissal through the host presentation bridge", async () => 
 			.getByRole("button", { name: "Dismiss", exact: true })
 			.click();
 		expect(
-			await dismissed.frame.evaluate(() => (window as any).__PV_PRESENTATION),
+			await dismissed.frame.evaluate(() => window.__PV_PRESENTATION),
 		).toEqual({ introDismissed: true });
 		expect(dismissed.errors).toEqual([]);
 		expect(dismissed.unexpected).toEqual([]);
@@ -557,9 +557,9 @@ it("keeps a preexisting compact near-limit durable record and raw draft recovera
 		expect(await frame.locator(".pv-header h1").textContent()).toBe(
 			document.title,
 		);
-		await frame.evaluate(() => (window as any).__PV_FLUSH());
+		await frame.evaluate(() => window.__PV_FLUSH());
 		expect(await exportDraft(frame)).toBe(raw);
-		const state = await frame.evaluate(() => (window as any).__PV_STATE);
+		const state = await frame.evaluate(() => window.__PV_STATE);
 		expect(state).toMatchObject({
 			revision: 7,
 			document,

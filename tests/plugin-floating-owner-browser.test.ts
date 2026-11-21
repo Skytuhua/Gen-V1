@@ -29,16 +29,16 @@ afterAll(async()=>{await browser?.close();if(server)await new Promise<void>(reso
 it('keeps B clean and restores A\'s failed layout after a late write failure',async()=>{
  const page=await browser.newPage();try{
   await page.goto(origin);await page.getByRole('button',{name:'Minimize A'}).click();await browserExpect(page.getByRole('button',{name:'Expand A'})).toBeVisible();
-  await page.evaluate(()=>(window as any).switchWindow('B'));await browserExpect(page.getByRole('button',{name:'Minimize B'})).toBeVisible();
-  await page.evaluate(()=>(window as any).fixtureJournal.reject());await browserExpect(page.getByRole('status')).toHaveCount(0);
-  await page.evaluate(()=>(window as any).switchWindow('A'));await browserExpect(page.getByRole('button',{name:'Expand A'})).toBeVisible();await browserExpect(page.getByRole('status')).toContainText('could not be saved');
+  await page.evaluate(()=>window.switchWindow('B'));await browserExpect(page.getByRole('button',{name:'Minimize B'})).toBeVisible();
+  await page.evaluate(()=>window.fixtureJournal.reject!());await browserExpect(page.getByRole('status')).toHaveCount(0);
+  await page.evaluate(()=>window.switchWindow('A'));await browserExpect(page.getByRole('button',{name:'Expand A'})).toBeVisible();await browserExpect(page.getByRole('status')).toContainText('could not be saved');
  }finally{await page.close();}
 });
 it('keeps the committed owner when a replacement render suspends',async()=>{
  const page=await browser.newPage();try{
   await page.goto(origin);await page.getByRole('button',{name:'Minimize A'}).click();await browserExpect(page.getByRole('button',{name:'Expand A'})).toBeVisible();
-  await page.evaluate(()=>(window as any).suspendWindow());await page.waitForFunction(()=>(window as any).speculativeRendered===true);
-  await page.evaluate(()=>(window as any).fixtureJournal.reject());await browserExpect(page.getByRole('status')).toContainText('could not be saved');
+  await page.evaluate(()=>window.suspendWindow());await page.waitForFunction(()=>window.speculativeRendered===true);
+  await page.evaluate(()=>window.fixtureJournal.reject!());await browserExpect(page.getByRole('status')).toContainText('could not be saved');
   await browserExpect(page.getByRole('button',{name:'Expand A'})).toBeVisible();
  }finally{await page.close();}
 });
@@ -46,17 +46,17 @@ it('keeps the committed owner when a replacement render suspends',async()=>{
 it.each(['success','failure'] as const)('retains pending recovery %s through an urgent Suspense hide and reveal',async outcome=>{
  const page=await browser.newPage();try{
   await page.goto(origin+'?hold-read');await browserExpect(page.getByText('Owner A',{exact:true})).toBeVisible();
-  await page.waitForFunction(()=>(window as any).fixtureJournal.reads===1);
-  await page.evaluate(()=>(window as any).hideWindow());
+  await page.waitForFunction(()=>window.fixtureJournal.reads===1);
+  await page.evaluate(()=>window.hideWindow());
   await browserExpect(page.getByText('Loading',{exact:true})).toBeVisible();await browserExpect(page.getByText('Owner A',{exact:true})).toBeHidden();
-  await page.evaluate(async outcome=>{const journal=(window as any).fixtureJournal;journal[outcome==='success'?'resolveRead':'rejectRead']();await new Promise(resolve=>setTimeout(resolve,0));},outcome);
-  await page.evaluate(()=>(window as any).revealWindow());await browserExpect(page.getByText('Owner A',{exact:true})).toBeVisible();
-  await browserExpect.poll(()=>page.evaluate(()=>(window as any).fixtureJournal.reads)).toBe(1);
+  await page.evaluate(async outcome=>{const journal=window.fixtureJournal;journal[outcome==='success'?'resolveRead':'rejectRead']!();await new Promise(resolve=>setTimeout(resolve,0));},outcome);
+  await page.evaluate(()=>window.revealWindow());await browserExpect(page.getByText('Owner A',{exact:true})).toBeVisible();
+  await browserExpect.poll(()=>page.evaluate(()=>window.fixtureJournal.reads)).toBe(1);
   if(outcome==='success'){
    await browserExpect(page.getByRole('button',{name:'Minimize A'})).toBeVisible();await browserExpect(page.getByText('Content A',{exact:true})).toBeVisible();
   }else{
    await browserExpect(page.getByRole('status')).toContainText('could not be recovered');await page.getByRole('button',{name:'Retry recovery'}).click();
-   await page.waitForFunction(()=>(window as any).fixtureJournal.reads===2);await page.evaluate(()=>(window as any).fixtureJournal.resolveRead());
+   await page.waitForFunction(()=>window.fixtureJournal.reads===2);await page.evaluate(()=>window.fixtureJournal.resolveRead!());
    await browserExpect(page.getByRole('button',{name:'Minimize A'})).toBeVisible();await browserExpect(page.getByRole('status')).toHaveCount(0);
   }
  }finally{await page.close();}
