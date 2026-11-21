@@ -21,6 +21,7 @@ import {ShellSidebar} from './ShellSidebar';
 import {getShellNavigationItem} from './shell-read-api';
 import {matchesShortcut, readShellLayout, useShellLayout} from './shell-layout';
 import {useSidebarCollapse} from './sidebar-collapse';
+import {animateTask} from './task-motion';
 import {useShellNavigation} from './shell-navigation';
 import {useAppearance} from './useAppearance';
 import {useWorkspaceState} from './workspace-api';
@@ -218,6 +219,20 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
   const latestFailure = useRef(fail); latestFailure.current = fail;
   useEffect(() => desktop?.bridge.onAttentionOpen?.(id => latestFailure.current(() => latestAttention.current(id))), [desktop?.bridge]);
   useModalRegion(sidebar, mobile && open, () => setOpen(false), 'input', scrim);
+  const [scrimHeld, setScrimHeld] = useState(false);
+  // M20: scrim fades in over panel-enter, out over panel-exit while held mounted.
+  useLayoutEffect(() => {
+    if (open && scrim.current) animateTask(scrim.current, [{ opacity: 0 }, { opacity: 1 }], 180);
+  }, [open]);
+  useEffect(() => {
+    if (open) { setScrimHeld(true); return; }
+    if (!scrimHeld) return;
+    const animation = animateTask(scrim.current, [{ opacity: 1 }, { opacity: 0 }], 140);
+    if (!animation) { setScrimHeld(false); return; }
+    let cancelled = false;
+    void animation.finished.then(() => { if (!cancelled) setScrimHeld(false); }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [open]);
   useAppearance(preferences);
   useEffect(() => {const query = matchMedia('(max-width: 700px)'), update = () => setMobile(query.matches); query.addEventListener('change', update); return () => query.removeEventListener('change', update);}, []);
   useLayoutEffect(() => {
@@ -269,7 +284,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
   };
   const archiveRow = (row: ThreadNavigationRow) => mutate(async () => {await command('thread.archive', {}, row.id); await navigation.refresh(); setArchive(undefined);});
   return <div className="app-shell workspace-host" data-sidebar-collapsed={layout.sidebarCollapsed} data-panel-animations={preferences.panelAnimations} style={{'--sidebar-width': layout.sidebarWidth + 'px'} as CSSProperties} inert={desktop?.closing}>
-    {open && <button ref={scrim} className="sidebar-scrim" aria-label="Close navigation" onClick={() => setOpen(false)}/>}
+    {(open || scrimHeld) && <button ref={scrim} className="sidebar-scrim" aria-label="Close navigation" onClick={() => setOpen(false)}/>}
     <ShellSidebar hoverBlocked={settingsOpen||Boolean(rename||archive||unpin)} onOpenThreadPR={(target,scope)=>fail(()=>openReview(target,scope))} elementRef={sidebar} searchRef={searchRef} mobile={mobile} open={open} layout={layout} preferences={preferences}
       matching={navigation.page?.items ?? []} loaded={Boolean(navigation.page)} creating={false} search={search} setSearch={setSearch}
       close={() => setOpen(false)} toggleCollapsed={event => {prepareSidebarToggle(event); setLayout(value => ({...value, sidebarCollapsed: !value.sidebarCollapsed}));}}

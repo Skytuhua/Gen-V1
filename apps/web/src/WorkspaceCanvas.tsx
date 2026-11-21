@@ -3,6 +3,8 @@ import {ChevronDown,ChevronRight,EyeOff,GripHorizontal,Maximize2,Minus,Pin,Plus,
 import type {Thread} from '../../../packages/contracts/index.ts';
 import type {CanvasLayout,PanelBounds,PanelPlacement,ProjectSummary,WorkspacePanelKind} from '../../../packages/contracts/workspace.ts';
 import {arrangeCanvasPanels,canvasZoom,canvasZoomAt,fitCanvasViewport,groupCanvasPanels,panelInViewport,snapPanelBounds,threadParent} from './workspace-canvas-layout';
+import {readMotionPolicy} from './motion-policy';
+import {animateTask} from './task-motion';
 import './workspace-canvas.css';
 
 type Viewport=CanvasLayout['viewport'];
@@ -58,6 +60,56 @@ export function WorkspaceCanvas({canvas,panels,projects,disabledKinds,threads=[]
  const zoom=(direction:-1|0|1)=>{const current=viewportRef.current;saveViewport(canvasZoomAt(current,canvasZoom(current.zoom,direction),{x:size.width/2,y:size.height/2}));};
  const visiblePanels=panels.filter(panel=>panel.visible&&panel.placement==='canvas'&&!disabledKinds.includes(panel.kind));
  const displayed=visiblePanels.map(panel=>({...panel,bounds:drafts[panel.id]??panel.bounds}));
+ // E6: a panel leaving the canvas keeps a ghost for the exit animation.
+ const[leaving,setLeaving]=useState<Record<string,PanelPlacement>>({}),prevDisplayed=useRef<Record<string,PanelPlacement>>({});
+ useLayoutEffect(()=>{
+  const now:Record<string,PanelPlacement>={};
+  for(const panel of displayed)now[panel.id]=panel;
+  const dropped:PanelPlacement[]=[];
+  for(const[id,prev]of Object.entries(prevDisplayed.current))if(!now[id])dropped.push(prev);
+  prevDisplayed.current=now;
+  if(dropped.length)setLeaving(current=>{const next={...current};for(const panel of dropped)next[panel.id]=panel;return next;});
+ });
+ useLayoutEffect(()=>{
+  if(!Object.keys(leaving).length)return;
+  const done=()=>setLeaving({});
+  const running=[...root.current?.querySelectorAll('.canvas-panel[data-leaving]')??[]].flatMap(element=>element.getAnimations?.()??[]);
+  if(!running.length){done();return;}
+  let cancelled=false;
+  void Promise.allSettled(running.map(animation=>animation.finished)).then(()=>{if(!cancelled)done();});
+  return()=>{cancelled=true;};
+ },[leaving]);
+ // E6: collapse/expand tweens panel height via a measured FLIP. A scoped CSS
+ // transition cannot be ordered reliably against the React commit that writes
+ // the new inline height, so the tween runs as a WAAPI handoff instead (the
+ // same mechanism Artifact uses for M10).
+ const prevCollapsed=useRef<Record<string,boolean>>({}),panelHeights=useRef<Record<string,number>>({});
+ useLayoutEffect(()=>{
+  for(const panel of displayed){
+   const element=document.getElementById(panelDomId(panel.id)),before=prevCollapsed.current[panel.id],previousHeight=panelHeights.current[panel.id];
+   if(element&&before!==undefined&&before!==panel.collapsed&&previousHeight!==undefined){
+    const next=element.getBoundingClientRect().height;
+    if(Math.abs(next-previousHeight)>1)animateTask(element,[{height:previousHeight+'px'},{height:next+'px'}],180,{duration:'--ui-motion-popup-enter',easing:'--ui-ease-move'});
+   }
+  }
+  prevCollapsed.current=Object.fromEntries(displayed.map(panel=>[panel.id,panel.collapsed]));
+ },[displayed]);
+ // Records each panel's rendered height after every commit, so the flip effect
+ // above still reads the previous commit's geometry.
+ useLayoutEffect(()=>{
+  for(const panel of displayed){const element=document.getElementById(panelDomId(panel.id));if(element)panelHeights.current[panel.id]=element.getBoundingClientRect().height;}
+ });
+ // E6/M19: applying a canvas or preset remounts panels so entrances stagger (assembly).
+ const[seenApply,setSeenApply]=useState(canvas.id+':'+canvas.preset),[assembling,setAssembling]=useState(false);
+ if(seenApply!==canvas.id+':'+canvas.preset){setSeenApply(canvas.id+':'+canvas.preset);setAssembling(true);}
+ useLayoutEffect(()=>{
+  if(!assembling)return;
+  const running=[...root.current?.querySelectorAll('.canvas-panel')??[]].flatMap(element=>element.getAnimations?.()??[]);
+  if(!running.length){setAssembling(false);return;}
+  let cancelled=false;
+  void Promise.allSettled(running.map(animation=>animation.finished)).then(()=>{if(!cancelled)setAssembling(false);});
+  return()=>{cancelled=true;};
+ },[assembling,displayed]);
  const projectGroups=canvas.preset==='all-agents'?groupCanvasPanels(displayed,threads):[];
  const panelDomId=(id:string)=>`canvas-panel-${canvas.id}-${id}`;
  const fit=(values=displayed)=>saveViewport(fitCanvasViewport(values,size,canvas.preset==='all-agents'?88:24));
@@ -104,18 +156,22 @@ export function WorkspaceCanvas({canvas,panels,projects,disabledKinds,threads=[]
      const projectName=projects.find(value=>value.id===project.projectId&&JSON.stringify(value.authority)===JSON.stringify(project.authority))?.name??(project.projectId==='unassigned'?'Conversations':project.authority.kind==='local'?threads.find(value=>value.projectId===project.projectId)?.projectName??'Project':'Project');
      return <section key={project.key} className="canvas-project-group" style={{left:project.bounds.x,top:project.bounds.y,width:project.bounds.width,height:project.bounds.height}} aria-label={projectName} aria-owns={project.families.map((_,familyIndex)=>`canvas-family-${canvas.id}-${index}-${familyIndex}`).join(' ')}><h2 className="canvas-project-heading">{projectName}<small>{project.families.length} {project.families.length===1?'conversation':'conversations'}</small></h2>{project.families.map((family,familyIndex)=>{const parent=project.authority.kind==='local'?threads.find(value=>value.id===family.rootThreadId):undefined,main=displayed.find(panel=>family.panelIds.includes(panel.id)&&panel.binding.threadId===family.rootThreadId);return <section key={family.key} id={`canvas-family-${canvas.id}-${index}-${familyIndex}`} className="canvas-family-group" style={{left:family.bounds.x-project.bounds.x,top:family.bounds.y-project.bounds.y,width:family.bounds.width,height:family.bounds.height}} aria-label={parent?.title??(main?title(main):'Conversation')} aria-owns={family.panelIds.map(panelDomId).join(' ')}><h3 className="canvas-family-heading">{parent?.title??(main?title(main):'Conversation')}<small>{family.panelIds.length>1?`${family.panelIds.length-1} linked ${family.panelIds.length===2?'agent':'agents'}`:'Main chat'}</small></h3></section>;})}</section>;
     })}
-    {displayed.map(panel=>{
+    {displayed.map((panel,panelIndex)=>{
      const bounds=panel.bounds,visible=panelInViewport({...bounds,height:panel.collapsed?40:bounds.height},viewport,size),keep=panel.kind==='thread'||panel.kind==='artifact'||drafts[panel.id]!==undefined,thread=panel.binding.authority.kind==='local'?threads.find(value=>value.id===panel.binding.threadId):undefined,parent=thread&&threadParent(thread),parentTitle=parent?threads.find(value=>value.id===parent)?.title:undefined;
-     return <section key={panel.id} id={panelDomId(panel.id)} className={`canvas-panel canvas-panel-${panel.kind}`} data-panel-id={panel.id} data-parent-thread-id={parent} data-collapsed={panel.collapsed} data-pinned={panel.alwaysOnTop} style={{left:bounds.x,top:bounds.y,width:bounds.width,height:panel.collapsed?40:bounds.height,zIndex:panel.order+1+(panel.alwaysOnTop?100001:0)}} aria-label={title(panel)}>
+     return <section key={canvas.id+':'+canvas.preset+':'+panel.id} id={panelDomId(panel.id)} className={`canvas-panel canvas-panel-${panel.kind}`} data-panel-id={panel.id} data-parent-thread-id={parent} data-collapsed={panel.collapsed} data-pinned={panel.alwaysOnTop} style={{left:bounds.x,top:bounds.y,width:bounds.width,height:panel.collapsed?40:bounds.height,zIndex:panel.order+1+(panel.alwaysOnTop?100001:0),animationDelay:assembling&&readMotionPolicy()==='full'?Math.min(panelIndex*30,150)+'ms':undefined}} aria-label={title(panel)}>
       <header className="canvas-panel-header"><button className="canvas-panel-move" aria-label={`Move ${title(panel)}`} title="Drag to move. Arrow keys move; Shift + arrows resize." disabled={arranging} onPointerDown={event=>move(event,panel)} onKeyDown={event=>{const delta=event.key==='ArrowLeft'?[-8,0]:event.key==='ArrowRight'?[8,0]:event.key==='ArrowUp'?[0,-8]:event.key==='ArrowDown'?[0,8]:null;if(!delta||arranging)return;event.preventDefault();event.stopPropagation();const next=reachableBounds(event.shiftKey?{...bounds,width:bounds.width+delta[0],height:bounds.height+delta[1]}:{...bounds,x:bounds.x+delta[0],y:bounds.y+delta[1]});run(()=>updatePanel(panel,{bounds:next}));}}><GripHorizontal size={13}/><strong>{title(panel)}</strong></button>
        <button className="icon-button canvas-panel-pin" aria-label={`${panel.alwaysOnTop?'Unpin':'Pin'} ${title(panel)}`} aria-pressed={panel.alwaysOnTop} title={panel.alwaysOnTop?'Allow other panels above this panel':'Keep this panel above other panels'} onClick={()=>run(()=>updatePanel(panel,{alwaysOnTop:!panel.alwaysOnTop}))}><Pin size={13}/></button>
        <button className="icon-button" aria-label={`${panel.collapsed?'Expand':'Collapse'} ${title(panel)}`} onClick={()=>run(()=>updatePanel(panel,{collapsed:!panel.collapsed}))}>{panel.collapsed?<ChevronRight size={13}/>:<ChevronDown size={13}/>}</button><button className="icon-button" aria-label={`Hide ${title(panel)}`} title="Hide panel" onClick={()=>run(()=>updatePanel(panel,{visible:false}))}><EyeOff size={13}/></button>
       </header>
       {!panel.collapsed&&parentTitle&&<div className="canvas-parent-label">{thread?.kind==='delegate'?'Subagent':'Side chat'} <span>· {parentTitle}</span></div>}
-      {(keep||!panel.collapsed)&&(visible||keep)&&<div className="canvas-panel-body" inert={!visible||panel.collapsed} style={!visible||panel.collapsed?{visibility:'hidden'}:undefined}>{renderBody(panel,visible&&!panel.collapsed)}</div>}
+      {(visible||keep)&&<div className="canvas-panel-collapse" data-collapsed={panel.collapsed}><div className="canvas-panel-body" inert={!visible||panel.collapsed} style={!visible||panel.collapsed?{visibility:'hidden'}:undefined}>{renderBody(panel,visible&&!panel.collapsed)}</div></div>}
       {!panel.collapsed&&<button className="canvas-panel-resize" aria-label={`Resize ${title(panel)}`} disabled={arranging} title="Drag to resize; Shift + arrow keys on the move handle also resize" onPointerDown={event=>move(event,panel,true)}><Maximize2 size={11}/></button>}
      </section>;
     })}
+    {Object.values(leaving).map(panel=>{const bounds=panel.bounds;return <section key={'leaving-'+panel.id} className={`canvas-panel canvas-panel-${panel.kind}`} data-leaving data-panel-id={panel.id} data-collapsed={panel.collapsed} data-pinned={panel.alwaysOnTop} style={{left:bounds.x,top:bounds.y,width:bounds.width,height:panel.collapsed?40:bounds.height,zIndex:panel.order+1+(panel.alwaysOnTop?100001:0)}} aria-hidden inert>
+      <header className="canvas-panel-header"><button className="canvas-panel-move" disabled><GripHorizontal size={13}/><strong>{title(panel)}</strong></button></header>
+      {!panel.collapsed&&<div className="canvas-panel-collapse"><div className="canvas-panel-body">{renderBody(panel,false)}</div></div>}
+     </section>;})}
    </div>
    {!embedded&&!visiblePanels.length&&<div className="canvas-empty"><strong>{canvas.preset==='all-agents'?'No active conversations':'Arrange your workspace'}</strong><p>{canvas.preset==='all-agents'?'Active and pinned chats appear here, grouped by project. Choose All history to see earlier work.':'Add a panel from Panels to begin.'}</p></div>}
   </div>

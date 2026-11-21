@@ -3535,6 +3535,7 @@
     "tests/workbench-performance-v3.test.ts",
     "tests/workbench-recovery-v3.test.ts",
     "tests/workspace-canvas-layout.test.ts",
+    "tests/workspace-chrome-motion.test.ts",
     "tests/workspace-journal-v3.test.ts",
     "tests/workspace-layout.test.ts",
     "tests/workspace-linked-pr.test.ts",

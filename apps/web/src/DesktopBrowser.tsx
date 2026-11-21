@@ -15,5 +15,18 @@ export function DesktopBrowserSlot(){const desktop=useDesktop(),bounds=useRef<HT
  return <div ref={bounds} className="desktop-browser-native" aria-label="Isolated browser content"/>;
 }
 export function DesktopBrowserDock(){const desktop=useDesktop(),docked=desktop?.state.dockedBrowser;
- if(!docked)return null;return <section className="desktop-browser-dock" aria-label="Docked browser"><DesktopBrowserToolbar state={docked.state}/><DesktopBrowserSlot/></section>;
+ const[exit,setExit]=useState({open:Boolean(docked),leaving:false}),section=useRef<HTMLElement>(null),lastDocked=useRef(docked);
+ if(docked)lastDocked.current=docked;
+ if(exit.open!==Boolean(docked))setExit({open:Boolean(docked),leaving:!docked&&Boolean(lastDocked.current)});
+ const leaving=exit.leaving&&!docked;
+ useLayoutEffect(()=>{
+  if(!leaving)return;
+  const done=()=>setExit(current=>current.leaving?{...current,leaving:false}:current);
+  const running=section.current?.getAnimations?.()??[];
+  if(!running.length){done();return;}
+  let cancelled=false;
+  void Promise.allSettled(running.map(animation=>animation.finished)).then(()=>{if(!cancelled)done();});
+  return()=>{cancelled=true;};
+ },[leaving]);
+ if(!docked&&!leaving)return null;return <section ref={section} className="desktop-browser-dock" aria-label="Docked browser" data-state={leaving?"closed":undefined} inert={leaving||undefined}><DesktopBrowserToolbar state={(docked??lastDocked.current)!.state}/><DesktopBrowserSlot/></section>;
 }

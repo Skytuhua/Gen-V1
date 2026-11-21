@@ -149,6 +149,26 @@ it('rejects an incoming conversation that cannot fit its actual minimum',async()
   expect(await tab.getByRole('alert').textContent()).toContain('larger');
  }finally{await tab.close();}
 });
+it('flags only post-mount arrivals and ghosts a parked view until its exit finishes',async()=>{
+ const tab=await page();try{
+  // The fixture omits styles.css, so the ui-item keyframes the spec rules reference
+  // do not exist here; provide them and stretch the durations so the flags are
+  // observable deterministically (no keyframes means "no motion", which clears flags instantly).
+  await tab.addStyleTag({content:'@keyframes ui-item-in{from{opacity:0}}@keyframes ui-item-out{to{opacity:0}}.split-surface[data-arrival]{animation-duration:5s}.split-surface[data-leaving]{animation-duration:5s}'});
+  // Views present at mount are restored content and never replay the entry animation.
+  expect(await tab.locator('.split-surface[data-arrival]').count()).toBe(0);
+  await issue(tab,'view.open',{view:{id:'three',kind:'thread',binding:{authority:{kind:'local'},threadId:'three'}}});
+  await tab.waitForSelector('.split-surface[data-split-view="three"][data-arrival]');
+  // Parking a live view keeps a leaving ghost until the exit animation settles.
+  await issue(tab,'view.park',{viewId:'two'});
+  const ghost=tab.locator('.split-surface[data-split-view="two"][data-leaving]');
+  await ghost.waitFor();
+  // The ghost outlives the layout change; it unmounts once the exit animation ends.
+  await ghost.evaluate(node=>{(node as HTMLElement).style.animationDuration='1ms';});
+  // The parked view's real (display:none) surface stays mounted; only the ghost must go.
+  await tab.waitForFunction(()=>!document.querySelector('.split-surface[data-split-view="two"][data-leaving]'),undefined,{timeout:3000});
+ }finally{await tab.close();}
+});
 it('keeps editor and recovery controls reachable inside a short pane',async()=>{
  const tab=await page();try{
   await issue(tab,'pane.join',{paneId:'right'});await tab.setViewportSize({width:900,height:270});await tab.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();

@@ -5,8 +5,12 @@
 .summary-layout>.workspace { min-width:0; min-height:0; }
 .summary-layout>.workspace>.workspace-header { width:100%; padding-inline:20px; }
 .summary-dock { display:flex; flex-direction:column; gap:12px; min-width:0; min-height:0; padding:12px 8px 12px 0; overflow:auto; }
-.docked-summary { display:flex; flex-direction:column; flex:0 1 auto; min-width:0; min-height:38px; max-height:100%; overflow:hidden; border:1px solid var(--control-border); border-radius:12px; background:var(--surface); }
-.docked-summary[data-collapsed=true] { flex-shrink:0; }
+/* E5: the body row tweens 1fr→0fr so collapse is animated; reduced motion snaps it. */
+.docked-summary { display:grid; grid-template-rows:auto minmax(0,1fr); flex:0 1 auto; min-width:0; min-height:38px; max-height:100%; overflow:hidden; border:1px solid var(--control-border); border-radius:12px; background:var(--surface); transition:grid-template-rows var(--ui-motion-panel-enter) var(--ui-ease-move); }
+.docked-summary[data-collapsed=true] { flex-shrink:0; grid-template-rows:auto 0fr; transition-duration:var(--ui-motion-panel-exit); }
+.docked-summary:not([data-collapsed=true])>.docked-summary-content { transition:opacity var(--ui-motion-panel-enter) var(--ui-ease-move); }
+.docked-summary[data-collapsed=true]>.docked-summary-content { opacity:0; transition:opacity var(--ui-motion-panel-exit) var(--ui-ease-move); }
+@media(prefers-reduced-motion:reduce) { .docked-summary,.docked-summary>.docked-summary-content { transition:none; } }
 .docked-summary[hidden],.docked-summary-content[hidden] { display:none; }
 .docked-summary-header { flex:none; min-width:0; }
 .docked-summary-toggle { display:flex; width:100%; min-height:36px; gap:8px; padding:8px 12px; text-align:left; }
@@ -17,6 +21,7 @@
 .docked-summary:not([data-collapsed=true])>.docked-summary-header { border-bottom:1px solid var(--border); }
 .docked-summary-caption { display:flex; gap:4px; align-items:center; font-size:12px; color:var(--muted); }
 .docked-summary-content { min-width:0; min-height:0; overflow:auto; }
+.docked-summary[data-collapsed=true]>.docked-summary-content { overflow:hidden; }
 .summary-usage { margin-top:auto; }
 .summary-usage .floating-usage-details { padding:12px; }
 .summary-usage .usage-context-summary { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; font-size:12px; }

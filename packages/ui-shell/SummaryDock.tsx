@@ -75,7 +75,7 @@ export function DockedSummary({ id, title, children, open = true, defaultCollaps
         : summary != null && <span className="docked-summary-caption" aria-hidden="true">{summary}</span>)}
       <ChevronDown size={14} aria-hidden="true" />
     </button></header>
-    <div id={bodyId} className="docked-summary-content" hidden={collapsed} inert={collapsed || !open} aria-hidden={collapsed || !open}>{children}</div>
+    <div id={bodyId} className="docked-summary-content" inert={collapsed || !open} aria-hidden={collapsed || !open}>{children}</div>
   </section>;
 }
 
