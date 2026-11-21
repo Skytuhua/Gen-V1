@@ -111,6 +111,10 @@ export async function stageRepositoryMapParser(root:string,host:string){
  }
 }
 export function runtimeSourceAllowed(path:string){return publicRuntimeSourceAllowed(path);}
+// Build-time NSIS include for the Explorer verbs; staged next to desktop-app by
+// package-desktop.ts and referenced as an absolute path so resolution never
+// depends on the staged projectDir layout.
+export const EXPLORER_INTEGRATION_NSH='explorer-integration.nsh';
 
 export function validateNodeArchive(bytes:Uint8Array,expected=NODE_ARCHIVE_SHA256){if(createHash('sha256').update(bytes).digest('hex')!==expected)throw Error('Bundled Node archive checksum mismatch');}
 export function desktopBuilderConfig(dist:string,channel=process.env.HARNESS_RELEASE_CHANNEL){
@@ -123,5 +127,5 @@ export function desktopBuilderConfig(dist:string,channel=process.env.HARNESS_REL
   // Use the supported 7z payload for large file counts. Its temporary-tree copy
   // occurs during installation; the installed application launches directly.
   win:{target:[{target:'nsis',arch:['x64']}],signAndEditExecutable:false},
-  nsis:{artifactName:'Gen-V1-Setup-${version}-win-x64.exe',oneClick:true,perMachine:false,allowElevation:false,packElevateHelper:false,useZip:false,differentialPackage:channel!==undefined,runAfterFinish:false,deleteAppDataOnUninstall:false,createDesktopShortcut:false,createStartMenuShortcut:true},compression:'normal' as const};
+  nsis:{artifactName:'Gen-V1-Setup-${version}-win-x64.exe',oneClick:true,perMachine:false,allowElevation:false,packElevateHelper:false,useZip:false,differentialPackage:channel!==undefined,runAfterFinish:false,deleteAppDataOnUninstall:false,createDesktopShortcut:false,createStartMenuShortcut:true,include:root+'/desktop-installer/'+EXPLORER_INTEGRATION_NSH},compression:'normal' as const};
 }
