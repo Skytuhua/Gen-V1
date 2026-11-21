@@ -11,19 +11,19 @@ const snapshot=()=>{
  value.usage['task-thread']={...EMPTY_USAGE,inputTokens:12640,outputTokens:820,contextTokens:35000,contextWindow:200000};return value;
 };
 const captureDirectory=process.env.RESERVED_RAIL_CAPTURE_DIR;
-async function showPlan(page:Page){await expect(page.locator('[data-split-view="thread:task-thread"]').getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:15000});const panel=page.getByRole('region',{name:'Project overview window',exact:true});await expect(panel).toBeVisible();if(await panel.getAttribute('data-collapsed')==='true')await panel.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(panel).toHaveAttribute('data-collapsed','false');return panel;}
+async function showOverview(page:Page){await expect(page.locator('[data-split-view="thread:task-thread"]').getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:15000});if(await page.locator('.workspace-right').count()===0)await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();if(await page.getByRole('tab',{name:'Project',exact:true}).count()===0){await page.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Project',exact:true}).click();}const tab=page.getByRole('tab',{name:'Overview',exact:true});if(await tab.getAttribute('aria-selected')!=='true')await tab.click();const overview=page.locator('.project-context-card');await expect(overview).toBeVisible();return overview;}
 // Await the retained conversation before checking its launcher during initial App replacement.
 async function showUsage(page:Page){const owner=page.locator('[data-split-view="thread:task-thread"]');await expect(owner.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:15000});const usage=page.getByRole('region',{name:'Live usage',exact:true}),launcher=owner.getByRole('button',{name:'Show live usage',exact:true});await launcher.click();await expect(usage).toBeVisible();return usage;}
 async function open(page:Page,value=snapshot()){
- await serveTaskFixture(page,value);await page.goto('/');await showPlan(page);await showUsage(page);
- const plan=page.getByRole('region',{name:'Project overview window',exact:true});await expect(plan).toBeVisible();await expect.poll(()=>plan.evaluate(el=>el.getAnimations().filter(a=>a.playState==='running').length)).toBe(0);return plan;
+ await serveTaskFixture(page,value);await page.goto('/');const usage=await showUsage(page);
+ await expect.poll(()=>usage.evaluate(el=>el.getAnimations().filter(a=>a.playState==='running').length)).toBe(0);return usage;
 }
 
 test('workspace artifact stays inside its panel while summaries yield space and keeps the same renderer',async({page})=>{
  await page.setViewportSize({width:1920,height:1080});await open(page);
  const text=await page.getByText('Inspect the checkout calculation.',{exact:true}).elementHandle();await page.getByRole('button',{name:'Open artifact in workspace',exact:true}).click();
  const panel=page.getByRole('complementary',{name:'Workspace panel',exact:true}),artifact=page.locator('.artifact-in-workspace');await expect(panel).toBeVisible();await expect(artifact).toBeVisible();
- await expect(page.getByRole('region',{name:'Project overview window',exact:true})).toBeHidden();await expect(page.getByRole('region',{name:'Live usage',exact:true})).toBeHidden();
+ await expect(page.locator('.project-context-card')).toHaveCount(0);await expect(page.getByRole('region',{name:'Live usage',exact:true})).toBeHidden();
  await expect.poll(async()=>{const w=await panel.boundingBox(),a=await artifact.boundingBox();return Boolean(w&&a&&Math.abs(w.x+w.width-1920)<1&&a.x>=w.x&&a.x+a.width<=w.x+w.width+1);}).toBe(true);
  expect(await page.getByText('Inspect the checkout calculation.',{exact:true}).evaluate((node,old)=>node===old,text)).toBe(true);
 });
@@ -32,43 +32,48 @@ test('expanded usage stays compact and readable instead of reserving an oversize
 });
 test('both protected tools minimize to a compact flow region on narrow screens',async({page})=>{
  await page.setViewportSize({width:390,height:844});const value=snapshot();value.data=[];await serveTaskFixture(page,value);await page.goto('/');await showUsage(page);
- await expect(page.getByRole('region',{name:'Project overview window',exact:true})).toHaveAttribute('data-collapsed','true');
+ await expect(page.locator('.summary-dock [data-summary-id="plan"]')).toHaveCount(0);
  await expect.poll(async()=>Math.round((await page.getByRole('complementary',{name:'Conversation summaries',exact:true}).boundingBox())!.height)).toBeLessThanOrEqual(110);
  await expect.poll(async()=>Math.round((await page.getByRole('region',{name:'Live usage',exact:true}).boundingBox())!.height)).toBe(38);
 });
 test('minimized summaries retain their rail until an explicit artifact panel takes over',async({page})=>{
  // The summary rail belongs to the complete canonical workspace, including its open Plan pane.
  const frame=page.locator('.split-root-workarea .split-workspace');
- await page.setViewportSize({width:1600,height:1000});const plan=await open(page);await plan.getByRole('button',{name:'Collapse Project overview',exact:true}).click();await expect(plan).toBeVisible();const main=(await frame.boundingBox())!,dock=(await page.getByRole('complementary',{name:'Conversation summaries',exact:true}).boundingBox())!;expect(dock.y).toBeGreaterThanOrEqual(main.y+main.height-1);expect(dock.x+dock.width).toBeCloseTo(main.x+main.width,0);expect(dock.height).toBeLessThanOrEqual(110);
- await page.getByRole('button',{name:'Open artifact in workspace',exact:true}).click();await expect(plan).toBeHidden();await expect.poll(async()=>{const main=await frame.boundingBox(),panel=await page.locator('.workspace-right').boundingBox();return panel&&main?panel.x>main.x+main.width-1&&panel.x+panel.width>1580&&main.width<1100:null;}).toBe(true);
+ await page.setViewportSize({width:1600,height:1000});const usage=await open(page);await usage.getByRole('button',{name:'Inspect live usage',exact:true}).click();await usage.getByRole('button',{name:'Minimize live usage',exact:true}).click();await expect(usage).toBeVisible();const main=(await frame.boundingBox())!,dock=(await page.getByRole('complementary',{name:'Conversation summaries',exact:true}).boundingBox())!;expect(dock.y).toBeGreaterThanOrEqual(main.y+main.height-1);expect(dock.x+dock.width).toBeCloseTo(main.x+main.width,0);expect(dock.height).toBeLessThanOrEqual(110);
+ await page.getByRole('button',{name:'Open artifact in workspace',exact:true}).click();await expect(usage).toBeHidden();await expect.poll(async()=>{const main=await frame.boundingBox(),panel=await page.locator('.workspace-right').boundingBox();return panel&&main?panel.x>main.x+main.width-1&&panel.x+panel.width>1580&&main.width<1100:null;}).toBe(true);
 });
 test('expanded context keeps the header and composer across the full available chat frame',async({page})=>{
- await page.setViewportSize({width:1440,height:1000});const plan=await open(page);
+ await page.setViewportSize({width:1440,height:1000});const usage=await open(page);await usage.getByRole('button',{name:'Inspect live usage',exact:true}).click();
  const main=(await page.locator('main.workspace').boundingBox())!,header=(await page.locator('.workspace-header').boundingBox())!,composer=(await page.locator('.composer-dock').boundingBox())!;
  const dock=(await page.getByRole('complementary',{name:'Conversation summaries',exact:true}).boundingBox())!;expect(main.width).toBeGreaterThanOrEqual(420);expect(main.x+main.width).toBeLessThanOrEqual(dock.x);expect(dock.x+dock.width).toBeCloseTo(1440,0);expect(header.x+header.width).toBeCloseTo(main.x+main.width,0);expect(composer.x+composer.width/2).toBeCloseTo(main.x+main.width/2,0);
- const overview=(await plan.boundingBox())!;expect(overview.x).toBeGreaterThanOrEqual(dock.x);expect(overview.x+overview.width).toBeLessThanOrEqual(dock.x+dock.width+1);
+ const region=(await usage.boundingBox())!;expect(region.x).toBeGreaterThanOrEqual(dock.x);expect(region.x+region.width).toBeLessThanOrEqual(dock.x+dock.width+1);
 });
 
 test('protected context has only minimize controls while keeping the composer draft',async({page})=>{
- await page.setViewportSize({width:1600,height:1100});const plan=await open(page);
- await page.getByRole('textbox',{name:'Message',exact:true}).fill('Keep composing');
- await expect(plan.getByRole('button',{name:/^Move |^Resize |^Detach |^Close |^Reset /})).toHaveCount(0);await plan.getByRole('button',{name:'Collapse Project overview',exact:true}).click();await expect(plan).toBeVisible();await plan.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Keep composing');
+ await page.setViewportSize({width:1600,height:1100});await serveTaskFixture(page,snapshot());await page.goto('/');const overview=await showOverview(page);
+ await page.locator('[data-split-view="thread:task-thread"]').getByRole('textbox',{name:'Message',exact:true}).fill('Keep composing');
+ await expect(overview.getByRole('button',{name:/^Move |^Resize |^Detach |^Close |^Reset /})).toHaveCount(0);
+ await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();await expect(page.locator('.workspace-right')).toHaveCount(0);
+ await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();await expect(page.locator('[data-split-view="thread:task-thread"]').getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Keep composing');
 });
 
 test('minimizing context releases the chat frame and preserves the artifact renderer',async({page})=>{
- await page.setViewportSize({width:1440,height:1000});const plan=await open(page),body=await page.getByText('Inspect the checkout calculation.',{exact:true}).elementHandle(),before=(await page.locator('main.workspace').boundingBox())!;
- await plan.getByRole('button',{name:'Collapse Project overview',exact:true}).click();await expect.poll(async()=>(await page.locator('main.workspace').boundingBox())!.width).toBeGreaterThan(before.width);
- await plan.getByRole('button',{name:'Expand Project overview',exact:true}).click();expect(await page.getByText('Inspect the checkout calculation.',{exact:true}).evaluate((node,old)=>node===old,body)).toBe(true);
+ await page.setViewportSize({width:1440,height:1000});await serveTaskFixture(page,snapshot());await page.goto('/');const body=await page.getByText('Inspect the checkout calculation.',{exact:true}).elementHandle(),before=(await page.locator('main.workspace').boundingBox())!;
+ await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();await expect.poll(async()=>(await page.locator('main.workspace').boundingBox())!.width).toBeLessThan(before.width);
+ await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();await expect.poll(async()=>(await page.locator('main.workspace').boundingBox())!.width).toBeGreaterThanOrEqual(before.width);
+ expect(await page.getByText('Inspect the checkout calculation.',{exact:true}).evaluate((node,old)=>node===old,body)).toBe(true);
 });
 
 test('narrow explicit tools occupy a bounded flow region without covering composer or Stop',async({page})=>{
- await page.setViewportSize({width:390,height:844});await page.emulateMedia({reducedMotion:'reduce'});const value=snapshot();value.threads[0].status='working';value.threads[0].runId='fixture-run';await serveTaskFixture(page,value);await page.goto('/');await showPlan(page);const usage=await showUsage(page);await usage.getByRole('button',{name:'Inspect live usage',exact:true}).click();
+ await page.setViewportSize({width:390,height:844});await page.emulateMedia({reducedMotion:'reduce'});const value=snapshot();value.threads[0].status='working';value.threads[0].runId='fixture-run';await serveTaskFixture(page,value);await page.goto('/');const usage=await showUsage(page);await usage.getByRole('button',{name:'Inspect live usage',exact:true}).click();
  const rail=page.getByRole('complementary',{name:'Conversation summaries',exact:true});await expect(rail).toBeVisible();const main=await page.locator('main.workspace').boundingBox(),region=await rail.boundingBox();expect(main!.y+main!.height).toBeLessThanOrEqual(region!.y+1);
+ await showOverview(page);const panel=page.locator('.workspace-right');const pbox=await panel.boundingBox();expect(pbox!.x).toBeGreaterThanOrEqual(0);expect(pbox!.x+pbox!.width).toBeLessThanOrEqual(390);
+ await panel.locator('button').first().focus();await page.keyboard.press('Escape');await expect(panel).toHaveCount(0);
  for(const name of ['Message','Stop agent']){const el=name==='Message'?page.getByRole('textbox',{name,exact:true}):page.getByRole('button',{name,exact:true});expect(await el.evaluate(node=>{const r=node.getBoundingClientRect();return node.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));})).toBe(true);}expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)).toBe(false);
 });
 if(captureDirectory)for(const mode of ['light','dark','narrow','narrow-compact']as const)test(`capture floating tools ${mode}`,async({page})=>{
  const narrow=mode.startsWith('narrow');await page.setViewportSize(narrow?{width:390,height:844}:{width:1920,height:1080});const value=snapshot();value.settings.theme=mode==='dark'?'dark':'light';
  if(mode==='narrow-compact'){await serveTaskFixture(page,value);await page.goto('/');await showUsage(page);}
- else{const panel=await open(page,value);await expect(panel.getByText('Repair checkout failures',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();await page.getByRole('tab',{name:'Plan',exact:true}).click();const reader=page.locator('[data-agent-id="reader"]');await expect(reader.getByText('Compare the empty-basket boundary',{exact:true})).toBeVisible();await expect(reader.locator('.plan-agent-summary')).toContainText('50%');await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();await showPlan(page);await page.getByRole('button',{name:'Inspect live usage',exact:true}).click();}
+ else{await serveTaskFixture(page,value);await page.goto('/');const overview=await showOverview(page);await expect(overview.getByText('Repair checkout failures',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Plan',exact:true}).click();const reader=page.locator('[data-agent-id="reader"]');await expect(reader.getByText('Compare the empty-basket boundary',{exact:true})).toBeVisible();await expect(reader.locator('.plan-agent-summary')).toContainText('50%');await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();await showUsage(page);await page.getByRole('button',{name:'Inspect live usage',exact:true}).click();}
  await page.waitForTimeout(750);await mkdir(captureDirectory,{recursive:true});await page.screenshot({path:resolve(captureDirectory,`floating-tools-${mode}.png`)});
 });

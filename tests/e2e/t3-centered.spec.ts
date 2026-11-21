@@ -64,23 +64,20 @@ test('default shell uses all space after navigation and centers artifact and com
   expect(artifact!.x+artifact!.width/2).toBeCloseTo(main!.x+main!.width/2,0);
   await expect(page.getByRole('region',{name:'Live usage',exact:true})).toBeHidden();
   await expect(page.getByRole('button',{name:'Show live usage',exact:true})).toBeVisible();
-  await expect(page.locator('.summary-dock [data-summary-id="plan"]')).toHaveAttribute('data-collapsed','true');
+  await expect(page.locator('.summary-dock [data-summary-id="plan"]')).toHaveCount(0);
 });
 
 test('automatic Plan summary reserves task space while telemetry preserves the mounted conversation',async({page})=>{
   await page.setViewportSize({width:1600,height:1100});const snapshot=fixture();snapshot.usage['task-thread']={...EMPTY_USAGE,inputTokens:14210,outputTokens:960};await serveTaskFixture(page,snapshot);await page.goto('/');
   const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Keep the current review');const original=await input.elementHandle();
   await page.getByRole('textbox',{name:'Message',exact:true}).fill('Keep my next message');
-  const overview=page.getByRole('region',{name:'Project overview window',exact:true});await overview.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(overview).toHaveAttribute('data-collapsed','false');
-  const summary=overview.getByRole('region',{name:'Plan summary',exact:true});await expect(summary).toBeVisible();
-  const layout=await page.locator('.summary-layout').boundingBox(),dock=await page.locator('.summary-dock').boundingBox(),workspace=await page.locator('main.workspace').boundingBox();
-  expect(dock!.width).toBeGreaterThanOrEqual(270);expect(dock!.width).toBeLessThanOrEqual(310);
-  expect(workspace!.width).toBeCloseTo(layout!.width-dock!.width-6,0);await centered(page);
-  const body=await summary.elementHandle();
-  await page.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(page.getByRole('region',{name:'Live usage',exact:true})).toBeVisible();
-  await overview.getByRole('button',{name:'Collapse Project overview',exact:true}).click();await expect(overview).toHaveAttribute('data-collapsed','true');
-  await expect.poll(async()=>(await page.locator('main.workspace').boundingBox())!.width).toBeCloseTo(layout!.width,0);
-  await overview.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(overview).toHaveAttribute('data-collapsed','false');
+  const before=await page.locator('main.workspace').boundingBox();
+  await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();await page.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Project',exact:true}).click();await page.getByRole('tab',{name:'Overview',exact:true}).click();
+  const summary=page.getByRole('region',{name:'Plan summary',exact:true});await expect(summary).toBeVisible();const body=await summary.elementHandle();
+  await expect.poll(async()=>(await page.locator('main.workspace').boundingBox())!.width).toBeLessThan(before!.width);
+  await page.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(page.getByRole('region',{name:'Live usage',exact:true})).toBeHidden();
+  await page.getByRole('tab',{name:'Pull requests',exact:true}).click();await expect(summary).toBeHidden();
+  await page.getByRole('tab',{name:'Overview',exact:true}).click();await expect(summary).toBeVisible();
   expect(await summary.evaluate((node,old)=>node===old,body)).toBe(true);
   expect(await input.evaluate((node,old)=>node===old,original)).toBe(true);await expect(input).toHaveValue('Keep the current review');
   await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Keep my next message');

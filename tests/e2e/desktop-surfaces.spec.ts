@@ -23,17 +23,15 @@ test('desktop context and usage minimize in the workspace while thread detachmen
  await serveTaskSplitLayout(page);
  await page.goto('/');
  await page.getByRole('button',{name:'Source-bound task fixture Ready',exact:true}).click();
- const overview=page.getByRole('region',{name:'Project overview window',exact:true});
- await expect(overview).toBeVisible({timeout:15000});
- const toggle=overview.locator('.docked-summary-toggle');if(await toggle.getAttribute('aria-expanded')==='false')await toggle.click();
- await expect(overview.getByRole('region',{name:'Plan summary',exact:true})).toContainText('Repair checkout failures');
- await page.getByRole('button',{name:'Collapse Project overview',exact:true}).click();
- await expect(toggle).toHaveAttribute('aria-expanded','false');
  await page.getByRole('button',{name:'Show live usage',exact:true}).click();
  await page.getByRole('button',{name:'Inspect live usage',exact:true}).click();
  await expect(page.getByRole('region',{name:'Runtime usage details',exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Minimize live usage',exact:true}).click();
  await expect(page.getByRole('region',{name:'Runtime usage details',exact:true})).toBeHidden();
+ await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
+ if(await page.getByRole('tab',{name:'Project',exact:true}).count()===0){await page.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Project',exact:true}).click();}
+ await page.getByRole('tab',{name:'Overview',exact:true}).click();
+ await expect(page.getByRole('region',{name:'Plan summary',exact:true})).toContainText('Repair checkout failures');
  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
  await expect(page.getByRole('button',{name:/^Detach (thread|artifact|workspace|plan|navigation|browser)|^Minimize chat window$/})).toHaveCount(0);
  await page.getByRole('button',{name:'Options for Source-bound task fixture',exact:true}).click();

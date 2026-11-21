@@ -148,6 +148,12 @@
 .workspace-right-header [role=tab] { flex-shrink:0; white-space:nowrap; color:var(--muted); font-size:12px; padding:17px 8px 15px; border-bottom:2px solid transparent; transition:color var(--ui-motion-tab) var(--ui-ease-move),border-bottom-color var(--ui-motion-tab) var(--ui-ease-move); }
 .workspace-right-header [role=tab][aria-selected=true] { color:var(--text); border-bottom-color:var(--text); }
 .workspace-panel-content { flex:1; min-height:0; overflow:auto; }
+.project-area { display:flex; flex-direction:column; min-height:100%; }
+.project-area-tabs { flex:none; display:flex; gap:1px; padding:6px 10px 0; border-bottom:1px solid var(--border); }
+.project-area-tabs [role=tab] { font-size:12px; color:var(--muted); padding:6px 8px; border-bottom:2px solid transparent; transition:color var(--ui-motion-tab) var(--ui-ease-move),border-bottom-color var(--ui-motion-tab) var(--ui-ease-move); }
+.project-area-tabs [role=tab][aria-selected=true] { color:var(--text); border-bottom-color:var(--accent); }
+.project-area-body { flex:1; min-height:0; overflow:auto; }
+.workspace-panel-scrim { display:none; }
 .panel-toolbar { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 13px; border-bottom:1px solid var(--border); }
 .panel-toolbar label { min-width:0; flex:1; }
 .panel-toolbar select { font-size:12px; padding:6px 8px; width:100%; }
@@ -216,7 +222,7 @@
 .workspace-right[data-state="closed"] { pointer-events:none; animation:panel-exit var(--ui-motion-panel-exit) var(--ui-ease-move) both; }
 @media (prefers-reduced-motion: reduce) { .workspace-right[data-state="closed"] { animation-duration:var(--ui-motion-press); } }
 @media(hover:none) { .sidebar-thread-menu-button { opacity:1; } }
-@media(max-width:700px) { .app-shell .sidebar { width:min(280px,calc(100vw - 40px)); flex-basis:auto; } .app-shell[data-sidebar-collapsed=true] .sidebar { width:min(280px,calc(100vw - 40px)); padding:0 12px; visibility:visible; } .desktop-sidebar-toggle { display:none; } .header-thread-status { display:none; } .app-shell .sidebar-close { display:flex; } .workspace-header { padding:0 14px; } .workspace-right { position:fixed; right:0; top:0; bottom:0; box-shadow:var(--elevation); } .workspace-right-header [role=tab] { padding-left:6px; padding-right:6px; } .workspace-right>.panel-resizer { display:none; } .workspace-right.workspace-right-maximized { top:6px; right:6px; bottom:6px; } .artifact.artifact-in-workspace { right:10px; top:108px; bottom:10px; width:calc(var(--right-panel-width) - 20px); } }
+@media(max-width:700px) { .app-shell .sidebar { width:min(280px,calc(100vw - 40px)); flex-basis:auto; } .app-shell[data-sidebar-collapsed=true] .sidebar { width:min(280px,calc(100vw - 40px)); padding:0 12px; visibility:visible; } .desktop-sidebar-toggle { display:none; } .header-thread-status { display:none; } .app-shell .sidebar-close { display:flex; } .workspace-header { padding:0 14px; } .workspace-right { position:fixed; right:0; top:0; bottom:0; width:min(320px,88vw); flex-basis:auto; z-index:var(--ui-layer-drawer); transform:translateX(0); box-shadow:var(--elevation); } .app-shell .shell-workarea[data-tool-layout]>.workspace-tools>.workspace-right { position:fixed; top:0; right:0; bottom:0; left:auto; width:min(320px,88vw); max-width:none; flex:none; z-index:var(--ui-layer-drawer); box-shadow:var(--elevation); } .app-shell .shell-workarea[data-tool-layout=stacked]>.workspace-tools:has(>.workspace-right) { height:auto; min-height:0; flex:none; } .workspace-panel-scrim { display:block; position:fixed; inset:0; z-index:var(--ui-layer-scrim); background:#0006; border:0; padding:0; } .workspace-right-header [role=tab] { padding-left:6px; padding-right:6px; } .workspace-right>.panel-resizer { display:none; } .workspace-right.workspace-right-maximized { top:6px; right:6px; bottom:6px; } .artifact.artifact-in-workspace { right:10px; top:108px; bottom:10px; width:calc(var(--right-panel-width) - 20px); } }
 @media(prefers-reduced-motion:reduce) { .workspace-right { animation:none; } }
 
 /* Shell motion follows a user opening a surface, not ordinary snapshots. */

@@ -1,3 +1,4 @@
+async function openProjectOverview(page:import('@playwright/test').Page){if(await page.locator('.workspace-right').count()===0)await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();if(await page.getByRole('tab',{name:'Project',exact:true}).count()===0){await page.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Project',exact:true}).click();}const tab=page.getByRole('tab',{name:'Overview',exact:true});if(await tab.getAttribute('aria-selected')!=='true')await tab.click();const overview=page.locator('.project-context-card');await overview.waitFor({state:'visible'});return overview;}
 import {afterAll,beforeAll,describe,expect,it} from 'vitest';
 import {spawn,type ChildProcess} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
@@ -568,8 +569,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
 
  it('uses one canonical plan in the overview and detailed pane with actual companion sections',async()=>{
   const host=await fixture({plan:true}),{page}=host;try{
-   const overview=page.getByRole('region',{name:'Project overview window',exact:true});await overview.waitFor({state:'visible'});
-   if(await overview.getByRole('button',{name:'Expand Project overview',exact:true}).isVisible())await overview.getByRole('button',{name:'Expand Project overview',exact:true}).click();
+   const overview=await openProjectOverview(page);
    const summary=overview.getByRole('region',{name:'Plan summary',exact:true});await summary.waitFor({state:'visible'});expect(await summary.getAttribute('data-plan-revision')).toBe('7');expect(await summary.textContent()).toContain('Inspect then verify');expect(await summary.textContent()).toContain('1 of 2 tasks complete');
    await overview.locator('summary').filter({hasText:'Agents and history'}).click();expect(await overview.textContent()).toContain('Inspect source');await overview.locator('summary').filter({hasText:'Side conversations'}).click();expect(await overview.textContent()).toContain('Related discussion');expect(await overview.locator('summary').filter({hasText:'Automations'}).count()).toBe(0);
    const detailed=page.locator('[data-split-view="plan:thread-a"]').getByRole('region',{name:/^Task plan(?::|$)/});await detailed.waitFor({state:'visible'});expect(await summary.getByRole('button',{name:'Open full plan',exact:false}).count()).toBe(0);expect(await detailed.getAttribute('aria-label')).toBe('Task plan: Inspect then verify');expect(await detailed.textContent()).toContain('Verify the result');const planPane=Object.values(host.layout.panes).find(pane=>pane.viewIds.includes('plan:thread-a'))!,planBounds=await page.locator('[data-split-pane="'+planPane.id+'"]').boundingBox();expect(planBounds!.width).toBeGreaterThanOrEqual(240);expect(planBounds!.height).toBeGreaterThanOrEqual(180);expect(Object.values(host.layout.views).filter(view=>view.kind==='plan')).toHaveLength(1);expect(host.errors).toEqual([]);
@@ -612,7 +612,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
  it('keeps a narrow focused composer visible on plan publication until the user opens the full plan',async()=>{
   const host=await fixture({width:680}),{page}=host;try{
    const draft=page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep narrow plan publication focus');const focused=host.layout.focusedPaneId,areaCount=Object.keys(host.layout.panes).length;expect((await page.locator('.split-root-workarea').boundingBox())!.width).toBeLessThan(700);host.snapshot.data.push(canonicalPlan());await host.publish();
-   const overview=page.getByRole('region',{name:'Project overview window',exact:true}),summary=overview.getByRole('region',{name:'Plan summary',exact:true});await summary.waitFor({state:'visible'});expect(await summary.getAttribute('data-plan-revision')).toBe('7');expect(await summary.textContent()).toContain('Inspect then verify');expect(await draft.isVisible()).toBe(true);expect(await draft.evaluate(node=>node===document.activeElement)).toBe(true);expect(await draft.inputValue()).toBe('Keep narrow plan publication focus');expect(host.layout.focusedPaneId).toBe(focused);expect(Object.keys(host.layout.panes)).toHaveLength(areaCount);expect(Object.values(host.layout.views).some(view=>view.kind==='plan')).toBe(false);
+   await openProjectOverview(page);const overview=page.locator('.project-context-card'),summary=overview.getByRole('region',{name:'Plan summary',exact:true});await summary.waitFor({state:'visible'});expect(await summary.getAttribute('data-plan-revision')).toBe('7');expect(await summary.textContent()).toContain('Inspect then verify');expect(await draft.isVisible()).toBe(true);expect(await draft.evaluate(node=>node===document.activeElement)).toBe(true);expect(await draft.inputValue()).toBe('Keep narrow plan publication focus');expect(host.layout.focusedPaneId).toBe(focused);expect(Object.keys(host.layout.panes)).toHaveLength(areaCount);expect(Object.values(host.layout.views).some(view=>view.kind==='plan')).toBe(false);
    await summary.getByRole('button',{name:'Open full plan',exact:false}).click();const detail=page.locator('[data-split-view="plan:thread-a"]').getByRole('region',{name:/^Task plan(?::|$)/});await detail.waitFor({state:'visible'});expect(await detail.getByText('Retain the original draft',{exact:true}).isVisible()).toBe(true);expect(await page.locator('[data-split-view="thread:thread-a"] textarea[aria-label="Message"]').inputValue()).toBe('Keep narrow plan publication focus');expect(Object.values(host.layout.views).filter(view=>view.kind==='plan')).toHaveLength(1);expect(host.errors).toEqual([]);
   }finally{await page.close();}
  },30000);
@@ -621,7 +621,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   const host=await fixture({plan:true}),{page}=host;try{
    const draft=page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}),detail=page.locator('[data-split-view="plan:thread-a"]').getByRole('region',{name:/^Task plan(?::|$)/});await detail.waitFor({state:'visible'});
    const originalAreaCount=Object.keys(host.layout.panes).length;await host.issue('view.park',{viewId:'plan:thread-a'});await detail.waitFor({state:'hidden'});
-   const expandOverview=page.getByRole('button',{name:'Expand Project overview',exact:true});if(await expandOverview.isVisible())await expandOverview.click();
+   await openProjectOverview(page);
    await draft.fill('Retain focus during plan refresh');
    const record=host.snapshot.data.find(item=>item.id===planDataId('thread-a'))!;record.revision=8;record.value={...(record.value as object),title:'Updated verification plan'};await host.publish();
    // The overview may stay collapsed; its revision still records the publication.
@@ -698,15 +698,15 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   const host=await fixture({mode:'chat',plan:true}),{page}=host;try{
    expect(await page.locator('.split-workspace').count()).toBeGreaterThan(0);
    const message=page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true});await message.waitFor({state:'visible'});
-   const overview=page.getByRole('region',{name:'Project overview window',exact:true});await overview.waitFor({state:'visible'});
+   expect(await page.locator('.project-context-card').count()).toBe(0);
    await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
    const panel=page.getByRole('complementary',{name:'Workspace panel',exact:true});await panel.waitFor({state:'visible'});
     expect(await panel.getByRole('button',{name:'Close workspace panel',exact:true}).count()).toBe(0);
-   await overview.waitFor({state:'hidden'});
+    await panel.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Project',exact:true}).click();await panel.getByRole('tab',{name:'Overview',exact:true}).click();expect(await panel.locator('.project-context-card').isVisible()).toBe(true);
     await panel.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Plan',exact:true}).click();
     await panel.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Notes',exact:true}).click();
     expect(await panel.getByRole('tab',{name:'Plan',exact:true}).isVisible()).toBe(true);expect(await panel.getByRole('tab',{name:'Notes',exact:true}).isVisible()).toBe(true);
-   await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();await panel.waitFor({state:'hidden'});await overview.waitFor({state:'visible'});
+   await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();await panel.waitFor({state:'hidden'});expect(await page.locator('.project-context-card').count()).toBe(0);
    expect(await page.getByRole('button',{name:'Undo layout',exact:true}).count()).toBe(0);expect(await page.getByRole('button',{name:'Redo',exact:true}).count()).toBe(0);expect(await page.getByRole('button',{name:'Restore last layout',exact:true}).count()).toBe(0);expect(await page.locator('.split-workspace-hint').count()).toBe(0);
    expect(host.errors).toEqual([]);
   }finally{await page.close();}

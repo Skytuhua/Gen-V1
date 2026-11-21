@@ -25,14 +25,11 @@ test('a published plan flags the collapsed overview once without replaying on sn
  // before attaching an observer to an element that startup will replace.
  await expect(page.locator('.split-workspace[data-workspace-id="workspace"] [data-split-view="thread:task-thread"]')).toBeVisible();
  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
- const overview=page.getByRole('region',{name:'Project overview window',exact:true});await expect(overview).toHaveAttribute('data-collapsed','true');
- await overview.evaluate(node=>{let changes=0;new MutationObserver(records=>{changes+=records.length;}).observe(node,{attributes:true,attributeFilter:['data-collapsed']});Object.assign(window,{overviewCollapses:()=>node.isConnected?changes:-1});});
  snapshot.data.push({id:planDataId('task-thread'),threadId:'task-thread',revision:1,provenance:PLANNING_PROVENANCE,createdAt:'2026-11-01T00:00:00Z',value:{version:1,title:'Repair checkout failures',steps:[{id:'find',title:'Find the failing boundary',status:'working',requirements:[],agentIds:[]}],agents:[]}});await host.publish();
- await expect(overview.getByText('Update available',{exact:true})).toBeVisible();await expect(overview).toHaveAttribute('data-collapsed','true');
- await overview.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(overview).toHaveAttribute('data-collapsed','false');await expect(overview.getByRole('region',{name:'Plan summary',exact:true})).toBeVisible();
- await expect.poll(()=>page.evaluate(()=>(window as unknown as {overviewCollapses:()=>number}).overviewCollapses())).toBe(1);
- snapshot.settings.theme='light';await host.publish();await expect(overview).toHaveAttribute('data-collapsed','false');
- await expect.poll(()=>page.evaluate(()=>(window as unknown as {overviewCollapses:()=>number}).overviewCollapses())).toBe(1);
+ await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();await page.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Project',exact:true}).click();await page.getByRole('tab',{name:'Overview',exact:true}).click();
+ const overview=page.locator('.project-context-card');const original=await overview.elementHandle();await expect(overview.getByRole('region',{name:'Plan summary',exact:true})).toBeVisible();
+ snapshot.settings.theme='light';await host.publish();
+ expect(await overview.evaluate((node,old)=>node===old,original)).toBe(true);
 });
 test('settings opens with bounded motion and reduced motion removes travel',async({page})=>{
  await serveTaskFixture(page,fixture());await openApp(page);

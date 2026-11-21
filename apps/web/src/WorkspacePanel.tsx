@@ -1,8 +1,9 @@
-import {useEffect,useLayoutEffect,useRef,useState} from 'react';
+import {useEffect,useLayoutEffect,useRef,useState,type ReactNode} from 'react';
 import {Plus,X} from 'lucide-react';
 import {Select} from '../../../packages/ui-shell/Select';
 import {ActionMenu} from '../../../packages/ui-shell/ActionMenu';
 import type {Snapshot} from '../../../packages/contracts';
+import type {PanelBinding} from '../../../packages/contracts/workspace';
 import type {UiPreferences} from '../../../packages/contracts/preferences';
 import {useWorkspace,type WorkspaceTab} from './workspace-context';
 import type {ShellLayout} from './shell-layout';
@@ -26,7 +27,7 @@ export function ResizeHandle({ label, value, minimum, maximum, change, side }: {
     element.setPointerCapture?.(pointerId);
   }} />;
 }
-export function WorkspacePanel({ snapshot, threadId, preferences, layout, setWidth, resizeBounds, close, preferredResourceId, standalone=false,refresh=async()=>{},excerptComposer,leaving=false,onLeave,reviewRequest,onReviewHandled }: { reviewRequest?:ReviewRequest; onReviewHandled?:(id:number)=>void; excerptComposer?:TerminalExcerptComposer; leaving?:boolean; onLeave?:()=>void; refresh?:()=>Promise<void>; standalone?:boolean; preferredResourceId?:string; snapshot: Snapshot; threadId?: string; preferences: UiPreferences; layout: ShellLayout; setWidth: (width: number) => void; resizeBounds?: ReturnType<typeof workspacePanelBounds>; close?: () => void }) {
+export function WorkspacePanel({ snapshot, threadId, preferences, layout, setWidth, resizeBounds, close, preferredResourceId, standalone=false,refresh=async()=>{},excerptComposer,leaving=false,onLeave,reviewRequest,onReviewHandled,projectOverview }: { projectOverview?:ReactNode; reviewRequest?:ReviewRequest; onReviewHandled?:(id:number)=>void; excerptComposer?:TerminalExcerptComposer; leaving?:boolean; onLeave?:()=>void; refresh?:()=>Promise<void>; standalone?:boolean; preferredResourceId?:string; snapshot: Snapshot; threadId?: string; preferences: UiPreferences; layout: ShellLayout; setWidth: (width: number) => void; resizeBounds?: ReturnType<typeof workspacePanelBounds>; close?: () => void }) {
   const workspace = useWorkspace();
   const content = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
@@ -67,7 +68,7 @@ export function WorkspacePanel({ snapshot, threadId, preferences, layout, setWid
   },[]);
   const artifacts = snapshot.artifacts.filter(item => item.threadId === threadId && item.lifecycle === 'active');
   const activeArtifact = artifacts.find(item => item.id === workspace.activeArtifactId);
-  const tabLabels: Record<WorkspaceTab, string> = {artifact:'Artifact',plan:'Plan',diff:'Diff',files:'Files',terminal:'Terminal','pull-request':'Pull request','linked-pull-requests':'Linked pull requests',notes:'Notes',output:'Output',usage:'Usage'};
+  const tabLabels: Record<WorkspaceTab, string> = {artifact:'Artifact',plan:'Plan',diff:'Diff',files:'Files',terminal:'Terminal','pull-request':'Pull request','linked-pull-requests':'Project',notes:'Notes',output:'Output',usage:'Usage'};
   const openTabs = workspace.openTabs ?? layout.openTabs;
   const [addOpen,setAddOpen]=useState(false);
   const addable: WorkspaceTab[] = (Object.keys(tabLabels) as WorkspaceTab[]).filter(tab => tab !== 'artifact');
@@ -78,7 +79,25 @@ export function WorkspacePanel({ snapshot, threadId, preferences, layout, setWid
     {handoffError&&<p role="status" className="error-text">{handoffError}</p>}
     <div ref={content} className="workspace-panel-content" role="tabpanel" id={`workspace-view-${workspace.activeTab}`} aria-labelledby={`workspace-tab-${workspace.activeTab}`}>
       {workspace.activeTab === 'artifact' && <><div className="panel-toolbar"><Select aria-label="Workspace artifact" value={activeArtifact?.id ?? ''} onValueChange={workspace.requestOpenArtifact} options={[{value:'',label:'Choose an artifact'},...artifacts.map(artifact=>({value:artifact.id,label:artifact.title}))]}/></div>{!activeArtifact && <WorkspaceLauncher />}</>}
-      {workspace.activeTab !== 'artifact' && <WorkspaceSurfaceBody reviewRequest={reviewRequest} onReviewHandled={onReviewHandled} excerptComposer={excerptComposer} kind={workspace.activeTab} binding={{authority:{kind:'local'},...(threadId?{threadId}:{}),...(preferredResourceId?{resourceId:preferredResourceId}:{})}} snapshot={snapshot} refresh={refresh} preferences={preferences}/>}
+      {workspace.activeTab !== 'artifact' && (workspace.activeTab==='linked-pull-requests'
+        ?<ProjectArea overview={projectOverview} binding={{authority:{kind:'local'},...(threadId?{threadId}:{}),...(preferredResourceId?{resourceId:preferredResourceId}:{})}} snapshot={snapshot} refresh={refresh} preferences={preferences} reviewRequest={reviewRequest} onReviewHandled={onReviewHandled} excerptComposer={excerptComposer}/>
+        :<WorkspaceSurfaceBody reviewRequest={reviewRequest} onReviewHandled={onReviewHandled} excerptComposer={excerptComposer} kind={workspace.activeTab} binding={{authority:{kind:'local'},...(threadId?{threadId}:{}),...(preferredResourceId?{resourceId:preferredResourceId}:{})}} snapshot={snapshot} refresh={refresh} preferences={preferences}/>)}
     </div>
   </aside>;
+}
+
+function ProjectArea({ overview, binding, snapshot, refresh, preferences, reviewRequest, onReviewHandled, excerptComposer }: { overview?:ReactNode; binding:PanelBinding; snapshot:Snapshot; refresh:()=>Promise<void>; preferences:UiPreferences; reviewRequest?:ReviewRequest; onReviewHandled?:(id:number)=>void; excerptComposer?:TerminalExcerptComposer }) {
+  const [sub, setSub] = useState<'pull-requests' | 'overview'>('pull-requests');
+  return <div className="project-area">
+    <div className="project-area-tabs" role="tablist" aria-label="Project views">
+      <button type="button" role="tab" id="project-tab-pull-requests" aria-selected={sub === 'pull-requests'} aria-controls="project-view-pull-requests" onClick={() => setSub('pull-requests')}>Pull requests</button>
+      <button type="button" role="tab" id="project-tab-overview" aria-selected={sub === 'overview'} aria-controls="project-view-overview" onClick={() => setSub('overview')}>Overview</button>
+    </div>
+    <div role="tabpanel" className="project-area-body" id="project-view-pull-requests" aria-labelledby="project-tab-pull-requests" hidden={sub !== 'pull-requests'}>
+      <WorkspaceSurfaceBody reviewRequest={reviewRequest} onReviewHandled={onReviewHandled} excerptComposer={excerptComposer} kind="linked-pull-requests" binding={binding} snapshot={snapshot} refresh={refresh} preferences={preferences} active={sub === 'pull-requests'}/>
+    </div>
+    <div role="tabpanel" className="project-area-body" id="project-view-overview" aria-labelledby="project-tab-overview" hidden={sub !== 'overview'}>
+      {overview ?? <WorkspaceSurfaceBody kind="plan" binding={binding} snapshot={snapshot} refresh={refresh} preferences={preferences} active={sub === 'overview'}/>}
+    </div>
+  </div>;
 }
