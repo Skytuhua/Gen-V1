@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { lstat } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { HarnessError, type ModelInfo } from '../contracts/index.ts';
-import { hostSystemPrompt } from '../runtime-pi/tool-definitions.ts';
+import { hostSystemPrompt, withPersonalInstructions } from '../runtime-pi/tool-definitions.ts';
 import { terminateProcessTree } from '../runtime-pi/process-tree.ts';
 import { officialRuntimeCommand, officialRuntimeEnvironment, officialRuntimeHome } from './environment.ts';
 import { bounded, finite, type DriverContext, type HistoryReceipt, type OfficialDriver, type WireInput } from './internal.ts';
@@ -115,7 +115,7 @@ export async function openCursor(context: DriverContext, spawnChild: typeof spaw
   });
   void worker.exited.then(() => { if (!closed && !settled) fail(protocol()); }, fail);
   try {
-    const initialize = worker.send({ type: 'initialize', init: { mode: 'run', dataDir: context.dataDir, taskDir: context.taskDir, sessionId: context.manifest.value.sessionId, modelId, thinkingLevel: context.thinkingLevel, systemPrompt: context.modelOnly?modelOnlySystemPrompt(purpose):hostSystemPrompt(context.memory),...(context.modelOnly?{modelOnly:true,...(purpose?{purpose}:{})}:{}), mcp: { url: context.mcp.url, headers: context.mcp.headers, names: [...context.mcp.names] } } satisfies CursorWorkerInit });
+    const initialize = worker.send({ type: 'initialize', init: { mode: 'run', dataDir: context.dataDir, taskDir: context.taskDir, sessionId: context.manifest.value.sessionId, modelId, thinkingLevel: context.thinkingLevel, systemPrompt: context.modelOnly?modelOnlySystemPrompt(purpose):withPersonalInstructions(hostSystemPrompt(context.memory),context.personalInstructions),...(context.modelOnly?{modelOnly:true,...(purpose?{purpose}:{})}:{}), mcp: { url: context.mcp.url, headers: context.mcp.headers, names: [...context.mcp.names] } } satisfies CursorWorkerInit });
     // Cancellation and the startup deadline also cover a pending IPC write.
     await bounded(Promise.all([initialize, startup.promise]), 30_000, 'Official Cursor initialization timed out.'); assert(); return driver;
   } catch (error) { await driver.close(); throw safeError(error); }

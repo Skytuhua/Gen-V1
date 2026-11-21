@@ -4,7 +4,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { HarnessError, type ModelInfo } from '../contracts/index.ts';
 import { terminateProcessTree } from '../runtime-pi/process-tree.ts';
-import { hostSystemPrompt } from '../runtime-pi/tool-definitions.ts';
+import { hostSystemPrompt, withPersonalInstructions } from '../runtime-pi/tool-definitions.ts';
 import {modelOnlySystemPrompt,MODEL_ONLY_MAX_WIRE_BYTES,PREDICTION_MAX_OUTPUT_BYTES} from '../runtime/model-only.ts';
 import { AcpConnection } from './acp.ts';
 import { officialRuntimeCommand, officialRuntimeEnvironment, officialRuntimeHome } from './environment.ts';
@@ -61,7 +61,7 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
     telemetry: { enabled: false },
     advanced: { autoConfigureMemory: false },
   };
-  await Promise.all([writeFile(settingsPath, JSON.stringify(settings), { mode: 0o600 }), writeFile(promptPath, context.modelOnly?modelOnlySystemPrompt(context.purpose):hostSystemPrompt(context.memory), { mode: 0o600 })]);
+  await Promise.all([writeFile(settingsPath, JSON.stringify(settings), { mode: 0o600 }), writeFile(promptPath, context.modelOnly?modelOnlySystemPrompt(context.purpose):withPersonalInstructions(hostSystemPrompt(context.memory),context.personalInstructions), { mode: 0o600 })]);
   if (!context.current()) throw new HarnessError('OFFICIAL_RUN_ABORTED', 'Official run authority was revoked.');
   const command = officialRuntimeCommand('gemini-cli');
   const child = spawnProcess(command.file, [...command.args, '--acp', '--extensions', '__harness_no_extensions__', '--allowed-mcp-server-names', 'host'], {

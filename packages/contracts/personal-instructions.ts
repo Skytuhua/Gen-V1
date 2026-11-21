@@ -11,3 +11,4 @@ export interface PersonalInstructionsView {
   path?: string; // display only, desktop
 }
 export interface PersonalInstructionsUpdate { text: string; baseDigest: string | null; }
+export interface PersonalInstructionsCapture { text: string; digest: string }

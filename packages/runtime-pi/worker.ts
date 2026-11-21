@@ -65,7 +65,7 @@ async function initialize(command: Command) {
       requirement:input.memoryCheckpoint,binding:()=>({ctx:context!,sessionPath:session?.sessionFile??input.sessionPath??'',modelId:input.modelId,accountId:input.accountId??null}),
       request:(request,signal)=>checkpointBridge!.call(request,signal),assertCurrent:assertInputAuthority,
       onFailure:error=>normalizer?.emit('error',{code:error.code,message:error.message}),
-    }),
+    },input.personalInstructions),
     settingsManager: sdk.SettingsManager.inMemory({ cacheWarming: "off", retry: { enabled: !bounded, maxRetries: bounded?0:2 }, compaction: { enabled: !bounded } }),
     tools: customTools.map(tool => tool.name), customTools,...(command.modelOnly?{noTools:'all' as const}:{}),
   });

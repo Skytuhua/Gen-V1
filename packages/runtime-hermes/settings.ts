@@ -2,7 +2,7 @@ import {HarnessError,type StartRun,type Thread,type Snapshot} from '../contracts
 import type {Store} from '../storage/store.ts';
 import type {SkillSummary} from '../contracts/skills.ts';
 import {getPreferences} from '../contracts/preferences.ts';
-import {createHostTools,hostSystemPrompt,loadDomainTools} from '../runtime-pi/tool-definitions.ts';
+import {createHostTools,hostSystemPrompt,loadDomainTools,withPersonalInstructions} from '../runtime-pi/tool-definitions.ts';
 import type {HermesSettings} from './index.ts';
 
 /** Capture the app's role and controls; original Hermes owns cadence and tool schemas. */
@@ -14,7 +14,7 @@ export async function hermesSettings(store:Store,input?:StartRun):Promise<Hermes
  return {
   config:{skills:{creation_nudge_interval:preferences.learningEnabled&&!readOnly?preferences.learningInterval:0,write_approval:preferences.learningApproval,disabled},memory:{memory_enabled:false,user_profile_enabled:false}},
   skillPolicy:{enabled:true,allowWrites:!readOnly,disabledNames:disabled,protectedNames},
-  systemPrompt:hostSystemPrompt(input?.memory),
+  systemPrompt:withPersonalInstructions(hostSystemPrompt(input?.memory),input?.personalInstructions),
   hostTools:tools.map(({name,description,parameters})=>({name:name==='session_search'?'harness_session_search':name,description,parameters:parameters as Record<string,unknown>})),
  };
 }

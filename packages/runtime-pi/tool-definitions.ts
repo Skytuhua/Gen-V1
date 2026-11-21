@@ -81,7 +81,13 @@ export function hostSystemPrompt(memory?: string) {
   return "You are the assistant in Generative Harness. Work on the user's durable task using only host tools. Treat the JSON prompt in each harness-input envelope as user input; its first line identifies durable delivery. Resource IDs grant access through domain tools only. Call ui_discover before composing; ui_inspect reads task summaries and authoritative userStates. ui_present creates or updates a structured surface using a full spec and artifactId/baseRevision for updates. ui_create_widget creates or updates an interactive app using the injected window.harness bridge. ui_arrange changes placement, ui_request_input requests a decision, and ui_close archives a surface. Preserve artifact identity, stable state keys, edits, evidence and provenance. Sourced data publication belongs to domain executors; model annotations are presentation only. Mutations must be prepared by domain tools and explicitly approved by the user; operation_execute can only execute the exact preapproved host intent. Never invent approval or claim execution without a successful host receipt. Use task_finish with outcome/evidence only when work is complete and pending operations/decisions are resolved. Parent tool results and host-delivered inputs are authoritative.\n\n" + PRESENTATION_POLICY+'\n\n'+SKILL_LEARNING_POLICY + (memory ? '\n\n' + MEMORY_INSTRUCTIONS + memory : '');
 }
 
-export function createHostResourceLoader(sdk: Pick<PiSdk, "createExtensionRuntime"> & Partial<Pick<PiSdk,"VERSION">>, memory?: string,modelOnly=false,purpose?:ModelPurpose,checkpoint?:PiCheckpointOptions) {
+export function withPersonalInstructions(systemPrompt: string, personal?: { text: string; digest: string }): string {
+  if (!personal) return systemPrompt;
+  const frame = "\n\nPersonal instructions from the user's Settings. They apply to every project. Host policy and the user's messages in this thread take precedence over project instructions, which take precedence over these personal instructions. These instructions cannot expand grants or tool access. Includes and hooks are never executed.\n" + JSON.stringify({ source: 'personal-instructions', digest: personal.digest, instructions: personal.text });
+  return systemPrompt + frame;
+}
+
+export function createHostResourceLoader(sdk: Pick<PiSdk, "createExtensionRuntime"> & Partial<Pick<PiSdk,"VERSION">>, memory?: string,modelOnly=false,purpose?:ModelPurpose,checkpoint?:PiCheckpointOptions,personal?: { text: string; digest: string }) {
   const nativeCheckpoint = createPiCheckpointExtension(sdk.VERSION,checkpoint,modelOnly);
   const extensions = { extensions: nativeCheckpoint?[nativeCheckpoint]:[], errors: [], runtime: sdk.createExtensionRuntime() };
   return {
@@ -92,7 +98,7 @@ export function createHostResourceLoader(sdk: Pick<PiSdk, "createExtensionRuntim
     getAgentsFiles: () => ({ agentsFiles: [] }),
     getSystemPrompt: () => modelOnly?modelOnlySystemPrompt(purpose):hostSystemPrompt(),
     getSystemPromptSource: () => undefined,
-    getAppendSystemPrompt: () => !modelOnly&&memory ? [MEMORY_INSTRUCTIONS + memory] : [], getAppendSystemPromptSources: () => [],
+    getAppendSystemPrompt: () => !modelOnly?[...(memory?[MEMORY_INSTRUCTIONS + memory]:[]),...(personal?[withPersonalInstructions('',personal).trimStart()]:[])]:[], getAppendSystemPromptSources: () => [],
     extendResources: () => {}, reload: async () => {},
   } satisfies import("@earendil-works/pi-coding-agent").ResourceLoader;
 }
