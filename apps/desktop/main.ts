@@ -27,8 +27,6 @@ import {createMemoryExportDownloads} from './memory-export.ts';
 import {parseOpenProjectArgs} from './open-project-args.ts';
 import {createOpenProjectDelivery} from './open-project-delivery.ts';
 import {createAttentionPopups,attentionPopupHtml,type AttentionPopupAction,type AttentionPopupWindow} from './attention-popups.ts';
-import {parseOpenProjectArgs} from './open-project-args.ts';
-import {createOpenProjectDelivery} from './open-project-delivery.ts';
 import {attentionDeliverySchema} from '../../packages/contracts/attention.ts';
 const persistence=createPersistenceQueue();
 
@@ -60,7 +58,7 @@ function deliverOpenProject(){
  if(quitting||quitPending)return;
  const main=mainWindowRecord();if(!main)return;
  const envelope=openProjectDelivery.deliver();if(!envelope)return;
- if(main.ready){if(main.window.isMinimized())main.window.restore();main.window.show();main.window.focus();}
+ if(main.ready){if(!main.visible||main.window.isMinimized()){main.visible=true;if(main.window.isMinimized())main.window.restore();main.window.show();remember(main);broadcast();}main.window.focus();}
  try{main.window.webContents.send(channels.openProject,envelope);}catch{/* A closing renderer resets readiness via its 'closed' hook. */}
 }
 function queueOpenProjectArgv(argv:readonly string[]){
@@ -185,12 +183,12 @@ async function openSurface(raw:unknown,sourceBounds?:DesktopBounds):Promise<Desk
  windows.set(id,record);broadcast();
  native.webContents.setWindowOpenHandler(details=>githubDevicePopup(details,{surface,expectedUrl:url.split('#')[0]!,currentUrl:native.webContents.mainFrame.url.split('#')[0]!},()=>shell.openExternal(GITHUB_DEVICE_URL,{activate:true})));native.webContents.on('will-attach-webview',event=>event.preventDefault());
  native.webContents.on('will-navigate',(event,next)=>{if(next!==url)event.preventDefault();});native.webContents.on('will-redirect',(event,next)=>{if(next!==url)event.preventDefault();});
- native.webContents.on('did-start-navigation',(_event,_next,inPlace,mainFrame)=>{if(surface.kind==='main'&&mainFrame&&!inPlace)openProjects.rendererNotReady();});
+ native.webContents.on('did-start-navigation',(_event,_next,inPlace,mainFrame)=>{if(surface.kind==='main'&&mainFrame&&!inPlace)openProjectDelivery.rendererNotReady();});
  native.webContents.on('will-frame-navigate',event=>{if(!event.isMainFrame&&!trustedDesktopSubframe(event.url,backendOrigin,`http://localhost:${widgetPort}`))event.preventDefault();});
  native.webContents.session.setPermissionRequestHandler((_contents,_permission,callback)=>callback(false));native.webContents.session.setPermissionCheckHandler(()=>false);secureSessionDownloads(native.webContents.session);
  if(surface.kind==='main'){const reset=()=>openProjectDelivery.rendererNotReady();native.webContents.on('did-navigate',reset);native.webContents.on('render-process-gone',reset);native.on('closed',reset);}
  native.on('close',event=>{if(!quitting){event.preventDefault();void requestClose(record).then(allow=>{if(allow)destroyWindow(record);else cancelClose(record);}).catch(()=>cancelClose(record));}});
- native.on('closed',()=>{clearTimeout(record.readyTimer);if(surface.kind==='main')openProjects.rendererNotReady();if(!record.settled){record.settled=true;record.rejectReady(Error('The detached window closed before it was ready'));}windows.delete(id);if(record.closeRequest){clearTimeout(record.closeRequest.timer);record.closeRequest.resolve(false);}broadcast();});
+ native.on('closed',()=>{clearTimeout(record.readyTimer);if(surface.kind==='main')openProjectDelivery.rendererNotReady();if(!record.settled){record.settled=true;record.rejectReady(Error('The detached window closed before it was ready'));}windows.delete(id);if(record.closeRequest){clearTimeout(record.closeRequest.timer);record.closeRequest.resolve(false);}broadcast();});
  const resized=()=>{remember(record);if(record.browser){const [width,height]=native.getContentSize();record.browser.view.setBounds({x:0,y:96,width,height:Math.max(0,height-96)});}};
  const manuallyPlaced=(_event:unknown,next:DesktopBounds)=>{
   if(!record.ready||native.isMaximized()||native.isMinimized()||native.isFullScreen())return;
@@ -199,7 +197,7 @@ async function openSurface(raw:unknown,sourceBounds?:DesktopBounds):Promise<Desk
  native.on('will-move',manuallyPlaced);native.on('will-resize',manuallyPlaced);
  native.on('move',resized);native.on('resize',resized);native.on('minimize',()=>broadcast());native.on('restore',()=>broadcast());
  native.webContents.on('render-process-gone',()=>{
-  if(surface.kind==='main'){startupDiagnostic('main-renderer-gone');openProjects.rendererNotReady();}
+  if(surface.kind==='main'){startupDiagnostic('main-renderer-gone');openProjectDelivery.rendererNotReady();}
   if(record.closeRequest){clearTimeout(record.closeRequest.timer);record.closeRequest.resolve(false);record.closeRequest=undefined;}
   const wasReady=record.ready;record.ready=false;clearTimeout(record.readyTimer);
   if(quitting||!wasReady||(record.recoveries??0)>=2){record.settled=true;record.rejectReady(Error('The detached view failed to load'));loseBrowserOwner(record);native.destroy();return;}
@@ -220,14 +218,6 @@ function requestClose(record:WindowRecord):Promise<boolean>{
 }
 function destroyWindow(record:WindowRecord){if(record.window.isDestroyed())return;remember(record,quitting);loseBrowserOwner(record);record.window.destroy();}
 async function mainWindow(){const existing=[...windows.values()].find(record=>record.surface.kind==='main');if(existing){existing.visible=true;if(existing.window.isMinimized())existing.window.restore();existing.window.show();existing.window.focus();remember(existing);broadcast();await existing.readyPromise;return existing;}const result=await openSurface({kind:'main'});return windows.get(result.id)!;}
-const openProjects=createOpenProjectDelivery(()=>Boolean(backendOrigin)&&!backendError);
-function flushOpenProject(){
- const envelope=openProjects.deliver();if(!envelope)return;
- const main=[...windows.values()].find(record=>record.surface.kind==='main'&&!record.window.isDestroyed());
- if(!main){openProjects.rendererNotReady();return;}
- try{main.visible=true;if(main.window.isMinimized())main.window.restore();main.window.show();main.window.focus();main.window.webContents.send(channels.openProject,envelope);remember(main);broadcast();}
- catch{openProjects.rendererNotReady();}
-}
 function backendRequest(type:'harness.stopAll'|'harness.layout.save'|'harness.plugin.validate'|'harness.update.readiness'|'harness.update.prepare'|'harness.attention.read'|'harness.attention.open'|'harness.attention.dismiss',extra:Record<string,unknown>={}):Promise<Record<string,unknown>>{
  const child=backend,token=launchToken,requestId=randomUUID(),reply=type==='harness.stopAll'?'harness.stoppedAll':type==='harness.layout.save'?'harness.layout.saved':type==='harness.plugin.validate'?'harness.plugin.validated':type+'.result';
  if(!child?.connected||child.exitCode!==null||child.signalCode)return Promise.reject(Error('The local backend is unavailable. Restore the workspace and retry.'));
