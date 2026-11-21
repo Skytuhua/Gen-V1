@@ -273,6 +273,26 @@ describe('aggregate and manifest',()=>{
     expect(redactSecrets('plain readiness output')).toBe('plain readiness output');
   });
 
+  it('redacts named cloud access keys that lack an api_key or token suffix',()=>{
+    for(const name of ['AWS_SECRET_ACCESS_KEY','AWS_ACCESS_KEY_ID','GCP_SERVICE_ACCOUNT_KEY']){
+      const safe=redactSecrets(`${name}=SYNTHETIC_CLOUD_CANARY_5513 another-word`);
+      expect(safe).toContain('[REDACTED]');
+      expect(safe).not.toContain('SYNTHETIC_CLOUD_CANARY_5513');
+      expect(safe).not.toContain('another-word');
+    }
+  });
+
+  it('redacts named cloud keys in child logs and blocks a multiline opposite-pipe value',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\nAWS_SECRET_ACCESS_KEY=SYNTHETIC_AWS_CANARY_5514\nAWS_ACCESS_KEY_ID=SYNTHETIC_ID_CANARY_5514\nGCP_SERVICE_ACCOUNT_KEY=SYNTHETIC_GCP_CANARY_5514\nAWS_SECRET_ACCESS_KEY:\n");setTimeout(()=>process.stderr.write("SYNTHETIC_MULTILINE_CANARY_5514\n"),50);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('[REDACTED]');
+    expect(log).toContain('[REDACTED MULTILINE CREDENTIAL]');
+    for(const canary of ['SYNTHETIC_AWS_CANARY_5514','SYNTHETIC_ID_CANARY_5514','SYNTHETIC_GCP_CANARY_5514','SYNTHETIC_MULTILINE_CANARY_5514'])expect(log).not.toContain(canary);
+  });
   it('redacts every word in a quoted or unquoted named credential field',()=>{
     for(const raw of [
       'password: "SYNTHETIC_MULTIWORD_A_4481 SYNTHETIC_MULTIWORD_B_4481"',

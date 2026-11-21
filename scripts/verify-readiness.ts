@@ -43,7 +43,7 @@ export function childEnvironment(extra:Record<string,string>={}):NodeJS.ProcessE
 const SECRET_PATTERNS:Array<[RegExp,string]>=[
   [/(bearer\s+)[A-Za-z0-9._\-\/+=]+/gi,'$1[REDACTED]'],
   // A named credential can contain spaces or quotes; hide its entire field line.
-  [/((?:api[_-]?key|apikey|access[_-]?token|auth[_-]?token|token|secret|password|passwd|authorization)["']?[ \t]*[:=][ \t]*)[^\r\n]*/gi,'$1[REDACTED]'],
+  [/((?:aws[_-]?(?:secret[_-]?access[_-]?key|access[_-]?key[_-]?id)|gcp[_-]?service[_-]?account[_-]?key|api[_-]?key|apikey|access[_-]?token|auth[_-]?token|token|secret|password|passwd|authorization)["']?[ \t]*[:=][ \t]*)[^\r\n]*/gi,'$1[REDACTED]'],
   [/((?:postgres|postgresql|mysql|mongodb|redis|amqp|https?):\/\/[^:\s\/]+:)[^@\s]+@/gi,'$1[REDACTED]@'],
   [/-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z0-9 ]*PRIVATE KEY-----/g,'[REDACTED PRIVATE KEY]'],
 ];
@@ -66,7 +66,7 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
   let unsafeControlOutput=false;
   // A dangling known credential label may introduce a multiline value on
   // either child pipe. Without a provable boundary, discard later output.
-  const danglingCredentialLabel=/(?:^|[\s,(])(?:api[_-]?key|apikey|access[_-]?token|auth[_-]?token|token|secret|password|passwd|authorization)["']?\s*[:=]\s*["']?\s*$|(?:^|\s)bearer\s*$/i;
+  const danglingCredentialLabel=/(?:^|[\s,(])(?:aws[_-]?(?:secret[_-]?access[_-]?key|access[_-]?key[_-]?id)|gcp[_-]?service[_-]?account[_-]?key|api[_-]?key|apikey|access[_-]?token|auth[_-]?token|token|secret|password|passwd|authorization)["']?\s*[:=]\s*["']?\s*$|(?:^|\s)bearer\s*$/i;
   const normalizeTerminalLine=(line:string):string=>{
     if(unsafeControlOutput)return '';
     const uncolored=line.replace(/\x1b\[(?:[0-9]{1,3}(?:;[0-9]{1,3})*)?m/g,'');
