@@ -373,6 +373,7 @@
     "docs/2026-11-01-product-completion.md",
     "docs/acceptance.md",
     "docs/agent-initiated-ui.md",
+    "docs/agent-plans/edit-last-prompt-and-rerun.md",
     "docs/agent-plans/worker-1-documents-graph-decisions.md",
     "docs/architecture.md",
     "docs/design/composer-predictions-preview.html",
