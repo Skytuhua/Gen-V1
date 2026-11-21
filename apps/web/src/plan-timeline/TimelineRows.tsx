@@ -264,7 +264,7 @@ export function TimelineStep({
         {step.details && <p className="plan-step-description">{step.details}</p>}
         {step.blockers?.length ? (
           <div className="plan-fact plan-blockers">
-            <strong>Blockers</strong>
+            <strong>What is blocking this plan</strong>
             <ul>
               {step.blockers.map((blocker, index) => (
                 <li key={index}>{blocker}</li>

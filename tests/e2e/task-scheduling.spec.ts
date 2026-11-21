@@ -42,11 +42,11 @@ test('selection, keyboard navigation and exact proposal survive reload and sourc
   await long.press('ArrowDown');const alternate=page.getByRole('option',{name:'Alternate review',exact:true});await expect(alternate).toBeFocused();
   await expect.poll(()=>host.snapshot.userStates[0].values.view).toMatchObject({selectedId:'alternate',visibleDate:'2026-11-04'});
   await page.reload();await expect(alternate).toHaveAttribute('aria-selected','true');
-  await page.getByRole('button',{name:'Propose this time',exact:true}).click();
+  await page.getByRole('button',{name:'Send this time',exact:true}).click();
   await expect.poll(()=>host.commands.filter(command=>command.type==='action.submit').length).toBe(1);
   expect(host.commands.find(command=>command.type==='action.submit')!.payload.payload).toEqual({slotId:'alternate',start:windows.slots[3].start,end:windows.slots[3].end,timeZone:'America/New_York'});
   host.setInput('source',{...windows,slots:windows.slots.filter(slot=>slot.id!=='alternate')});await host.publish();
-  await expect(page.getByRole('button',{name:'Propose this time',exact:true})).toBeDisabled();
+  await expect(page.getByRole('button',{name:'Send this time',exact:true})).toBeDisabled();
   await expect(page.getByText('The selected window is no longer supplied. Choose another.',{exact:true})).toBeVisible();
   await expect(page.getByRole('option',{name:'Existing meeting',exact:true})).toBeDisabled();
 });
@@ -55,7 +55,7 @@ test('pending proposals keep the clicked action mounted and preserve the submitt
   let release!:()=>void;const pending=new Promise<void>(done=>{release=done;});
   const host=await open(page,'SchedulePicker',windows,{},async()=>{await pending;return {};});
   try{
-    await page.getByRole('option',{name:'Opening review',exact:true}).click();const submit=page.getByRole('button',{name:'Propose this time',exact:true}),original=await submit.elementHandle();await submit.click();
+    await page.getByRole('option',{name:'Opening review',exact:true}).click();const submit=page.getByRole('button',{name:'Send this time',exact:true}),original=await submit.elementHandle();await submit.click();
     await expect(page.getByRole('button',{name:'Sending…',exact:true})).toBeDisabled();await page.getByRole('option',{name:'Alternate review',exact:true}).click();
     expect(await page.getByRole('button',{name:'Sending…',exact:true}).evaluate((node,old)=>node===old,original)).toBe(true);
     expect(host.commands.filter(command=>command.type==='action.submit')).toHaveLength(1);

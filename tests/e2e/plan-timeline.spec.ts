@@ -113,7 +113,7 @@ test("host replan preserves assignment, collapse and reading anchor when earlier
   // The anchor restores within sub-pixel scroll quantization when content
   // above both grows and shrinks; a broken anchor shifts by whole lines.
   expect(Math.abs((await target.boundingBox())!.y - before)).toBeLessThan(1);
-  await page.getByRole("button", { name: "Jump to current" }).click();
+  await page.getByRole("button", { name: "Scroll to the step currently running" }).click();
   await expect(page.locator('[data-step-id="build"] > .plan-step-summary')).toBeFocused();
   await page.getByRole("button", { name: "Plan actions" }).click();
   await page.getByRole("menuitem", { name: "Collapse all" }).click();
@@ -225,7 +225,7 @@ for (const theme of ["dark", "light"])
   test(`${theme} desktop parallel branches and join`, async ({ page }) => {
     await page.setViewportSize({ width: 1200, height: 900 });
     await page.evaluate((theme) => (document.documentElement.dataset.theme = theme), theme);
-    await page.getByRole("button", { name: "Jump to current" }).click();
+    await page.getByRole("button", { name: "Scroll to the step currently running" }).click();
     const ui = page.locator(
       '[data-step-id="build"] > .plan-step-details .plan-branches > .plan-agents > [data-agent-id="ui"]',
     );
