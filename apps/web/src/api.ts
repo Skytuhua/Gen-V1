@@ -68,7 +68,7 @@ const resourceTreeSchema = z.object({
   entries: z.array(z.object({ name: z.string(), path: z.string(), kind: z.enum(['file', 'directory']), bytes: z.number() })),
   truncated: z.boolean(),
 });
-const messageSchema = z.object({ id: nonEmpty, threadId: nonEmpty, role: z.enum(['user', 'assistant', 'activity']), content: z.string(), createdAt: z.string(), runId: z.string().nullable() });
+const messageSchema = z.object({ id: nonEmpty, threadId: nonEmpty, role: z.enum(['user', 'assistant', 'activity']), content: z.string(), createdAt: z.string(), runId: z.string().nullable(), activityKind: z.string().optional() });
 const threadMessagesSchema = z.object({ messages: z.array(messageSchema), truncated: z.number() });
 const threadSearchSchema = z.object({ threadIds: z.array(nonEmpty) });
 const shellSettingsSchema = z.object({ theme: z.enum(['light', 'dark', 'system']), preferences: z.record(z.string(), z.unknown()).optional() });

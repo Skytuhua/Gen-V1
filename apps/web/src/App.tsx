@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo, useSyncExternalStore, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
-import { Activity, ArrowUp, Bot, Check, ChevronDown, ChevronRight, CircleHelp, CircleStop, Folder, Laptop, LoaderCircle, Menu, MessageSquare, PanelLeftOpen, PanelRight, PenLine, Plus, SlidersHorizontal, WifiOff, X } from 'lucide-react';
+import { Activity, ArrowUp, Ban, Bot, Check, ChevronDown, ChevronRight, CircleHelp, CircleStop, Folder, Laptop, LoaderCircle, Menu, MessageSquare, PanelLeftOpen, PanelRight, PenLine, Plus, SlidersHorizontal, WifiOff, X } from 'lucide-react';
 import type { InputRequest, ModelInfo, Operation, Snapshot, Thread,Message } from '../../../packages/contracts';
 import { ApiError, bootstrap, command, getModels, getSnapshot, getThreadMessages, getToolEffectObservation, searchThreadMessages, subscribe, type ToolEffectObservation } from './api';
 import {onAccountCatalogChanged,notifyAccountCatalogChanged,mergeAccountModels} from './account-api';
@@ -282,6 +282,8 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
   const error = localError || (shared ? sharedState.error : '');
   const [localResumeRequired, setLocalResumeRequired] = useState(false);
   const resumeRequired = localResumeRequired || (shared ? Boolean(sharedState.resumeRequired) : false);
+  const [hookBlock, setHookBlock] = useState(false);
+  const hookBlocked = hookBlock || (shared && Boolean(sharedState.hookBlock));
   const [localExcerpts,setLocalExcerpts]=useState<TerminalExcerpt[]>([]),[excerptsReady,setExcerptsReady]=useState(false);
   const excerpts=shared?sharedState.excerpts??[]:localExcerpts;
   useEffect(()=>{if(shared)return;let current=true;setExcerptsReady(false);const accept=(value:unknown)=>{try{setLocalExcerpts(readTerminalExcerpts(value));setExcerptsReady(true);}catch{setExcerptsReady(false);setError('Terminal excerpts could not be recovered. Keep this workspace open.');}};const unsubscribe=journalSubscribe(excerptDraftKey(key),accept);void journalReadRecord(excerptDraftKey(key)).then(record=>{if(current)accept(record?.value);}).catch(()=>{if(current)setError('Terminal excerpts could not be recovered. Keep this workspace open.');});return()=>{current=false;unsubscribe();};},[key,shared]);
@@ -325,7 +327,7 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
     resize(); const observer = new ResizeObserver(resize); observer.observe(textarea.parentElement!); if (ghost.current) observer.observe(ghost.current);
     return () => observer.disconnect();
   }, [draft, prediction.candidate, preferences.fontSize, preferences.promptFont]);
-  const updateDraft = (value: string) => { prediction.dismiss(); draftLatest.current = value; setDraft(value); if (sharedComposers && sharedTarget) {void sharedComposers.edit(sharedTarget, value); return;} void journalWrite(`draft:${draftTarget.current}`, value).catch(() => setError('Draft could not be stored locally. Keep this tab open.')); };
+  const updateDraft = (value: string) => { if (hookBlocked) dismissError(); prediction.dismiss(); draftLatest.current = value; setDraft(value); if (sharedComposers && sharedTarget) {void sharedComposers.edit(sharedTarget, value); return;} void journalWrite(`draft:${draftTarget.current}`, value).catch(() => setError('Draft could not be stored locally. Keep this tab open.')); };
   const acceptPrediction = () => {
     // Recheck synchronously if zoom, font loading or resize beats the observer.
     if (ghost.current && input.current && (ghost.current.hidden || ghost.current.scrollHeight > input.current.clientHeight)) { prediction.dismiss(); return false; }
@@ -346,8 +348,8 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
     if (id !== key && retireSource && source) await journalCompareAndSwap(`draft:${key}`, source.generation, '');
     return { source, generation };
   };
-  const fail = (cause: unknown) => { setError(messageOf(cause)); setLocalResumeRequired(cause instanceof ApiError && cause.code === 'RESUME_REQUIRED'); };
-  const dismissError = () => { setError(''); setLocalResumeRequired(false); if (sharedComposers && sharedTarget) sharedComposers.clearError(sharedTarget); };
+  const fail = (cause: unknown) => { setError(messageOf(cause)); setLocalResumeRequired(cause instanceof ApiError && cause.code === 'RESUME_REQUIRED'); setHookBlock(cause instanceof ApiError && cause.code === 'HOOK_BLOCKED'); };
+  const dismissError = () => { setError(''); setLocalResumeRequired(false); setHookBlock(false); if (sharedComposers && sharedTarget) sharedComposers.clearError(sharedTarget); };
   const resume = () => {
     if (!thread || !modelId) return;
     dismissError();
@@ -419,7 +421,7 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
   return <div className="composer-dock">
     {thread && !working && ['stopped', 'interrupted', 'failed'].includes(thread.status) && <div className="resume-strip" role="status"><span>{thread.status === 'interrupted' ? 'This session was interrupted.' : thread.status === 'stopped' ? 'Agent stopped. Your work is saved.' : 'The agent could not finish this run.'}</span><button className="secondary" disabled={!modelId} title={!modelId ? 'Choose an available model before resuming.' : undefined} onClick={resume}>Resume<ChevronRight size={13} /></button></div>}
     {localSkills.error&&!shared&&<p role="alert" className="composer-error">{localSkills.error}</p>}
-    {error && <div className="composer-error" role="alert"><span>{error}</span><span className="composer-error-actions">{resumeRequired&&thread&&<button className="quiet" disabled={!modelId} onClick={resume}>Resume thread</button>}<button className="icon-button" aria-label="Dismiss composer error" onClick={dismissError}><X size={14} /></button></span></div>}
+    {error && <div className={hookBlocked ? 'composer-error composer-error-hook' : 'composer-error'} role="alert">{hookBlocked && <Ban size={13} aria-hidden="true"/>}<span>{error}</span><span className="composer-error-actions">{resumeRequired&&thread&&<button className="quiet" disabled={!modelId} onClick={resume}>Resume thread</button>}<button className="icon-button" aria-label="Dismiss composer error" onClick={dismissError}><X size={14} /></button></span></div>}
     {working && draft.trim() && !(workbench?.enabled && workbench.draft?.sendMode === 'AFTER_CURRENT') && !/^\/(?:btw|side)(?:\s|$)/i.test(draft.trim()) && <p className="composer-hint">The agent is working — start the message with /btw to send a side question.</p>}
     <ComposerView className={dragging ? 'dragging' : ''} onSubmit={event => { event.preventDefault(); void send(); }} onDragOver={event => { event.preventDefault(); setDragging(true); }} onDragLeave={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setDragging(false); }} onDrop={event => { event.preventDefault(); setDragging(false); if (event.dataTransfer.files.length) void upload(event.dataTransfer.files); }}>
       <WorkbenchComposer title={thread?.title??'New conversation'} working={working} disabled={busy||!ready||retry}/>
