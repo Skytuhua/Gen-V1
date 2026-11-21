@@ -263,3 +263,71 @@ describe('scoped Personal reader', () => {
     expect(r.getSnapshot()).toMatchObject({phase: 'error', context: null, messages: []});
   });
 });
+
+describe('anchored transcript seek', () => {
+  it('replaces the transcript with an inclusive window ending at the anchor and keeps paging older', async () => {
+    route = url => url.pathname.endsWith('/transcript')
+      ? url.searchParams.has('anchorId')
+        ? {...envelope, messages: [message('old-1'), message('anchor')], nextCursor: 'older'}
+        : url.searchParams.has('cursor')
+          ? {...envelope, messages: [message('older-2')], nextCursor: null}
+          : {...envelope, messages: [message('latest')], nextCursor: 'tail'}
+      : context;
+    const r = reader(); await r.select(selection);
+    expect(r.getSnapshot().messages.map(item => item.head.id)).toEqual(['latest']);
+    await expect(r.seekAnchor('anchor')).resolves.toBe(true);
+    expect(r.getSnapshot()).toMatchObject({anchorId: 'anchor', nextCursor: 'older', historyPending: false});
+    expect(r.getSnapshot().messages.map(item => item.head.id)).toEqual(['old-1', 'anchor']);
+    await r.loadOlder();
+    expect(r.getSnapshot().messages.map(item => item.head.id)).toEqual(['older-2', 'old-1', 'anchor']);
+    await r.returnToLatest();
+    expect(r.getSnapshot()).toMatchObject({anchorId: null, pending: false});
+    expect(r.getSnapshot().messages.at(-1)?.head.id).toBe('latest');
+  });
+  it('reports an absent or ineligible anchor without touching the transcript', async () => {
+    route = url => url.pathname.endsWith('/transcript')
+      ? url.searchParams.has('anchorId') ? {...envelope, messages: [], nextCursor: null} : {...envelope, messages: [message('latest')], nextCursor: null}
+      : context;
+    const r = reader(); await r.select(selection);
+    await expect(r.seekAnchor('gone')).resolves.toBe(false);
+    expect(r.getSnapshot()).toMatchObject({anchorId: null, historyPending: false});
+    expect(r.getSnapshot().messages.map(item => item.head.id)).toEqual(['latest']);
+  });
+  it('rejects a seek page that does not end at the requested anchor', async () => {
+    route = url => url.pathname.endsWith('/transcript')
+      ? url.searchParams.has('anchorId') ? {...envelope, messages: [message('adjacent')], nextCursor: null} : {...envelope, messages: [message('latest')], nextCursor: null}
+      : context;
+    const r = reader(); await r.select(selection);
+    await r.seekAnchor('anchor');
+    expect(r.getSnapshot().anchorId).toBeNull();
+  });
+  it('revalidates an anchored window on refresh and falls back to latest when the anchor is gone', async () => {
+    let changed = false, anchorGone = false;
+    route = url => {
+      if (url.pathname.endsWith('/updates')) {changed = true; return {...envelope, fromSequence: 10, sequence: 11, owner: null, checkpoint: 'cp11', transcriptChanged: true};}
+      if (url.pathname.endsWith('/transcript'))
+        return url.searchParams.has('anchorId')
+          ? anchorGone ? {...envelope, sequence: 11, messages: [], nextCursor: null} : {...envelope, sequence: 11, messages: [message('old-1'), message('anchor')], nextCursor: 'older'}
+          : {...envelope, sequence: changed ? 11 : 10, messages: [message('latest'), ...(changed ? [message('new')] : [])], nextCursor: null};
+      return context;
+    };
+    const r = reader(); await r.select(selection); await r.seekAnchor('anchor');
+    expect(r.getSnapshot().anchorId).toBe('anchor');
+    await r.poll();
+    expect(r.getSnapshot().messages.map(item => item.head.id)).toEqual(['old-1', 'anchor']);
+    expect(r.getSnapshot().anchorId).toBe('anchor');
+    anchorGone = true; await r.poll();
+    expect(r.getSnapshot().anchorId).toBeNull();
+    expect(r.getSnapshot().messages.map(item => item.head.id)).toEqual(['latest', 'new']);
+  });
+  it('expires an anchored window on select and close', async () => {
+    route = url => url.pathname.endsWith('/transcript')
+      ? url.searchParams.has('anchorId') ? {...envelope, messages: [message('anchor')], nextCursor: null} : {...envelope, messages: [message('latest')], nextCursor: null}
+      : context;
+    const r = reader(); await r.select(selection); await r.seekAnchor('anchor');
+    await r.select({...selection, navigationKey: 'canonical-admission-2'});
+    expect(r.getSnapshot().anchorId).toBeNull();
+    await r.seekAnchor('anchor'); r.close();
+    expect(r.getSnapshot()).toMatchObject({phase: 'closed', anchorId: null});
+  });
+});
