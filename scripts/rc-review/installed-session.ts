@@ -1,5 +1,5 @@
 import {chromium,expect,type Page} from '@playwright/test';
-import {spawn} from 'node:child_process';
+import {spawn,type ChildProcess} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
 import {resolve} from 'node:path';
 import {createServer} from 'node:net';
@@ -26,5 +26,9 @@ export async function installedSession(executable:string,action:(page:Page,pid:n
   await expect.poll(()=>browser!.contexts().flatMap(context=>context.pages()).some(page=>/^http:\/\/127\.0\.0\.1:4317\//.test(page.url())),{timeout:90000}).toBe(true);
   const page=browser.contexts().flatMap(context=>context.pages()).find(page=>/^http:\/\/127\.0\.0\.1:4317\//.test(page.url()))!;await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:60000});await action(page,child.pid!);
   await page.evaluate(()=>window.close()).catch(error=>{if(!page.isClosed())throw error;});await expect.poll(()=>child.exitCode,{timeout:30000}).toBe(0);
- }finally{if(owned)await browser?.close();if(child.exitCode===null&&child.signalCode===null)await terminateProcessTree(child);}
+ }finally{await closeInstalledSession(owned,browser,child);}
+}
+
+export async function closeInstalledSession(owned:boolean,browser:{close():Promise<unknown>}|undefined,child:ChildProcess,terminate:(child:ChildProcess)=>Promise<unknown>=terminateProcessTree){
+ if(owned)await browser?.close();if(child.exitCode===null&&child.signalCode===null)await terminate(child);
 }
