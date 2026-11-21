@@ -115,6 +115,7 @@ const indexedSettings: IndexedSetting[] = [
   ["remove-agent-credits-on-merge", "Remove agent credits when merging", "source-control", "pull request source control squash co-authored-by attribution claude codex generated ,"],
   ["pull-request-merge-method", "Default merge method", "source-control", "pull request merge squash rebase last selected"],
   ["source-control", "Source control", "source-control", "version control git source control hosting integrations credentials scan server environment ,"],
+  ["databases", "Databases", "skills", "database sql postgres postgresql mysql sqlite connection query schema"],
   ["git-fetch-interval", "Git fetch interval", "maintenance", "automatic remote branch refresh background credentials security keys seconds off ,"],
   ["worktree-branch-naming", "Worktree branch naming", "worktrees", "static semantic prefix custom prompt instructions feat fix refactor chore"],
   ["source-control-writing-style", "Source control writing style", "source-control", "repository conventions conventional commits custom instructions change descriptions request titles ,"],

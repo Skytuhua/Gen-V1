@@ -8,6 +8,7 @@ import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { DATABASE_LIMITS } from '../../packages/contracts/database.ts';
 import type { Service } from '../../packages/core/service.ts';
+import { capabilityEnabled } from '../../packages/core/capability-flags.ts';
 
 const uuid = z.string().uuid();
 const queryBody = z.strictObject({
@@ -23,6 +24,11 @@ const inFlight = new Map<string, AbortController>();
 export function registerDatabaseRoutes(app: FastifyInstance, service: Service) {
 	app.addHook('onSend', async (request, reply) => {
 		if (request.url.startsWith('/api/threads/')) reply.header('Cache-Control', 'no-store');
+	});
+	app.get('/api/databases', async () => {
+		if (!capabilityEnabled('data.databaseBrowserV1')) return { available: false as const, connections: [], attachments: [] };
+		const databases = service.databases();
+		return { available: true as const, connections: databases.connections(), attachments: databases.allAttachments() };
 	});
 	app.get<{ Params: { threadId: string } }>('/api/threads/:threadId/databases', async request => {
 		const threadId = uuid.parse(request.params.threadId);
