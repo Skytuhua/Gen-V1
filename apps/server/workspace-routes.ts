@@ -7,6 +7,7 @@ import {integrationIdSchema} from '../../packages/contracts/integrations.ts';
 import {ComparisonFileRequestSchema,ComparisonScopeSchema} from '../../packages/contracts/code-review.ts';
 import {workspaceHost,githubFor} from './workspace-host.ts';
 import {registerEnvironmentRoutes} from './environment-routes.ts';
+import {registerNetworkProxyRoutes} from './network-proxy-routes.ts';
 import {registerIntegrationSecretReferenceRoutes} from './integration-secret-reference-routes.ts';
 import {registerGitHubAuthRoutes} from './github-auth-routes.ts';
 import {SplitWorkspaceRepository} from '../../packages/core/split-workspace.ts';
@@ -29,6 +30,7 @@ export function registerWorkspaceRoutes(app:FastifyInstance,service:Service){
  app.get('/api/split-workspace',async request=>{const query=z.strictObject({workspaceId:identifier.optional()}).parse(request.query);return split.read(query.workspaceId??'workspace');});
  app.post('/api/split-workspace/commands',{bodyLimit:128*1024},async request=>split.command(envelope.parse(request.body)));
  registerEnvironmentRoutes(app,service);
+ registerNetworkProxyRoutes(app,service);
  const host=workspaceHost(service),{projects,terminals}=host,github=githubFor(host);projects.workspace.migrateProjects();
  registerIntegrationSecretReferenceRoutes(app,host);
  const actionOutcomes=new WorkspaceActionOutcomes(projects,github);

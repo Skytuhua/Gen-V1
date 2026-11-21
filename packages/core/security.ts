@@ -3,7 +3,7 @@ import { lstatSync, realpathSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { isAbsolute, relative, resolve, dirname, basename, sep } from "node:path";
 import { HarnessError, type ResourceGrant } from "../contracts/index.ts";
-export const PROTECTED_STORAGE_DIRECTORIES = ['pi', 'artifacts', 'official', 'accounts', 'hermes', 'github', 'git', 'integrations', 'context-results', 'environment', 'checkpoint-store', 'effect-authority', 'attachments'] as const;
+export const PROTECTED_STORAGE_DIRECTORIES = ['pi', 'artifacts', 'official', 'accounts', 'hermes', 'github', 'git', 'integrations', 'context-results', 'environment', 'network-proxy', 'checkpoint-store', 'effect-authority', 'attachments'] as const;
 const MEMORY_DELETION_LEDGER_NAME = /^\.gen-memory-deletions-[a-f0-9]{64}\.jsonl$/i;
 
 /** Outside a profile-only restore set. This is an application storage boundary,
