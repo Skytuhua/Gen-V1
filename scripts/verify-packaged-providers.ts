@@ -14,6 +14,7 @@ export function assertContainedPath(root:string,path:string){
  if(part==='..'||part.startsWith('..\\')||part.startsWith('../')||isAbsolute(part))throw Error('Resolved distribution is outside the packaged host.');
 }
 async function sha256(path:string){const hash=createHash('sha256');for await(const chunk of createReadStream(path))hash.update(chunk);return hash.digest('hex');}
+export function decodeProbeStdout(chunks:Buffer[]){try{return new TextDecoder('utf-8',{fatal:true}).decode(Buffer.concat(chunks)).trim();}catch{throw Error('Probe stdout is not well-formed UTF-8.');}}
 /** The package root may itself be a pnpm junction. Distribution children must be ordinary files. */
 export async function distributionManifest(root:string,options:{excludeNodeModules?:boolean}={}):Promise<DistributionManifest>{
  const canonical=await realpath(root),files:ManifestFile[]=[];let bytes=0,entries=0;
@@ -116,12 +117,12 @@ for(const provider of cursorOnly?[]:['claude-code','gemini-cli']){
  await Promise.all([home,env.TEMP,env.APPDATA,env.LOCALAPPDATA,env.XDG_CONFIG_HOME,env.XDG_DATA_HOME].map(path=>mkdir(path,{recursive:true})));
  const started=Date.now(),child=spawn(command.file,[...command.args,'--version'],{cwd:home,env,windowsHide:true,stdio:['ignore','pipe','pipe'],detached:process.platform!=='win32'});
  const output=await new Promise((accept,reject)=>{
-  let stdout='',stderr='',bytes=0,failed=false;
+  const stdout=[];let stderr='',bytes=0,failed=false;
   const fail=error=>{if(failed)return;failed=true;clearTimeout(timer);void terminateProcessTree(child).then(()=>reject(error),reject);};
   const timer=setTimeout(()=>fail(Error('Published CLI version check exceeded 30 seconds.')),30000);
   child.once('error',fail);
-  for(const stream of [child.stdout,child.stderr])stream.on('data',chunk=>{bytes+=chunk.length;if(bytes>65536){fail(Error('Published CLI output exceeded its bound.'));return;}if(stream===child.stdout)stdout+=String(chunk);else stderr=(stderr+String(chunk)).slice(-8000);});
-  child.once('close',code=>{clearTimeout(timer);if(failed)return;failed=true;code===0?accept(stdout.trim()):reject(Error('Published CLI version check failed with exit '+code+'. '+stderr));});
+  for(const stream of [child.stdout,child.stderr])stream.on('data',chunk=>{bytes+=chunk.length;if(bytes>65536){fail(Error('Published CLI output exceeded its bound.'));return;}if(stream===child.stdout)stdout.push(chunk);else stderr=(stderr+String(chunk)).slice(-8000);});
+  child.once('close',code=>{clearTimeout(timer);if(failed)return;failed=true;if(code!==0){reject(Error('Published CLI version check failed with exit '+code+'. '+stderr));return;}let output;try{output=new TextDecoder('utf-8',{fatal:true}).decode(Buffer.concat(stdout)).trim();}catch{reject(Error('Published CLI version output is not well-formed UTF-8.'));return;}accept(output);});
  });
  if(!output||output.length>1024)throw Error('Unexpected CLI version output.');
  checks.push({provider,entry,versionOutput:output,elapsedMs:Date.now()-started,arguments:['--version'],home,auth:false,inference:false});
@@ -146,11 +147,11 @@ if(cursorRequired){
  if(status.status!=='logged-out'||typeof sdk.Agent.create!=='function'||networkRequests!==0)throw Error('Cursor empty-store bootstrap did not remain logged out.');
  const child=spawn(rg,['--version'],{cwd:home,env,windowsHide:true,stdio:['ignore','pipe','pipe'],detached:process.platform!=='win32'});
  const output=await new Promise((accept,reject)=>{
-  let stdout='',stderr='',bytes=0,failed=false;
+  const stdout=[];let stderr='',bytes=0,failed=false;
   const fail=error=>{if(failed)return;failed=true;clearTimeout(timer);void terminateProcessTree(child).then(()=>reject(error),reject);};
   const timer=setTimeout(()=>fail(Error('Cursor rg version check exceeded 30 seconds.')),30000);child.once('error',fail);
-  for(const stream of [child.stdout,child.stderr])stream.on('data',chunk=>{bytes+=chunk.length;if(bytes>65536){fail(Error('Cursor rg output exceeded its bound.'));return;}if(stream===child.stdout)stdout+=String(chunk);else stderr=(stderr+String(chunk)).slice(-8000);});
-  child.once('close',code=>{clearTimeout(timer);if(failed)return;failed=true;code===0?accept(stdout.trim()):reject(Error('Cursor rg version check failed with exit '+code+'. '+stderr));});
+  for(const stream of [child.stdout,child.stderr])stream.on('data',chunk=>{bytes+=chunk.length;if(bytes>65536){fail(Error('Cursor rg output exceeded its bound.'));return;}if(stream===child.stdout)stdout.push(chunk);else stderr=(stderr+String(chunk)).slice(-8000);});
+  child.once('close',code=>{clearTimeout(timer);if(failed)return;failed=true;if(code!==0){reject(Error('Cursor rg version check failed with exit '+code+'. '+stderr));return;}let output;try{output=new TextDecoder('utf-8',{fatal:true}).decode(Buffer.concat(stdout)).trim();}catch{reject(Error('Cursor rg version output is not well-formed UTF-8.'));return;}accept(output);});
  });
  if(!output.startsWith('ripgrep ')||output.length>1024||networkRequests!==0)throw Error('Unexpected Cursor rg bootstrap output.');
  checks.push({provider:'cursor-sdk',entry,versionOutput:'1.0.38',elapsedMs:Date.now()-started,arguments:[],home,auth:false,inference:false,bootstrap:{credentialStore:'empty-memory',authStatus:status.status,agentCreate:true,networkRequests,sandboxExecution:false,nativeHelper:{entry:rg,versionOutput:output,arguments:['--version']}}});
@@ -164,12 +165,12 @@ async function runProbe(host:string,node:string,directory:string,cursorRequired:
  for(const name of ['PATH','Path','SystemRoot','SYSTEMROOT','WINDIR','COMSPEC','PATHEXT','LANG','LC_ALL','TERM'])if(process.env[name]!==undefined)env[name]=process.env[name];
  const child=spawn(node,['--import',pathToFileURL(join(host,'node_modules/tsx/dist/loader.mjs')).href,'--input-type=module','-e',PROBE],{cwd:host,env,windowsHide:true,stdio:['ignore','pipe','pipe'],detached:process.platform!=='win32'});
  const output=await new Promise<string>((accept,reject)=>{
-  let stdout='',stderr='',bytes=0,failed=false;
+  const stdout:Buffer[]=[];let stderr='',bytes=0,failed=false;
   const fail=(error:Error)=>{if(failed)return;failed=true;clearTimeout(timer);void terminateProcessTree(child).then(()=>reject(error),reject);};
   const timer=setTimeout(()=>fail(Error('Packaged runtime verification exceeded its deadline.')),90000);
   child.once('error',fail);
-  for(const stream of [child.stdout,child.stderr])stream.on('data',(chunk:Buffer)=>{bytes+=chunk.length;if(bytes>256*1024){fail(Error('Packaged verification output exceeded its bound.'));return;}if(stream===child.stdout)stdout+=String(chunk);else stderr=(stderr+String(chunk)).slice(-16000);});
-  child.once('close',code=>{clearTimeout(timer);if(failed)return;failed=true;code===0?accept(stdout.trim()):reject(Error('Packaged runtime verification exited '+code+'. No authentication or inference was requested. '+stderr));});
+  for(const stream of [child.stdout,child.stderr])stream.on('data',(chunk:Buffer)=>{bytes+=chunk.length;if(bytes>256*1024){fail(Error('Packaged verification output exceeded its bound.'));return;}if(stream===child.stdout)stdout.push(chunk);else stderr=(stderr+String(chunk)).slice(-16000);});
+  child.once('close',code=>{clearTimeout(timer);if(failed)return;failed=true;code===0?accept(decodeProbeStdout(stdout)):reject(Error('Packaged runtime verification exited '+code+'. No authentication or inference was requested. '+stderr));});
  });
  return JSON.parse(output);
 }
