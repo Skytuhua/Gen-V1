@@ -2,6 +2,7 @@ import {useCallback,useId,useLayoutEffect,useRef,useState,type RefObject} from '
 import {ArrowDown,ArrowUp,Search,X} from 'lucide-react';
 import {conversationRanges,highlightConversation,nextFindIndex,retainFindIndex,type ConversationMatch} from './conversation-find';
 import {promptClipBoundary,promptClipEntry,rangeClippedBy} from './prompt-clips';
+import {scrollConversation} from './conversation-scroll';
 import {chordFor} from './keyboard-bindings';
 import {matchesShortcut} from './shell-layout';
 import './conversation-find.css';
@@ -41,7 +42,7 @@ export function ConversationFind({ownerKey,transcript,scope,active=true,onNaviga
    }
   }
   const rect=match.range.getBoundingClientRect(),bounds=root.getBoundingClientRect();
-  root.scrollTop+=rect.top-bounds.top-root.clientHeight/2+rect.height/2;
+  scrollConversation(root,root.scrollTop+rect.top-bounds.top-root.clientHeight/2+rect.height/2);
   selected.current=match.key;setIndex(value);highlightConversation(root.ownerDocument,id,matches.current,value);navigateRef.current?.();
  },[transcript,id]);
  const close=useCallback(()=>{restoreFocus.current=true;setOpen(false);},[]);

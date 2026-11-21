@@ -2,6 +2,7 @@ import {useCallback,useId,useLayoutEffect,useRef,useState} from 'react';
 import {ChevronDown,ChevronUp} from 'lucide-react';
 import {Markdown} from './Markdown';
 import {readMotionPolicy} from './motion-policy';
+import {scrollConversation} from './conversation-scroll';
 import {registerPromptClip} from './prompt-clips';
 import './user-prompt-disclosure.css';
 
@@ -96,7 +97,7 @@ export function UserPromptDisclosure({text}:{text:string}){
   const port=scrollPortOf(rail.current);
   if(!port)return;
   const railTop=rail.current.getBoundingClientRect().top,portTop=port.getBoundingClientRect().top;
-  if(railTop<portTop)port.scrollTop-=portTop-railTop;
+  if(railTop<portTop)scrollConversation(port,port.scrollTop-(portTop-railTop));
  });
 
  // Run the pending block-size animation committed by the last toggle.

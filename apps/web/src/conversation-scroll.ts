@@ -21,6 +21,19 @@ export function createHistoryAnchor() {
  };
 }
 
+const scrollControllers=new WeakMap<HTMLElement,(top:number)=>ConversationPosition>();
+/**
+ * Route a programmatic transcript scroll (Find jump, disclosure rail
+ * correction) through the owning controller so a live tail-follow spring is
+ * interrupted before the write. Falls back to a clamped direct write for a
+ * scrollport with no controller (e.g. the canvas transcript).
+ */
+export function scrollConversation(element:HTMLElement,top:number){
+ const controller=scrollControllers.get(element);
+ if(controller){controller(top);return;}
+ element.scrollTop=Math.max(0,Math.min(Math.max(0,element.scrollHeight-element.clientHeight),top));
+}
+
 /** Own only tail-following scrolls. Reading history and user intent always win. */
 export function createConversationScroll(element:HTMLElement){
  let thread='',following=false,disposed=false,ownedTop:number|undefined,dragging=false,nativePointer:number|undefined;
@@ -67,7 +80,7 @@ export function createConversationScroll(element:HTMLElement){
  document.addEventListener('pointerup',pointerEnd);
  document.addEventListener('pointercancel',pointerEnd);
  document.addEventListener('visibilitychange',settleHidden);
- return {
+ const api={
   beginManualScroll(){if(!disposed){nativePointer=undefined;dragging=true;interrupt();}},
   scrollTo(top:number):ConversationPosition{
    if(!disposed&&Number.isFinite(top)){interrupt();element.scrollTop=Math.max(0,Math.min(maximum(),top));following=!dragging&&nearTail();}
@@ -95,11 +108,13 @@ export function createConversationScroll(element:HTMLElement){
    following=true;follow();return {top:maximum(),tail:true};
   },
   dispose(){
-   if(disposed)return;disposed=true;spring.dispose();observer.disconnect();observed.clear();
+   if(disposed)return;disposed=true;scrollControllers.delete(element);spring.dispose();observer.disconnect();observed.clear();
    element.removeEventListener('wheel',wheel);element.removeEventListener('touchstart',touchStart);element.removeEventListener('touchend',touchEnd);element.removeEventListener('touchcancel',touchEnd);element.removeEventListener('pointerdown',pointerDown);element.removeEventListener('keydown',key);
    document.removeEventListener('pointerup',pointerEnd);document.removeEventListener('pointercancel',pointerEnd);document.removeEventListener('visibilitychange',settleHidden);stopObservingMotion();
   },
  };
+ scrollControllers.set(element,api.scrollTo);
+ return api;
 }
 
 /** Observe the viewport and its immediate content containers. Deeper mutations
