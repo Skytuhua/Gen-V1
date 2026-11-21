@@ -1,5 +1,5 @@
 import {useCallback,useEffect,useLayoutEffect,useRef,useState} from 'react';
-import {authenticated,csrfToken,read} from './api.ts';
+import {ApiError,authenticated,csrfToken,read} from './api.ts';
 import type {ProjectContext} from '../../../packages/contracts/workspace.ts';
 
 export function useProjectContext(projectId?:string,threadId?:string,workspaceId?:string){
@@ -12,7 +12,7 @@ export function useProjectContext(projectId?:string,threadId?:string,workspaceId
   const controller=new AbortController();pending.current=controller;
   setState(previous=>({owner,context:previous.owner===owner?previous.context:null,loading:true,error:''}));
   try{const next=await authenticated(()=>fetch(`/api/projects/${encodeURIComponent(projectId)}/context${threadId?'?threadId='+encodeURIComponent(threadId):''}`,{credentials:'same-origin',cache:'no-store',signal:controller.signal})).then(read<ProjectContext>);if(captured!==generation.current)return;const malformed=!next||typeof next!=='object'||!next.project||typeof next.project!=='object'||!next.capabilities||typeof next.capabilities!=='object'||!Array.isArray(next.lineage);setState({owner,context:malformed?null:next,loading:false,error:malformed?'The project context response was malformed.':''});}
-  catch(reason){if(captured===generation.current&&!controller.signal.aborted)setState({owner,context:null,loading:false,error:reason instanceof Error?reason.message:'Project context could not be loaded.'});}
+  catch(reason){if(captured===generation.current&&!controller.signal.aborted)setState({owner,context:null,loading:false,error:reason instanceof ApiError&&reason.code==='PROJECT_NOT_CONNECTED'?'':reason instanceof Error?reason.message:'Project context could not be loaded.'});}
   finally{if(pending.current===controller)pending.current=null;}
  },[projectId,threadId,owner]);
  useLayoutEffect(()=>{activeLoad.current=load;},[load]);
