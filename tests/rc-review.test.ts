@@ -3,6 +3,8 @@ import {mkdtemp,mkdir,writeFile,rm,copyFile,readFile,readdir} from 'node:fs/prom
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {DatabaseSync} from 'node:sqlite';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
 import {snapshot,compare} from '../scripts/rc-review/profile-manifest.ts';
 import {flagsOff} from '../scripts/rc-review/flags-off.ts';
 import {pnpm,run} from '../scripts/rc-review/common.ts';
@@ -14,6 +16,16 @@ const roots:string[]=[];
 it('compares native geometry in one API space without throwing on a mismatch',()=>{const expected={left:80,top:80,width:1100,height:780};expect(compareNativeGeometry(expected,expected).status).toBe('passed');expect(compareNativeGeometry(expected,{left:72,top:80,width:1116,height:788}).status).toBe('passed');expect(compareNativeGeometry(expected,{...expected,left:113}).status).toBe('failed');expect(compareNativeGeometry(expected,undefined).status).toBe('failed');expect(compareNativeGeometry({},expected).status).toBe('failed');});
 it('requires candidate-bound completed cleanup and explicit opt-in after a failed clean lifecycle',()=>{const receipt={passed:true,setupSha256:'candidate',memoryRetentionRequested:true,cleanup:{status:'uninstalled-owned-installation'}};expect(()=>assertCleanLifecycle(receipt,'candidate')).not.toThrow();expect(()=>assertCleanLifecycle({...receipt,passed:false},'candidate')).toThrow('explicit');expect(()=>assertCleanLifecycle({...receipt,passed:false},'candidate',true)).not.toThrow();for(const invalid of [{},{...receipt,setupSha256:'other'},{...receipt,cleanup:{status:'preserved-for-inspection'}}])expect(()=>assertCleanLifecycle(invalid,'candidate',true)).toThrow('candidate-bound');});
 it('retains captured failure output for review evidence',async()=>{await expect(run(process.execPath,['-e',"console.log('failure evidence');process.exit(3)"],{capture:true})).rejects.toMatchObject({stdout:'failure evidence',exitCode:3});});
+it('keeps an early child stdin closure in the RC subprocess result',async()=>{
+ const probe=`import {run} from './scripts/rc-review/common.ts';
+ for(const exit of [0, 3]) {
+  try {await run(process.execPath,['-e','process.exit('+exit+')'],{capture:true,input:'x'.repeat(4*1024*1024)});console.log('misreported success');}
+  catch(error){console.log(error.exitCode+':'+error.message);}
+ }`;
+ const result=await promisify(execFile)(process.execPath,['--import','tsx','--input-type=module','-e',probe],{timeout:8000});
+ expect(result.stdout).toContain('0:RC subprocess did not accept its input');
+ expect(result.stdout).toContain('exited 3');
+},10000);
 it('refuses outdated manifest versions before comparison or restore writes',async()=>{const {root,profile,host}=await fixture(),before=await snapshot(profile,host),old=structuredClone(before);Reflect.set(old,'version',1);expect(()=>compare(old,before)).toThrow('re-snapshot needed');expect(()=>compare(before,old)).toThrow('re-snapshot needed');const seed=join(root,'seed.json'),manifest=join(root,'old.json'),archive=join(root,'archive');await writeFile(seed,'{}');await writeFile(manifest,JSON.stringify(old));await archiveProfile(profile,host,seed,manifest,archive);await expect(restoreProfile(archive,profile,host,join(root,'refused'))).rejects.toThrow('re-snapshot needed');expect(await readdir(profile)).toEqual([]);expect(await readdir(host)).toEqual([]);});
 async function fixture(){const root=await mkdtemp(join(tmpdir(),'rc-manifest-'));roots.push(root);const profile=join(root,'GenerativeHarnessDesktop'),host=join(root,'GenerativeHarness');await mkdir(profile);await mkdir(host);return {root,profile,host};}
 afterEach(async()=>{await Promise.all(roots.splice(0).map(root=>rm(root,{recursive:true,force:true})))});
