@@ -32,7 +32,7 @@ export function FileCheckpoints({owner,preferences,current,recorded,adapter=disa
 const errorMessage=(cause:unknown)=>cause instanceof Error?cause.message:'Checkpoints could not load. Try again.';
 const plural=(count:number,word:string)=>`${count} ${word}${count===1?'':'s'}`;
 const formatTime=(value:string,preferences:UiPreferences)=>new Date(value).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short',hour12:preferences.timeFormat==='system'?undefined:preferences.timeFormat==='12h'});
-const provenance=(checkpoint:FileCheckpoint)=>checkpoint.provenance.kind==='restore_backup'?'Saved before a restore':'Saved before an edit';
+const provenance=(checkpoint:FileCheckpoint)=>checkpoint.provenance.kind==='restore_backup'?'Saved before a restore':checkpoint.provenance.kind==='manual_edit'?'Manual edit':'Saved before an edit';
 const statusNote=(status:string)=>status==='missing'?'Not in your files now':status==='binary'?'Binary file, no preview':status==='too_large'?'Too large to preview':status==='unreadable'?'Could not be read':'No preview available';
 const diffLineKind=(line:string)=>line.startsWith('@@')?'hunk':line.startsWith('+')?'add':line.startsWith('-')?'remove':'context';
 function CheckpointDiff({diff}:{diff:string}){
@@ -65,7 +65,7 @@ function CheckpointHistory({owner,adapter,preferences}:{owner:CheckpointOwner;pr
       {items.length>0&&<ul className="file-checkpoints-list file-checkpoints-entries">{items.map(item=><li key={item.id}>
         <button type="button" className="file-checkpoints-entry" aria-label={`Review ${item.label}`} title={`Operation ${item.provenance.operationId}`} onClick={event=>{opener.current=event.currentTarget;setCheckpoint(item);}}>
           <Clock3 size={14} aria-hidden="true"/>
-          <span><strong>{item.label}</strong><small><time dateTime={item.createdAt}>{formatTime(item.createdAt,preferences)}</time> · {plural(item.fileCount,'file')}{item.provenance.kind==='restore_backup'?' · Saved before a restore':''}</small></span>
+          <span><strong>{item.label}</strong><small><time dateTime={item.createdAt}>{formatTime(item.createdAt,preferences)}</time> · {plural(item.fileCount,'file')}{item.provenance.kind==='restore_backup'?' · Saved before a restore':item.provenance.kind==='manual_edit'?' · Manual edit':''}</small></span>
           <span className="file-checkpoints-entry-action" aria-hidden="true">Review<ChevronRight size={13}/></span>
         </button>
       </li>)}</ul>}
