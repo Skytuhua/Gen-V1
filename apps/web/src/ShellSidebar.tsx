@@ -7,6 +7,7 @@ import {
   ChevronRight,
   Circle,
   ExternalLink,
+  FolderInput,
   FolderPlus,
   GitBranch,
   GitPullRequest,
@@ -37,6 +38,9 @@ import { ActionMenu } from '../../../packages/ui-shell/ActionMenu';
 import { toast } from '../../../packages/ui-shell/Toast';
 import { useThreadMove } from './sidebar-thread-move';
 import { useThreadReorder, type SidebarSection } from './sidebar-reorder';
+import { SectionHeader, SectionNameField, useSidebarSections } from './SidebarSections';
+import type { SidebarSectionV1 } from '../../../packages/contracts/sidebar-sections';
+import { Modal } from '../../../packages/ui-shell/Modal';
 import './sidebar-thread-move.css';
 
 const threadAge = (value: string) => {
@@ -119,6 +123,8 @@ export function ShellSidebar({
   onConnectProject,
   ensureManualOrder,
   pageControls,
+  sections,
+  sectionCommand,
 }: {
   elementRef: RefObject<HTMLElement | null>;
   searchRef: RefObject<HTMLInputElement | null>;
@@ -154,10 +160,22 @@ export function ShellSidebar({
   archive: (id: string) => void;
   /** Switch sidebar ordering to manual so a drag reorder becomes visible; resolves true when it changed. */
   ensureManualOrder?: () => Promise<boolean>;
+  /** User sidebar sections; undefined when the host flag is off (baseline sidebar). */
+  sections?: SidebarSectionV1[];
+  sectionCommand?: (type: string, payload: Record<string, unknown>) => Promise<unknown>;
 }) {
   const workspace = useWorkspace();
   const [hoverCache]=useState(createThreadHoverCache<ThreadHoverPRTarget>);
   const [menuId, setMenuId] = useState<string | null>(null);
+  const [sectionMenuId, setSectionMenuId] = useState<string | null>(null);
+  const [moveMenuId, setMoveMenuId] = useState<string | null>(null);
+  const [editingSection, setEditingSection] = useState<string | 'new' | null>(null);
+  const [sectionNameError, setSectionNameError] = useState('');
+  const [deletingSection, setDeletingSection] = useState<SidebarSectionV1 | null>(null);
+  const [removingSection, setRemovingSection] = useState<string | null>(null);
+  const [announce, setAnnounce] = useState('');
+  const announceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const say = (message: string) => { clearTimeout(announceRef.current); setAnnounce(''); announceRef.current = setTimeout(() => setAnnounce(message), 60); };
   const [filter, setFilter] = useState<'all' | 'working' | 'waiting'>('all');
   const [showAllSettled, setShowAllSettled] = useState(false);
   const navRef = useRef<HTMLElement | null>(null);
@@ -183,7 +201,10 @@ export function ShellSidebar({
       )
     : [];
   const settled = visibleMatching.filter(item => !pinned.includes(item) && !working.includes(item) && item.presentation?.settled);
-  const remaining = visibleMatching.filter(item => !pinned.includes(item) && !working.includes(item) && !settled.includes(item));
+  const sectionRows = useSidebarSections(sections, visibleMatching, preferences.showWorkingSection);
+  const inSection = new Set([...sectionRows.values()].flat().map(item => item.id));
+  const remaining = visibleMatching.filter(item => !pinned.includes(item) && !working.includes(item) && !settled.includes(item) && !inSection.has(item.id));
+  const sectionIds = sections ? new Set(sections.map(section => section.id)) : undefined;
 
   const orderedRemaining = orderSidebarProjects(remaining, preferences.projectGrouping, preferences.projectOrder);
   const settledFolded = layout.folded['settled'] ?? false;
@@ -191,7 +212,9 @@ export function ShellSidebar({
   const locked = search.trim().length > 0 || filter !== 'all';
   const reorder = useThreadReorder(navRef, {
     // Ordering needs every settled row; only rendering stops at six.
-    lists: () => ({ pinned, working, flat: orderedRemaining, settled }),
+    lists: () => ({ pinned, working, ...(sections ? Object.fromEntries(sections.map(section => [`section:${section.id}`, sectionRows.get(section.id) ?? []])) : {}), flat: orderedRemaining, settled }),
+    sectionIds: sectionIds ? () => sectionIds : undefined,
+    expand: list => { if (list.startsWith('section:')) setFolded(list, false); },
     locked: () => locked,
     showWorking: preferences.showWorkingSection,
     // Grouped runs are contiguous, so a drop can only land inside the row's own project.
@@ -201,6 +224,54 @@ export function ShellSidebar({
     prepareMove: (id, order, viaPointer) => threadMove.prepare(id, order, viaPointer),
     toast,
   });
+
+  const runSection = async (type: string, payload: Record<string, unknown>): Promise<unknown> => {
+    try { return await sectionCommand?.(type, payload); }
+    catch (cause) { const message = cause instanceof Error ? cause.message : 'Section change could not save.'; toast(message, { tone: 'error' }); return Promise.reject(cause); }
+  };
+  const submitSectionName = async (name: string, sectionId?: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) { setSectionNameError('Enter a name'); return; }
+    if (sections?.some(section => section.id !== sectionId && section.name.toLowerCase() === trimmed.toLowerCase())) { setSectionNameError(`A section named \u201C${trimmed}\u201D already exists`); return; }
+    try {
+      if (sectionId) await runSection('sidebar.section.rename', { sectionId, name: trimmed });
+      else await runSection('sidebar.section.create', { name: trimmed });
+      setEditingSection(null); setSectionNameError('');
+    } catch { setSectionNameError('Section name could not save.'); }
+  };
+  const moveSection = async (section: SidebarSectionV1, delta: -1 | 1) => {
+    if (!sections) return;
+    const ordered = [...sections].sort((a, b) => a.order - b.order);
+    const from = ordered.findIndex(item => item.id === section.id), to = from + delta;
+    if (to < 0 || to >= ordered.length) return;
+    const others = ordered.filter(item => item.id !== section.id);
+    const b = to > 0 ? others[to - 1]!.order : null, a = to < others.length ? others[to]!.order : null;
+    const order = b === null ? (a ?? 0) - 1 : a === null ? b + 1 : (a - b > 1e-9 ? (a + b) / 2 : null);
+    if (order !== null) { await runSection('sidebar.section.move', { sectionId: section.id, order }).catch(() => {}); return; }
+    // No gap: dense rewrite, one command per section, matching thread rebalance.
+    for (const [index, item] of [...others.slice(0, to), section, ...others.slice(to)].entries()) {
+      if (item.order !== index + 1) await runSection('sidebar.section.move', { sectionId: item.id, order: index + 1 }).catch(() => {});
+    }
+  };
+  const deleteSection = async (section: SidebarSectionV1, confirmed: boolean) => {
+    const members = sectionRows.get(section.id) ?? [];
+    if (members.length && !confirmed) { setDeletingSection(section); return; }
+    setDeletingSection(null);
+    setRemovingSection(section.id);
+    await new Promise(resolve => setTimeout(resolve, 150));
+    try {
+      await runSection('sidebar.section.delete', { sectionId: section.id });
+      setRemovingSection(null);
+      toast('Section deleted', { action: { label: 'Undo', onClick: () => void runSection('sidebar.section.restore', { section }).catch(() => {}) } });
+    } catch { /* toasted */ }
+  };
+  const moveToSection = async (item: Thread, sectionId: string | null) => {
+    try {
+      if (await presentation(item, sectionId ? { pinned: false, settled: false, sectionId } : { pinned: false, sectionId: null })) {
+        say(`Moved \u201C${item.title}\u201D to ${sectionId ? sections?.find(section => section.id === sectionId)?.name ?? 'a section' : 'your thread list'}`);
+      }
+    } catch (cause) { toast(cause instanceof Error ? cause.message : 'Thread could not move.', { tone: 'error' }); }
+  };
 
   const renderMenu = (item: Thread) => (
     <span className="sidebar-thread-menu-button" {...threadMove.menuEvents}>
@@ -219,6 +290,15 @@ export function ShellSidebar({
           {id: 'archive', label: 'Archive thread', icon: <Archive size={13} />, disabled: Boolean(item.runId),
             title: item.runId ? 'Stop the task before archiving.' : undefined, onSelect: () => archive(item.id)},
         ]}/>
+      {sections && sections.length > 0 && (
+        <ActionMenu label={`Move ${item.title} to a section`} icon={<FolderInput size={13} aria-hidden="true" />} iconOnly
+          open={moveMenuId === item.id} onOpenChange={open => setMoveMenuId(open ? item.id : null)}
+          items={[
+            ...sections.map(section => ({ id: `to-${section.id}`, label: section.name, disabled: item.presentation?.sectionId === section.id, onSelect: () => void moveToSection(item, section.id) })),
+            { id: 'new-section', label: 'New section\u2026', onSelect: () => { setEditingSection('new'); setSectionNameError(''); } },
+            ...(item.presentation?.sectionId ? [{ id: 'remove-section', label: 'Remove from section', onSelect: () => void moveToSection(item, null) }] : []),
+          ]}/>
+      )}
     </span>
   );
 
@@ -433,6 +513,38 @@ export function ShellSidebar({
           empty: <div className="sidebar-pinned-empty">Drag a thread here to pin it.</div>,
         })}
         {group('working', 'Working', working, { list: 'working' })}
+        {sections && sections.map((section, index) => {
+          const list: SidebarSection = `section:${section.id}`;
+          const rows = sectionRows.get(section.id) ?? [];
+          const folded = layout.folded[list] ?? false;
+          return (
+            <section key={section.id} className="thread-group thread-group-section" data-thread-list={list} data-removing={removingSection === section.id ? '' : undefined} data-drop-target={reorder.dropTargetList === list ? '' : undefined}>
+              <div className="sidebar-section-inner">
+              <SectionHeader
+                section={section} count={rows.length} expanded={!folded}
+                menuOpen={sectionMenuId === section.id} onMenuOpenChange={next => setSectionMenuId(next ? section.id : null)}
+                onToggle={() => setFolded(list, !folded)}
+                onRename={() => { setEditingSection(section.id); setSectionNameError(''); }}
+                onMove={delta => void moveSection(section, delta)}
+                onDelete={() => void deleteSection(section, false)}
+                canMoveUp={index > 0} canMoveDown={index < sections.length - 1}
+                editing={editingSection === section.id} nameError={sectionNameError}
+                onSubmitName={name => void submitSectionName(name, section.id)}
+                onCancelName={() => { setEditingSection(null); setSectionNameError(''); }}
+              />
+              <MotionRegion open={!folded} animate={preferences.panelAnimations && preferences.motionDuration > 0} className="thread-group-content">
+                {rows.map(item => row(item, false))}
+                {!rows.length && !locked && <div className="sidebar-pinned-empty">Drag threads here.</div>}
+              </MotionRegion>
+              </div>
+            </section>
+          );
+        })}
+        {sections && !locked && (
+          editingSection === 'new'
+            ? <SectionNameField initial="" error={sectionNameError} onCommit={name => void submitSectionName(name)} onCancel={() => { setEditingSection(null); setSectionNameError(''); }} />
+            : <button type="button" className="sidebar-new-section" onClick={() => { setEditingSection('new'); setSectionNameError(''); }}><FolderPlus size={13} aria-hidden="true" /> New section</button>
+        )}
         {orderedRemaining.length > 0 && <div className="thread-flat-list" data-thread-list="flat">{orderedRemaining.map(item => row(item, false))}</div>}
         {reorder.indicatorTop != null && <div className="sidebar-drop-indicator" style={{ top: reorder.indicatorTop }} aria-hidden="true" />}
         {settled.length > 0 && (
@@ -501,6 +613,16 @@ export function ShellSidebar({
         </button>
         <UpdateControl compact />
       </div>
+      <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{announce}</span>
+      {deletingSection && (
+        <Modal open title={`Delete \u201C${deletingSection.name}\u201D?`} onClose={() => setDeletingSection(null)}>
+          <p>{`Its ${(sectionRows.get(deletingSection.id) ?? []).length} threads move back to your thread list. No threads are deleted.`}</p>
+          <div className="decision-actions">
+            <button type="button" className="quiet" onClick={() => setDeletingSection(null)}>Cancel</button>
+            <button type="button" className="danger" onClick={() => void deleteSection(deletingSection, true)}>Delete section</button>
+          </div>
+        </Modal>
+      )}
     </aside>
   );
 }

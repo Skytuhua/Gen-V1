@@ -1,6 +1,7 @@
 import type {Thread, Snapshot, ResourceGrant, LearningStatus} from './index.ts';
 import type {ConnectionAccount} from './accounts.ts';
 import type {SkillSummary, SkillProposalSummary} from './skills.ts';
+import type {SidebarSectionV1} from './sidebar-sections.ts';
 
 export type ThreadNavigationRow = Pick<Thread, 'id' | 'title' | 'projectId' | 'projectName' | 'createdAt' | 'updatedAt' | 'status' | 'runId' | 'kind' | 'parentThreadId' | 'presentation'> & Partial<Pick<Thread,'workspaceId'|'modelId'|'thinkingLevel'>> & {threadRevision?: string};
 /** Presentation metadata identity, not command or credential authority. */
@@ -11,6 +12,8 @@ export interface ShellPage<T> {sequence: number; total: number; items: T[]; next
 export interface NavigationPage extends ShellPage<ThreadNavigationRow> {
   order: 'created-desc';
   stats: {pinned: number; working: number; waiting: number; settled: number; minOrder: number; maxOrder: number};
+  /** Present only when the ui.sidebarSectionsV1 flag is on. */
+  sections?: SidebarSectionV1[];
 }
 export type ShellResourceRow = Pick<ResourceGrant, 'id' | 'threadId' | 'kind' | 'label' | 'writable' | 'path'>;
 export interface ShellSettingsReadModel {

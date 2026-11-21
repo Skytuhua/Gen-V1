@@ -6,7 +6,9 @@ import {isConnectionProviderId} from '../contracts/connections.ts';
 import type {ConnectionAccount} from '../contracts/accounts.ts';
 import type {SkillSummary, SkillProposalSummary} from '../contracts/skills.ts';
 import {threadNavigationRevision} from '../contracts/shell-read-models.ts';
+import type {SidebarSectionV1} from '../contracts/sidebar-sections.ts';
 import type {DraftTransferReferences, NavigationPage, ShellPage, ShellResourceRow, ShellSettingsReadModel, ThreadNavigationRow} from '../contracts/shell-read-models.ts';
+import {capabilityEnabled} from './capability-flags.ts';
 import {digest, type Store} from '../storage/store.ts';
 
 const preferences = z.object({...preferencesSchema.shape, keybindings: z.object(preferencesSchema.shape.keybindings.shape)});
@@ -45,9 +47,19 @@ export class ShellReadModels {
     const archived = new Set((this.store.db.prepare("SELECT id FROM entities WHERE kind='archivedThread' AND body='true'").all() as {id: string}[]).map(row => row.id));
     return {all: all.filter(personal), archived};
   }
-  private row(thread: Owner): ThreadNavigationRow {
+  private sidebarSections(): SidebarSectionV1[] | undefined {
+    return capabilityEnabled('ui.sidebarSectionsV1')
+      ? this.records<SidebarSectionV1>('sidebar_section', ['id', 'name', 'order', 'createdAt', 'updatedAt']).sort((a, b) => a.order - b.order || a.id.localeCompare(b.id))
+      : undefined;
+  }
+  private sidebarSectionIds(): Set<string> | undefined {
+    const sections = this.sidebarSections();
+    return sections ? new Set(sections.map(section => section.id)) : undefined;
+  }
+  private row(thread: Owner, sectionIds?: Set<string>): ThreadNavigationRow {
     const {id, title, projectId, projectName, createdAt, updatedAt, status, runId, kind, parentThreadId, presentation, workspaceId, modelId, thinkingLevel} = thread;
-    return {id, title, projectName, createdAt, updatedAt, status, runId, modelId, thinkingLevel, ...(workspaceId ? {workspaceId} : {}), threadRevision: threadNavigationRevision(thread), ...(projectId ? {projectId} : {}), ...(kind ? {kind} : {}), ...(parentThreadId ? {parentThreadId} : {}), ...(presentation ? {presentation: {pinned: presentation.pinned === true, unread: presentation.unread === true, settled: presentation.settled === true, ...(typeof presentation.order === 'number' ? {order: presentation.order} : {})}} : {})};
+    const sectionId = sectionIds && presentation && typeof presentation.sectionId === 'string' && sectionIds.has(presentation.sectionId) ? presentation.sectionId : undefined;
+    return {id, title, projectName, createdAt, updatedAt, status, runId, modelId, thinkingLevel, ...(workspaceId ? {workspaceId} : {}), threadRevision: threadNavigationRevision(thread), ...(projectId ? {projectId} : {}), ...(kind ? {kind} : {}), ...(parentThreadId ? {parentThreadId} : {}), ...(presentation ? {presentation: {pinned: presentation.pinned === true, unread: presentation.unread === true, settled: presentation.settled === true, ...(typeof presentation.order === 'number' ? {order: presentation.order} : {}), ...(sectionId ? {sectionId} : {})}} : {})};
   }
   private page<T extends {id: string}>(rows: T[], query: z.infer<typeof pageInput>, scope: unknown): ShellPage<T> {
     const scopeKey = digest(scope), membership = digest(rows.map(row => row.id)); let index = 0;
@@ -69,7 +81,9 @@ export class ShellReadModels {
   }
   navigation(input: unknown): NavigationPage {
     const query = navInput.parse(input), {all, archived} = this.owners(), text = query.text.toLowerCase();
-    const rows = all.filter(thread => !thread.sideParentId && thread.kind !== 'side' && archived.has(thread.id) === query.archived && (!text || (thread.title + ' ' + (thread.projectName ?? '')).toLowerCase().includes(text))).sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id)).map(thread => this.row(thread));
+    const sections = this.sidebarSections();
+    const sectionIds = sections && new Set(sections.map(section => section.id));
+    const rows = all.filter(thread => !thread.sideParentId && thread.kind !== 'side' && archived.has(thread.id) === query.archived && (!text || (thread.title + ' ' + (thread.projectName ?? '')).toLowerCase().includes(text))).sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id)).map(thread => this.row(thread, sectionIds ?? undefined));
     const stats = {pinned: 0, working: 0, waiting: 0, settled: 0, minOrder: 0, maxOrder: 0};
     for (const row of rows) {
       const presentation = row.presentation, order = presentation?.order ?? 0;
@@ -80,17 +94,18 @@ export class ShellReadModels {
       stats.minOrder = Math.min(stats.minOrder, order);
       stats.maxOrder = Math.max(stats.maxOrder, order);
     }
-    return {...this.page(rows, query, {kind: 'navigation', archived: query.archived, text}), order: 'created-desc', stats};
+    return {...this.page(rows, query, {kind: 'navigation', archived: query.archived, text}), order: 'created-desc', stats, ...(sections ? {sections} : {})};
   }
   navigationItem(id: string): ThreadNavigationRow {
     const {all, archived} = this.owners();
     const row = all.find(thread => thread.id === id && !archived.has(id) && !thread.sideParentId && thread.kind !== 'side');
     if (!row) throw new HarnessError('NOT_FOUND', 'Conversation metadata is unavailable.');
-    return this.row(row);
+    return this.row(row, this.sidebarSectionIds());
   }
   archive(input: unknown = {}): ShellPage<ThreadNavigationRow> {
     const query = pageInput.parse(input), {all, archived} = this.owners();
-    const rows = all.filter(thread => archived.has(thread.id)).sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id)).map(thread => this.row(thread));
+    const sectionIds = this.sidebarSectionIds();
+    const rows = all.filter(thread => archived.has(thread.id)).sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id)).map(thread => this.row(thread, sectionIds));
     return this.page(rows, query, {kind: 'archive'});
   }
   private visibleIds() {const {all, archived} = this.owners(); return all.filter(thread => !archived.has(thread.id)).map(thread => thread.id);}

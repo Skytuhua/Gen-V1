@@ -60,6 +60,18 @@ export function useThreadMove(sidebar: RefObject<HTMLElement | null>, matching: 
     const moves: { node: HTMLElement; x: number; y: number }[] = [];
     if (reordered && !scrolled) for (const [id, last] of after) {
       const first = request.positions.get(id);
+      // A cross-list move remounts the row: land it with a short entry
+      // instead of a translation from a different element's position.
+      if ((!first || first.node !== last.node) && id === request.id && last.visible) {
+        const animation = animateTask(last.node, [{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 1, transform: 'translate(0px, 0px)' }], 180,
+          { duration: '--ui-motion-insert', easing: '--ui-ease-move' });
+        if (!animation) continue;
+        active.current.set(last.node, animation);
+        const cleanup = () => { if (active.current.get(last.node) === animation) active.current.delete(last.node); };
+        animation.addEventListener('finish', cleanup, { once: true });
+        animation.addEventListener('cancel', cleanup, { once: true });
+        continue;
+      }
       if (!first || first.node !== last.node || !last.visible) continue;
       // Sample the old effect at commit time, even if the command was delayed.
       // Subtracting its transform above gives the new, final layout position.

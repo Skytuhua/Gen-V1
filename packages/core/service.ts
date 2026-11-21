@@ -1,5 +1,5 @@
 import {attestVerificationArtifacts} from './verification-artifacts.ts';
-import { randomUUID, createHash } from "node:crypto";
+import { randomUUID, randomBytes, createHash } from "node:crypto";
 import { MODEL_ONLY_MAX_PROMPT_BYTES } from '../runtime/model-only.ts';
 import type { ContextRequestObservationV1 } from '../contracts/request-context.ts';
 import { createContextResults, encodeContextResult, CONTEXT_PREVIEW_CAP_BYTES, MAX_TRACKED_RESULTS, type ContextResultStorage } from './context-results.ts';
@@ -44,7 +44,7 @@ import type {HermesEvent} from '../runtime-hermes/client.ts';
 import type {HermesRuntime} from '../runtime-hermes/index.ts';
 import type {HermesSourceLibrary} from '../runtime-hermes/library.ts';
 import type {ApprovedWriteOrigin,CompletedWriteReceipt,WriteHookDiagnostic} from '../contracts/index.ts';
-import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type CommandReceipt, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
+import { HarnessError, EMPTY_USAGE, SIDEBAR_SECTION_LIMITS, type ArtifactRecord, type SidebarSectionV1, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type CommandReceipt, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
 import { hostFlagEnabled } from "./host-flags.ts";
 import { OperationProjectTrustHost } from './operation-project-trust.ts';
 import { OperationExecutionAdviceHost } from './operation-execution-advice.ts';
@@ -1138,6 +1138,10 @@ export class Service {
       if (!archived || !this.store.get('archivedThread', archived.id)) throw new HarnessError('NOT_FOUND', 'Archived thread unavailable');
       this.store.remove('archivedThread', archived.id); return archived;
     });
+    if (command.type.startsWith('sidebar.section.')) {
+      if (!capabilityEnabled('ui.sidebarSectionsV1')) throw new HarnessError('CAPABILITY_DENIED', 'Sidebar sections are disabled on this host.');
+      return this.store.command(command, () => this.applySidebarSectionCommand(command));
+    }
     const thread = this.thread(command.threadId);
     // A command can end or supersede the run; flush its buffered deltas before
     // any handler mutates epoch/runId, or the trailing text would be dropped.
@@ -1309,6 +1313,58 @@ export class Service {
       default: throw new HarnessError('UNKNOWN_COMMAND', 'Unknown command: ' + command.type);
     }
   }
+  private sidebarSections(): SidebarSectionV1[] {
+    return this.store.all<SidebarSectionV1>('sidebar_section');
+  }
+  private applySidebarSectionCommand(command: HostCommand): unknown {
+    const p = command.payload, sections = this.sidebarSections();
+    const name = (value: unknown, ownId?: string) => {
+      const trimmed = typeof value === 'string' ? value.trim() : '';
+      if (!trimmed || trimmed.length > SIDEBAR_SECTION_LIMITS.maxName) throw new HarnessError('INVALID_INPUT', 'Section names are 1-60 characters.');
+      if (sections.some(section => section.id !== ownId && section.name.toLowerCase() === trimmed.toLowerCase())) throw new HarnessError('INVALID_INPUT', 'A section with that name already exists.');
+      return trimmed;
+    };
+    switch (command.type) {
+      case 'sidebar.section.create': {
+        if (sections.length >= SIDEBAR_SECTION_LIMITS.maxSections) throw new HarnessError('LIMIT_EXCEEDED', 'You can create up to 50 sections.');
+        const section: SidebarSectionV1 = { id: 'sec_' + randomBytes(8).toString('base64url').slice(0, 12).toLowerCase(), name: name(p.name), order: sections.reduce((max, item) => Math.max(max, item.order), 0) + 1, createdAt: now(), updatedAt: now() };
+        this.store.put('sidebar_section', section.id, null, section); return section;
+      }
+      case 'sidebar.section.rename': {
+        const section = sections.find(item => item.id === p.sectionId);
+        if (!section) throw new HarnessError('NOT_FOUND', 'Unknown section');
+        const next: SidebarSectionV1 = { ...section, name: name(p.name, section.id), updatedAt: now() };
+        this.store.put('sidebar_section', section.id, null, next); return next;
+      }
+      case 'sidebar.section.move': {
+        const section = sections.find(item => item.id === p.sectionId);
+        if (!section) throw new HarnessError('NOT_FOUND', 'Unknown section');
+        if (typeof p.order !== 'number' || !Number.isFinite(p.order) || Math.abs(p.order) > 1_000_000) throw new HarnessError('INVALID_INPUT', 'Invalid section order');
+        const next: SidebarSectionV1 = { ...section, order: p.order, updatedAt: now() };
+        this.store.put('sidebar_section', section.id, null, next); return next;
+      }
+      case 'sidebar.section.delete': {
+        const section = sections.find(item => item.id === p.sectionId);
+        if (!section) throw new HarnessError('NOT_FOUND', 'Unknown section');
+        const released: string[] = [];
+        for (const thread of this.store.all<Thread>('thread')) {
+          if (thread.presentation?.sectionId !== section.id) continue;
+          released.push(thread.id);
+          this.store.put('thread', thread.id, thread.id, { ...thread, presentation: { ...thread.presentation, sectionId: null } });
+        }
+        this.store.remove('sidebar_section', section.id);
+        return { deleted: section.id, released };
+      }
+      case 'sidebar.section.restore': {
+        const section = p.section as Partial<SidebarSectionV1> | undefined;
+        if (!section || typeof section.id !== 'string' || !section.id) throw new HarnessError('INVALID_INPUT', 'Invalid section');
+        if (sections.some(item => item.id === section.id)) throw new HarnessError('INVALID_INPUT', 'That section already exists.');
+        const restored: SidebarSectionV1 = { id: section.id, name: name(section.name), order: typeof section.order === 'number' && Number.isFinite(section.order) ? section.order : sections.reduce((max, item) => Math.max(max, item.order), 0) + 1, createdAt: typeof section.createdAt === 'string' ? section.createdAt : now(), updatedAt: now() };
+        this.store.put('sidebar_section', restored.id, null, restored); return restored;
+      }
+      default: throw new HarnessError('UNKNOWN_COMMAND', 'Unknown command: ' + command.type);
+    }
+  }
   private applyCommand(command: HostCommand, thread: Thread): unknown {
     const p = command.payload;
     switch (command.type) {
@@ -1319,7 +1375,10 @@ export class Service {
       }
       case "thread.rename": { const next = { ...thread, title: text(p, "title", 140), updatedAt: now() }; this.store.put("thread", thread.id, thread.id, next); return next; }
       case 'thread.presentation': {
-        if (Object.keys(p).some(key => !['pinned', 'unread', 'settled', 'order'].includes(key)) || Object.entries(p).some(([key, value]) => key === 'order' ? typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > 1_000_000 : typeof value !== 'boolean')) throw new HarnessError('INVALID_INPUT', 'Invalid thread presentation');
+        const keys = Object.keys(p);
+        if (keys.includes('sectionId') && !capabilityEnabled('ui.sidebarSectionsV1')) throw new HarnessError('CAPABILITY_DENIED', 'Sidebar sections are disabled on this host.');
+        if (keys.some(key => !['pinned', 'unread', 'settled', 'order', 'sectionId'].includes(key)) || Object.entries(p).some(([key, value]) => key === 'order' ? typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > 1_000_000 : key === 'sectionId' ? value !== null && (typeof value !== 'string' || value.length > 200) : typeof value !== 'boolean')) throw new HarnessError('INVALID_INPUT', 'Invalid thread presentation');
+        if (typeof p.sectionId === 'string' && !this.sidebarSections().some(section => section.id === p.sectionId)) throw new HarnessError('INVALID_INPUT', 'Unknown section');
         const next = { ...thread, presentation: { ...thread.presentation, ...p } }; this.store.put('thread', thread.id, thread.id, next); return next;
       }
       case "thread.archive": {

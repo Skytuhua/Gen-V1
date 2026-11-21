@@ -3,19 +3,22 @@ import type { ThreadNavigationRow as Thread } from '../../../packages/contracts/
 import {chordFor} from './keyboard-bindings';
 import {matchesShortcut} from './shell-layout';
 
-export type SidebarSection = 'pinned' | 'working' | 'flat' | 'settled';
+export type SidebarSection = 'pinned' | 'working' | 'flat' | 'settled' | `section:${string}`;
 type Patch = NonNullable<Thread['presentation']>;
-export type SidebarLists = Record<SidebarSection, Thread[]>;
+export type SidebarLists = Record<string, Thread[]>;
 export interface DropTarget { list: SidebarSection; index: number }
 export interface OrderWrite { id: string; order: number }
 
 /** The section a row occupies after a presentation patch, mirroring the sidebar filters. */
-export function sectionOf(item: Thread, showWorking: boolean, patch: Patch = {}): SidebarSection {
+export function sectionOf(item: Thread, showWorking: boolean, patch: Patch = {}, sectionIds?: ReadonlySet<string>): SidebarSection {
   const pinned = patch.pinned ?? item.presentation?.pinned ?? false;
   const settled = patch.settled ?? item.presentation?.settled ?? false;
+  const sectionId = patch.sectionId === undefined ? item.presentation?.sectionId : patch.sectionId;
   if (pinned) return 'pinned';
   if (showWorking && (Boolean(item.runId) || item.status === 'working' || item.status === 'awaiting_input')) return 'working';
+  // R04 DECIDED: settling wins over section membership — a settled member lives in Settled.
   if (settled) return 'settled';
+  if (sectionIds && typeof sectionId === 'string' && sectionIds.has(sectionId)) return `section:${sectionId}`;
   return 'flat';
 }
 
@@ -42,10 +45,15 @@ export function rebalance(list: readonly Thread[], item: Thread, index: number):
 }
 
 /** The flag patch a drop onto list produces for item, or null when the drop is invalid. */
-export function dropPatch(item: Thread, target: DropTarget, showWorking: boolean): Patch | null {
+export function dropPatch(item: Thread, target: DropTarget, showWorking: boolean, sectionIds?: ReadonlySet<string>): Patch | null {
   if (target.list === 'pinned') return { pinned: true };
-  const patch: Patch = { pinned: false };
-  return sectionOf(item, showWorking, patch) === target.list ? patch : null;
+  if (target.list.startsWith('section:')) {
+    const sectionId = target.list.slice('section:'.length);
+    const patch: Patch = { pinned: false, settled: false, sectionId };
+    return sectionOf(item, showWorking, patch, sectionIds) === target.list ? patch : null;
+  }
+  const patch: Patch = target.list === 'flat' ? { pinned: false, sectionId: null } : { pinned: false };
+  return sectionOf(item, showWorking, patch, sectionIds) === target.list ? patch : null;
 }
 
 /**
@@ -104,6 +112,10 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
   showWorking: boolean;
   /** Group a row belongs to when the list renders grouped runs; drops stay inside them. */
   groupKey?: (item: Thread) => string | null;
+  /** Section ids that currently exist; section membership resolves only inside this set. */
+  sectionIds?: () => ReadonlySet<string>;
+  /** Spring-load: expand a collapsed section header the pointer dwells on during a drag. */
+  expand?: (list: SidebarSection) => void;
   presentation: (item: Thread, patch: Patch) => Promise<boolean>;
   ensureManualOrder?: () => Promise<boolean>;
   prepareMove: (id: string, order: number, viaPointer?: boolean) => void;
@@ -116,7 +128,9 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
   const dragged = useRef<Thread | null>(null);
 
   const itemOf = (id: string) => Object.values(state.current.lists()).flat().find(row => row.id === id);
-  const clear = () => { dragged.current = null; setDragging(null); setTarget(null); };
+  const spring = useRef<{ list: SidebarSection; timer: number } | null>(null);
+  const clearSpring = () => { if (spring.current) { clearTimeout(spring.current.timer); spring.current = null; } };
+  const clear = () => { dragged.current = null; clearSpring(); setDragging(null); setTarget(null); };
 
   const commit = async (item: Thread, patch: Patch, writes: OrderWrite[], viaPointer = true) => {
     const mine = writes.find(write => write.id === item.id)?.order ?? writes.at(-1)?.order ?? 0;
@@ -138,7 +152,7 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
     if (!element || state.current.locked()) return null;
     const hit = insertionAt(element, point.x, point.y, item.id);
     if (!hit) return null;
-    const patch = dropPatch(item, hit.target, state.current.showWorking);
+    const patch = dropPatch(item, hit.target, state.current.showWorking, state.current.sectionIds?.());
     if (!patch) return { ...hit, valid: false as const };
     const { list } = hit.target, rows = state.current.lists()[list].filter(row => row.id !== item.id);
     const index = withinGroup(list, rows, item, hit.target.index, state.current.groupKey);
@@ -148,15 +162,36 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
     return { target: { list, index }, top: hit.gap(index), valid: true as const, patch, writes };
   };
 
+  const dropTargetList = target?.valid ? target.target.list : null;
+
   const drop = (item: Thread, point: { x: number; y: number }) => {
     const resolved = resolve(item, point);
     clear();
     if (resolved?.valid) void commit(item, resolved.patch, resolved.writes);
   };
 
+  /** Section keys in visual order plus the flat tail, the Alt+Shift+Arrow ladder. */
+  const ladder = () => [...Object.keys(state.current.lists()).filter(key => key.startsWith('section:')) as SidebarSection[], 'flat' as const];
+  const moveToSection = (item: Thread, delta: -1 | 1) => {
+    if (state.current.locked()) return false;
+    const steps = ladder();
+    const sectionId = item.presentation?.sectionId;
+    const from = steps.indexOf(sectionId && state.current.sectionIds?.().has(sectionId) ? `section:${sectionId}` : 'flat');
+    if (from < 0) return false;
+    const to = from + delta;
+    if (to < 0 || to >= steps.length) return false;
+    const list = steps[to]!, rows = state.current.lists()[list].filter(row => row.id !== item.id);
+    const patch = dropPatch(item, { list, index: rows.length }, state.current.showWorking, state.current.sectionIds?.());
+    if (!patch) return false;
+    const order = orderFor(rows, rows.length);
+    const writes = order === null ? rebalance(state.current.lists()[list], item, rows.length) : [{ id: item.id, order }];
+    void commit(item, patch, writes, false);
+    return true;
+  };
+
   const move = (item: Thread, delta: -1 | 1) => {
     if (state.current.locked()) return false;
-    const section = sectionOf(item, state.current.showWorking);
+    const section = sectionOf(item, state.current.showWorking, {}, state.current.sectionIds?.());
     const rows = state.current.lists()[section];
     const from = rows.findIndex(row => row.id === item.id);
     if (from < 0) return false;
@@ -179,6 +214,12 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
     const over = (event: DragEvent) => {
       const item = dragged.current;
       if (!item || !event.dataTransfer) return;
+      const header = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-section-header][aria-expanded="false"]') : null;
+      const hover = header?.dataset.sectionHeader as SidebarSection | undefined;
+      if (hover && hover !== spring.current?.list) {
+        clearSpring();
+        spring.current = { list: hover, timer: window.setTimeout(() => { spring.current = null; state.current.expand?.(hover); }, 600) };
+      } else if (!hover) clearSpring();
       const resolved = resolve(item, { x: event.clientX, y: event.clientY });
       const rect = element.getBoundingClientRect();
       if (event.clientY - rect.top < 28) element.scrollTop -= 10;
@@ -289,6 +330,7 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
 
   return {
     dragging,
+    dropTargetList,
     indicatorTop: target?.valid ? target.top - (nav.current?.getBoundingClientRect().top ?? 0) + (nav.current?.scrollTop ?? 0) : null,
     /** Call from the row's onDragStart after the workspace payload has been written. */
     begin(item: Thread) { dragged.current = item; setDragging(item); },
@@ -297,6 +339,8 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
     key(item: Thread, event: ReactKeyboardEvent<HTMLButtonElement>) {
       if (matchesShortcut(event, chordFor('thread-reorder-up'))) { event.preventDefault(); return move(item, -1); }
       if (matchesShortcut(event, chordFor('thread-reorder-down'))) { event.preventDefault(); return move(item, 1); }
+      if (matchesShortcut(event, chordFor('thread-move-section-up'))) { event.preventDefault(); return moveToSection(item, -1); }
+      if (matchesShortcut(event, chordFor('thread-move-section-down'))) { event.preventDefault(); return moveToSection(item, 1); }
       return false;
     },
   };
