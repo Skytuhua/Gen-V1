@@ -14,8 +14,15 @@ import {secureDirectory} from '../runtime-official/manifest.ts';
 import {readBoundFile,removeOwnedFile,withPathGuard} from '../core/file-access.ts';
 import {CODE_REVIEW_LIMITS,ComparisonFileRequestSchema,type CodeReviewComparison,type ComparisonPatch,type ComparisonRead,type PullRequestComparisonIdentity} from '../contracts/code-review.ts';
 import {ComparisonSnapshots,PullComparisonSchema,RemoteComparisonSchema,comparisonError,comparisonResult,normalizeChecks,remotePatch,reviewHash} from './code-review.ts';
+import type {RemoteAlertEvidence} from './dependency-normalize.ts';
 
 const repository=z.string().regex(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/),number=z.number().int().positive();
+const dependabotAlertRow=z.strictObject({
+  state:z.string(),
+  dependency:z.object({package:z.object({name:z.string().min(1).max(256),ecosystem:z.string().optional()}),manifest_path:z.string().max(1024).optional()}).optional(),
+  security_advisory:z.object({ghsa_id:z.string().min(1).max(128),cve_id:z.string().max(32).nullable().optional(),identifiers:z.array(z.object({type:z.string(),value:z.string().max(128)})).max(64).optional(),severity:z.string().optional()}),
+  security_vulnerability:z.object({vulnerable_version_range:z.string().max(512).optional(),first_patched_version:z.object({identifier:z.string().max(256)}).nullable().optional(),severity:z.string().optional()}).optional(),
+});
 const bodyText=z.string().max(64000).refine(value=>Buffer.from(value,'utf8').toString('utf8')===value,'Pull request text must be valid Unicode.');
 const quote=(path:string)=>"'"+path.replaceAll('\\','/').replaceAll("'","'\\''")+"'";
 const bundledGh=fileURLToPath(new URL('../../.harness-tool-bundles/gh/bin/gh.exe',import.meta.url));
@@ -57,6 +64,24 @@ export class GitHubTools{
  }
  async repo(projectId:string,threadId?:string){const{path}=await this.projects.binding(projectId,threadId),url=(await this.projects.git(path,['remote','get-url','origin'])).trim(),match=/^(?:https:\/\/github\.com\/|git@github\.com:)([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+?)(?:\.git)?$/.exec(url);if(!match)throw new HarnessError('GITHUB_REMOTE_REQUIRED','Use an origin remote hosted on github.com.');return{path,repo:repository.parse(match[1])};}
  async list(projectId:string,threadId?:string){const{path,repo}=await this.repo(projectId,threadId),items=this.parseOutput(await this.run(path,['pr','list','--repo',repo,'--state','all','--limit','50','--json','number,title,url,state,headRefOid,headRefName,isDraft'])) as PullRequest[];return{repo,items};}
+ /** Bounded read of open Dependabot alerts for the bound GitHub origin (plan r1 T03). */
+ async dependabotAlerts(projectId:string,threadId?:string):Promise<RemoteAlertEvidence[]>{
+  const{path,repo}=await this.repo(projectId,threadId),alerts:RemoteAlertEvidence[]=[],severityMap:Record<string,'low'|'medium'|'high'|'critical'>={low:'low',medium:'medium',moderate:'medium',high:'high',critical:'critical'};
+  for(let page=1;page<=5;page++){
+   let rows:z.infer<typeof dependabotAlertRow>[];
+   try{rows=z.array(dependabotAlertRow).parse(this.parseOutput(await this.run(path,['api',`repos/${repo}/dependabot/alerts?state=open&per_page=100&page=${page}`])));}
+   catch(error){if(error instanceof HarnessError&&error.code==='GITHUB_CLI_FAILED')throw new HarnessError('GITHUB_DEPENDABOT_UNAVAILABLE','Dependabot alerts are unavailable for this repository. The signed-in GitHub account needs Dependabot alerts read permission.');throw error;}
+   for(const row of rows){
+    if(row.state!=='open')continue;
+    const pkg=row.dependency?.package?.name;if(!pkg)continue;
+    const ids=new Set<string>([row.security_advisory.ghsa_id]);if(row.security_advisory.cve_id)ids.add(row.security_advisory.cve_id);for(const identifier of row.security_advisory.identifiers??[])if(identifier.value)ids.add(identifier.value);
+    const named=(row.security_vulnerability?.severity??row.security_advisory.severity??'').toLowerCase();
+    alerts.push({package:pkg,manifestPath:row.dependency?.manifest_path,advisoryIds:[...ids].slice(0,64),severity:severityMap[named]??'unknown',firstPatched:row.security_vulnerability?.first_patched_version?.identifier??null,vulnerableRange:row.security_vulnerability?.vulnerable_version_range,matchedOccurrence:false});
+   }
+   if(rows.length<100)break;
+  }
+  return alerts;
+ }
  async create(projectId:string,threadId:string|undefined,input:Record<string,unknown>,beforeWrite?:()=>void){
   const{path,repo}=await this.repo(projectId,threadId),status=await this.projects.gitStatus(projectId,threadId);if(status.gitWrite!==true)throw new HarnessError('PROJECT_READ_ONLY','Pull request creation requires a writable managed working copy.');if(input.revision!==status.revision||input.head!==status.head)throw new HarnessError('REVISION_CHANGED','The reviewed working copy changed. Refresh before creating the pull request.');
   if(status.files.length)throw new HarnessError('UNCOMMITTED_CHANGES','Commit the reviewed changes before creating the pull request.');
