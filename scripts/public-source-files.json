@@ -3213,6 +3213,8 @@
     "tests/e2e/thread-move.vite.config.ts",
     "tests/e2e/tool-effect-details.spec.ts",
     "tests/e2e/tool-effects-host.spec.ts",
+    "tests/e2e/turn-duration.playwright.config.ts",
+    "tests/e2e/turn-duration.spec.ts",
     "tests/e2e/ui-shell-controls-fixture.tsx",
     "tests/e2e/ui-shell-controls.playwright.config.ts",
     "tests/e2e/ui-shell-controls.spec.ts",

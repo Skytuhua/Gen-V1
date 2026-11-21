@@ -79,6 +79,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('project-memory-host'),
   suite('wo5-app-integration'),
   suite('runtime-presentation'),
+  suite('turn-duration'),
   suite('shared-panels'),
   suite('shell', ['frontend.spec.ts']),
   suite('short-tool-overflow'),
