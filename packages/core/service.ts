@@ -13,11 +13,11 @@ import { createRepositoryMapReader } from './repository-map-host.ts';
 import type {AccountAuthTarget} from '../contracts/authentication.ts';
 import {privateFamilyForBinding} from '../workspace/git-storage.ts';
 import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
-import { existsSync, lstatSync, realpathSync } from 'node:fs';
+import { lstatSync, realpathSync } from 'node:fs';
 import { basename, join, relative, resolve, sep } from "node:path";
 import { Store, digest, compactionOwnerKey, type CompactionAttemptRecord } from "../storage/store.ts";
 import {PersonalResearchRepository} from '../research/repository.ts';
-import { assertNotStorage, canonical, inside, resolveGrant, projectMemoryDeletionLedgerPath } from "./security.ts";
+import { assertNotStorage, canonical, inside, resolveGrant } from "./security.ts";
 import { withResourceGrant } from "./file-access.ts";
 import { admitSchema, validateJson, widgetDefinition, GENERATED_APPS_ENABLED } from "./widgets.ts";
 import { patchSpec, protectedFingerprint } from "./presentation.ts";
@@ -38,7 +38,7 @@ import {accountResolver,assertAccountAvailable,changeAccount,modelProvider,sweep
 import {isConnectionProviderId} from '../contracts/connections.ts';
 import {applySkillOperations,curateSkills,decideSkillProposal,listSkills,setSkillFlags,skillIndex,viewSkill,viewSkillProposal} from './skills.ts';
 import {LearningCoordinator,type LearningJob,type LearningOutcome,type LearningToolResult} from './learning.ts';
-import {LEARN_REQUEST,learningReviewPrompt,searchSessions} from './learning-context.ts';
+import {LEARN_REQUEST,searchSessions} from './learning-context.ts';
 import type {SkillActor,SkillChangeResult} from '../contracts/skills.ts';
 import type {HermesEvent} from '../runtime-hermes/client.ts';
 import type {HermesRuntime} from '../runtime-hermes/index.ts';
@@ -70,6 +70,7 @@ import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} 
 import {BrowserConsentHost, hostControlDriverRegistry} from './browser-consent.ts';
 import {sourceRefsV1Schema, sendModeV1Schema, WORKBENCH_LIMITS, type SendModeV1} from '../contracts/source-selection.ts';
 import {ProjectMemoryHost} from './project-memory-host.ts';
+import {ServiceMemory} from './service-memory.ts';
 import {applySessionBranch} from './session-branches.ts';
 import {cancelImport,commitImport,prepareImport,stageImport} from './history-import.ts';
 import type {MemoryExtractionAdmission,MemoryExtractionJob} from './memory-extraction.ts';
@@ -159,7 +160,7 @@ export class Service {
   private readonly nativeCompactionAdmissions = new Map<string, {request: NativeCompactionAdmissionV1; assertCurrent: () => void; attempted: boolean; accepted: boolean}>();
   private readonly compactionModelOwners = new Map<string, {ctx: RunContext; candidateId: string; ownerKey: string; binding: CompactionAttemptRecord['metadata']['binding']}>();
   private curatorTimer:ReturnType<typeof setInterval>;
-  private memoryPurgeFailure: string | null = null;
+
   private readonly source?:SourceIntegration;
   private readonly predictions:ComposerPredictions;
   private predictionMutations=0;
@@ -256,7 +257,8 @@ export class Service {
   private readonly inferenceOwners = new Map<string, { ctx: RunContext; basis: string; sequence: number }>();
   private readonly requestRegistryDigest=digest(buildToolRegistry());
   private requestPreparationWork=0;
-  private memoryHostInstance?:ProjectMemoryHost;
+  private readonly memory:ServiceMemory;
+  private get memoryHostInstance(){return this.memory.memoryHostInstance;}
   private readonly hostOperationExecutors:ReadonlyMap<string,HostOperationExecutor>;
   constructor(readonly store: Store, readonly runtime: RuntimeAdapter,private readonly options:ServiceOptions={}) {
     const hostExecutors=Object.entries(options.hostOperationExecutors??{});
@@ -310,22 +312,22 @@ export class Service {
         await this.command({id:randomUUID(),type:'message.send',threadId:thread.id,payload:{content:request.content,modelId:request.modelId}});
         return {threadId:thread.id};
       }});
+    this.memory=new ServiceMemory({
+      store,learning:this.learning,learningCalls:this.learningCalls,
+      isClosed:()=>this.closed,isClosing:()=>this.closed||this.updateClosing,
+      reviewing:()=>this.reviewing,cancelReview:()=>this.cancelReview(),
+      preferences:()=>this.preferences,lastActivity:()=>this.lastActivity,markActivity:stamp=>{this.lastActivity=stamp;},
+      learningSupported:()=>this.learningSupported,predictionMutations:()=>this.predictionMutations,
+      hasGate:id=>this.hasGate(id),source:()=>this.source,background:job=>this.background(job),
+      sourceWorkbench:this.sourceWorkbench,
+      prepareRequest:(threadId,prompt,o)=>this.prepareRequestContext(threadId,prompt,o),
+      getPreparation:(threadId,requestId)=>this.getRequestPreparation(threadId,requestId),
+      releaseRequest:requestId=>this.requestCustody.release(requestId,'cancelled'),
+    },{extractionFactory:options.memoryExtractionRuntimeFactory,extractionAdmission:options.memoryExtractionAdmission});
     this.curatorTimer=setInterval(()=>{if(!this.closed&&!this.updateClosing)this.curateIdle();},60_000);this.curatorTimer.unref();
   }
   /** Retire eligible local copies even if memory injection was disabled after Forget. */
-  private purgeMemoryRetention():void {
-    if(this.closed||this.updateClosing||!this.store.db.isOpen||this.memoryHostInstance?.busy)return;
-    try {
-      const hasTombstones=Boolean(this.store.db.prepare("SELECT 1 FROM entities WHERE kind='projectMemoryTombstone' LIMIT 1").get());
-      if(!this.memoryHostInstance&&!hasTombstones&&!existsSync(projectMemoryDeletionLedgerPath(this.store.dataDir)))return;
-      (this.memoryHostInstance??this.memoryHost()).memory.purge(Date.now(),20);
-      this.memoryPurgeFailure=null;
-    } catch(error) {
-      // Leave the tombstone PENDING. Do not report a completed physical purge.
-      const code=error instanceof HarnessError?error.code:'MEMORY_PURGE_DEFERRED';
-      if(this.memoryPurgeFailure!==code){this.memoryPurgeFailure=code;console.warn('Project memory purge deferred:',code);}
-    }
-  }
+  private purgeMemoryRetention():void { this.memory.purgeRetention(); }
   private executionAdviceHostInstance?:OperationExecutionAdviceHost;
   get executionAdvice(): OperationExecutionAdviceHost {
     return this.executionAdviceHostInstance ??= new OperationExecutionAdviceHost(this.store, {
@@ -342,26 +344,16 @@ export class Service {
       assertHostActive: () => { if (this.closed || this.updateClosing) throw new HarnessError('HOST_CLOSING', 'Gen is closing'); },
     });
   }
-  private memoryHost():ProjectMemoryHost {
-    if(this.closed)throw new HarnessError('CANCELLED_RUN','The memory host has closed.');
-    return this.memoryHostInstance??=new ProjectMemoryHost(this.store,{extractionFactory:this.options.memoryExtractionRuntimeFactory,extractionAdmission:this.options.memoryExtractionAdmission,
-      readFileSource:(owner,ref)=>this.sourceWorkbench.retainedFile({logicalOwner:owner,ref}),
-      canExtract:()=>!this.closed&&!this.updateClosing&&!this.predictionMutations&&!this.store.all<Thread>('thread').some(thread=>!!thread.runId||thread.status==='working'||thread.status==='awaiting_input'),
-      beforeExtract:async()=>{if(this.reviewing)await this.cancelReview();},
-    });
-  }
-  get projectMemory(){return this.memoryHost().memory;}
+  private memoryHost():ProjectMemoryHost { return this.memory.memoryHost(); }
+  get projectMemory(){return this.memory.memory;}
   async prepareProjectMemory(projectId:string,threadId:string,prompt:string,options:RequestPreparationOptions={}){
-    const memory=this.projectMemory,access=await memory.access(projectId,threadId);
-    if(!capabilityEnabled('memory.projectV1')||!memory.isEnabled(access))return null;
-    const preparation=await this.prepareRequestContext(threadId,prompt,options),view=this.memoryHost().preparedView(preparation);
-    if(!view)this.requestCustody.release(preparation.requestId,'cancelled');return view;
+    return this.memory.prepare(projectId,threadId,prompt,options);
   }
-  latestProjectMemory(projectId:string,threadId:string){return this.memoryHost().latest(projectId,threadId);}
+  latestProjectMemory(projectId:string,threadId:string){return this.memory.latest(projectId,threadId);}
   excludeProjectMemory(requestId:string,input:{scope:MemoryScope;contextGeneration:number;itemId:string;revision:number}){
-    const preparation=this.getRequestPreparation(input.scope.threadId,requestId);return this.memoryHost().exclude(preparation,input);
+    return this.memory.exclude(requestId,input);
   }
-  projectMemoryReviewed(access:MemoryAccess,operation:MemoryAction):void {this.background(this.memoryHost().reviewed(access,operation));}
+  projectMemoryReviewed(access:MemoryAccess,operation:MemoryAction):void {this.memory.reviewed(access,operation);}
   private background(promise: Promise<unknown>): void {
     this.pending.add(promise); void promise.catch(() => {}).finally(() => this.pending.delete(promise));
   }
@@ -482,25 +474,8 @@ export class Service {
       this.store.put('learningStatus','global',null,{...old,supported:this.learningSupported,status:outcome.cleanupConfirmed===false?'blocked':'idle',lastReview:{sourceThreadId:job.source.threadId,sourceRunId:job.source.runId,modelId:job.modelId,accountId:job.accountId,startedAt:old?.lastReview?.startedAt??now(),finishedAt:now(),...outcome}});
     });
   }
-  private async reviewAfter(ctx:RunContext,force=false):Promise<boolean> {
-    if(this.source)return false;
-    if(this.closed||!this.learningSupported||this.learning.busy)return false;
-    const thread=this.store.get<Thread>('thread',ctx.threadId),preferences=this.preferences;
-    if(!thread||thread.sideParentId||thread.mode==='plan'||thread.epoch!==ctx.epoch||thread.runId||!thread.modelId||!isConnectionProviderId(modelProvider(thread.modelId))||!['ready','completed'].includes(thread.status)||this.store.get('archivedThread',thread.id)||this.store.all<Thread>('thread').some(item=>item.runId)||this.hasGate(thread.id)||this.store.all<Outbox>('outbox',thread.id).some(input=>input.status!=='handled')||this.store.all<Operation>('operation',thread.id).some(op=>['prepared','running','unknown'].includes(op.status))||!preferences.learningEnabled||!force&&(!preferences.learningInterval||(this.learningCalls.get(thread.id)??0)<preferences.learningInterval))return false;
-    if(!this.store.all<Message>('message',thread.id).some(message=>message.role==='assistant'&&message.runId===ctx.runId))return false;
-    const job:LearningJob={source:{...ctx},modelId:thread.modelId,accountId:thread.accountId??null,thinkingLevel:thread.thinkingLevel,prompt:learningReviewPrompt(this.store,thread,ctx,skillIndex(this.store))};
-    this.learningCalls.set(thread.id,0);
-    this.store.internal('learning.started',thread.id,()=>{const old=this.store.get<Snapshot['learning']>('learningStatus','global');this.store.put('learningStatus','global',null,{...old,supported:true,status:'reviewing',lastReview:{sourceThreadId:thread.id,sourceRunId:ctx.runId,modelId:job.modelId,accountId:job.accountId,status:'reviewing',startedAt:now(),toolCalls:0,inputBytes:Buffer.byteLength(job.prompt),appliedChanges:0}});});
-    return this.learning.start(job);
-  }
-  private curateIdle():void {
-    const preferences=this.preferences,stamp=Date.now();
-    if(!preferences.skillCurator||this.reviewing||stamp-this.lastActivity<2*60*60*1000||this.store.all<Thread>('thread').some(thread=>thread.runId))return;
-    const old=this.store.get<{lastCuratedAt?:string}>('learningStatus','global');
-    if(old?.lastCuratedAt&&stamp-Date.parse(old.lastCuratedAt)<7*24*60*60*1000)return;
-    if(this.source){this.lastActivity=stamp;this.background(this.source.library.command({id:randomUUID(),type:'learning.curate',payload:{}}));return;}
-    this.store.internal('learning.curated',null,()=>{if(old?.lastCuratedAt)curateSkills(this.store);this.store.put('learningStatus','global',null,{...old,supported:this.learningSupported,status:'idle',lastReview:this.store.get<Snapshot['learning']>('learningStatus','global')?.lastReview??null,lastCuratedAt:now()});});
-  }
+  private async reviewAfter(ctx:RunContext,force=false):Promise<boolean> { return this.memory.reviewAfter(ctx,force); }
+  private curateIdle():void { this.memory.curateIdle(); }
   private enqueueInput(input: Outbox): void {
     const thread = this.store.get<Thread>("thread", input.threadId);
     const finish = thread?.runId ? this.store.get<FinishRecord>("finish", thread.runId) : null;
