@@ -247,6 +247,24 @@ deadlines. Install the browser required by each configuration before running it.
 The suite list in `scripts/browser-suites.ts` is checked against every spec file;
 adding a spec requires assigning its fixture configuration there.
 
+### Environment-dependent test failures
+
+`pnpm test` and `pnpm test:no-lease` assume a complete native toolchain and the
+prepared runtime inputs above. The failures below reflect the machine, not a
+regression. To confirm a failure is environmental, run only the affected file:
+`pnpm exec vitest run <file>`.
+
+| Error text | Cause | Fix |
+| --- | --- | --- |
+| `Error: Trusted widget receiver is missing. Run pnpm build:widgets before starting the application or tests.` | A test importing `apps/server` ran before `pnpm build:widgets` produced `dist/widget-runtime/`. (Verified: `pnpm exec vitest run tests/server.test.ts` with `dist/` absent fails at import.) | `pnpm build:widgets` |
+| `HarnessError: PI_CREDENTIAL_LEASE_UNAVAILABLE` caused by `Cannot find module './windows-credential-lease.node'` | The `windows-credential-lease.node` addon was never built — `pnpm test:no-lease` skips `pnpm build:credential-lease`, which needs the Visual Studio C++ toolchain. Windows-only suite; other platforms skip it. (Error raised at `packages/core/windows-credential-lease.ts`.) | Install the Visual Studio "Desktop development with C++" workload, then `pnpm build:credential-lease`. |
+| `gyp ERR! find VS` / `could not find any Visual Studio installation` during `pnpm install` | `node-pty` cannot find MSVC. The install warns but does not fail; PTY-spawning tests then fail. (Windows; on Linux `node-pty` builds with gcc.) | Install the Visual Studio Build Tools C++ workload, then `pnpm rebuild node-pty`. |
+| `HarnessError: HERMES_START_FAILED — The pinned Python 3.14 runtime could not start.`, or files under `.harness-integrations-python-deps/` reported missing | Hermes Python/ACP tests ran without CPython 3.14 or the isolated dependencies. (Message from `packages/runtime-hermes/client.ts`.) | Install CPython 3.14, then run the pinned `--target` install described above; or set `HARNESS_HERMES_PYTHON` to the executable. |
+| `EBUSY: resource busy or locked` on a path under the temp directory | A still-running instance, antivirus or indexer holds a handle on the Windows temp directory. (Windows-only.) | Close the owning instance and retry, or set `TEMP`/`TMP` to a clean directory. |
+
+Symptoms the application itself shows at startup — rather than test failures —
+are listed next.
+
 ## Common startup issues
 
 | Symptom | What to check |
