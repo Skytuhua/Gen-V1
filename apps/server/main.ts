@@ -2,6 +2,7 @@ import {timingSafeEqual} from 'node:crypto';
 import {writeSync} from 'node:fs';
 import {launchHost,readHostOptions,type RunningHost} from './host.ts';
 import {handleDesktopControl} from './desktop-controls.ts';
+import {createControlSidecarChannel} from '../../packages/core/control-sidecar-driver.ts';
 
 const STARTUP_CODES=['ENOENT','EACCES','EPERM','EADDRINUSE','EADDRNOTAVAIL','EPIPE','ECONNRESET','ECONNREFUSED','ETIMEDOUT','ENOSPC','EMFILE','ENFILE','EIO','EINVAL','EBUSY','ERR_MODULE_NOT_FOUND','MODULE_NOT_FOUND','ERR_DLOPEN_FAILED','ERR_INVALID_ARG_TYPE','ERR_INVALID_ARG_VALUE','ERR_SQLITE_ERROR','SQLITE_BUSY','SQLITE_LOCKED','SQLITE_CANTOPEN','SQLITE_CORRUPT','ERR_CONNECTION_REFUSED','ERR_ABORTED','ERR_FAILED','ERR_FILE_NOT_FOUND','ERR_TIMED_OUT'] as const;
 // Keep the packaged server self-contained; only finite metadata crosses this boundary.
@@ -25,23 +26,27 @@ const sameToken=(value:unknown)=>typeof value==='string'&&/^[a-f0-9]{32,128}$/i.
 async function close(){
  requestedClose=true;
  deadline??=setTimeout(()=>{process.stderr.write('Harness shutdown exceeded its deadline.\n');process.exit(1);},10000);
- if(closing||!host)return;closing=true;
+ if(closing||!host)return;closing=true;controlChannel?.reset();
  try{await host.close();if(validToken)await message({type:'harness.stopped',token});process.exit(0);}
  catch(error){process.stderr.write((error instanceof Error?error.message:'Harness shutdown failed.')+'\n');process.exit(1);}
  finally{clearTimeout(deadline);}
 }
 process.on('SIGINT',()=>void close());process.on('SIGTERM',()=>void close());
 process.on('disconnect',()=>void close());
+// M16 control bridge: backend→desktop driver calls share the launch-token
+// channel. Replies route to pending calls before the request dispatcher.
+const controlChannel=validToken?createControlSidecarChannel({send:value=>message(value),token:token!}):undefined;
 process.on('message',(value:unknown)=>{
  if(!value||typeof value!=='object'||Array.isArray(value))return;
  const input=value as Record<string,unknown>;
  if(Object.keys(input).length===2&&input.type==='harness.shutdown'&&sameToken(input.token))void close();
+ else if(controlChannel?.handleReply(input))return;
  else if(host&&validToken&&!requestedClose)void handleDesktopControl(input,token!,host,message);
 });
 
 try{
  if(token!==undefined&&!validToken)throw new Error('HARNESS_DESKTOP_LAUNCH_TOKEN must be 32 to 128 hexadecimal characters.');
- host=await launchHost(readHostOptions());
+ host=await launchHost({...readHostOptions(),controlChannel});
  if(requestedClose)await close();
  else{
   process.stdout.write(`Harness host: ${host.origin}\n`);

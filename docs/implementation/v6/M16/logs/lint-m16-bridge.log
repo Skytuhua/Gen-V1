@@ -1,0 +1,7 @@
+argv: ["pnpm","lint"]
+cwd: %USERPROFILE%/repos/Gen-V1-m16-bridge
+exitCode: 0
+termination: NONE
+
+summary (WIN-M0N0V07LGM1, bridge cut e4531ae2): pnpm lint (tsx scripts/lint-ui.ts --check) — "UI guard: 618 sources; 0 violations; 39 inventoried legacy/geometry occurrences (not primitive approvals); 0 retired entries."
+original: sha256 d0dc991c4e1bdd7dadbec470837297e8565cb476bc63ed0eacd437da95369ad8, 315 bytes — raw verifier log retained out-of-source (logs/provenance.json); private absolute paths/usernames redacted in this bounded summary.

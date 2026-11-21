@@ -1,0 +1,7 @@
+argv: ["node","node_modules/vitest/vitest.mjs","run","tests/browser-consent-v3.test.ts","tests/desktop-control-v3.test.ts","tests/interactive-control-decisions-v6.test.ts","tests/control-bridge-v6.test.ts","tests/control-runtime-v6.test.ts"]
+cwd: %USERPROFILE%/repos/Gen-V1-m16-bridge
+exitCode: 0
+termination: NONE
+
+summary (WIN-M0N0V07LGM1, bridge cut e4531ae2): vitest v4.1.12 — 5 files passed: control-bridge-v6 (20) 19ms, desktop-control-v3 (11) 9ms, control-runtime-v6 (6) 192ms, browser-consent-v3 (14) 330ms, interactive-control-decisions-v6 (8) 110ms; 59/59 tests passed, duration 1.82s; stderr carried only benign node:sqlite experimental warnings.
+original: sha256 85e01f27c4d7e034adc19eaa3a9d3907175cdeb6e0f44e4113e198c8c527bda9, 1329 bytes — raw verifier log retained out-of-source (logs/provenance.json); private absolute paths/usernames redacted in this bounded summary.

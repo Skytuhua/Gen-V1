@@ -1,0 +1,7 @@
+argv: ["pnpm","typecheck"]
+cwd: %USERPROFILE%/repos/Gen-V1-m16-bridge
+exitCode: 0
+termination: NONE
+
+summary (WIN-M0N0V07LGM1, bridge cut e4531ae2): pnpm typecheck (tsc --noEmit) completed with zero diagnostics; raw output contained only the script echo.
+original: sha256 0f21ef30218aacfd877d9b2dd042651aa8d7982bdc8336e55eb6aef6a497e37b, 181 bytes — raw verifier log retained out-of-source (logs/provenance.json); private absolute paths/usernames redacted in this bounded summary.

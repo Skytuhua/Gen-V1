@@ -144,6 +144,36 @@ export const controlDriverRegistrationV1Schema = z.strictObject({
 });
 export type ControlDriverRegistrationV1 = z.infer<typeof controlDriverRegistrationV1Schema>;
 
+/** Build manifest shipped beside the first-party control bridge artifact.
+ * The manifest binds the exact built binary: `packageDigest` is the SHA-256
+ * of the immutable artifact named by `artifact`, and `backendProofRef`
+ * identifies which backend/profile produced it (D02). The manifest itself is
+ * data — the host recomputes the artifact digest before registering, so a
+ * stale or edited manifest cannot qualify a different binary. */
+export const controlDriverManifestV1Schema = z.strictObject({
+  driverId: nonEmpty,
+  artifact: nonEmpty,
+  artifactSha256: sha256,
+  adapterModule: nonEmpty.nullable(),
+  adapterModuleSha256: sha256.nullable(),
+  apiProtocols: z.array(z.enum(['browser-tab', 'native-window'])).min(1),
+  backendProofRef: nonEmpty,
+  targetIdentityFormat: nonEmpty,
+  captureBounds: controlDriverRegistrationV1Schema.shape.captureBounds,
+  stopRoute: controlDriverRegistrationV1Schema.shape.stopRoute,
+});
+export type ControlDriverManifestV1 = z.infer<typeof controlDriverManifestV1Schema>;
+
+/** Stored capture record (store kind 'controlCapture'). Extends CaptureV1
+ * with the host-owned artifact location and content digest; the image bytes
+ * live only under the host artifact root and never leave it (S05/S08). */
+export const storedCaptureV1Schema = captureV1Schema.extend({
+  artifactRef: nonEmpty,
+  sha256: sha256,
+  mimeType: z.literal('image/png'),
+});
+export type StoredCaptureV1 = z.infer<typeof storedCaptureV1Schema>;
+
 /** D05/S07: host-classified effect risk for a control action. CAPTURE is
  * observation, admitted by the separate capture permission. CLICK and
  * KEYPRESS are consent-admitted input. TYPE is consent-admitted only when its

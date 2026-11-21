@@ -1,0 +1,7 @@
+argv: ["node","%TEMP%/m16-bound-fixture.cjs"]
+cwd: %USERPROFILE%/repos/Gen-V1-m16-bridge
+exitCode: TIMEOUT
+termination: SIGKILL(120s runner timeout; qualification complete, process hung at exit)
+
+summary (WIN-M0N0V07LGM1, bridge cut e4531ae2): owned notepad fixture — launched on %TEMP%/m16-bound-fixture-7c31a.txt ("m16-bound-fixture-7c31a.txt - Notepad"). listWindows() -> 7 rows; fixture bound as {"handle":789386,"processId":46148,"bounds":{"x":190,"y":118,"width":1280,"height":901},"dpiScale":1.5,"bindingId":"wgc-300000006"}. windowIdentity(bid) returned the same identity. captureWindow(bid) -> 46491 bytes, 1906x1345, PNG signature ok (saved under the workspace, not committed). WM_CLOSE destroy -> windowIdentity(old bid) null. Same-file relaunch (same-process replacement, same title): new row {"handle":1444540,"processId":51896,"bindingId":"wgc-500000006"}; old binding stayed null; captureWindow(old bid) rejected "The selected window binding is closed; the target no longer exists or cannot be re-proven." dropBinding(replacement bid) -> windowIdentity null; captureWindow(dropped bid) rejected same. Qualification complete; runner killed the hung process at the 120s bound (process-reaping anomaly on the degraded box — pnpm build hung identically without the addon).
+original: sha256 bc68ae31ecebfbb26431e7b188206b2aae69c8adb8783e0cc8151b07d8130838, 1853 bytes — raw verifier log retained out-of-source (logs/provenance.json); private absolute paths/usernames redacted in this bounded summary.

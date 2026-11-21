@@ -1,0 +1,16 @@
+argv: ["node","%TEMP%/m16-smoke-v2.cjs"]
+cwd: %USERPROFILE%/repos/Gen-V1-m16-bridge
+exitCode: 0
+termination: NONE
+
+summary (WIN-M0N0V07LGM1, bridge cut e4531ae2): addon smoke — keys ["pickWindow","listWindows","windowIdentity","captureWindow","dropBinding"]; listWindows() -> 6 rows, 0 rows missing bindingId/handle/processId (live desktop enumeration; third-party window titles redacted):
+ row {"handle":263792,"processId":23220,"title":"<redacted-window-title>","bounds":{"x":-1928,"y":661,"width":1936,"height":1048},"dpiScale":1,"bindingId":"wgc-100000000"}
+ row {"handle":197150,"processId":23600,"title":"<redacted-window-title>","bounds":{"x":-7,"y":-7,"width":1721,"height":1033},"dpiScale":1.5,"bindingId":"wgc-100000001"}
+ row {"handle":396074,"processId":42860,"title":"<redacted-window-title>","bounds":{"x":-1928,"y":661,"width":1936,"height":1048},"dpiScale":1,"bindingId":"wgc-100000002"}
+ row {"handle":9963490,"processId":25456,"title":"<redacted-window-title>","bounds":{"x":-1426,"y":897,"width":1050,"height":734},"dpiScale":1,"bindingId":"wgc-100000003"}
+ row {"handle":2886140,"processId":23220,"title":"<redacted-window-title>","bounds":{"x":-7,"y":-7,"width":1721,"height":1033},"dpiScale":1.5,"bindingId":"wgc-100000004"}
+ row {"handle":11471318,"processId":37344,"title":"<redacted-window-title>","bounds":{"x":-7,"y":-7,"width":1721,"height":1033},"dpiScale":1.5,"bindingId":"wgc-100000005"}
+pickWindow(null) rejected = CONTROL_PICKER_BINDING_UNSUPPORTED: the capture picker cannot return an authoritative window identity; selected-window control is held.
+windowIdentity('bogus-binding-id') -> null
+captureWindow(bogus) rejected = The selected window binding is closed; the target no longer exists or cannot be re-proven.
+original: sha256 315cfe651d1f947ee57e690dcf9fcb2190f7a985a844a4349fe148fd246eb8a2, 1810 bytes — raw verifier log retained out-of-source (logs/provenance.json); private absolute paths/usernames/window titles redacted in this bounded summary.

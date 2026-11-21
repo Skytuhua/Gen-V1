@@ -1,0 +1,9 @@
+argv: ["certutil","-hashfile","packages/core/windows-control-bridge.node","SHA256"]
+cwd: %USERPROFILE%/repos/Gen-V1-m16-bridge
+exitCode: 0
+termination: NONE
+
+summary (WIN-M0N0V07LGM1, bridge cut e4531ae2): certutil -hashfile packages/core/windows-control-bridge.node SHA256 →
+3c0ecafed1cb6ecb7c9667758bf5cebbb1249832ffd6051e9eff859cef39ff4c
+"CertUtil: -hashfile command completed successfully."
+original: sha256 435d651186bb6826001ecda3bf6952326330b0ec21c214d52e01f39d691ac4e0, 336 bytes — raw verifier log retained out-of-source (logs/provenance.json); private absolute paths/usernames redacted in this bounded summary.

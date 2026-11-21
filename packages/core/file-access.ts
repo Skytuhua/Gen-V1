@@ -52,8 +52,13 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
   child.once("exit", lost);
   child.once("error", lost);
   let diagnostics = "";
-  child.stderr.on("data", bytes => { if (diagnostics.length < 1024) diagnostics += String(bytes); });
-  const closed = new Promise<void>(finish => child.once("close", () => { current.exited = true; finish(); }));
+  const collectDiagnostics = (bytes: Buffer) => { if (diagnostics.length < 1024) diagnostics += String(bytes); };
+  child.stderr.on("data", collectDiagnostics);
+  let confirmClose!: () => void;
+  const closed = new Promise<void>(finish => { confirmClose = finish; });
+  const onClose = () => { current.exited = true; confirmClose(); };
+  child.once("close", onClose);
+  let cancelPendingRpc: (() => void) | undefined;
   let queue = Promise.resolve();
   current.rpc = (request,startupAcquisition=false) => {
     const pending = queue.then(() => new Promise<readonly GuardEntry[]>((accept, reject) => {
@@ -77,25 +82,62 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
           finish(undefined, Object.freeze(response.entries));
         } catch { finish(denied()); }
       };
-      const finish = (error?: Error, manifest: readonly GuardEntry[] = []) => { clearTimeout(timer); child.stdout.removeListener("data", data); child.removeListener("error", failed); child.removeListener("exit", failed); error ? reject(error) : accept(manifest); };
+      const finish = (error?: Error, manifest: readonly GuardEntry[] = []) => {
+        clearTimeout(timer);
+        cancelPendingRpc = undefined;
+        child.stdout.removeListener("data", data);
+        child.removeListener("error", failed);
+        child.removeListener("exit", failed);
+        error ? reject(error) : accept(manifest);
+      };
+      cancelPendingRpc = () => finish(denied());
       child.once("error", failed); child.once("exit", failed); child.stdout.on("data", data);
       child.stdin.write(JSON.stringify(request) + "\n");
     }));
     queue = pending.then(() => {}, () => {}); return pending;
   };
   const onError = () => {}; child.stdin.on("error", onError);
+  let fulfilled = false;
   try {
     child.stderr.resume();
     const manifest = await current.rpc({ command: "acquire", id: randomUUID(), paths },options?.startupAcquisition===true);
     active(signal); if (current.exited) throw denied();
     const value = await sessions.run(current, () => action(manifest));
     if (current.exited) throw denied();
+    fulfilled = true;
     return value;
   } finally {
     releasing=true;current.loss.clear();
+    // Shutdown can still deliver pipe or process errors after a timeout.
+    child.on("error", onError);
     child.stdin.end();
-    const timer = setTimeout(() => child.kill(), 2000);
-    await closed; clearTimeout(timer);
+    // Bounded teardown: the 2s graceful exit, then exactly one kill attempt
+    // and at most 2s more to confirm the close. A close we cannot confirm
+    // must never be claimed reaped.
+    const confirmed = await new Promise<boolean>(finish => {
+      const kill = setTimeout(() => { try { child.kill(); } catch { /* A refused kill leaves the close unconfirmed. */ } }, 2000);
+      const bound = setTimeout(() => finish(false), 4000);
+      closed.then(() => { clearTimeout(kill); clearTimeout(bound); finish(true); });
+    });
+    if (!confirmed) {
+      // Invalidate the session and remove only our listeners. Node's stream
+      // close handlers still account for the child process's stdio teardown.
+      current.exited = true;
+      current.rpc = () => Promise.reject(denied());
+      cancelPendingRpc?.();
+      child.removeListener("exit", lost);
+      child.removeListener("error", lost);
+      child.removeListener("close", onClose);
+      child.stderr.removeListener("data", collectDiagnostics);
+      child.stdout.on("error", onError);
+      child.stderr.on("error", onError);
+      for (const stream of [child.stdin, child.stdout, child.stderr]) {
+        stream.destroy();
+        (stream as { unref?: () => void }).unref?.();
+      }
+      child.unref?.();
+      if (fulfilled) throw denied();
+    }
   }
 }
 

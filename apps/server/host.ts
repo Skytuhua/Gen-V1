@@ -22,9 +22,13 @@ import {readPluginIndex} from '../../packages/plugins/installation.ts';
 import type {ExecutionBackend} from '../../packages/core/execution-policy.ts';
 import {createPersonalSkillCatalog} from '../../packages/skill-catalog/adapters.ts';
 import {configureHostCapabilityFlags,readCapabilityFlagOverrides,capabilityEnabled,type CapabilityFlagKey} from '../../packages/core/capability-flags.ts';
+import {createSidecarControlDriver,type ControlSidecarChannel} from '../../packages/core/control-sidecar-driver.ts';
+import {controlDriverManifestV1Schema,type ControlDriverRegistrationV1} from '../../packages/contracts/interactive-control.ts';
+import {HarnessError} from '../../packages/contracts/index.ts';
+import {createHash} from 'node:crypto';
 
-export interface HostOptions {dataDir:string;port:number;widgetPort:number;dev:boolean;pluginDir?:string;launchToken?:string;capabilityFlags?:Readonly<Partial<Record<CapabilityFlagKey,boolean>>>;toolEffectFlags?:EffectServiceOptions['toolEffectFlags'];approvedBackendId?:string;isolationBackends?:readonly ExecutionBackend[]}
-export interface RunningHost {attentionRead?():Promise<AttentionDelivery>;attentionAction?(type:'open'|'dismiss',eventId:string):Promise<{threadId?:string;dismissed?:boolean}>;origin:string;widgetOrigin:string;pid:number;close():Promise<void>;nativeLayout?:DesktopLayout;stopAll():Promise<{stopped:number;errors?:string[]}>;saveNativeLayout(layout:unknown):Promise<void>;validatePluginSurface?(surface:unknown):Promise<boolean>;pluginCompatibility?(version:string):Promise<{allowed:boolean}>;updateReadiness?():Promise<{idle:boolean}>;prepareUpdateClose?():Promise<{idle:boolean}>}
+export interface HostOptions {dataDir:string;port:number;widgetPort:number;dev:boolean;pluginDir?:string;launchToken?:string;capabilityFlags?:Readonly<Partial<Record<CapabilityFlagKey,boolean>>>;toolEffectFlags?:EffectServiceOptions['toolEffectFlags'];approvedBackendId?:string;isolationBackends?:readonly ExecutionBackend[];controlChannel?:ControlSidecarChannel}
+export interface RunningHost {attentionRead?():Promise<AttentionDelivery>;attentionAction?(type:'open'|'dismiss',eventId:string):Promise<{threadId?:string;dismissed?:boolean}>;origin:string;widgetOrigin:string;pid:number;close():Promise<void>;nativeLayout?:DesktopLayout;stopAll():Promise<{stopped:number;errors?:string[]}>;saveNativeLayout(layout:unknown):Promise<void>;validatePluginSurface?(surface:unknown):Promise<boolean>;pluginCompatibility?(version:string):Promise<{allowed:boolean}>;updateReadiness?():Promise<{idle:boolean}>;prepareUpdateClose?():Promise<{idle:boolean}>;controlAttach?(manifest:unknown):Promise<{registered:boolean}>}
 export interface HostFactories {
  acquireProfile:typeof acquireProfileLease;
  createStore(dataDir:string):Store;
@@ -128,6 +132,24 @@ export async function launchHost(options:HostOptions,overrides:Partial<HostFacto
    },
    async updateReadiness(){return {idle:accepting&&!pluginLoadFailed&&!await plugins?.isBusy()&&service!.isUpdateIdle()};},
    async prepareUpdateClose(){accepting=false;const idle=service!.freezeForUpdate();return {idle:idle&&!pluginLoadFailed&&!await plugins?.isBusy()};},
+   // M16 C3/C4: the desktop bridge pushes its built-artifact manifest over the
+   // launch-token channel. The host recomputes the artifact SHA-256 before the
+   // registration counts — an edited manifest cannot qualify a different binary (D02).
+   async controlAttach(manifest){
+    if(!accepting)throw new HarnessError('DRIVER_UNAVAILABLE','The host is not accepting control attachments.');
+    if(!options.controlChannel)throw new HarnessError('DRIVER_UNAVAILABLE','No control driver transport is available.');
+    const parsed=controlDriverManifestV1Schema.parse(manifest);
+    const digest=createHash('sha256').update(await readFile(parsed.artifact)).digest('hex');
+    if(digest!==parsed.artifactSha256)throw new HarnessError('DRIVER_ARTIFACT_MISMATCH','The built control driver artifact does not match its manifest digest.');
+    if(parsed.adapterModule!==null||parsed.adapterModuleSha256!==null){
+     if(parsed.adapterModule===null||parsed.adapterModuleSha256===null)throw new HarnessError('DRIVER_ARTIFACT_MISMATCH','The control driver manifest names only half of the adapter module binding.');
+     const moduleDigest=createHash('sha256').update(await readFile(parsed.adapterModule)).digest('hex');
+     if(moduleDigest!==parsed.adapterModuleSha256)throw new HarnessError('DRIVER_ARTIFACT_MISMATCH','The control driver adapter module does not match its manifest digest.');
+    }
+    const registrations=parsed.apiProtocols.map((protocol):ControlDriverRegistrationV1=>({driverId:`${parsed.driverId}:${protocol}`,packageDigest:digest,apiProtocol:protocol,backendProofRef:parsed.backendProofRef,targetIdentityFormat:parsed.targetIdentityFormat,captureBounds:parsed.captureBounds,supportsInputCancellation:true,stopRoute:parsed.stopRoute}));
+    service!.attachControlDriver(createSidecarControlDriver(options.controlChannel),registrations);
+    return {registered:true};
+   },
   };
  }catch(error){await close().catch(()=>{});throw error;}
 }

@@ -1,0 +1,7 @@
+argv: ["node","%TEMP%/m16-desktop-launch-v2.cjs"]
+cwd: %USERPROFILE%/repos/Gen-V1-m16-bridge
+exitCode: 3
+termination: NONE
+
+summary (WIN-M0N0V07LGM1, checkout 39d1d6da / bridge cut e4531ae2): isolated installed-app launch on fresh ephemeral ports — hostPort=54968 widgetPort=54969 debugPort=54970 (listen(0), no 9222/4317/4318), owned dataDir under %TEMP%, nonce verified NONCE_OK. Electron spawned pid=53700; CDP_READY true in ~0.5s; HARNESS_STARTUP_V1 stages: app-ready@29ms, layout-ready@33ms, shell-ready@52ms, backend-starting@53ms; MAIN_PAGE still absent at 40s; backend-deadline@60,062ms; backend-output: stdout 0 bytes (sha256 e3b0c442), stderr 169 bytes (sha256 e1f16b1d — benign node:sqlite warning); startup-failed@60,073ms — "Gen V1 startup failed: The local backend did not become ready"; ELECTRON_EXIT 0; RESULT: main-page-deadline — backend never published (driver exit 3).
+original: sha256 1c7c210bdbaff6daadb95f2d1a80d5d1f9c6133144ddd8c8a993ca869c2c658b, 2122 bytes — raw verifier log retained out-of-source (logs/provenance.json); private absolute paths/usernames redacted in this bounded summary (electron executable path, owned data dir, driver script).

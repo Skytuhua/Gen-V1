@@ -1,0 +1,7 @@
+argv: ["pnpm","build:control-bridge"]
+cwd: %USERPROFILE%/repos/Gen-V1-m16-bridge
+exitCode: TIMEOUT
+termination: SIGKILL(180s runner timeout; build output complete)
+
+summary (WIN-M0N0V07LGM1, bridge cut e4531ae2): pnpm build:control-bridge (node --import tsx scripts/build-windows-control-bridge.ts) — windows-control-bridge.cc compiled with two C4819 codepage warnings (lines 1 and 631; file lacks a codepage-marked encoding), library windows-control-bridge.lib and object windows-control-bridge.exp created, "Windows control bridge built." Build output complete; the process then hung at exit and the runner killed it at the 180s bound (same process-reaping anomaly as the fixture — environmental, not a build failure).
+original: sha256 94a31a5394fc38ca9b11c8f103204b32302bad665a5a1bc13110016c45d3044b, 926 bytes — raw verifier log retained out-of-source (logs/provenance.json); private absolute paths/usernames redacted in this bounded summary.

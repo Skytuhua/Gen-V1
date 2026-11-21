@@ -17,15 +17,16 @@ afterEach(() => {
   spawn.mockReset();
 });
 
-function guard() {
+function guard(options?: { closeOnEnd?: boolean; closeOnKill?: boolean }) {
   const requests: { id: string; command: string }[] = [];
   const child = Object.assign(new EventEmitter(), {
     stdout: new PassThrough(), stderr: new PassThrough(),
     stdin: new Writable({
       write(bytes, _encoding, done) { requests.push(JSON.parse(String(bytes))); done(); },
-      final(done) { queueMicrotask(() => close(0)); done(); },
+      final(done) { if (options?.closeOnEnd !== false) queueMicrotask(() => close(0)); done(); },
     }),
-    kill: vi.fn(() => { close(1); return true; }),
+    kill: vi.fn(() => { if (options?.closeOnKill !== false) close(1); return true; }),
+    unref: vi.fn(),
   });
   let closed = false;
   function close(code: number) { if (!closed) { closed = true; child.emit('exit', code, null); child.emit('close', code, null); } }
@@ -160,4 +161,75 @@ it('rejects late sixteen-second replies on each fresh ordinary guard', async () 
     expect(action).not.toHaveBeenCalled(); expect(g.child.stdin.writableEnded).toBe(true);
   }
   expect(spawn).toHaveBeenCalledTimes(2);
+});
+
+it('settles a denied startup acquisition inside the bounded close when the child never exits', async () => {
+  const g = guard({ closeOnEnd: false, closeOnKill: false }), action = vi.fn(async () => 'guarded');
+  const stdoutClosed = vi.fn();
+  g.child.stdout.once('close', stdoutClosed);
+  const observed = observe(startupGuard([path], signal(), action));
+  await vi.advanceTimersByTimeAsync(45_000);
+  expect(observed.settled()).toBe(false);
+  expect(action).not.toHaveBeenCalled();
+  expect(g.child.stdin.writableEnded).toBe(true);
+  await vi.advanceTimersByTimeAsync(2_000);
+  expect(g.child.kill).toHaveBeenCalledTimes(1);
+  expect(observed.settled()).toBe(false);
+  await vi.advanceTimersByTimeAsync(1_999);
+  expect(observed.settled()).toBe(false);
+  await vi.advanceTimersByTimeAsync(1);
+  expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });
+  expect(action).not.toHaveBeenCalled();
+  expect(g.child.kill).toHaveBeenCalledTimes(1);
+  expect(g.child.unref).toHaveBeenCalledTimes(1);
+  expect(g.child.stdin.destroyed).toBe(true);
+  expect(g.child.listenerCount('close')).toBe(0);
+  g.child.stdout.emit('close');
+  expect(stdoutClosed).toHaveBeenCalledOnce();
+  expect(() => g.child.emit('error', new Error('late child shutdown error'))).not.toThrow();
+  expect(() => g.child.stdin.emit('error', new Error('late pipe shutdown error'))).not.toThrow();
+  g.child.stdout.write('late-reply\n');
+  expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });
+});
+
+it('fails closed when a fulfilled action cannot confirm the guard child closed', async () => {
+  const g = guard({ closeOnEnd: false, closeOnKill: false });
+  const observed = observe(startupGuard([path], signal(), async () => 'guarded'));
+  await vi.advanceTimersByTimeAsync(0);
+  g.reply(0);
+  await vi.advanceTimersByTimeAsync(0);
+  expect(observed.settled()).toBe(false);
+  await vi.advanceTimersByTimeAsync(2_000);
+  expect(g.child.kill).toHaveBeenCalledTimes(1);
+  await vi.advanceTimersByTimeAsync(1_999);
+  expect(observed.settled()).toBe(false);
+  await vi.advanceTimersByTimeAsync(1);
+  expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });
+  expect(g.child.unref).toHaveBeenCalledTimes(1);
+});
+
+it('still returns the action value when the close is confirmed after one kill attempt', async () => {
+  const g = guard({ closeOnEnd: false });
+  const observed = observe(startupGuard([path], signal(), async () => 'guarded'));
+  await vi.advanceTimersByTimeAsync(0);
+  g.reply(0);
+  await vi.advanceTimersByTimeAsync(0);
+  await vi.advanceTimersByTimeAsync(2_000);
+  expect(g.child.kill).toHaveBeenCalledTimes(1);
+  expect(await observed.result).toEqual({ value: 'guarded', error: undefined });
+  expect(g.child.unref).not.toHaveBeenCalled();
+});
+
+it('keeps the denied error and its native details through an unconfirmed close', async () => {
+  const g = guard({ closeOnEnd: false, closeOnKill: false }), action = vi.fn(async () => undefined);
+  const observed = observe(startupGuard([path], signal(), action));
+  await vi.advanceTimersByTimeAsync(0);
+  g.child.stderr.write('GUARD_NATIVE_ERROR:32\n'); g.child.emit('exit', 1, null);
+  await vi.advanceTimersByTimeAsync(0);
+  expect(observed.settled()).toBe(false);
+  await vi.advanceTimersByTimeAsync(2_000);
+  expect(g.child.kill).toHaveBeenCalledTimes(1);
+  await vi.advanceTimersByTimeAsync(2_000);
+  expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED', details: { nativeCode: '32' } });
+  expect(action).not.toHaveBeenCalled();
 });

@@ -7,6 +7,7 @@ import {createRequire} from 'node:module';
 import {GITHUB_DEVICE_URL,githubDevicePopup} from './github-device-policy.ts';
 import {createDesktopUpdater,type DesktopUpdater,type DesktopUpdateDriver,type UpdateStatus} from './updater.ts';
 import {checkInstalledCompatibility} from '../../packages/plugins/installation.ts';
+import {createControlBridge,handleRegisterReply,loadWindowsWindowBridge,type BridgeBrowser} from './control-bridge.ts';
 import {resolve,join,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {DESKTOP_CHANNELS as channels,desktopId,desktopSurfaceKey,parseDesktopSurface,parseDesktopLayout,parseDesktopWindowControl,type DesktopLayout,type DesktopLayoutEntry,type DesktopSurface,type DesktopWindowInfo,type DesktopContext,type DesktopState,type DesktopBrowserState} from '../../packages/desktop-contract/index.ts';
@@ -323,9 +324,73 @@ async function startBackend():Promise<void>{
   if(value.nativeLayout!==undefined)try{hostLayout=parseDesktopLayout(value.nativeLayout);}catch{layoutError='The saved host workspace layout is invalid. The local backup is retained.';}
   workspaceRelay=workspaceEvents(backendOrigin,change=>{for(const record of windows.values())if(!record.window.isDestroyed())record.window.webContents.send(channels.workspaceChanged,change);},token);
   child.once('exit',()=>{if(closing||backend!==child)return;backendError='The local backend stopped. Reconnecting…';broadcast();if(restarting)return;restarting=true;setTimeout(()=>{void startBackend().catch(error=>{backendError='Backend restart failed: '+String(error instanceof Error?error.message:error).slice(0,500);broadcast();}).finally(()=>{restarting=false;});},700);});
+  attachControlBridge(child,token);
   backendError=undefined;broadcast();
  },observeStartup);
  }finally{try{if(output)startupDiagnostic('backend-output',null,output.read().streams);}catch{}}
+}
+
+// M16 C3/C4: the approved first-party bridge registers with the backend over
+// the launch-token channel each time a backend comes up. A failed registration
+// leaves the control surface unavailable — never a fallback driver (D01/D02).
+function attachControlBridge(child:ChildProcess,token:string){
+ const adapterModulePath=fileURLToPath(import.meta.url);
+ const nativePath=join(root,'packages/core/windows-control-bridge.node');
+ const native=loadWindowsWindowBridge(join(root,'packages/core/package.json'));
+ const bridgeBrowser=(record:BrowserRecord):BridgeBrowser=>{
+  const contents=record.view.webContents;
+  return {
+   id:record.id,
+   get generation(){return record.generation;},
+   contents:{
+    id:contents.id,
+    isDestroyed:()=>contents.isDestroyed(),
+    isFocused:()=>contents.isFocused(),
+    getURL:()=>contents.getURL(),
+    capturePage:async()=>{const image=await contents.capturePage();return {toPNG:()=>image.toPNG(),getSize:()=>image.getSize()};},
+    sendInputEvent:event=>contents.sendInputEvent(event as unknown as Parameters<typeof contents.sendInputEvent>[0]),
+    loadURL:url=>contents.loadURL(url),
+   },
+   geometry(){
+    if(!record.owner||record.owner.window.isDestroyed())return null;
+    const bounds=record.view.getBounds();
+    if(!bounds.width||!bounds.height)return null;
+    return {...bounds,dpiScale:screen.getDisplayMatching(record.owner.window.getBounds()).scaleFactor};
+   },
+   focused(){
+    if(!record.owner||record.owner.window.isDestroyed())return false;
+    return record.owner.window.isFocused()&&!record.owner.window.isMinimized()&&record.owner.window.isVisible()&&contents.isFocused();
+   },
+   title:()=>record.state.title||null,
+   navigated:()=>{record.generation++;},
+  };
+ };
+ const bridge=createControlBridge({
+  browsers:function*(){for(const record of browsers.values())if(record.owner)yield bridgeBrowser(record);},
+  native,
+  ownerWindowHandle(){
+   const main=[...windows.values()].find(record=>record.surface.kind==='main'&&!record.window.isDestroyed());
+   return main?main.window.getNativeWindowHandle():null;
+  },
+  send:value=>new Promise<void>(resolve=>{if(!child.connected){resolve();return;}child.send(value,error=>{if(error)console.warn('Control bridge IPC send failed:',String(error instanceof Error?error.message:error).slice(0,200));resolve();});}),
+  token,
+  artifactPath:existsSync(nativePath)?nativePath:adapterModulePath,
+  adapterModulePath,
+  apiVersion:app.isPackaged?app.getVersion():`dev-${process.versions.electron??'unknown'}`,
+  allowNavigateUrl:url=>allowRemoteBrowserUrl(url),
+  now:()=>Date.now(),
+ });
+ child.on('message',(value:unknown)=>{
+  if(!value||typeof value!=='object'||Array.isArray(value))return;
+  const input=value as Record<string,unknown>;
+  if(handleRegisterReply(input))return;
+  void bridge.handleCall(input).catch(()=>{});
+ });
+ void bridge.register().catch(error=>{
+  // Registration failure is not a startup failure: the surface stays
+  // DRIVER_UNAVAILABLE and the console keeps the concrete reason.
+  console.warn('Control driver registration failed:',String(error instanceof Error?error.message:error).slice(0,300));
+ });
 }
 async function stopBackend():Promise<boolean>{
  let clean=true;

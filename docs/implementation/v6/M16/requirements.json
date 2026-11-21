@@ -75,7 +75,7 @@
       "disposition": "BLOCKED",
       "sourcePaths": [],
       "testIds": [],
-      "reason": "Real-account browser/desktop write test needs an approved installed driver (HOLD_DRIVER_SPECIFICATION). No live browser desktop driver exists in this task."
+      "reason": "Real-account browser write acceptance still needs the built browser-tab artifact qualified on Windows (HOLD_PLATFORM_PROOF); the selected-window slice now uses the bound-item chooser (listWindows binds a GraphicsCaptureItem per row; identity is the held item + prop token, not win:hwnd:pid); chooser fixture receipts landed @ e4531ae2 (owned capture PNG + HWND-recycling refusal) but browser-tab qualification remains env-blocked — isolated-ports re-run confirmed backend-deadline (backend emitted 0 stdout bytes in 60s on fresh ephemeral ports + owned data dir; port collision excluded); discriminator proved the stall was withPathGuard's unbounded teardown `await closed` on an unkillable powershell guard child — now fixed on this branch (bounded close + fail-closed invalidation) so a wedged guard rejects ≈49s → diagnosed backend-error inside the deadline — but installed consent/capture/Stop still needs a clean, isolated Windows run reaching harness.ready — and the system picker stays held (HOLD_PICKER_BINDING)."
     },
     {
       "id": "M16-S09",
@@ -110,7 +110,7 @@
       "disposition": "BLOCKED",
       "sourcePaths": [],
       "testIds": [],
-      "reason": "STOP closeout against a live driver is untestable without an approved driver (HOLD_DRIVER_SPECIFICATION); Stop semantics are unit-tested on the dispatcher but the live closeout verification is not run."
+      "reason": "STOP closeout against a live driver still untestable until the built artifact is qualified on Windows (HOLD_PLATFORM_PROOF). Dispatcher-level Stop semantics are unit-tested and fixture-level dropBinding release verified @ e4531ae2; live-driver closeout NOT_RUN."
     },
     {
       "id": "M16-T01",
@@ -138,14 +138,14 @@
       "disposition": "BLOCKED",
       "sourcePaths": [],
       "testIds": [],
-      "reason": "Real-target browser capture/interaction acceptance requires an installed approved driver (HOLD_DRIVER_SPECIFICATION, HOLD_PLATFORM_PROOF). NOT_RUN."
+      "reason": "Real-target browser capture/interaction acceptance requires the built driver artifact on the real platform (HOLD_PLATFORM_PROOF). Adapter implemented (capturePage + target-bound sendInputEvent in apps/desktop/control-bridge.ts); acceptance NOT_RUN."
     },
     {
       "id": "M16-T05",
       "disposition": "BLOCKED",
       "sourcePaths": [],
       "testIds": [],
-      "reason": "Real Windows multi-monitor/focus/minimized/permission-loss acceptance requires the installed driver on the real platform (HOLD_PLATFORM_PROOF). NOT_RUN."
+      "reason": "Real Windows multi-monitor/focus/minimized/permission-loss acceptance needs fixture receipts for the approved chooser path (listWindows binds a GraphicsCaptureItem per row inside enumeration — identity is the held item, prop-token same-object proof, Closed-event invalidation; HWND recycling cannot redirect capture). Owned-fixture receipts landed @ e4531ae2 (bound-item capture + destroy + same-process recycled-HWND refusal), but multi-monitor/focus/minimized/permission-loss acceptance has NOT_RUN and fixture exit-hang confirmation awaits a clean box. System-picker pickTarget stays held (HOLD_PICKER_BINDING)."
     },
     {
       "id": "M16-G01",
@@ -208,7 +208,7 @@
       "disposition": "BLOCKED",
       "sourcePaths": ["tests/interactive-control-decisions-v6.test.ts"],
       "testIds": ["tests/interactive-control-decisions-v6.test.ts::M16-D06 real-platform acceptance stays BLOCKED"],
-      "reason": "Actual Windows multi-monitor/focus/minimized/permission-loss acceptance must run against the installed approved driver before any live approval; without one it is recorded BLOCKED/NOT_RUN (HOLD_PLATFORM_PROOF)."
+      "reason": "Actual Windows multi-monitor/focus/minimized/permission-loss acceptance must run against the installed chooser-path artifact before any live approval; the system-picker path stays held (HOLD_PICKER_BINDING); chooser fixture receipts landed @ e4531ae2 but real-platform acceptance (installed artifact, focus/minimize/permission-loss matrix) remains NOT_RUN and a clean-box exit re-run is pending — BLOCKED."
     }
   ]
 }

@@ -201,6 +201,36 @@ export async function buildServer(service: Service, options: ServerOptions) {
     if (!service.store.get('thread', id) || service.store.get('archivedThread', id)) throw new HarnessError('NOT_FOUND', 'Thread unavailable');
     return { seq: service.store.sequence, control: service.controlConsent.surfaceModel(id) };
   });
+  // M16 C3/C4: driver candidate targets for a pending consent. The desktop
+  // window mode runs the driver's approved OS picker inside this call.
+  app.get<{ Params: { id: string }; Querystring: { mode?: string } }>('/api/threads/:id/control-targets', async (request, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const { id } = request.params;
+    if (!service.store.get('thread', id) || service.store.get('archivedThread', id)) throw new HarnessError('NOT_FOUND', 'Thread unavailable');
+    return { seq: service.store.sequence, ...(await service.controlTargets(id, request.query.mode)) };
+  });
+  // M16: consented capture — private task data written under the host
+  // artifact root only; the response carries the record and digest (S05/S08).
+  app.post<{ Params: { id: string } }>('/api/threads/:id/control-capture', { bodyLimit: 1024 }, async (request, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const { id } = request.params;
+    if (!service.store.get('thread', id) || service.store.get('archivedThread', id)) throw new HarnessError('NOT_FOUND', 'Thread unavailable');
+    return { seq: service.store.sequence, ...(await service.controlCapture(id)) };
+  });
+  // M16: fresh observation for pre-dispatch binding (S06).
+  app.post<{ Params: { id: string } }>('/api/threads/:id/control-observe', { bodyLimit: 1024 }, async (request, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const { id } = request.params;
+    if (!service.store.get('thread', id) || service.store.get('archivedThread', id)) throw new HarnessError('NOT_FOUND', 'Thread unavailable');
+    return { seq: service.store.sequence, ...(await service.controlObserve(id)) };
+  });
+  // M16: one consent-admitted input action through the serialized queue.
+  app.post<{ Params: { id: string } }>('/api/threads/:id/control-action', { bodyLimit: 16384 }, async (request, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const { id } = request.params;
+    if (!service.store.get('thread', id) || service.store.get('archivedThread', id)) throw new HarnessError('NOT_FOUND', 'Thread unavailable');
+    return { seq: service.store.sequence, ...(await service.controlAction(id, (request.body ?? {}) as Record<string, unknown>)) };
+  });
   app.get<{ Querystring: { q?: string; threads?: string } }>('/api/threads/search', async (request) => {
     if ((request.query.q !== undefined && typeof request.query.q !== 'string') || (request.query.threads !== undefined && typeof request.query.threads !== 'string')) throw new HarnessError('INVALID_INPUT', 'Search parameters must be single values');
     const query = (request.query.q ?? '').slice(0, 500).toLocaleLowerCase();

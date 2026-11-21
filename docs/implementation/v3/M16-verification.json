@@ -75,8 +75,8 @@
             "run",
             "tests/browser-consent-v3.test.ts"
           ],
-          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
-          "executableIdentity": "C:/Users/Administrator/AppData/Local/pnpm/node.exe",
+          "cwdIdentity": "%USERPROFILE%/repos/Gen-V1-m16-v6",
+          "executableIdentity": "%LOCALAPPDATA%/pnpm/node.exe",
           "startedAt": "2026-11-17T08:59:03Z",
           "endedAt": "2026-11-17T08:59:07Z",
           "exitCode": 0,
@@ -92,8 +92,8 @@
             "run",
             "tests/desktop-control-v3.test.ts"
           ],
-          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
-          "executableIdentity": "C:/Users/Administrator/AppData/Local/pnpm/node.exe",
+          "cwdIdentity": "%USERPROFILE%/repos/Gen-V1-m16-v6",
+          "executableIdentity": "%LOCALAPPDATA%/pnpm/node.exe",
           "startedAt": "2026-11-17T08:59:08Z",
           "endedAt": "2026-11-17T08:59:12Z",
           "exitCode": 0,
@@ -109,8 +109,8 @@
             "run",
             "tests/interactive-control-decisions-v6.test.ts"
           ],
-          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
-          "executableIdentity": "C:/Users/Administrator/AppData/Local/pnpm/node.exe",
+          "cwdIdentity": "%USERPROFILE%/repos/Gen-V1-m16-v6",
+          "executableIdentity": "%LOCALAPPDATA%/pnpm/node.exe",
           "startedAt": "2026-11-17T08:59:12Z",
           "endedAt": "2026-11-17T08:59:24Z",
           "exitCode": 0,
@@ -159,8 +159,8 @@
             "run",
             "tests/interactive-control-decisions-v6.test.ts"
           ],
-          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
-          "executableIdentity": "C:/Users/Administrator/AppData/Local/pnpm/node.exe",
+          "cwdIdentity": "%USERPROFILE%/repos/Gen-V1-m16-v6",
+          "executableIdentity": "%LOCALAPPDATA%/pnpm/node.exe",
           "startedAt": "2026-11-17T08:59:12Z",
           "endedAt": "2026-11-17T08:59:24Z",
           "exitCode": 0,
@@ -174,7 +174,7 @@
             "pnpm",
             "typecheck"
           ],
-          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+          "cwdIdentity": "%USERPROFILE%/repos/Gen-V1-m16-v6",
           "executableIdentity": "pnpm",
           "startedAt": "2026-11-17T08:59:29Z",
           "endedAt": "2026-11-17T09:00:05Z",
@@ -189,7 +189,7 @@
             "pnpm",
             "lint"
           ],
-          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+          "cwdIdentity": "%USERPROFILE%/repos/Gen-V1-m16-v6",
           "executableIdentity": "pnpm",
           "startedAt": "2026-11-17T09:00:05Z",
           "endedAt": "2026-11-17T09:00:34Z",
@@ -204,7 +204,7 @@
             "pnpm",
             "build"
           ],
-          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+          "cwdIdentity": "%USERPROFILE%/repos/Gen-V1-m16-v6",
           "executableIdentity": "pnpm",
           "startedAt": "2026-11-17T09:00:34Z",
           "endedAt": "2026-11-17T09:00:49Z",
@@ -246,8 +246,8 @@
             "run",
             "tests/browser-consent-v3.test.ts"
           ],
-          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
-          "executableIdentity": "C:/Users/Administrator/AppData/Local/pnpm/node.exe",
+          "cwdIdentity": "%USERPROFILE%/repos/Gen-V1-m16-v6",
+          "executableIdentity": "%LOCALAPPDATA%/pnpm/node.exe",
           "startedAt": "2026-11-17T08:59:03Z",
           "endedAt": "2026-11-17T08:59:07Z",
           "exitCode": 0,
@@ -263,8 +263,8 @@
             "run",
             "tests/desktop-control-v3.test.ts"
           ],
-          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
-          "executableIdentity": "C:/Users/Administrator/AppData/Local/pnpm/node.exe",
+          "cwdIdentity": "%USERPROFILE%/repos/Gen-V1-m16-v6",
+          "executableIdentity": "%LOCALAPPDATA%/pnpm/node.exe",
           "startedAt": "2026-11-17T08:59:08Z",
           "endedAt": "2026-11-17T08:59:12Z",
           "exitCode": 0,
@@ -280,8 +280,8 @@
             "run",
             "tests/interactive-control-decisions-v6.test.ts"
           ],
-          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
-          "executableIdentity": "C:/Users/Administrator/AppData/Local/pnpm/node.exe",
+          "cwdIdentity": "%USERPROFILE%/repos/Gen-V1-m16-v6",
+          "executableIdentity": "%LOCALAPPDATA%/pnpm/node.exe",
           "startedAt": "2026-11-17T08:59:12Z",
           "endedAt": "2026-11-17T08:59:24Z",
           "exitCode": 0,
@@ -295,7 +295,7 @@
             "pnpm",
             "test"
           ],
-          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+          "cwdIdentity": "%USERPROFILE%/repos/Gen-V1-m16-v6",
           "executableIdentity": "pnpm",
           "startedAt": "2026-11-17T08:57:20Z",
           "endedAt": "2026-11-17T09:16:25Z",
@@ -310,7 +310,7 @@
             "pnpm",
             "test:browser"
           ],
-          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+          "cwdIdentity": "%USERPROFILE%/repos/Gen-V1-m16-v6",
           "executableIdentity": "pnpm",
           "startedAt": "2026-11-17T09:16:45Z",
           "endedAt": "2026-11-17T10:41:09Z",
@@ -352,6 +352,173 @@
       ],
       "commands": [],
       "artifactRefs": []
+    },
+    {
+      "id": "M16_WINDOWS_CONTROL_BRIDGE_FOLLOWUP",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "bridge-targeted-tests",
+          "status": "PASS",
+          "evidence": "WIN-M0N0V07LGM1 @ e4531ae2: vitest 5 files 59/59 PASS - browser-consent-v3 14, desktop-control-v3 11, interactive-control-decisions-v6 8, control-bridge-v6 20, control-runtime-v6 6. See vitest-m16-bridge.log."
+        },
+        {
+          "id": "bridge-typecheck-lint",
+          "status": "PASS",
+          "evidence": "@ e4531ae2: pnpm typecheck (tsc --noEmit) exit 0; pnpm lint 618 sources 0 violations; Node v24.14.0, pnpm 10.30.3, Electron 45.2.0 from lockfile."
+        },
+        {
+          "id": "bridge-native-compile",
+          "status": "PASS",
+          "evidence": "@ e4531ae2: pnpm build:control-bridge printed \"Windows control bridge built.\" but the pnpm process then hung on the degraded box (180s TIMEOUT — output complete; the same host wedged ~30 processes incl. powershell). Artifact receipted via certutil: windows-control-bridge.node SHA-256 3c0ecafed1cb6ecb7c9667758bf5cebbb1249832ffd6051e9eff859cef39ff4c (filehash-m16-bridge.log, exit 0). Build-step anomaly logged as environmental, matching the fixture exit-hang anomaly; pending one clean-box re-run. See build-m16-bridge.log (raw evidence, TIMEOUT)."
+        },
+        {
+          "id": "bridge-hold-refuse",
+          "status": "PASS",
+          "evidence": "@ e4531ae2 bound-item receipt: pickWindow(null) rejected CONTROL_PICKER_BINDING_UNSUPPORTED; windowIdentity('bogus') -> null; captureWindow('bogus') rejected binding-closed; all bindingId-keyed ops verbatim. See smoke-m16-bridge.log (exit 0)."
+        },
+        {
+          "id": "bridge-window-slice",
+          "status": "PASS",
+          "evidence": "@ e4531ae2 owned-fixture (spawned notepad): row wgc-300000006 (hwnd 0xc0b8a); windowIdentity(bindingId) re-proves; captureWindow(bindingId) -> 46491-byte PNG 1906x1345. Destroy -> null; same-process replacement under NEW binding wgc-500000006 (recycled handle) -> old bindingId null + capture refused — held-item identity defeats live HWND recycling, demonstrated twice across runs. dropBinding -> null+refused. OPEN: the fixture process then hung at exit on a degraded box — pnpm build (no addon loaded) hung identically and identical op sequences all exit 0; environmental process-reaping anomaly pending one clean-box re-run. See fixture-window-m16-bridge.log. System-picker pickTarget stays held (HOLD_PICKER_BINDING)."
+        },
+        {
+          "id": "bridge-browser-live",
+          "status": "NOT_RUN",
+          "evidence": "@ e4531ae2 (39d1d6da) isolated-ports re-run: backend-deadline CONFIRMED, port collision excluded — fresh ephemeral ports 54968/54969/54970 (listen(0), no 9222/4317/4318), owned data dir, nonce verified (NONCE_OK). CDP ready in ~0.5s; backend emitted 0 stdout/169 stderr bytes in 60s → backend-deadline → startup-failed (verbatim \"Gen V1 startup failed: The local backend did not become ready\"; Electron self-exited 0; driver exit 3 = main-page-deadline). Standalone backend stays silent >300s: discriminator @ 98d8f599 proved the Hermes worker healthy (direct spawn+hello OK) and located the stall in withPathGuard's previously unbounded teardown `await closed` (packages/core/file-access.ts) when the powershell guard child cannot be killed — bounded denial became a permanent hang. Owner-authorized fix on this branch: bounded close (2s grace → one kill → ≤2s confirm), session invalidated + references released, fail-closed CAPABILITY_DENIED on unconfirmed teardown, original error preserved → a wedged guard now rejects ≈49s → backend-error diagnosed inside the deadline. Consent/capture/Stop sequence still unreachable until a clean, isolated run reaches harness.ready → BLOCKED. See fixture-browser-m16-bridge.log."
+        },
+        {
+          "id": "bridge-electron-build-inputs",
+          "status": "PASS",
+          "evidence": "@ f43fe925 hosted run 44439237141 (workflow_dispatch, windows-latest) job 135275662840: windows-control-bridge.cc compiled+linked under /std:c++20 against pinned Electron 45.2.0 headers (node-v45.2.0-headers.tar.gz sha256 42eaab65c533d5bb3189a39f6d653138362d4ad1dfcb94cba9b713d77e873c72) and Electron win-x64/node.lib (sha256 c4ba898a42b8e5e37eeecae6e89c9831d59e0e2d9a279b4189fc2b349ac63156) from the dedicated verified cache, with /DELAYLOAD:node.exe + delayimp.lib + preload delay hook (decltype(__pfnDliNotifyHook2)). The script's clean-PATH Node-host require/pickWindow check passed (diagnostic only). Earlier MSVC 14.51.36231 C2338 STL1011 failure (run 44417512648 job 135201569165, pre-/std:c++20 — version stated only where that run's evidence supports it) and the plain node.lib Electron-host abort candidate (run 44426869497 job 135233864834, exit 0xFFFF7003) are retained as superseded evidence."
+        },
+        {
+          "id": "bridge-hosted-packaging",
+          "status": "PASS",
+          "evidence": "@ f43fe925 run 44439237141 job 135275662840: pnpm desktop:package produced win-unpacked + Gen-V1-Setup-0.6.5-win-x64.exe + build-manifest.json; installed receipt (artifact 14492739962, zip sha256 2007f91a26bcc6c10f5553a627af664ae3291bf97be099199315121d0a1abc7f) records Setup sha256 86773017f5567a96f31a5594c6cac145d4d65deebf84dc62e5f8d6ed7dba8a78 and exact-match payloadCustody 92955 files / 2578380642 bytes sha256 fbe8741ce5685e678d01fe596bf8fcb8f6401c8b2a83b3ad8c381a2608919c69; providerVerification passed; identity-bound uninstall + cache removal clean."
+        },
+        {
+          "id": "bridge-installed-readiness",
+          "status": "PASS",
+          "evidence": "@ f43fe925 run 44439237141 job 135275662840 generic installed verifier: four ownership-verified launches (2x default-off + 2x memory-enabled), all verifiedOwner true, ephemeral ports, exitCode 0 — readiness observed at 30711, 8643, 9617 and 8856 ms — no 0xFFFF7003 abort signature. The receipt establishes owned installed readiness and clean exit only; it does not establish addon load, protocol registration, or live registration (no M16 control registration record)."
+        },
+        {
+          "id": "bridge-installed-control-scenario",
+          "status": "NOT_RUN",
+          "evidence": "Owned browser/selected-window consent, authoritative target identity, bounded capture and independent Stop remain NOT_RUN on this cut: the generic installed lane emits no M16 scenario receipt, and the scenario module is callable only via the M15-custodied installed hook (no owner-authorized integration yet). The receipt also emits no per-file Gen V1.exe / windows-control-bridge.node / windows-credential-lease.node digests — only Setup + aggregate payload digests; individual executable/addon identities remain unrecorded and are a stated requirement for the next evidence cut."
+        }
+      ],
+      "commands": [
+{
+              "argv": [
+                      "node",
+                      "node_modules/vitest/vitest.mjs",
+                      "run",
+                      "tests/browser-consent-v3.test.ts",
+                      "tests/desktop-control-v3.test.ts",
+                      "tests/interactive-control-decisions-v6.test.ts",
+                      "tests/control-bridge-v6.test.ts",
+                      "tests/control-runtime-v6.test.ts"
+              ],
+              "cwdIdentity": "%USERPROFILE%/repos/Gen-V1-m16-bridge",
+              "executableIdentity": "C:/Program Files/nodejs/node.exe",
+              "startedAt": "2026-11-18T19:45:40.022Z",
+              "endedAt": "2026-11-18T19:45:42.292Z",
+              "exitCode": 0,
+              "termination": "NONE",
+              "status": "PASS",
+              "boundedLogRef": "docs/implementation/v6/M16/logs/vitest-m16-bridge.log",
+              "logDigest": "60b0186197ec5d6c022dd3ed7e418ed3763f4f84c6164ac0ae3dc3ffc25ea73e"
+      },
+{
+              "argv": [
+                      "pnpm",
+                      "typecheck"
+              ],
+              "cwdIdentity": "%USERPROFILE%/repos/Gen-V1-m16-bridge",
+              "executableIdentity": "%LOCALAPPDATA%/pnpm/.tools/pnpm-exe/10.30.3/pnpm.exe",
+              "startedAt": "2026-11-18T19:45:45.141Z",
+              "endedAt": "2026-11-18T19:46:19.707Z",
+              "exitCode": 0,
+              "termination": "NONE",
+              "status": "PASS",
+              "boundedLogRef": "docs/implementation/v6/M16/logs/typecheck-m16-bridge.log",
+              "logDigest": "e27b775302496c5e987420768e3bad14892798c8844187d80fdaba7e9f8fdc06"
+      },
+{
+              "argv": [
+                      "pnpm",
+                      "lint"
+              ],
+              "cwdIdentity": "%USERPROFILE%/repos/Gen-V1-m16-bridge",
+              "executableIdentity": "%LOCALAPPDATA%/pnpm/.tools/pnpm-exe/10.30.3/pnpm.exe",
+              "startedAt": "2026-11-18T19:46:19.758Z",
+              "endedAt": "2026-11-18T19:46:47.243Z",
+              "exitCode": 0,
+              "termination": "NONE",
+              "status": "PASS",
+              "boundedLogRef": "docs/implementation/v6/M16/logs/lint-m16-bridge.log",
+              "logDigest": "b8abc2504df96ade0e86d8ede32af0bb8d1094a3c2a17c943d5b54fc5330f5bd"
+      },
+{
+              "argv": [
+                      "certutil",
+                      "-hashfile",
+                      "packages/core/windows-control-bridge.node",
+                      "SHA256"
+              ],
+              "cwdIdentity": "%USERPROFILE%/repos/Gen-V1-m16-bridge",
+              "executableIdentity": "C:/Windows/System32/certutil.exe",
+              "startedAt": "2026-11-18T19:45:30.315Z",
+              "endedAt": "2026-11-18T19:45:30.359Z",
+              "exitCode": 0,
+              "termination": "NONE",
+              "status": "PASS",
+              "boundedLogRef": "docs/implementation/v6/M16/logs/filehash-m16-bridge.log",
+              "logDigest": "c7059300957227207cc1210c9ced2ab2813463bbd1d653c333d57d0778b7dcd5"
+      },
+{
+              "argv": [
+                      "node",
+                      "%TEMP%/m16-smoke-v2.cjs"
+              ],
+              "cwdIdentity": "%USERPROFILE%/repos/Gen-V1-m16-bridge",
+              "executableIdentity": "C:/Program Files/nodejs/node.exe",
+              "startedAt": "2026-11-18T19:46:51.066Z",
+              "endedAt": "2026-11-18T19:46:51.187Z",
+              "exitCode": 0,
+              "termination": "NONE",
+              "status": "PASS",
+              "boundedLogRef": "docs/implementation/v6/M16/logs/smoke-m16-bridge.log",
+              "logDigest": "e621147c2e1c4e2fcfa3e3c0ec53837ccdfda7542f8fdc7aaabdaa224b719d62"
+      },
+      {
+              "argv": [
+                      "node",
+                      "%TEMP%/m16-desktop-launch-v2.cjs"
+              ],
+              "cwdIdentity": "%USERPROFILE%/repos/Gen-V1-m16-bridge",
+              "executableIdentity": "C:/Program Files/nodejs/node.exe",
+              "startedAt": "2026-11-18T20:29:52.811Z",
+              "endedAt": "2026-11-18T20:33:52.815Z",
+              "exitCode": 3,
+              "termination": "NONE",
+              "status": "BLOCKED",
+              "boundedLogRef": "docs/implementation/v6/M16/logs/fixture-browser-m16-bridge.log",
+              "logDigest": "ae220c8c46aa344c9fedabfdb2bd875c05f1128c2f336d1d429471b33363f9c4"
+      }
+      ],
+      "artifactRefs": [
+        "apps/desktop/control-bridge.ts",
+        "apps/server/host.ts",
+        "apps/server/desktop-controls.ts",
+        "packages/core/control-runtime.ts",
+        "packages/core/control-sidecar-driver.ts",
+        "packages/core/windows-control-bridge.cc",
+        "scripts/build-windows-control-bridge.ts",
+        "tests/control-bridge-v6.test.ts",
+        "tests/control-runtime-v6.test.ts"
+      ]
     }
   ],
   "changedFiles": [
@@ -383,7 +550,15 @@
     "scripts/public-source-files.json",
     "tests/browser-consent-v3.test.ts",
     "tests/desktop-control-v3.test.ts",
-    "tests/interactive-control-decisions-v6.test.ts"
+    "tests/interactive-control-decisions-v6.test.ts",
+    "docs/implementation/v6/M16/logs/vitest-m16-bridge.log",
+    "docs/implementation/v6/M16/logs/typecheck-m16-bridge.log",
+    "docs/implementation/v6/M16/logs/lint-m16-bridge.log",
+    "docs/implementation/v6/M16/logs/build-m16-bridge.log",
+    "docs/implementation/v6/M16/logs/filehash-m16-bridge.log",
+    "docs/implementation/v6/M16/logs/smoke-m16-bridge.log",
+    "docs/implementation/v6/M16/logs/fixture-window-m16-bridge.log",
+    "docs/implementation/v6/M16/logs/fixture-browser-m16-bridge.log"
   ],
   "dependencyContracts": [
     {
@@ -428,6 +603,8 @@
     }
   ],
   "remainingGates": [
+
+    "HOLD_PICKER_BINDING (D02/D04): the system GraphicsCapturePicker returns a GraphicsCaptureItem with no authoritative HWND binding — matching DisplayName/client dimensions to EnumWindows output cannot prove which object was picked, so the heuristic was removed and every window path fails closed DRIVER_UNAVAILABLE / CONTROL_PICKER_BINDING_UNSUPPORTED until an approved same-object binding mechanism exists. The manifest registers browser-tab only.",
     "HOLD_DRIVER_SPECIFICATION: C3 approved browser-target connection and C4 approved native capture/input cannot run because no approved driver is registered under D02 (immutable executable/package digest, API protocol, backend/profile proof, physical target identity format, capture bounds, input cancellation, stop control). Zero or ambiguous registrations resolve DRIVER_UNAVAILABLE.",
     "HOLD_PLATFORM_PROOF: C5 actual target-platform acceptance (real Windows multi-monitor, focus, minimized, permission-loss cases) must run against the installed approved driver before any live approval; the D06 acceptance matrix remains NOT_RUN on this source cut.",
     "pnpm test reports 57 failed / 4338 passed; pnpm test:browser 346 failed / 1460 passed / 5 skipped; every failure is environment-bound or pre-existing fixture/UI-spec unrelated to M16 (missing Chrome distribution, fixture hosts, layout tolerances); M16 adds no e2e specs and no M16-scope test failed. All failures are environment-bound and outside M16 scope (account-parity, hermes-*, workspace-action-outcomes, skills-integration, integration-mcp, e2e fixtures); identical in character to the M15-recorded baseline. No M16 test failed.",

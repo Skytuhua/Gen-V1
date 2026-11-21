@@ -9,6 +9,8 @@ import {
   controlTargetIdentityV1Schema,
   type ControlActionV1,
   type ControlDriverRegistrationV1,
+  type ControlMode,
+  type ControlTargetCandidateV1,
   type ControlTargetIdentityV1,
   type InteractiveGrantV1,
   type TargetObservationV1,
@@ -32,6 +34,21 @@ export interface ControlDriverHandle {
   cancelInput(target: ControlTargetIdentityV1): Promise<void>;
 }
 
+/** The full approved-driver surface. The serialized input path only needs the
+ * narrow ControlDriverHandle; candidates, target picking and capture are the
+ * consent/observation half of the same D02 driver (S02/S05). A driver that
+ * cannot perform an operation throws HarnessError — never a silent fallback. */
+export interface ControlDriverOperations extends ControlDriverHandle {
+  /** Minimal-metadata candidate list for the approved target picker (S02). */
+  candidates(mode: ControlMode): Promise<ControlTargetCandidateV1[]>;
+  /** Runs the driver's own approved picker (e.g. the system
+   * GraphicsCapturePicker) and returns the exact user selection, or null on
+   * user cancellation. Never enumerates unrelated windows. */
+  pickTarget(mode: ControlMode): Promise<ControlTargetCandidateV1 | null>;
+  /** Observation pixels of the consented target only. */
+  capture(target: ControlTargetIdentityV1): Promise<{ data: Uint8Array; width: number; height: number; mimeType: 'image/png' }>;
+}
+
 export interface QueuedControlAction {
   action: ControlActionV1;
   grant: InteractiveGrantV1;
@@ -42,6 +59,9 @@ export interface QueuedControlAction {
   /** Set once the action has been handed to the driver; only such an action
    * can be UNCERTAIN under Stop — a waiting one was never dispatched. */
   reachedDispatch?: boolean;
+  /** Resolves once the action has left the queue with its terminal outcome —
+   * dispatched, rejected, cancelled or uncertain. */
+  settled?: Promise<QueuedControlAction>;
 }
 
 export interface ControlDispatcherOptions {
@@ -61,6 +81,7 @@ export class ControlDispatcher {
   private lastDispatchAt = -Infinity;
   private draining: Promise<void> | null = null;
   private stopped = false;
+  private readonly settleWaiters = new Map<QueuedControlAction, (item: QueuedControlAction) => void>();
 
   constructor(private readonly options: ControlDispatcherOptions) {
     this.now = options.nowMs ?? Date.now;
@@ -115,6 +136,7 @@ export class ControlDispatcher {
       generation: this.generation,
       outcome: 'QUEUED',
     };
+    item.settled = new Promise<QueuedControlAction>(resolve => { this.settleWaiters.set(item, resolve); });
     this.queue.push(item);
     this.draining ??= this.drain().finally(() => { this.draining = null; });
     return item;
@@ -199,6 +221,8 @@ export class ControlDispatcher {
       } finally {
         if (this.inFlight === item) this.inFlight = null;
         this.dispatched.push(item);
+        this.settleWaiters.get(item)?.(item);
+        this.settleWaiters.delete(item);
       }
     }
   }
@@ -213,7 +237,13 @@ export class ControlDispatcher {
     this.stopped = true;
     this.generation += 1;
     const pending = this.queue.splice(0);
-    for (const item of pending) { item.outcome = 'CANCELLED'; item.reason = 'stopped'; this.dispatched.push(item); }
+    for (const item of pending) {
+      item.outcome = 'CANCELLED';
+      item.reason = 'stopped';
+      this.dispatched.push(item);
+      this.settleWaiters.get(item)?.(item);
+      this.settleWaiters.delete(item);
+    }
     // Only an action already handed to the driver is uncertain; one still
     // waiting for rate spacing was never dispatched and stays a clean cancel.
     if (this.inFlight && this.inFlight.outcome === 'QUEUED' && this.inFlight.reachedDispatch) { this.inFlight.outcome = 'UNCERTAIN'; this.inFlight.reason = 'stopped_in_flight'; }
