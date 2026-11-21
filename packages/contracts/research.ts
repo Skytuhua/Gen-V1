@@ -1,10 +1,10 @@
 import {z} from 'zod';
 
 export const RESEARCH_SOURCE_BYTES = 4 * 1024 * 1024;
-const RESEARCH_PASSAGE_BYTES = 64 * 1024;
+export const RESEARCH_PASSAGE_BYTES = 64 * 1024;
 const id = z.string().min(1).max(200).regex(/^[A-Za-z0-9:_-]+$/);
-const researchHashSchema = z.string().regex(/^[a-f0-9]{64}$/);
-const researchAuthoritySchema = z.discriminatedUnion('kind', [
+export const researchHashSchema = z.string().regex(/^[a-f0-9]{64}$/);
+export const researchAuthoritySchema = z.discriminatedUnion('kind', [
   z.strictObject({kind: z.literal('personal')}),
   z.strictObject({kind: z.literal('company'), companyId: id}),
 ]);
