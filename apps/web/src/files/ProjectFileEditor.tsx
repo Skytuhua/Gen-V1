@@ -1,3 +1,4 @@
+import { TriangleAlert } from "lucide-react";
 import {
 	Suspense,
 	lazy,
@@ -6,11 +7,6 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { Text } from "@codemirror/state";
-import {
-	closeSearchPanel,
-	searchPanelOpen,
-} from "@codemirror/search";
 import { ApiError } from "../api";
 import { journalRead, journalWrite } from "../journal";
 import { matchesShortcut } from "../shell-layout";
@@ -111,7 +107,6 @@ export function ProjectFileEditor({
 	const phaseRef = useRef<EditPhase>("loading");
 	const draftRef = useRef<Draft | null>(null);
 	const handleRef = useRef<CodeEditorHandle | undefined>(undefined);
-	const loadedDoc = useRef<Text | undefined>(Text.of(loadedDisplay.split("\n")));
 	const loadedText = useRef(loadedDisplay);
 	const diskConflictSha = useRef<string | undefined>(undefined);
 	const journalTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
@@ -206,7 +201,7 @@ export function ProjectFileEditor({
 					expectedSha256: expected ?? shaRef.current,
 				});
 				shaRef.current = result.sha256;
-				loadedDoc.current = handle.view.state.doc;
+				handle.rebase();
 				loadedText.current = handle.document();
 				writeDraft(handle.document(), result.sha256);
 				setPhaseBoth("clean");
@@ -240,7 +235,6 @@ export function ProjectFileEditor({
 			shaRef.current = disk.sha256;
 			loadedText.current = display;
 			handleRef.current?.replaceAll(display);
-			loadedDoc.current = handleRef.current?.view.state.doc;
 			writeDraft(display, disk.sha256);
 			setPhaseBoth("clean");
 		},
@@ -305,14 +299,8 @@ export function ProjectFileEditor({
 		return () => window.removeEventListener("beforeunload", warn);
 	}, [dirtyNow]);
 
-	const done = useCallback(() => {
-		const handle = handleRef.current;
-		if (handle && searchPanelOpen(handle.view.state)) {
-			closeSearchPanel(handle.view);
-			return;
-		}
-		onRequestExit();
-	}, [onRequestExit]);
+	// Inside the editor its own Escape handler closes the search panel first.
+	const done = onRequestExit;
 
 	useEffect(() => {
 		apiRef.current = {
@@ -390,12 +378,20 @@ export function ProjectFileEditor({
 
 	const bar = (
 		message: string,
-		role: "status" | "alert",
+		kind: "info" | "conflict" | "error",
 		actions: React.ReactNode,
 	) => (
-		<div className="files-edit-bar" role={role}>
-			<span>{message}</span>
-			<div className="files-edit-bar-actions">{actions}</div>
+		<div
+			className={`files-edit-bar files-edit-bar-${kind}`}
+			role={kind === "info" ? "status" : "alert"}
+		>
+			<div className="files-edit-bar-inner">
+				{kind !== "info" && (
+					<TriangleAlert size={13} aria-hidden="true" />
+				)}
+				<span>{message}</span>
+				<div className="files-edit-bar-actions">{actions}</div>
+			</div>
 		</div>
 	);
 
@@ -407,7 +403,7 @@ export function ProjectFileEditor({
 			{restoredBar &&
 				bar(
 					"Restored unsaved changes.",
-					"status",
+					"info",
 					<>
 						<button type="button" onClick={() => setRestoredBar(false)}>
 							Keep
@@ -425,14 +421,23 @@ export function ProjectFileEditor({
 						</button>
 					</>,
 				)}
-			{phase === "conflict" &&
+			{(phase === "conflict" || phase === "comparing") &&
 				bar(
 					`${name} changed on disk since you opened it.`,
-					"alert",
+					"conflict",
 					<>
-						<button type="button" onClick={() => void compare()}>
-							Compare
-						</button>
+						{phase === "comparing" ? (
+							<button
+								type="button"
+								onClick={() => setPhaseBoth("conflict")}
+							>
+								Close
+							</button>
+						) : (
+							<button type="button" onClick={() => void compare()}>
+								Compare
+							</button>
+						)}
 						<button type="button" onClick={() => void reloadFromDisk()}>
 							Reload
 						</button>
@@ -450,7 +455,7 @@ export function ProjectFileEditor({
 				!unavailableDismissed &&
 				bar(
 					`${name} is no longer available.`,
-					"alert",
+					"error",
 					<>
 						<button
 							type="button"
@@ -466,7 +471,7 @@ export function ProjectFileEditor({
 			{errorBar &&
 				bar(
 					errorBar.text,
-					"alert",
+					"error",
 					<>
 						{errorBar.retry && (
 							<button type="button" onClick={() => void save()}>
@@ -479,7 +484,7 @@ export function ProjectFileEditor({
 					</>,
 				)}
 			{initial.edit?.lineSeparator === "mixed" &&
-				bar("This file mixes line endings; saving will use LF.", "status", <></>)}
+				bar("This file mixes line endings; saving will use LF.", "info", <></>)}
 			{boot ? (
 				<>
 					<div hidden={phase === "comparing"}>
@@ -501,7 +506,7 @@ export function ProjectFileEditor({
 										.querySelector(".app-shell")
 										?.getAttribute("data-word-wrap") === "true"
 								}
-								loadedDoc={loadedDoc}
+								baselineText={loadedDisplay}
 								onDirty={onDirty}
 								onSave={() => void save()}
 								onDone={done}

@@ -2,11 +2,14 @@ import { useEffect, useRef } from "react";
 import { EditorState, type Extension } from "@codemirror/state";
 import { EditorView, lineNumbers } from "@codemirror/view";
 import { MergeView } from "@codemirror/merge";
-import { bracketMatching } from "@codemirror/language";
+import { bracketMatching, syntaxHighlighting } from "@codemirror/language";
+import { codeEditorTheme, codeHighlightStyle } from "./code-editor-theme";
 
 const readOnly: Extension[] = [
 	lineNumbers(),
 	bracketMatching(),
+	codeEditorTheme,
+	syntaxHighlighting(codeHighlightStyle, { fallback: true }),
 	EditorState.readOnly.of(true),
 	EditorView.editable.of(false),
 ];

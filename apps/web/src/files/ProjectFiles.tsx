@@ -9,6 +9,8 @@ import {
 import { Check, Pencil } from "lucide-react";
 import { authenticated, read } from "../api";
 import { Modal } from "../../../../packages/ui-shell/Modal";
+import { Spinner } from "../../../../packages/ui-shell/Feedback";
+import { ActionMenu } from "../../../../packages/ui-shell/ActionMenu";
 import { matchesShortcut } from "../shell-layout";
 import { chordFor } from "../keyboard-bindings";
 import { FilesView, type FilesEntry } from "./FilesView";
@@ -63,6 +65,9 @@ function ProjectFilesReader({
 		[searchRefresh, setSearchRefresh] = useState(0),
 		[editing, setEditing] = useState(false),
 		[editorUi, setEditorUi] = useState<EditorUiState | null>(null),
+		[moreOpen, setMoreOpen] = useState(false),
+		[savedFlash, setSavedFlash] = useState(false),
+		[slowSave, setSlowSave] = useState(false),
 		[confirm, setConfirm] = useState<{
 			name: string;
 			action: () => void;
@@ -134,6 +139,21 @@ function ProjectFilesReader({
 	useEffect(() => {
 		if (!editing) setEditorUi(null);
 	}, [editing]);
+	// §8.4: "Saved" flashes for 1,200 ms; the spinner shows only past 200 ms.
+	useEffect(() => {
+		if (!editorUi?.saved) return;
+		setSavedFlash(true);
+		const timer = setTimeout(() => setSavedFlash(false), 1200);
+		return () => clearTimeout(timer);
+	}, [editorUi?.saved]);
+	useEffect(() => {
+		if (!editorUi?.saving) {
+			setSlowSave(false);
+			return;
+		}
+		const timer = setTimeout(() => setSlowSave(true), 200);
+		return () => clearTimeout(timer);
+	}, [editorUi?.saving]);
 	if (folder.errorCode === "PROJECT_NOT_CONNECTED") return fallback;
 	const line =
 		selectedMatch?.kind === "text" && !stale ? selectedMatch.line : undefined;
@@ -182,23 +202,39 @@ function ProjectFilesReader({
 			)}
 			<button
 				type="button"
-				className="primary"
+				className="primary files-edit-save"
 				disabled={
 					!editorUi?.dirty || editorUi.saving || editorUi.unavailable
 				}
 				onClick={() => void editorApi.current?.save()}
 			>
-				{editorUi?.saved ? (
-					<>
+				{editorUi?.saving && slowSave ? (
+					<Spinner size={12} />
+				) : savedFlash ? (
+					<span className="files-edit-saved">
 						<Check size={13} /> Saved
-					</>
+					</span>
 				) : (
 					"Save"
 				)}
 			</button>
-			<button type="button" onClick={requestExit}>
+			<button
+				type="button"
+				className="files-edit-done"
+				onClick={requestExit}
+			>
 				Done
 			</button>
+			<span className="files-edit-more">
+				<ActionMenu
+					label="More"
+					open={moreOpen}
+					onOpenChange={setMoreOpen}
+					items={[
+						{ id: "done", label: "Done", onSelect: requestExit },
+					]}
+				/>
+			</span>
 		</div>
 	) : canEdit && file ? (
 		<button

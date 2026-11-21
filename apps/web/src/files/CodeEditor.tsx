@@ -3,8 +3,8 @@ import {
 	Compartment,
 	EditorState,
 	Prec,
+	Text,
 	type Extension,
-	type Text,
 } from "@codemirror/state";
 import {
 	EditorView,
@@ -23,17 +23,19 @@ import {
 import {
 	LanguageDescription,
 	bracketMatching,
-	defaultHighlightStyle,
 	indentOnInput,
 	syntaxHighlighting,
 } from "@codemirror/language";
 import { languages } from "@codemirror/language-data";
 import {
+	closeSearchPanel,
 	highlightSelectionMatches,
 	search,
 	searchKeymap,
+	searchPanelOpen,
 } from "@codemirror/search";
 import { editLineSeparator } from "./manual-edit-state";
+import { codeEditorTheme, codeHighlightStyle } from "./code-editor-theme";
 
 /** Imperative surface the edit host uses: the doc the server will receive. */
 export interface CodeEditorHandle {
@@ -42,6 +44,8 @@ export interface CodeEditorHandle {
 	document(): string;
 	/** Replace the whole document (disk reload, draft restore), keeping the cursor line when possible. */
 	replaceAll(text: string): void;
+	/** Mark the current document as the clean baseline (after a save). */
+	rebase(): void;
 	focus(): void;
 }
 
@@ -52,8 +56,8 @@ interface CodeEditorProps {
 	/** Shell word-wrap preference (`data-word-wrap` on `.app-shell`). */
 	wordWrap: boolean;
 	readOnly?: boolean;
-	/** The last saved/loaded doc; dirty is `state.doc.eq(loadedDoc.current)`. */
-	loadedDoc: { current: Text | undefined };
+	/** The file text as loaded from disk; dirty is doc ≠ this baseline. */
+	baselineText: string;
 	onDirty: (dirty: boolean) => void;
 	onSave: () => void;
 	onDone: () => void;
@@ -66,14 +70,18 @@ export default function CodeEditor({
 	lineSeparator,
 	wordWrap,
 	readOnly = false,
-	loadedDoc,
+	baselineText,
 	onDirty,
 	onSave,
 	onDone,
 	handleRef,
 }: CodeEditorProps) {
 	const host = useRef<HTMLDivElement>(null);
+	// The loaded-from-disk baseline stays internal so a restored draft still
+	// compares dirty against the file it came from.
+	const baselineDoc = useRef<Text | undefined>(undefined);
 	useEffect(() => {
+		baselineDoc.current = Text.of(baselineText.split("\n"));
 		const language = new Compartment(),
 			wrap = new Compartment();
 		const view = new EditorView({
@@ -95,7 +103,7 @@ export default function CodeEditor({
 					wrap.of(wordWrap ? EditorView.lineWrapping : []),
 					EditorView.updateListener.of((update) => {
 						if (update.docChanged)
-							onDirty(!(loadedDoc.current && update.state.doc.eq(loadedDoc.current)));
+							onDirty(!(baselineDoc.current && update.state.doc.eq(baselineDoc.current)));
 					}),
 					Prec.highest(
 						keymap.of([
@@ -109,6 +117,10 @@ export default function CodeEditor({
 							{
 								key: "Escape",
 								run: () => {
+									if (searchPanelOpen(view.state)) {
+										closeSearchPanel(view);
+										return true;
+									}
 									onDone();
 									return true;
 								},
@@ -127,11 +139,11 @@ export default function CodeEditor({
 								EditorView.editable.of(false),
 							]
 						: [],
-					syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+					codeEditorTheme,
+				syntaxHighlighting(codeHighlightStyle, { fallback: true }),
 				],
 			}),
 		});
-		// loadedDoc stays owned by the host: an opened draft is dirty vs the file.
 		handleRef.current = {
 			view,
 			document: () => view.state.doc.toString(),
@@ -140,8 +152,11 @@ export default function CodeEditor({
 				view.dispatch({
 					changes: { from: 0, to: view.state.doc.length, insert: text },
 				});
-				loadedDoc.current = view.state.doc;
+				baselineDoc.current = view.state.doc;
 				view.scrollDOM.scrollTop = scrollTop;
+			},
+			rebase: () => {
+				baselineDoc.current = view.state.doc;
 			},
 			focus: () => view.focus(),
 		};
