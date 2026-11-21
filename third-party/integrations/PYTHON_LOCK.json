@@ -338,9 +338,9 @@
     },
     {
       "name": "soupsieve",
-      "version": "3.0.4",
-      "wheelSha256": "8412826614f9c632227067d0985aeb9f584bd15efc852955430e097a9fe7afbf",
-      "sourceUrl": "https://files.pythonhosted.org/packages/07/66/473f7ca0be0b06e38ee8c85ee2db184e3981bd769fac2e7c19c8a8865211/soupsieve-3.0.4-py3-none-any.whl"
+      "version": "4.1.2",
+      "wheelSha256": "96b4115212a3abee1f572d62da706cca090b088cb5effa278db5702122e63a2c",
+      "sourceUrl": "https://files.pythonhosted.org/packages/1e/33/f5082b3c480db024453077592057200955aed2a376327b8921d553404ca7/soupsieve-4.1.2-py3-none-any.whl"
     },
     {
       "name": "specify-cli",
@@ -27485,29 +27485,29 @@
       "sha256": "c51c91f703d3d4b3696c923cb5fec213e05e75d9215393befac7f2fa6a3904df"
     },
     {
-      "path": ".harness-integrations-python-deps/soupsieve-3.0.4.dist-info/INSTALLER",
+      "path": ".harness-integrations-python-deps/soupsieve-4.1.2.dist-info/INSTALLER",
       "bytes": 4,
       "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508"
     },
     {
-      "path": ".harness-integrations-python-deps/soupsieve-3.0.4.dist-info/licenses/LICENSE.md",
+      "path": ".harness-integrations-python-deps/soupsieve-4.1.2.dist-info/licenses/LICENSE.md",
       "bytes": 1096,
       "sha256": "76a0acdb98c3a63681e20b6f096699ef8cad5fb35d56eef8387e0fa71d797a9a"
     },
     {
-      "path": ".harness-integrations-python-deps/soupsieve-3.0.4.dist-info/METADATA",
+      "path": ".harness-integrations-python-deps/soupsieve-4.1.2.dist-info/METADATA",
       "bytes": 4389,
-      "sha256": "548d71d83acf92c9206af9b8bac48271f34d2cdd3f6c6b4237c88bad6fee09fd"
+      "sha256": "9a0ec3e33ef6667b0af90f7b6e962daef3c74bab9eecfd89cffb4793dc2a7d26"
     },
     {
-      "path": ".harness-integrations-python-deps/soupsieve-3.0.4.dist-info/RECORD",
-      "bytes": 1035,
-      "sha256": "4146defda44e345aff64f5daefe32c5a95b22d1a4c64a1244f64c3ed2bd737d7"
+      "path": ".harness-integrations-python-deps/soupsieve-4.1.2.dist-info/RECORD",
+      "bytes": 1300,
+      "sha256": "90de6dc38a205818d9fa97f2fc94252d62bcdd88752917d6489577c02163c3cd"
     },
     {
-      "path": ".harness-integrations-python-deps/soupsieve-3.0.4.dist-info/WHEEL",
+      "path": ".harness-integrations-python-deps/soupsieve-4.1.2.dist-info/WHEEL",
       "bytes": 87,
-      "sha256": "5b77e4a649bbfb07fdbc123967eeecd1e5a478cfaca6eefc23c35e6fdf037848"
+      "sha256": "da266b2640c891e0e1d24f528a428ca85b913feb9aea66f822bd40b04478044c"
     },
     {
       "path": ".harness-integrations-python-deps/soupsieve/__init__.py",
@@ -27517,22 +27517,27 @@
     {
       "path": ".harness-integrations-python-deps/soupsieve/__meta__.py",
       "bytes": 6766,
-      "sha256": "527081dcdaa542b7fd73f34cd7414a06468a83407a7fc941684baf733567f091"
+      "sha256": "7d6984b686a9db8788f249995d03330a2fb7a550d64a13f67f419d07a26c6ca4"
+    },
+    {
+      "path": ".harness-integrations-python-deps/soupsieve/bidi.py",
+      "bytes": 11398,
+      "sha256": "09da6b778c57b24d8dd3ff76e3d296193610aaed34d9ce2bc8865bf4a7d98ecb"
     },
     {
       "path": ".harness-integrations-python-deps/soupsieve/css_match.py",
-      "bytes": 66688,
-      "sha256": "a7cfc9adffd7ee71a0263854c78c9efcea287a0e566e335135d268ebb76c6b01"
+      "bytes": 105104,
+      "sha256": "f28567ae7a3a5951dd91be73fbae610ee317b2891b40dee250f93b8e8265f66c"
     },
     {
       "path": ".harness-integrations-python-deps/soupsieve/css_parser.py",
-      "bytes": 51540,
-      "sha256": "68be2f5dd01f7ad7ced717ef4250de7979436ec49cf845b88ce496c4fe1079e1"
+      "bytes": 57035,
+      "sha256": "3d85667b35a7ec8666659e1ebf903e7070e9e152d3d599411e75a624a3158a3e"
     },
     {
       "path": ".harness-integrations-python-deps/soupsieve/css_types.py",
-      "bytes": 16274,
-      "sha256": "e3ef6e7c94e45bd68f02e25cfc334083d31e4c773ddd21ef4b4d19c91e1b7568"
+      "bytes": 16623,
+      "sha256": "d55dcd265d7822b69ed68970a20bc1a3d93bd8e9b72acc5e7daaa26bb3936764"
     },
     {
       "path": ".harness-integrations-python-deps/soupsieve/pretty.py",
@@ -27546,8 +27551,8 @@
     },
     {
       "path": ".harness-integrations-python-deps/soupsieve/util.py",
-      "bytes": 3373,
-      "sha256": "7e5a6da8baba9fcba4760fb15a6055c826b18be6ff0a2614517065b54ad07cbb"
+      "bytes": 3618,
+      "sha256": "44cf2dc35de17be66ae9d560601a93c5f2e9522fd7ec0f4a2c89043735b0df28"
     },
     {
       "path": ".harness-integrations-python-deps/specify_cli-1.2.5.dist-info/entry_points.txt",
@@ -37630,5 +37635,5 @@
       "sha256": "953408cd2570f0c83dc2fe39f7e4e388e41eeb05738aa69196a5f6ffcf6ba79e"
     }
   ],
-  "bytes": 254072246
+  "bytes": 254128414
 }
