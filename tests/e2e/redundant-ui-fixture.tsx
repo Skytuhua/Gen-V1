@@ -24,6 +24,7 @@ snapshot.threads=[thread,{...thread,id:'thread-b',title:'Another owner'}];snapsh
 snapshot.usage={'thread-a':{...EMPTY_USAGE,inputTokens:18321,outputTokens:791,cost:0.012345,sessionPercent:23.456,weeklyPercent:67.89,contextTokens:18000,contextWindow:100000},'thread-b':{...EMPTY_USAGE,inputTokens:999,cost:8}};
 snapshot.memory=[{id:'note',threadId:'thread-a',key:'decision',content:'Keep the owning thread notes.',revision:1,author:'user',updatedAt:'2026-11-10T00:00:00Z'}];
 snapshot.data=[{id:'recorded',threadId:'thread-a',revision:1,createdAt:'2026-11-10T00:00:00Z',provenance:'Synthetic recorded executor comparison',value:{title:'Recorded comparison',before:'old recorded value',after:'new recorded value'}}];
+if(state==='disconnected')snapshot.data=[];
 const context:ProjectContext={project:{id:'project-one',name:'Gen V1',rootPath:'C:/Synthetic/Gen-V1',authority:{kind:'local'},createdAt:'2026-11-10T00:00:00Z'},threadId:'thread-a',workingCopy:{id:'copy-a',path:'C:/Synthetic/copy-a'},machineName:'Fixture machine',editor:{available:false,label:'Editor'},branch:'work/layout',head:'abc123',revision:'work-r1',changes:{files:1,added:4,removed:2},lineage:[],scripts:[],capabilities:{git:true,terminal:false,pullRequests:false}};
 // Synthetic responses stay inside this fixture; production hooks and renderers run unchanged.
 window.fetch=async(input,options)=>{
@@ -35,7 +36,7 @@ window.fetch=async(input,options)=>{
   if(state==='error')return Response.json({error:{code:'SYNTHETIC_ERROR',message:'Project context could not load. Try again.'}},{status:503});
   return Response.json(state==='empty'?{...context,project:{...context.project,rootPath:''},capabilities:{git:false,terminal:false,pullRequests:false}}:context);
  }
- if(url.pathname==='/api/projects/project-one/git')return Response.json({projectId:'project-one',threadId:'thread-a',workingCopyId:'copy-a',head:'abc123',revision:'work-r1',branch:'work/layout',gitWrite:false,files:[{path:'src/layout.ts',index:' ',worktree:'M',added:4,removed:2,staged:false}],diff:'--- a/src/layout.ts\n+++ b/src/layout.ts\n-old live value\n+new live value',stagedDiff:''});
+ if(url.pathname==='/api/projects/project-one/git')return state==='disconnected'?Response.json({error:{code:'PROJECT_NOT_CONNECTED',message:'Project folder unavailable'}},{status:400}):Response.json({projectId:'project-one',threadId:'thread-a',workingCopyId:'copy-a',head:'abc123',revision:'work-r1',branch:'work/layout',gitWrite:false,files:[{path:'src/layout.ts',index:' ',worktree:'M',added:4,removed:2,staged:false}],diff:'--- a/src/layout.ts\n+++ b/src/layout.ts\n-old live value\n+new live value',stagedDiff:''});
  throw Error('Unexpected fixture request: '+url.pathname);
 };
 function Fixture(){
