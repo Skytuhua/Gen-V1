@@ -170,7 +170,7 @@ describe('resolve on Windows', () => {
   });
 
   it('resolves wsl default distro without a --distribution arg', async () => {
-    const resolver = new TerminalShellResolver(host({ files: BASE_WINDOWS_FILES, probe: (_file, args) => wslOk() }));
+    const resolver = new TerminalShellResolver(host({ files: BASE_WINDOWS_FILES, probe: () => wslOk() }));
     const result = await resolver.resolve({ kind: 'wsl' }, BINDING, {});
     expect(result.args).toEqual(['--cd', '/mnt/d/work/demo space']);
     expect(result.env.WSLENV).toBeUndefined();
