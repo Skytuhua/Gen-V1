@@ -26,6 +26,19 @@ input socket and output worker when a terminal exits naturally. The patch applie
 through pnpm in both source installations and the packaged desktop host; the
 upstream package license remains included.
 
+Syntax highlighting of fenced code blocks in rendered replies uses the
+MIT-licensed CodeMirror 6 and Lezer packages pinned in
+[package.json](package.json). The pinned versions in
+[pnpm-lock.yaml](pnpm-lock.yaml) cover `@codemirror/language`,
+`@codemirror/language-data` and `@lezer/highlight`, plus the transitive
+`@codemirror/*` (`state`, `view`, `autocomplete`, `lang-*`, `legacy-modes`,
+`lint`, `streamparser`), `@lezer/*` (`common`, `lr` and the per-language
+grammars `cpp`, `css`, `go`, `html`, `java`, `javascript`, `json`, `markdown`,
+`php`, `python`, `rust`, `sass`, `xml`, `yaml`), `style-mod`, `w3c-keyname`
+and `crelt` packages. Each package is published under the MIT license and
+ships its own LICENSE file in the installed package; copyright belongs to
+Marijn Haverbeke and contributors.
+
 Historical comparison frames under `docs/reference/` depict their original
 owners' products and are identified in [the reference inventory](docs/reference-videos.md).
 They are reference material, not Gen V1 product screenshots. Current product

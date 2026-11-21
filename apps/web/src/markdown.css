@@ -13,4 +13,27 @@
 .markdown-code>.copy-button { position:absolute; top:6px; right:6px; opacity:0; transition:opacity var(--ui-motion-hover) var(--ui-ease-move); }
 .markdown-code:hover>.copy-button,.markdown-code:focus-within>.copy-button { opacity:1; }
 @media (hover:none) { .markdown-code>.copy-button { opacity:1; } }
-@media (prefers-reduced-motion:reduce) { .markdown-code>.copy-button { transition:none; } }
+@media (prefers-reduced-motion:reduce) { .markdown-code>.copy-button { transition:none; } .markdown-code[data-tint] pre code span { animation:none; } }
+
+/* Syntax highlighting: language label band and token palette (reply code blocks). */
+:root { --syntax-keyword:#AF00DB; --syntax-string:#A31515; --syntax-number:#067550; --syntax-comment:#59616B; --syntax-type:#1C6B82; --syntax-property:#0451A5; --syntax-heading:#800000; --syntax-link:#0066BF; --syntax-meta:var(--muted); --syntax-invalid:var(--danger); }
+:root[data-theme="dark"] { --syntax-keyword:#C586C0; --syntax-string:#CE9178; --syntax-number:#B5CEA8; --syntax-comment:#7F848E; --syntax-type:#4EC9B0; --syntax-property:#9CDCFE; --syntax-heading:#569CD6; --syntax-link:#4FC1FF; }
+
+.markdown-code[data-language]>pre { padding-top:34px; }
+.markdown-code>.markdown-code-language { position:absolute; top:8px; left:16px; max-width:calc(100% - 64px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:var(--interface-font,inherit); font-size:11px; line-height:16px; font-weight:500; letter-spacing:.01em; color:var(--muted); user-select:none; pointer-events:none; }
+
+.markdown-code :is(.tok-keyword,.tok-macroName) { color:var(--syntax-keyword); }
+.markdown-code :is(.tok-string,.tok-string2) { color:var(--syntax-string); }
+.markdown-code :is(.tok-number,.tok-bool,.tok-atom,.tok-literal) { color:var(--syntax-number); }
+.markdown-code .tok-comment { color:var(--syntax-comment); font-style:italic; }
+.markdown-code :is(.tok-typeName,.tok-className,.tok-namespace,.tok-variableName2) { color:var(--syntax-type); }
+.markdown-code .tok-propertyName { color:var(--syntax-property); }
+.markdown-code .tok-heading { color:var(--syntax-heading); font-weight:600; }
+.markdown-code :is(.tok-link,.tok-url) { color:var(--syntax-link); text-decoration:underline; }
+.markdown-code :is(.tok-meta,.tok-labelName) { color:var(--syntax-meta); }
+.markdown-code .tok-invalid { color:var(--syntax-invalid); text-decoration:underline wavy; }
+.markdown-code .tok-emphasis { font-style:italic; }
+.markdown-code .tok-strong { font-weight:600; }
+
+@keyframes markdown-code-tint { from { color:var(--text); } }
+.markdown-code[data-tint] pre span { animation:markdown-code-tint var(--ui-motion-status) var(--ui-ease-move) backwards; }
