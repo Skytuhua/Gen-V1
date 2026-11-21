@@ -8,12 +8,14 @@ import {snapshotServed,warmApp} from './app-ready';
 
 test.beforeAll(async({browser,baseURL})=>{await warmApp(browser,baseURL);});
 
-async function fixture(page:Page,started=false){
+async function fixture(page:Page,started=false,empty=false,modelsState:'ready'|'empty'|'error'='ready'){
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Fixture content'}}}});
  snapshot.artifacts=[];snapshot.userStates=[];snapshot.settings.theme='dark';
  snapshot.threads[0]={...snapshot.threads[0],title:'Original chat',projectId:'first',projectName:'First project',mode:'build',sessionPath:started?'fixture-session':null};
  snapshot.messages=Array.from({length:55},(_,index)=>({id:'message-'+index,threadId:'task-thread',role:'assistant' as const,content:'Original conversation message '+index,runId:null,createdAt:'2026-11-04'}));
+ if(empty)snapshot.messages=[];
  const host=await serveTaskFixture(page,snapshot),commands:HostCommand[]=[],workspaceCommands:HostCommand[]=[];
+ if(modelsState!=='ready')await page.route('**/api/models**',route=>route.fulfill(modelsState==='error'?{status:500,json:{error:{code:'INTERNAL',message:'Synthetic model catalog unavailable'}}}:{json:{models:[]}}));
  const envelope:WorkspaceEnvelope={projects:[{id:'first',name:'First project',rootPath:'C:/fixture/first',authority:{kind:'local'},createdAt:'2026-11-04T00:00:00.000Z'},{id:'second',name:'Second project',rootPath:'C:/fixture/second',authority:{kind:'local'},createdAt:'2026-11-04T00:00:00.000Z'},{id:'private',name:'Other authority',authority:{kind:'plugin',pluginId:'fixture-plugin',scopeId:'private'},rootPath:'C:/not-personal',createdAt:'2026-11-04T00:00:00.000Z'}],state:{version:1,revision:0,activeCanvasId:'main',canvases:[createWorkspaceCanvas('workspace','Workspace','main')],profiles:[],disabledKinds:[],integrations:{}}};
  await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));
  await page.route('**/api/workspace/commands',async route=>{
@@ -40,6 +42,43 @@ async function fixture(page:Page,started=false){
  const served=snapshotServed(page);await page.goto('/');await served;await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
  return {...host,envelope,commands,workspaceCommands};
 }
+
+test('empty workspace prompts update the owned draft and focus its final caret',async({page})=>{
+ await fixture(page,false,true);
+ const hero=page.getByRole('region',{name:'Start a conversation',exact:true}),draft=page.getByRole('textbox',{name:'Message',exact:true});
+ await expect(hero).toBeVisible();await expect(hero.getByRole('list',{name:'Get started',exact:true})).toHaveCount(0);
+ for(const label of ['Explain this codebase','Fix a failing test','Plan a new feature','Review my changes']){
+  await hero.getByRole('button',{name:label,exact:true}).click();await expect(draft).toBeFocused();
+  await expect(async()=>{
+   const state=await draft.evaluate(node=>({value:(node as HTMLTextAreaElement).value,start:(node as HTMLTextAreaElement).selectionStart,end:(node as HTMLTextAreaElement).selectionEnd}));
+   expect(state.value.length).toBeGreaterThan(label.length);expect(state.start).toBe(state.value.length);expect(state.end).toBe(state.value.length);
+  }).toPass();
+ }
+});
+for(const modelsState of ['empty','error'] as const)test('empty workspace setup remains actionable with '+modelsState+' models',async({page})=>{
+ await fixture(page,false,true,modelsState);
+ const hero=page.getByRole('region',{name:'Start a conversation',exact:true});
+ await expect(hero.getByRole('list',{name:'Get started',exact:true})).toBeVisible();
+ await expect(page.locator('.composer-caption:visible').getByRole('button',{name:'Connect a model to start',exact:true})).toHaveCount(0);
+ await hero.getByRole('button',{name:'Connect',exact:true}).click();
+ await expect(page.getByRole('dialog').last()).toContainText(/Models|Providers|Accounts/i);await page.keyboard.press('Escape');
+ await hero.getByRole('button',{name:'Choose a project',exact:true}).click();
+ await expect(page.getByRole('dialog',{name:'Select project',exact:true})).toBeVisible();
+});
+test('empty workspace entrance honors every motion policy',async({page})=>{
+ await fixture(page,false,true);
+ const heading=page.getByRole('region',{name:'Start a conversation',exact:true}).getByRole('heading');
+ for(const mode of ['reduced','off']){
+  await page.evaluate(mode=>document.documentElement.dataset.motion=mode,mode);
+  expect(await heading.evaluate(node=>getComputedStyle(node).transform)).toBe('none');
+  expect(await heading.evaluate(node=>getComputedStyle(node).animationName)).toBe(mode==='off'?'none':'empty-workspace-fade');
+ }
+ await page.evaluate(()=>{document.documentElement.dataset.motion='system';document.querySelectorAll<HTMLElement>('.app-shell').forEach(node=>node.dataset.panelAnimations='false');});
+ expect(await heading.evaluate(node=>getComputedStyle(node).animationName)).toBe('none');
+ await page.evaluate(()=>document.querySelectorAll<HTMLElement>('.app-shell').forEach(node=>node.dataset.panelAnimations='true'));
+ await page.emulateMedia({reducedMotion:'reduce'});
+ expect(await heading.evaluate(node=>getComputedStyle(node).animationName)).toBe('empty-workspace-fade');
+});
 
 test('text entry shares its first row with Changes and Create PR at wide and narrow widths',async({page})=>{
  await fixture(page);const draft=page.getByRole('textbox',{name:'Message',exact:true});
@@ -121,7 +160,7 @@ test('composer removes repeated captions and toggles Build Plan without changing
  for(const text of ['Local workspace','Enter to send · Shift + Enter for a new line','Legacy connection'])await expect(page.getByText(text,{exact:true})).toHaveCount(0);
  const toggle=page.getByRole('button',{name:'Task mode',exact:true});await expect(toggle).toHaveText('Build');await toggle.click();await expect(toggle).toHaveText('Plan');await toggle.click();await expect(toggle).toHaveText('Build');await expect(draft).toHaveValue('Keep this thought');
  expect(host.commands.filter(value=>value.type==='thread.mode').map(value=>value.payload.mode)).toEqual(['plan','build']);
- await draft.focus();expect(await page.locator('.composer').evaluate(node=>getComputedStyle(node).boxShadow)).toBe('none');
+ await draft.focus();expect(await page.locator('.composer').evaluate(node=>getComputedStyle(node).boxShadow)).not.toBe('none');
  await page.emulateMedia({reducedMotion:'reduce'});expect(await page.locator('.composer').evaluate(node=>getComputedStyle(node).animationName)).toBe('none');
  await page.screenshot({path:'.harness-frontend-refinement/shell-desktop.png'});
  await page.setViewportSize({width:390,height:844});await expect(draft).toHaveValue('Keep this thought');
