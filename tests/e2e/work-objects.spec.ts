@@ -13,6 +13,17 @@ async function fixture(page:Page,kind:'WorkflowBoard'|'ArchitectureCanvas'|'Trac
  return {snapshot,host:await serveTaskFixture(page,snapshot,action)};
 }
 
+test('workflow lane headers remain fully below the scroll viewport edge',async({page})=>{
+ await page.setViewportSize({width:1280,height:800});
+ await fixture(page,'WorkflowBoard',suppliedBoard);await page.goto('/');
+ const viewport=page.locator('.workflow-lanes-scroll');
+ await expect(viewport).toHaveCSS('padding-top','8px');
+ const lane=page.getByRole('region',{name:'Ready',exact:true});
+ const header=await lane.locator('header').boundingBox(),container=await viewport.boundingBox();
+ expect(header).not.toBeNull();expect(container).not.toBeNull();
+ expect(header!.y).toBeGreaterThan(container!.y+8);
+});
+
 test('shared board move keyboard commits the exact proposal and a source change disables an open choice',async({page})=>{
  const {host}=await fixture(page,'WorkflowBoard',suppliedBoard);await page.goto('/');
  await page.getByRole('button',{name:'Keep retries ordered',exact:true}).click();
