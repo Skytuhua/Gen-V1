@@ -273,6 +273,34 @@ describe('aggregate and manifest',()=>{
     expect(redactSecrets('plain readiness output')).toBe('plain readiness output');
   });
 
+  it('redacts every word in a quoted or unquoted named credential field',()=>{
+    for(const raw of [
+      'password: "SYNTHETIC_MULTIWORD_A_4481 SYNTHETIC_MULTIWORD_B_4481"',
+      "password: 'SYNTHETIC_MULTIWORD_A_4481 SYNTHETIC_MULTIWORD_B_4481'",
+      'api_key = SYNTHETIC_MULTIWORD_A_4481 SYNTHETIC_MULTIWORD_B_4481',
+      '{"api_key": "SYNTHETIC_MULTIWORD_A_4481 SYNTHETIC_MULTIWORD_B_4481"}',
+    ]){
+      const safe=redactSecrets(raw);
+      expect(safe).toContain('[REDACTED]');
+      expect(safe).not.toContain('SYNTHETIC_MULTIWORD_A_4481');
+      expect(safe).not.toContain('SYNTHETIC_MULTIWORD_B_4481');
+    }
+    expect(redactSecrets('plain readiness output')).toBe('plain readiness output');
+  });
+
+  it('does not persist the trailing words of a multiword child credential',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\npassword: 'SYNTHETIC_CHILD_A_4482 SYNTHETIC_CHILD_B_4482'\nafter\n");`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('password: [REDACTED]\n');
+    expect(log).toContain('after\n');
+    expect(log).not.toContain('SYNTHETIC_CHILD_A_4482');
+    expect(log).not.toContain('SYNTHETIC_CHILD_B_4482');
+  });
+
   it('log redaction survives secrets split across stream chunks',async()=>{
     const directory=temporaryDirectory();
     const result=await runCheck(specFor(directory,{

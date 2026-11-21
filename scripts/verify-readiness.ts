@@ -42,7 +42,8 @@ export function childEnvironment(extra:Record<string,string>={}):NodeJS.ProcessE
 
 const SECRET_PATTERNS:Array<[RegExp,string]>=[
   [/(bearer\s+)[A-Za-z0-9._\-\/+=]+/gi,'$1[REDACTED]'],
-  [/((?:api[_-]?key|apikey|access[_-]?token|auth[_-]?token|token|secret|password|passwd|authorization)["']?\s*[:=]\s*["']?)[^\s"',;]+/gi,'$1[REDACTED]'],
+  // A named credential can contain spaces or quotes; hide its entire field line.
+  [/((?:api[_-]?key|apikey|access[_-]?token|auth[_-]?token|token|secret|password|passwd|authorization)["']?[ \t]*[:=][ \t]*)[^\r\n]*/gi,'$1[REDACTED]'],
   [/((?:postgres|postgresql|mysql|mongodb|redis|amqp|https?):\/\/[^:\s\/]+:)[^@\s]+@/gi,'$1[REDACTED]@'],
   [/-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z0-9 ]*PRIVATE KEY-----/g,'[REDACTED PRIVATE KEY]'],
 ];
