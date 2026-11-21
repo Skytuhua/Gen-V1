@@ -56,6 +56,7 @@ export function redactSecrets(text:string):string{
 function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
   type Source='stdout'|'stderr';
   const carry:Record<Source,string>={stdout:'',stderr:''};
+  const taintedCarry:Record<Source,boolean>={stdout:false,stderr:false};
   const privateKeyEnd:Record<Source,string|null>={stdout:null,stderr:null};
   const begin=/-----BEGIN ([A-Z0-9 ]*PRIVATE KEY)-----/;
   const scrubLine=(source:Source,line:string):string=>{
@@ -78,20 +79,23 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
   };
   return {
     write(source:Source,chunk:string){
+      const other:Source=source==='stdout'?'stderr':'stdout';
+      const suppressOther=privateKeyEnd[other]!==null;
       const lines=(carry[source]+chunk).split('\n');carry[source]=lines.pop()!;
-      for(const line of lines){
-        // A private key begun on either pipe may continue on the other pipe.
-        const other:Source=source==='stdout'?'stderr':'stdout';
-        const suppress=privateKeyEnd[other]!==null;
-        const safe=scrubLine(source,line);
+      const carryWasTainted=taintedCarry[source];
+      for(let i=0;i<lines.length;i++){
+        // Suppress other-pipe content while a key is open, even across partial lines.
+        const suppress=suppressOther||(i===0&&carryWasTainted);
+        const safe=scrubLine(source,lines[i]!);
         if(!suppress&&(safe||privateKeyEnd[source]===null))stream.write(safe+'\n');
       }
+      taintedCarry[source]=suppressOther||(lines.length===0&&carryWasTainted);
     },
     end(){
       for(const source of ['stdout','stderr'] as const){
         if(carry[source]){
           const other:Source=source==='stdout'?'stderr':'stdout';
-          const suppress=privateKeyEnd[other]!==null;
+          const suppress=taintedCarry[source]||privateKeyEnd[other]!==null;
           const safe=scrubLine(source,carry[source]);
           if(!suppress&&safe)stream.write(safe);
         }
