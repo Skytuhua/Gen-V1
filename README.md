@@ -107,7 +107,7 @@ Use the [development setup guide](docs/public/getting-started.md#develop-from-a-
 - Generated-code interfaces use opaque workers, validated messages and a termination watchdog. This is not a hard operating-system memory quota. Approved native runtimes and project tests execute with local-user privileges.
 - Existing installations retain the `GenerativeHarness` storage namespace for compatibility.
 
-Read [release status](docs/public/release-notes.md), [security and local data](SECURITY.md), and the [historical acceptance report](docs/2026-11-01-product-completion.md) for the scope behind these statements.
+Read [release status](docs/public/release-notes.md), [security and local data](SECURITY.md), and the [historical acceptance report](docs/archive/2026-11-01-product-completion.md) for the scope behind these statements.
 
 </details>
 

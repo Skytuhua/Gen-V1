@@ -20,7 +20,7 @@ Planning choices reveal concise explanations and text/granted-image examples loc
 
 Verification covers rapid reversal/retargeting, continuous content arrival, settled geometry, manual override, focus/state recovery, reduced motion and unchanged snapshots. Focused regressions and labelled light/dark/narrow fixtures exercise the new surfaces. One batched visual inspection and one confirmation bound the visual pass. The historical recording index, not included in this checkout, distinguished scripted composition and telemetry from native approved test execution. The existing [private review site](https://generative-harness-video-review.skytuhua.chatgpt.site) is retained for the combined handoff; publication state, final full-suite totals and new authenticated generation remain final delivery checks.
 
-The [acceptance history](acceptance.md) retains the release context for those demonstrations. It is not a claim of exact animation equivalence, first-attempt generation reliability, broader-category acceptance, generated-code enablement or the deferred 36-run pilot.
+The [acceptance history](archive/acceptance.md) retains the release context for those demonstrations. It is not a claim of exact animation equivalence, first-attempt generation reliability, broader-category acceptance, generated-code enablement or the deferred 36-run pilot.
 
 ## Compact continuity pass,1November2026
 

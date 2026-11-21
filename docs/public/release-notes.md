@@ -118,11 +118,11 @@ Paired clients / remote read synchronization (M17, #836) are **not available**. 
 
 ### Provider acceptance
 
-These labels describe repository evidence, not the current user's sign-in or a guarantee for every later revision. `packages/contracts/connections.ts` lists nine implemented connection routes plus two unavailable/pending entries. Only the owned OpenAI subscription has genuine inference evidence in [the 2026-11-01 acceptance report](../2026-11-01-product-completion.md#remaining-acceptance); an implemented adapter or a configured credential is not live-provider verification.
+These labels describe repository evidence, not the current user's sign-in or a guarantee for every later revision. `packages/contracts/connections.ts` lists nine implemented connection routes plus two unavailable/pending entries. Only the owned OpenAI subscription has genuine inference evidence in [the 2026-11-01 acceptance report](../archive/2026-11-01-product-completion.md#remaining-acceptance); an implemented adapter or a configured credential is not live-provider verification.
 
 | Provider / connection ID | Acceptance label | Evidence / boundary |
 | --- | --- | --- |
-| OpenAI — `openai` | **Verified** | Historical owned subscription + Hermes live inference only; [acceptance report](../2026-11-01-product-completion.md#remaining-acceptance). Not current installed-Windows acceptance |
+| OpenAI — `openai` | **Verified** | Historical owned subscription + Hermes live inference only; [acceptance report](../archive/2026-11-01-product-completion.md#remaining-acceptance). Not current installed-Windows acceptance |
 | OpenAI Codex — `openai-codex` | **Preview-unverified** | Report records signed out; independent live sign-in/entitlement/task acceptance open |
 | GitHub Copilot — `github-copilot` | **Preview-unverified** | Report records signed out; independent live acceptance open |
 | xAI / Grok — `xai` | **Preview-unverified** | Report records signed out; independent live acceptance open |
@@ -149,7 +149,7 @@ The [screenshots and videos](media/README.md) show the actual public browser int
 
 ## Verified scope and remaining work
 
-The 0.6.4 source preview passed its Windows CI run. Focused native candidate checks covered workspace cleanup and normal close/reopen recovery. For later revisions, check [GitHub Actions](https://github.com/skytuhua-org/Gen-V1/actions) for the exact commit; source CI does not verify an installed upgrade. Earlier genuine OpenAI/Hermes task verification is documented in [the acceptance report](../2026-11-01-product-completion.md); it does not prove every later build or connection.
+The 0.6.4 source preview passed its Windows CI run. Focused native candidate checks covered workspace cleanup and normal close/reopen recovery. For later revisions, check [GitHub Actions](https://github.com/skytuhua-org/Gen-V1/actions) for the exact commit; source CI does not verify an installed upgrade. Earlier genuine OpenAI/Hermes task verification is documented in [the acceptance report](../archive/2026-11-01-product-completion.md); it does not prove every later build or connection.
 
 ### Pending 0.6.5 freeze gates (not yet merged)
 

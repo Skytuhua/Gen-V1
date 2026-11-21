@@ -6,7 +6,7 @@ This delivery covers one document interaction. Capability expansion and the 36-r
 
 The generated card uses a 640 px frame, two equal panes, a focused PDF region, one current question, compact choices and a quiet step footer. Preview controls appear on hover or keyboard focus. The signature step focuses its declared mark area. Narrow layouts put the current question before the scrollable document.
 
-The [supplied signing reference](reference/signing-18.png) is tracked here. The original milestone recorded light, dark and narrow captures and the completed export from a real Pi task using a synthetic PDF. Those result captures are not tracked in this checkout. Earlier hand-authored renderer fixtures are separate from that run.
+The [supplied signing reference](../reference/signing-18.png) is tracked here. The original milestone recorded light, dark and narrow captures and the completed export from a real Pi task using a synthetic PDF. Those result captures are not tracked in this checkout. Earlier hand-authored renderer fixtures are separate from that run.
 
 ## Genuine execution
 

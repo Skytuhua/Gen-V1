@@ -217,6 +217,6 @@ See [the prerelease notes](https://github.com/skytuhua-org/Gen-V1/releases/tag/v
 - Enable generated-app **Preview** discovery and execution after actual-host checkpoint, recovery, startup-failure and responsiveness checks.
 - Preserve the original Hermes conversation/skill-learning implementation and pinned source custody.
 
-Verification included 1,040 passing application checks, 14 packaged native checks and genuine packaged OpenAI/Hermes task/restart acceptance. Other provider sign-ins, installer upgrade acceptance and physical multi-monitor checks remain open. See [the acceptance report](docs/2026-11-01-product-completion.md).
+Verification included 1,040 passing application checks, 14 packaged native checks and genuine packaged OpenAI/Hermes task/restart acceptance. Other provider sign-ins, installer upgrade acceptance and physical multi-monitor checks remain open. See [the acceptance report](docs/archive/2026-11-01-product-completion.md).
 
 Earlier development milestones retain their original evidence in the historical documentation. They should not be treated as validation of later changes.
