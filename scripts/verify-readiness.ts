@@ -109,6 +109,12 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
       if(!unsafeControlOutput&&carry[source]){
         const checked=normalizeTerminalLine(carry[source]);
         if(unsafeControlOutput)stream.write(checked+'\n');
+        else if(begin.test(checked)){
+          // A complete key header without a newline is already secret-bearing.
+          // Suppress other-pipe output before the header's line can finish.
+          unsafeControlOutput=true;
+          stream.write('[REDACTED PRIVATE KEY]\n');
+        }
       }
       taintedCarry[source]=suppressOther||(lines.length===0&&carryWasTainted);
     },
