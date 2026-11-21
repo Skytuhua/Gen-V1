@@ -3481,6 +3481,7 @@
     "tests/source-workbench-hermes-v3.test.ts",
     "tests/source-workbench-host-v3.test.ts",
     "tests/source-workbench-memory-v3.test.ts",
+    "tests/scripts-helpers-1009.test.ts",
     "tests/split-app-browser.test.ts",
     "tests/split-thread-placement.test.ts",
     "tests/split-tool-placement.test.ts",
