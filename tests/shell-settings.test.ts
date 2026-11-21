@@ -31,10 +31,10 @@ describe('recoverable browser shell layout', () => {
 describe('pinned T3 settings inventory', () => {
   it('preserves the exact pinned row content and ordering', () => {
     // Frozen before the representation change: covers every ID, title, section and search term.
-    expect(createHash('sha256').update(JSON.stringify(T3_SETTINGS_ROWS)).digest('hex')).toBe('2893f2e3a1de79b9c628ac73fe7670c686088f86c9f18acce61df3936c1d727e');
+    expect(createHash('sha256').update(JSON.stringify(T3_SETTINGS_ROWS)).digest('hex')).toBe('360d9608a0f824da5c4fb951504566fed17f2144f0a8175121412b19f491255d');
   });
   it('retains the historical inventory as evidence and exposes supported consolidated navigation', () => {
-    expect(T3_SETTINGS_ROWS).toHaveLength(136);
+    expect(T3_SETTINGS_ROWS).toHaveLength(137);
     expect(SETTINGS_SECTIONS).toHaveLength(12);
     expect(SETTINGS_ROWS.find(row=>row.id==='harness-integrations')).toMatchObject({section:'skills',title:'Bundled integrations'});
     expect(SETTINGS_SECTIONS).toContainEqual(['skills', 'Skills & Integrations']);

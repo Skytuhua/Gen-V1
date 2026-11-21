@@ -1,0 +1,20 @@
+.database-settings { display:flex; flex-direction:column; gap:var(--ui-space-2); }
+.database-settings-head { display:flex; align-items:center; justify-content:space-between; }
+.database-settings-head h2 { margin:0; font-size:14px; font-weight:600; }
+.database-settings-head .primary { display:inline-flex; align-items:center; gap:6px; }
+.database-settings-row { display:flex; align-items:center; gap:var(--ui-space-2); min-height:54px; padding:6px var(--ui-space-3); border:1px solid var(--border); border-radius:8px; }
+.database-settings-icon { color:var(--muted); flex:none; }
+.database-settings-copy { display:flex; flex-direction:column; gap:2px; min-width:0; flex:1; }
+.database-settings-copy strong { font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.database-settings-copy .muted { font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.database-dialog { width:520px; }
+.database-dialog-body { display:flex; flex-direction:column; gap:var(--ui-space-2); }
+.database-engine { display:flex; gap:0; border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:var(--ui-space-2); }
+.database-engine button { flex:1; min-height:36px; background:transparent; color:var(--muted); border:0; font-size:13px; cursor:pointer; transition:background var(--ui-motion-hover), color var(--ui-motion-hover); }
+.database-engine button + button { border-left:1px solid var(--border); }
+.database-engine button.selected { background:var(--accent-soft); color:var(--text); }
+.database-engine button:active { transform:scale(.97); transition-duration:var(--ui-motion-press); }
+.database-password-hint { font-size:12px; margin:2px 0 0; }
+.database-dialog-actions { display:flex; align-items:center; gap:var(--ui-space-3); min-height:28px; }
+.database-dialog-actions .database-test-ok { display:inline-flex; align-items:center; gap:6px; color:var(--success); font-size:12px; }
+.database-dialog-footer { display:flex; justify-content:flex-end; gap:var(--ui-space-2); margin-top:var(--ui-space-2); }

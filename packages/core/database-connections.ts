@@ -65,6 +65,9 @@ export class DatabaseConnectionService {
 	connections(): DatabaseConnectionV1[] {
 		return this.store.all<DatabaseConnectionV1>('databaseConnection').map(row => databaseConnectionV1Schema.parse(row));
 	}
+	allAttachments(): DatabaseAttachmentV1[] {
+		return this.store.all<DatabaseAttachmentV1>('databaseAttachment').map(row => databaseAttachmentV1Schema.parse(row));
+	}
 	attachments(threadId: string): DatabaseAttachmentV1[] {
 		return this.store.all<DatabaseAttachmentV1>('databaseAttachment', threadId).map(row => databaseAttachmentV1Schema.parse(row));
 	}
